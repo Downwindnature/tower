@@ -74,12 +74,12 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   background:linear-gradient(180deg,rgba(40,30,60,.99),rgba(22,16,36,1));
   border:1px solid var(--line);box-shadow:0 18px 44px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.05);}
 .settingsMenu.open{display:flex;}
-.setRow{display:flex;align-items:center;gap:11px;padding:3px;border-radius:var(--r-s);}
+.setRow{display:flex;align-items:center;gap:11px;padding:3px;border-radius:var(--r-s);cursor:pointer;}
 .setRow:hover{background:rgba(255,255,255,.05);}
 .setRow .iconbtn{width:34px;height:32px;font-size:15px;flex:0 0 auto;}
 .setRow .setLab{font-size:13px;font-weight:600;color:var(--txt);white-space:nowrap;}
 .setRow .setIcon{width:34px;text-align:center;font-size:15px;flex:0 0 auto;}
-.setRow.langRow{padding-top:6px;margin-top:4px;border-top:1px solid var(--line);}
+.setRow.langRow{padding-top:6px;margin-top:4px;border-top:1px solid var(--line);cursor:default;}
 .langRow select.langsel{flex:1;height:32px;}
 
 /* ============ Main ============ */
@@ -519,7 +519,9 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .tsBtn:active{transform:translateY(1px);}
 .tsBtn.tsStart{transform:scale(1.07);color:#2a1c06;border-color:var(--gold-d);background:linear-gradient(180deg,#f6d488,var(--gold) 60%,var(--gold-d));box-shadow:0 3px 0 #6b4914;}
 .tsBtn.tsStart:hover{transform:scale(1.07) translateY(-2px);box-shadow:0 6px 0 #6b4914,0 0 28px var(--gold-glow);}
-.tsAcct{position:absolute;top:14px;right:16px;display:flex;align-items:center;gap:8px;}
+.tsAcct{position:absolute;top:14px;right:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100vw - 32px);}
+.ssLang{display:inline-flex;align-items:center;gap:5px;}
+.ssLangGlobe{font-size:15px;line-height:1;}
 .rankBody{max-height:52vh;overflow:auto;margin:8px 0;}
 .rankRow{display:grid;grid-template-columns:34px 1fr 74px 42px 52px;gap:8px;align-items:center;padding:7px 8px;border-radius:8px;font-size:13px;}
 .rankRow:nth-child(even){background:rgba(255,255,255,.035);}
@@ -1245,6 +1247,13 @@ select.langsel option{color:#15151c;background:#eef0f7;}
     <button class="tsBtn" id="tsManual"><span id="tsManualLab">遊戲說明</span></button>
   </div>
   <div class="tsAcct">
+    <span class="ssLang"><span class="ssLangGlobe" aria-hidden="true">🌐</span><select class="langsel" id="ssLangSel">
+      <option value="zh-Hant">繁體中文</option>
+      <option value="zh-Hans">简体中文</option>
+      <option value="en">English</option>
+      <option value="ja">日本語</option>
+      <option value="ko">한국어</option>
+    </select></span>
     <button class="ssAcctBtn" id="ssAccount">👤 <span id="ssAccountLab">登入 / 帳號</span></button>
     <span class="ssAcctStat" id="ssAcctStat"></span>
   </div>
@@ -4031,6 +4040,7 @@ function toast(msg){
 /* ============================== Language ============================== */
 function applyLang(){
   document.documentElement.lang=state.lang;
+  { const _ls=byId('langSel'); if(_ls) _ls.value=state.lang; const _ss=byId('ssLangSel'); if(_ss) _ss.value=state.lang; }
   byId('gameTitle').textContent=t('title');
   { var _fn=byId('floorNum'); if(_fn) _fn.textContent=floorTitle((typeof state!=='undefined'&&state.floor)||1); }
   byId('statusLabel').textContent=t('ui.status');
@@ -4272,6 +4282,7 @@ function bindInput(){
       _bSet.addEventListener('click',function(ev){ ev.stopPropagation(); _menu.classList.toggle('open'); });
       _menu.addEventListener('click',function(ev){ ev.stopPropagation(); });   /* clicks inside stay open (e.g. the language picker) */
       const acts=_menu.querySelectorAll('.iconbtn'); for(let i=0;i<acts.length;i++){ acts[i].addEventListener('click',function(){ _menu.classList.remove('open'); }); }   /* picking an action closes the menu */
+      _menu.addEventListener('click',function(ev){ if(ev.target.closest('.iconbtn')||ev.target.closest('select')||ev.target.closest('option')) return; const row=ev.target.closest('.setRow'); if(!row||row.classList.contains('langRow')) return; const b=row.querySelector('.iconbtn'); if(b) b.click(); });   /* whole row is clickable, not just the icon */
       document.addEventListener('click',function(){ _menu.classList.remove('open'); });   /* tap anywhere else to close */
     } }
 
@@ -4284,6 +4295,7 @@ function bindInput(){
   byId('langSel').addEventListener('change',function(e){
     state.lang=e.target.value; applyLang(); { const _m=byId('settingsMenu'); if(_m) _m.classList.remove('open'); }
   });
+  { const _ssl=byId('ssLangSel'); if(_ssl) _ssl.addEventListener('change',function(e){ state.lang=e.target.value; applyLang(); }); }
 
   { let _rzT=null; window.addEventListener('resize',function(){ if(!state.player) return; clearTimeout(_rzT); _rzT=setTimeout(function(){ try{ renderAll(); }catch(e){} }, 150); }); }
   bindMpInput();
@@ -5540,13 +5552,13 @@ function buildAdminTabs(){
     if(h2&&h2.parentNode) h2.parentNode.insertBefore(tb, h2.nextSibling);
     else { const m=document.querySelector('.adminModal'); if(m) m.insertBefore(tb, m.children[1]||null); }
   }
-  tb.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 12px;width:100%;padding:7px;background:rgba(0,0,0,.28);border:1px solid var(--gold-d);border-radius:12px;box-sizing:border-box;';
+  tb.style.cssText='display:block;width:100%;margin:0 0 12px;padding:7px;background:rgba(0,0,0,.28);border:1px solid var(--gold-d);border-radius:12px;box-sizing:border-box;font-size:0;';
   const TAB_LBL={monsters:'怪物',boss:'魔王',player:'玩家',map:'地圖',fx:'特效',items:'寶物',skills:'技能',sounds:'聲音',data:'資料'};
   let h='';
   ADMIN_TABS.forEach(function(pp){
     const sel=(pp[0]===adminTab);
     let lab=t('admin.'+pp[1]); if(!lab || lab==='admin.'+pp[1]) lab=TAB_LBL[pp[0]]||pp[0];
-    const st='display:block;width:100%;box-sizing:border-box;padding:9px 6px;border-radius:9px;font-size:13px;font-weight:700;line-height:1.15;text-align:center;cursor:pointer;'+
+    const st='display:inline-block!important;box-sizing:border-box;min-width:62px;min-height:34px;padding:8px 10px;margin:3px;border-radius:9px;font-size:13px;font-weight:700;line-height:1.15;text-align:center;cursor:pointer;vertical-align:top;'+
       (sel? 'color:#2a1c06;background:linear-gradient(180deg,#f6d488,#e8b04b 60%,#a9772a);border:1.5px solid #a9772a;box-shadow:0 2px 0 #6b4914;'
           : 'color:#efe7da;background:#3a2c55;border:1.5px solid #c79a45;');
     h+='<button type="button" class="adTab'+(sel?' sel':'')+'" data-tab="'+pp[0]+'" id="'+pp[2]+'" style="'+st+'">'+lab+'</button>';
@@ -5557,7 +5569,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·6 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·8 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5565,7 +5577,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·6 [n='+_tb.children.length+' d='+getComputedStyle(_tb).display+' h='+_tb.offsetHeight+' bw='+(_b0?_b0.offsetWidth:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·8 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
