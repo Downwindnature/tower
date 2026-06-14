@@ -5540,14 +5540,16 @@ function buildAdminTabs(){
     if(h2&&h2.parentNode) h2.parentNode.insertBefore(tb, h2.nextSibling);
     else { const m=document.querySelector('.adminModal'); if(m) m.insertBefore(tb, m.children[1]||null); }
   }
-  tb.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;width:100%;padding:7px;background:rgba(0,0,0,.28);border:1px solid var(--gold-d);border-radius:11px;position:relative;z-index:3;min-height:38px;box-sizing:border-box;';
+  tb.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 12px;width:100%;padding:7px;background:rgba(0,0,0,.28);border:1px solid var(--gold-d);border-radius:12px;box-sizing:border-box;';
+  const TAB_LBL={monsters:'怪物',boss:'魔王',player:'玩家',map:'地圖',fx:'特效',items:'寶物',skills:'技能',sounds:'聲音',data:'資料'};
   let h='';
   ADMIN_TABS.forEach(function(pp){
     const sel=(pp[0]===adminTab);
-    const st='flex:1 1 auto;min-width:64px;padding:9px 8px;border-radius:9px;font-size:13px;font-weight:700;line-height:1.1;cursor:pointer;'+
+    let lab=t('admin.'+pp[1]); if(!lab || lab==='admin.'+pp[1]) lab=TAB_LBL[pp[0]]||pp[0];
+    const st='display:block;width:100%;box-sizing:border-box;padding:9px 6px;border-radius:9px;font-size:13px;font-weight:700;line-height:1.15;text-align:center;cursor:pointer;'+
       (sel? 'color:#2a1c06;background:linear-gradient(180deg,#f6d488,#e8b04b 60%,#a9772a);border:1.5px solid #a9772a;box-shadow:0 2px 0 #6b4914;'
           : 'color:#efe7da;background:#3a2c55;border:1.5px solid #c79a45;');
-    h+='<button type="button" class="adTab'+(sel?' sel':'')+'" data-tab="'+pp[0]+'" id="'+pp[2]+'" style="'+st+'">'+t('admin.'+pp[1])+'</button>';
+    h+='<button type="button" class="adTab'+(sel?' sel':'')+'" data-tab="'+pp[0]+'" id="'+pp[2]+'" style="'+st+'">'+lab+'</button>';
   });
   tb.innerHTML=h; return tb;
 }
@@ -5555,7 +5557,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·5 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·6 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5563,7 +5565,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·5 [n='+_tb.children.length+' d='+getComputedStyle(_tb).display+' h='+_tb.offsetHeight+' bw='+(_b0?_b0.offsetWidth:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·6 [n='+_tb.children.length+' d='+getComputedStyle(_tb).display+' h='+_tb.offsetHeight+' bw='+(_b0?_b0.offsetWidth:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
