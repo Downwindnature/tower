@@ -1216,7 +1216,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   <h2 id="endTitle"></h2>
   <p class="desc" id="endDesc"></p>
   <div class="endStats" id="endStats"></div>
-  <div id="endRankWrap" style="display:none;justify-content:center;margin-top:14px"><button class="btn" id="endRankBtn"></button></div>
+  <div id="endRankWrap" style="display:none;flex-direction:column;align-items:center;gap:8px;margin-top:14px"><input id="endRankName" type="text" maxlength="12" autocomplete="off" style="display:none;width:200px;max-width:80%;padding:8px 12px;border-radius:8px;border:1px solid var(--gold-d);background:rgba(20,16,34,.85);color:#f3ead2;text-align:center;font-size:14px"><button class="btn" id="endRankBtn"></button></div>
   <div class="closeRow" style="justify-content:center;gap:10px"><button class="btn" id="endHome"><span id="endHomeLab">回到主畫面</span></button><button class="btn gold" id="endRestart"><span id="endBtnLab">再次挑戰</span></button></div>
 </div></div>
 
@@ -3551,9 +3551,9 @@ const SAVE_SLOTS=5;
 let _saveBusy=false;
 function _saveFloorLabel(f){ if(f==null) return '?'; return (f>0) ? (f+'F') : ('B'+(-f)); }
 function _saveTimeLabel(ts){ if(!ts) return ''; const d=new Date(ts); const p=function(n){ return (n<10?'0':'')+n; }; return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
-function saveSlotRef(idx){ return Net.db.ref('players/'+Account.user.uid+'/slots/'+idx); }
+function saveSlotRef(idx){ return Net.db.ref('players/'+Net.uid+'/slots/'+idx); }
 function doSlotSave(idx){
-  if(!Account.user || !Net.db){ toast(t('save.loginFirst')); return; }
+  if(!Net.uid || !Net.db){ toast(t('save.loginFirst')); return; }
   if(!state.player || state.mode!=='solo' || state.over){ toast(t('save.noRun')); return; }
   if(_saveBusy) return; _saveBusy=true;
   const run=serializeRun();
@@ -3563,7 +3563,7 @@ function doSlotSave(idx){
     .catch(function(e){ _saveBusy=false; toast(t('save.failed')); });
 }
 function doSlotLoad(idx){
-  if(!Account.user || !Net.db){ toast(t('save.loginFirst')); return; }
+  if(!Net.uid || !Net.db){ toast(t('save.loginFirst')); return; }
   saveSlotRef(idx).once('value').then(function(snap){
     const rec=snap.val(); let run=null;
     try{ run=(rec && typeof rec.json==='string') ? JSON.parse(rec.json) : null; }catch(e){ run=null; }
@@ -3587,9 +3587,9 @@ function refreshAllSlots(){
 function renderSlotsInto(body){
   if(!body) return;
   if(typeof Net==='undefined' || !Net.configured()){ body.innerHTML='<div class="saveHint">'+t('save.noFirebase')+'</div>'; return; }
-  if(!Account.user){ body.innerHTML='<div class="saveHint">'+t('save.loginFirst')+'</div>'; return; }
+  if(!Net.uid){ body.innerHTML='<div class="saveHint">'+t('save.loginFirst')+'</div>'; return; }
   body.innerHTML='<div class="saveHint">'+t('save.loading')+'</div>';
-  Net.db.ref('players/'+Account.user.uid+'/slots').once('value').then(function(snap){
+  Net.db.ref('players/'+Net.uid+'/slots').once('value').then(function(snap){
     const slots=snap.val()||{}; body.innerHTML='';
     const canSave = !!(state.player && state.mode==='solo' && !state.over);
     for(let i=1;i<=SAVE_SLOTS;i++){
@@ -3629,7 +3629,7 @@ function renderSavePanel(){
   byId('saveTitle').textContent=t('save.title');
   byId('saveDesc').textContent=t('save.desc');
   const body=byId('saveBody'); if(!body) return;
-  if(typeof Net!=='undefined' && Net.configured() && !Account.user){
+  if(typeof Net!=='undefined' && Net.configured() && !Net.uid){
     body.innerHTML='';
     const hh=document.createElement('div'); hh.className='saveHint';
     hh.innerHTML=t('save.loginFirst')+'<br><button class="btn gold" id="saveLoginBtn">'+t('save.loginBtn')+'</button>';
@@ -3971,11 +3971,13 @@ function endScreen(win){
   const cell=function(k,v){return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';};
   es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv)+cell(t('end.kills'),state.kills)+
                cell(t('end.gold'),pl.gold)+cell(t('end.atk'),effAtk(pl))+cell(t('end.def'),effDef(pl));
-  { const _rw=byId('endRankWrap'), _rb=byId('endRankBtn');
-    if(_rw&&_rb){ const _can = win && (typeof Account!=='undefined' && Account.user && typeof Net!=='undefined' && Net.db);
+  { const _rw=byId('endRankWrap'), _rb=byId('endRankBtn'), _ri=byId('endRankName');
+    if(_rw&&_rb){ const _can = win && (typeof Net!=='undefined' && Net.db && Net.uid);
       _rw.style.display = _can ? 'flex' : 'none';
-      if(_can){ _rb.disabled=false; _rb.textContent=t('end.submitRank');
-        _rb.onclick=function(){ try{ recordLeaderboard(); }catch(e){} _rb.disabled=true; _rb.textContent=t('end.submitted'); }; } } }
+      if(_can){ const _logged = !!(typeof Account!=='undefined' && Account.user);
+        if(_ri){ _ri.style.display = _logged ? 'none' : ''; _ri.disabled=false; if(!_logged){ try{ _ri.value=(localStorage.getItem('mt_name')||''); }catch(e){} _ri.placeholder=t('rank.namePh'); } }
+        _rb.disabled=false; _rb.textContent=t('end.submitRank');
+        _rb.onclick=function(){ if(!_logged && _ri){ const _nm=(_ri.value||'').trim(); if(_nm){ try{ localStorage.setItem('mt_name', _nm.slice(0,12)); }catch(e){} } } try{ recordLeaderboard(); }catch(e){} _rb.disabled=true; _rb.textContent=t('end.submitted'); if(_ri) _ri.disabled=true; }; } } }
   show('endScreen');
 }
 
@@ -4633,6 +4635,7 @@ const Net = {
       this.app = (firebase.apps && firebase.apps.length) ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
       this.auth = firebase.auth(); this.db = firebase.database();
       const self=this;
+      if(!this._cfgLoaded){ this._cfgLoaded=true; this.loadConfig(); }   // gameConfig is public-read -> apply custom data even for logged-out players
       this.auth.onAuthStateChanged(function(u){
         if(u){
           self.uid=u.uid; self.ready=true;
@@ -4850,11 +4853,11 @@ function _esc(x){ return (''+x).replace(/[<>&"]/g,function(c){ return ({'<':'&lt
 function fmtMs(ms){ ms=ms||0; const s=Math.floor(ms/1000); const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; const mm=(h>0&&m<10)?('0'+m):(''+m); const sx=ss<10?('0'+ss):(''+ss); return (h>0?(h+':'):'')+mm+':'+sx; }
 function _lbName(){ let n=''; try{ n=(localStorage.getItem('mt_name')||'').trim(); }catch(e){} if(!n && typeof Account!=='undefined' && Account.user && Account.user.email) n=(''+Account.user.email).split('@')[0]; return n||t('rank.name'); }
 function recordLeaderboard(){
-  if(typeof Account==='undefined' || !Account.user || typeof Net==='undefined' || !Net.db) return;
+  if(typeof Net==='undefined' || !Net.db || !Net.uid) return;
   const pl=state.player; if(!pl) return;
   const ms = state.startTime ? (Date.now()-state.startTime) : 0;
   const rec = { name:_lbName(), lv:pl.lv||1, kills:state.kills||0, gold:pl.gold||0, atk:effAtk(pl), def:effDef(pl), floor:(state.maxFloor||state.floor||1), ms:ms, ts:Date.now() };
-  try{ const ref=Net.db.ref('leaderboard/'+Account.user.uid);
+  try{ const ref=Net.db.ref('leaderboard/'+Net.uid);
     ref.once('value').then(function(snap){ const prev=snap.val(); if(!prev || !prev.ms || (ms>0 && ms<prev.ms)) ref.set(rec); }).catch(function(){});
   }catch(e){}
 }
@@ -5195,11 +5198,11 @@ const I18N_ADMIN2 = {
 
 /* ---- title screen + leaderboard i18n ---- */
 const I18N_TS = {
-'zh-Hant':{ts:{start:'開始遊戲',manual:'遊戲說明',rank:'排行榜',resume:'繼續遊戲'},rank:{title:'排行榜',empty:'目前還沒有破關紀錄',noCloud:'排行榜需要登入雲端帳號',name:'玩家',time:'時間',kills:'擊殺'}},
-'zh-Hans':{ts:{start:'开始游戏',manual:'游戏说明',rank:'排行榜',resume:'继续游戏'},rank:{title:'排行榜',empty:'目前还没有通关纪录',noCloud:'排行榜需要登录云端账号',name:'玩家',time:'时间',kills:'击杀'}},
-'en':{ts:{start:'Start Game',manual:'How to Play',rank:'Ranking',resume:'Resume'},rank:{title:'Ranking',empty:'No clears recorded yet',noCloud:'Ranking needs a cloud account',name:'Player',time:'Time',kills:'Kills'}},
-'ja':{ts:{start:'ゲーム開始',manual:'遊び方',rank:'ランキング',resume:'再開'},rank:{title:'ランキング',empty:'まだクリア記録がありません',noCloud:'ランキングはクラウドログインが必要です',name:'プレイヤー',time:'タイム',kills:'撃破'}},
-'ko':{ts:{start:'게임 시작',manual:'게임 설명',rank:'순위표',resume:'이어하기'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치'}}
+'zh-Hant':{ts:{start:'開始遊戲',manual:'遊戲說明',rank:'排行榜',resume:'繼續遊戲'},rank:{title:'排行榜',empty:'目前還沒有破關紀錄',noCloud:'排行榜需要登入雲端帳號',name:'玩家',time:'時間',kills:'擊殺',namePh:'輸入暱稱'}},
+'zh-Hans':{ts:{start:'开始游戏',manual:'游戏说明',rank:'排行榜',resume:'继续游戏'},rank:{title:'排行榜',empty:'目前还没有通关纪录',noCloud:'排行榜需要登录云端账号',name:'玩家',time:'时间',kills:'击杀',namePh:'输入昵称'}},
+'en':{ts:{start:'Start Game',manual:'How to Play',rank:'Ranking',resume:'Resume'},rank:{title:'Ranking',empty:'No clears recorded yet',noCloud:'Ranking needs a cloud account',name:'Player',time:'Time',kills:'Kills',namePh:'Enter a nickname'}},
+'ja':{ts:{start:'ゲーム開始',manual:'遊び方',rank:'ランキング',resume:'再開'},rank:{title:'ランキング',empty:'まだクリア記録がありません',noCloud:'ランキングはクラウドログインが必要です',name:'プレイヤー',time:'タイム',kills:'撃破',namePh:'ニックネームを入力'}},
+'ko':{ts:{start:'게임 시작',manual:'게임 설명',rank:'순위표',resume:'이어하기'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치',namePh:'닉네임 입력'}}
 };
 (function mergeTs(){ for(const L in I18N_TS){ if(!I18N[L]) continue; const o=I18N_TS[L]; for(const ns in o){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, o[ns]); } } })();
 const I18N_ACH = {
@@ -5446,19 +5449,19 @@ function serializeRun(){
            kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
 }
 function cloudSave(now){
-  if(typeof Account==='undefined' || !Account.user || !Net.db) return;
+  if(typeof Net==='undefined' || !Net.db || !Net.uid) return;
   if(state.mode!=='solo' || !state.player || state.over) return;
   const doSave=function(){
-    Net.db.ref('players/'+Account.user.uid).update({
-      email: Account.user.email||'', updatedAt: Net.ts(), save: serializeRun()
+    Net.db.ref('players/'+Net.uid).update({
+      email: (typeof Account!=='undefined'&&Account.user&&Account.user.email)||'', updatedAt: Net.ts(), save: serializeRun()
     }).catch(function(e){ console.warn('cloud save failed', e); });
   };
   if(now){ clearTimeout(saveTimer); doSave(); return; }
   clearTimeout(saveTimer); saveTimer=setTimeout(doSave, 1500);   /* debounce bursts */
 }
 function cloudLoad(cb){
-  if(!Account.user || !Net.db){ if(cb)cb(false); return; }
-  Net.db.ref('players/'+Account.user.uid+'/save').once('value').then(function(snap){
+  if(!Net.uid || !Net.db){ if(cb)cb(false); return; }
+  Net.db.ref('players/'+Net.uid+'/save').once('value').then(function(snap){
     const s=snap.val();
     Account._pendingSave = (s && s.player)? s : null;
     if(cb) cb(!!Account._pendingSave);
@@ -5622,7 +5625,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·16 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·17 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5630,7 +5633,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·16 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·17 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
