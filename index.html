@@ -830,13 +830,15 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .ssAcctBtn{font-size:13px;color:var(--txt-dim);background:var(--stone-d);border:1px solid var(--line);border-radius:9px;padding:8px 16px;font-weight:600;}
 .ssAcctBtn:active{transform:translateY(1px);}
 .ssAcctStat{font-size:11px;color:var(--gold);min-height:14px;}
+.ssAcctStat.clickable{cursor:pointer;text-decoration:underline;text-underline-offset:2px;font-size:13px;font-weight:600;}
+.ssAcctStat.clickable:hover{color:#f6d488;}
 .authBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
 /* admin backend */
 .adminModal{max-width:560px;width:94vw;}
 .adminTabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-.adTab{flex:1;min-width:60px;padding:8px 6px;border-radius:9px;font-size:12px;font-weight:700;color:var(--txt-dim);
+.mtTab{flex:1;min-width:60px;padding:8px 6px;border-radius:9px;font-size:12px;font-weight:700;color:var(--txt-dim);
   background:linear-gradient(180deg,var(--stone-l),var(--stone));border:1px solid var(--line);box-shadow:0 2px 0 var(--stone-d);}
-.adTab.sel{color:#2a1c06;background:linear-gradient(180deg,#f6d488,var(--gold) 60%,var(--gold-d));border-color:var(--gold-d);box-shadow:0 2px 0 #6b4914;}
+.mtTab.sel{color:#2a1c06;background:linear-gradient(180deg,#f6d488,var(--gold) 60%,var(--gold-d));border-color:var(--gold-d);box-shadow:0 2px 0 #6b4914;}
 #adminBody{max-height:52vh;overflow:auto;}
 .adRowItem{border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-bottom:8px;background:var(--stone-d);}
 .adRowItem .adName{font-weight:800;font-size:13px;color:var(--txt);margin-bottom:6px;display:flex;align-items:center;gap:7px;}
@@ -1395,15 +1397,15 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 <div class="overlay" id="adminScreen"><div class="modal adminModal">
   <h2><span class="ic">⚙️</span><span id="adminTitle">管理員後台</span></h2>
   <div class="adminTabs">
-    <button class="adTab sel" data-tab="monsters" id="adTabMon">怪物</button>
-    <button class="adTab" data-tab="boss" id="adTabBoss">魔王</button>
-    <button class="adTab" data-tab="player" id="adTabPlayer">玩家</button>
-    <button class="adTab" data-tab="map" id="adTabMap">地圖</button>
-    <button class="adTab" data-tab="fx" id="adTabFx">特效</button>
-    <button class="adTab" data-tab="items" id="adTabItems">寶物</button>
-    <button class="adTab" data-tab="skills" id="adTabSkills">技能</button>
-    <button class="adTab" data-tab="sounds" id="adTabSounds">聲音</button>
-    <button class="adTab" data-tab="data" id="adTabData">資料</button>
+    <button class="mtTab sel" data-tab="monsters" id="mtTabMon">怪物</button>
+    <button class="mtTab" data-tab="boss" id="mtTabBoss">魔王</button>
+    <button class="mtTab" data-tab="player" id="mtTabPlayer">玩家</button>
+    <button class="mtTab" data-tab="map" id="mtTabMap">地圖</button>
+    <button class="mtTab" data-tab="fx" id="mtTabFx">特效</button>
+    <button class="mtTab" data-tab="items" id="mtTabItems">寶物</button>
+    <button class="mtTab" data-tab="skills" id="mtTabSkills">技能</button>
+    <button class="mtTab" data-tab="sounds" id="mtTabSounds">聲音</button>
+    <button class="mtTab" data-tab="data" id="mtTabData">資料</button>
   </div>
   <div id="adminBody"></div>
   <input type="file" accept="image/*" id="admImgFile" style="display:none">
@@ -5503,9 +5505,10 @@ function updateAuthUI(){
   if(typeof _syncAdminEnterBtn==='function') _syncAdminEnterBtn();
   const stat=byId('ssAcctStat');
   if(stat){
-    if(logged) stat.textContent='👤 '+(Account.user.email||'');
-    else stat.textContent = (typeof Net!=='undefined' && Net.configured())? '' : t('acct.guestOnly');
+    if(logged){ stat.textContent='👤 '+(Account.user.email||''); stat.classList.add('clickable'); }
+    else { stat.textContent = (typeof Net!=='undefined' && Net.configured())? '' : t('acct.guestOnly'); stat.classList.remove('clickable'); }
   }
+  { const _ab=byId('ssAccount'); if(_ab) _ab.style.display = logged ? 'none' : ''; }
 }
 function openAuth(){ updateAuthUI(); byId('authMsg').textContent=''; show('authScreen'); }
 function authDo(kind){
@@ -5543,7 +5546,7 @@ function doCloudLoad(){
 
 /* ---- admin backend ---- */
 let adminDraft=null, adminTab='monsters';
-const ADMIN_TABS=[['monsters','tabMon','adTabMon'],['boss','tabBoss','adTabBoss'],['player','tabPlayer','adTabPlayer'],['map','tabMap','adTabMap'],['fx','tabFx','adTabFx'],['items','tabItems','adTabItems'],['skills','tabSkills','adTabSkills'],['sounds','tabSounds','adTabSounds'],['data','tabData','adTabData']];
+const ADMIN_TABS=[['monsters','tabMon','mtTabMon'],['boss','tabBoss','mtTabBoss'],['player','tabPlayer','mtTabPlayer'],['map','tabMap','mtTabMap'],['fx','tabFx','mtTabFx'],['items','tabItems','mtTabItems'],['skills','tabSkills','mtTabSkills'],['sounds','tabSounds','mtTabSounds'],['data','tabData','mtTabData']];
 function buildAdminTabs(){
   let tb=document.querySelector('.adminTabs');
   if(!tb){
@@ -5561,7 +5564,7 @@ function buildAdminTabs(){
     const st='display:inline-block!important;box-sizing:border-box;min-width:62px;min-height:34px;padding:8px 10px;margin:3px;border-radius:9px;font-size:13px;font-weight:700;line-height:1.15;text-align:center;cursor:pointer;vertical-align:top;'+
       (sel? 'color:#2a1c06;background:linear-gradient(180deg,#f6d488,#e8b04b 60%,#a9772a);border:1.5px solid #a9772a;box-shadow:0 2px 0 #6b4914;'
           : 'color:#efe7da;background:#3a2c55;border:1.5px solid #c79a45;');
-    h+='<button type="button" class="adTab'+(sel?' sel':'')+'" data-tab="'+pp[0]+'" id="'+pp[2]+'" style="'+st+'">'+lab+'</button>';
+    h+='<button type="button" class="mtTab'+(sel?' sel':'')+'" data-tab="'+pp[0]+'" id="'+pp[2]+'" style="'+st+'">'+lab+'</button>';
   });
   tb.innerHTML=h; return tb;
 }
@@ -5569,7 +5572,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·8 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·9 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5577,7 +5580,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·8 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·9 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -5874,6 +5877,7 @@ function adminResetDefaults(){ if(!DEFAULT_CONFIG) return; adminDraft=JSON.parse
 /* ---- bind account & admin UI (called from boot) ---- */
 function bindAccountAdmin(){
   const ss=byId('ssAccount'); if(ss) ss.addEventListener('click', openAuth);
+  { const _stat=byId('ssAcctStat'); if(_stat) _stat.addEventListener('click', function(){ if(typeof Account!=='undefined' && Account.user) openAuth(); }); }
   byId('authLogin').addEventListener('click', function(){ authDo('login'); });
   byId('authRegister').addEventListener('click', function(){ authDo('register'); });
   { const _g=byId('authGoogle'); if(_g) _g.addEventListener('click', function(){ authOAuth('google'); }); }
@@ -5903,7 +5907,7 @@ function bindAccountAdmin(){
   byId('adminEnterBtn').addEventListener('click', function(){ openAdmin(); });
   bindLongPressTitle();
   ['adminLoginEmail','adminLoginPass'].forEach(function(id){ const el=byId(id); if(el) el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); adminLoginDo(); } }); });
-  { const _tb=document.querySelector('.adminTabs'); if(_tb){ _tb.addEventListener('click', function(ev){ const b=ev.target.closest('.adTab'); if(!b||!_tb.contains(b)) return; collectAdminDraft(); setAdminTab(b.dataset.tab); }); } }
+  { const _tb=document.querySelector('.adminTabs'); if(_tb){ _tb.addEventListener('click', function(ev){ const b=ev.target.closest('.mtTab'); if(!b||!_tb.contains(b)) return; collectAdminDraft(); setAdminTab(b.dataset.tab); }); } }
   byId('adminApply').addEventListener('click', adminApplyLocal);
   byId('adminSaveCloud').addEventListener('click', adminSaveToCloud);
   byId('adminReset').addEventListener('click', adminResetDefaults);
