@@ -4436,13 +4436,32 @@ function _bgmWantKey(){
   if(!_bgmUnlocked) return null;
   return bgmKeyForFloor(state.floor);
 }
+function _bgmTrimSilence(buf){
+  /* MP3/AAC carry encoder delay + end padding that decode as silence; looping the whole buffer puts that
+     silence on the loop seam (the audible 0.2-0.5s gap). Trim leading/trailing near-silence at the sample
+     level so the loop becomes last-audible-sample -> first-audible-sample (truly seamless). */
+  try{
+    if(!_actx || !buf) return buf;
+    const n=buf.length, ch=buf.numberOfChannels;
+    if(!n || !ch) return buf;
+    const data=[]; for(let c=0;c<ch;c++) data.push(buf.getChannelData(c));
+    const thr=0.0030;                                  /* ~-50 dB silence floor */
+    let s=0;  for(; s<n; s++){ let on=false; for(let c=0;c<ch;c++){ if(Math.abs(data[c][s])>thr){ on=true; break; } } if(on) break; }
+    let e=n-1; for(; e>s; e--){ let on=false; for(let c=0;c<ch;c++){ if(Math.abs(data[c][e])>thr){ on=true; break; } } if(on) break; }
+    const len=e-s+1;
+    if(s>=e || len<Math.floor(buf.sampleRate*0.1) || len>=n-2) return buf;   /* nothing meaningful to trim */
+    const out=_actx.createBuffer(ch, len, buf.sampleRate);
+    for(let c=0;c<ch;c++) out.getChannelData(c).set(data[c].subarray(s, e+1));
+    return out;
+  }catch(_e){ return buf; }
+}
 function _bgmPlayWA(key){
   if(!_actx) return;
   if(_bgmWaKey===key && _bgmSrc){ _bgmSetGain(); return; }       /* already looping this track -> just keep it (seamless) */
   if(_bgmBuf[key]){ _bgmStartWA(key); return; }
   if(_bgmLoading===key) return;
   _bgmLoading=key;
-  try{ fetch(BGM_FILES[key]).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ _bgmBuf[key]=buf; _bgmLoading=null; if(_bgmWantKey()===key) _bgmStartWA(key); }).catch(function(){ _bgmLoading=null; }); }catch(e){ _bgmLoading=null; }
+  try{ fetch(BGM_FILES[key]).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ _bgmBuf[key]=_bgmTrimSilence(buf); _bgmLoading=null; if(_bgmWantKey()===key) _bgmStartWA(key); }).catch(function(){ _bgmLoading=null; }); }catch(e){ _bgmLoading=null; }
 }
 function updateBGM(force){
   const want=_bgmWantKey();
@@ -5673,7 +5692,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·18 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·19 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5681,7 +5700,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·18 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·19 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
