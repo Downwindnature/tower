@@ -1229,6 +1229,14 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   <div class="closeRow" style="justify-content:center"><button class="btn gold" id="storyNext"></button></div>
 </div></div>
 
+<!-- ===== Opening cinematic (black screen, white text) ===== -->
+<div class="overlay" id="introCine" style="background:#000;padding:0">
+  <div id="introCineInner" style="max-width:600px;width:90%;padding:24px;cursor:pointer">
+    <div id="introCineText" style="color:#f2f2f2;font-size:clamp(15px,2.3vh,20px);line-height:2;white-space:pre-wrap;min-height:42vh;letter-spacing:.03em"></div>
+    <div id="introCineGo" style="text-align:right;margin-top:16px;color:#d8d8d8;font-size:15px;letter-spacing:.05em;opacity:0;transition:opacity .45s"></div>
+  </div>
+</div>
+
 <!-- ===== Tutorial overlay (shown on every game start) ===== -->
 <div class="overlay" id="tutorial"><div class="modal endModal">
   <div class="big" id="tutGlyph">🗺️</div>
@@ -3924,6 +3932,22 @@ function towerCleared(){
     renderAll(); toast(t('msg.basementOpen'));
   });
 }
+let _cineProceed=null, _cineTimer=null;
+function showIntroCine(onDone){
+  state._cineActive=true;
+  const txtEl=byId('introCineText'), goEl=byId('introCineGo'), inner=byId('introCineInner');
+  const pages=t('story.intro'); const full=(Array.isArray(pages)? pages.join('\n\n') : (''+pages));
+  const goLabel=_isPC()?'Enter':'OK';
+  let done=false, idx=0;
+  if(_cineTimer){ clearInterval(_cineTimer); _cineTimer=null; }
+  const finishReveal=function(){ if(_cineTimer){ clearInterval(_cineTimer); _cineTimer=null; } if(txtEl) txtEl.textContent=full; idx=full.length; done=true; if(goEl){ goEl.textContent=goLabel; goEl.style.opacity='1'; } };
+  const proceed=function(){ if(!done){ finishReveal(); return; } if(_cineTimer){ clearInterval(_cineTimer); _cineTimer=null; } _cineProceed=null; if(inner) inner.onclick=null; hide('introCine'); state._cineActive=false; if(typeof onDone==='function') onDone(); };
+  _cineProceed=proceed;
+  if(txtEl) txtEl.textContent=''; if(goEl){ goEl.textContent=''; goEl.style.opacity='0'; }
+  show('introCine');
+  _cineTimer=setInterval(function(){ idx+=1; if(txtEl) txtEl.textContent=full.slice(0,idx); if(idx>=full.length) finishReveal(); }, 42);
+  if(inner) inner.onclick=function(){ proceed(); };
+}
 function showStory(key, onDone){
   state._stKey=key;
   state._stPages = t('story.'+key) || []; state._stI=0; state._stDone=onDone||null;
@@ -3946,7 +3970,7 @@ function storyNext(){
 /* ---- step-by-step tutorial shown on every game start (skippable) ---- */
 function showTutorial(){ state._tutI=0; renderTutPage(); show('tutorial'); }
 function renderTutPage(){
-  const steps=t('tut.steps')||[]; const i=state._tutI||0, n=steps.length; const s=steps[i]||{};
+  const _allS=t('tut.steps')||[]; const _mS=t('tut.stepsM'); const steps=(!_isPC() && Array.isArray(_mS) && _mS.length)? _mS : _allS; const i=state._tutI||0, n=steps.length; const s=steps[i]||{};
   byId('tutGlyph').textContent=s.icon||'🗺️';
   byId('tutTitle').textContent=s.h||'';
   byId('tutBody').textContent=s.t||'';
@@ -3955,7 +3979,7 @@ function renderTutPage(){
   const back=byId('tutBack'); back.textContent=t('tut.back'); back.style.visibility=(i>0)?'visible':'hidden';
   byId('tutNext').textContent=(i>=n-1)?t('tut.start'):t('tut.next');
 }
-function tutNext(){ const n=(t('tut.steps')||[]).length; state._tutI=(state._tutI||0)+1; if(state._tutI>=n){ hide('tutorial'); } else renderTutPage(); }
+function tutNext(){ const _mS=t('tut.stepsM'); const _use=(!_isPC() && Array.isArray(_mS) && _mS.length)? _mS : (t('tut.steps')||[]); const n=_use.length; state._tutI=(state._tutI||0)+1; if(state._tutI>=n){ hide('tutorial'); } else renderTutPage(); }
 function tutBack(){ if((state._tutI||0)>0){ state._tutI--; renderTutPage(); } }
 function tutSkip(){ hide('tutorial'); }
 function defeat(){ if(state.mode==='solo') endScreen(false); else endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
@@ -3996,7 +4020,7 @@ function genFloor(f){
 function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f)); try{ return genBossFloorRaw(f); } finally{ RAND=prev; } }
 function ensureFloor(f){ if(!state.floors[f]){ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } }
 function curFloor(){ return state.floors[state.floor]; }
-const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel'];
+const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel'];
 function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} ae.style.display = (isAdmin && !open && onMenu) ? '' : 'none'; }
 function show(id){
   /* only ONE modal overlay open at a time — close any other so windows never stack */
@@ -4148,8 +4172,9 @@ function newGame(opts){
   state.px=d.start.x; state.py=d.start.y;
   state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;   /* spawn sits on the floor-1 down-staircase */
   ['combat','shop','manual','teleport','endScreen','startScreen','lobby','mpPanel'].forEach(hide);
+  state._cineActive = (state.mode==='solo');
   applyLang(); renderAll();
-  if(state.mode==='solo'){ try{ showStory('intro'); }catch(e){} }
+  if(state.mode==='solo'){ try{ showIntroCine(function(){ try{ updateBGM(true); }catch(e){} }); }catch(e){ state._cineActive=false; } }
   mpOnNewGame();
 }
 function rngFreshSeed(){ return ((Math.random()*0xFFFFFFFF)>>>0); }
@@ -4160,6 +4185,7 @@ function bindInput(){
     if(e.code==='KeyO' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inLobby()) openAdminEntry(); return; }   /* hidden admin entry — lobby only */
     if(e.code==='KeyT' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inGame() && !byId('combat').classList.contains('show')) openCheat(); return; }   /* hidden god-mode cheat — in-game only, never mid-combat */
     { const _t=e.target; if(_t && (_t.tagName==='INPUT' || _t.tagName==='TEXTAREA' || _t.tagName==='SELECT' || _t.isContentEditable)) return; }   /* typing in a field -> never hijack the key */
+    if(state._cineActive){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(typeof _cineProceed==='function') _cineProceed(); } return; }
     if(byId('combat').classList.contains('show')){
       if(e.key===' '||e.key==='Enter'){
         e.preventDefault();
@@ -4367,11 +4393,11 @@ function loadVols(){
 function effMusicVol(){ return _volMaster*_volMusic; }   /* master at 0 -> 0 -> totally silent */
 function effSfxVol(){ return _volMaster*_volSfx; }
 function applyMusicVol(){
-  if(!_bgmAudio) return;
   const v=effMusicVol();
-  try{ _bgmAudio.volume=v; }catch(e){}
-  if(v<=0){ try{ _bgmAudio.pause(); }catch(e){} }
-  else if(_bgmUnlocked){ updateBGM(true); }
+  if(_bgmGain){ try{ _bgmGain.gain.value=v; }catch(e){} }
+  if(_bgmAudio){ try{ _bgmAudio.volume=v; }catch(e){} }
+  if(_actx){ updateBGM(true); return; }
+  if(v<=0){ try{ _bgmAudio.pause(); }catch(e){} } else if(_bgmUnlocked){ updateBGM(true); }
 }
 function applySfxVol(){ if(_sfxGain){ try{ _sfxGain.gain.value=effSfxVol(); }catch(e){} } }
 function setVol(which,v){
@@ -4398,16 +4424,37 @@ function _unlockAudio(){
   if(_actx && _actx.state==='suspended'){ try{ _actx.resume(); }catch(e){} }
   updateBGM(true);
 }
+/* ---- Gapless BGM via Web Audio: AudioBufferSourceNode.loop is sample-accurate (no <audio> loop gap). HTML5 <audio> stays as the pre-unlock fallback. ---- */
+let _bgmGain=null, _bgmSrc=null, _bgmBuf={}, _bgmWaKey=null, _bgmLoading=null;
+function _bgmEnsureGain(){ if(!_actx) return null; if(!_bgmGain){ try{ _bgmGain=_actx.createGain(); _bgmGain.gain.value=effMusicVol(); _bgmGain.connect(_actx.destination); }catch(e){ _bgmGain=null; } } return _bgmGain; }
+function _bgmSetGain(){ if(_bgmGain){ try{ _bgmGain.gain.value=effMusicVol(); }catch(e){} } }
+function _bgmStopWA(){ if(_bgmSrc){ try{ _bgmSrc.stop(); }catch(e){} try{ _bgmSrc.disconnect(); }catch(e){} } _bgmSrc=null; _bgmWaKey=null; }
+function _bgmStartWA(key){ const g=_bgmEnsureGain(); if(!g) return; const buf=_bgmBuf[key]; if(!buf) return; _bgmStopWA(); try{ const src=_actx.createBufferSource(); src.buffer=buf; src.loop=true; src.connect(g); src.start(0); _bgmSrc=src; _bgmWaKey=key; }catch(e){} }
+function _bgmWantKey(){
+  if(typeof state==='undefined' || state.floor==null) return null;
+  if(!state.player || state._cineActive || (byId('startScreen') && byId('startScreen').classList.contains('show'))) return null;   /* no music on start screen or during the opening cinematic */
+  if(!_bgmUnlocked) return null;
+  return bgmKeyForFloor(state.floor);
+}
+function _bgmPlayWA(key){
+  if(!_actx) return;
+  if(_bgmWaKey===key && _bgmSrc){ _bgmSetGain(); return; }       /* already looping this track -> just keep it (seamless) */
+  if(_bgmBuf[key]){ _bgmStartWA(key); return; }
+  if(_bgmLoading===key) return;
+  _bgmLoading=key;
+  try{ fetch(BGM_FILES[key]).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ _bgmBuf[key]=buf; _bgmLoading=null; if(_bgmWantKey()===key) _bgmStartWA(key); }).catch(function(){ _bgmLoading=null; }); }catch(e){ _bgmLoading=null; }
+}
 function updateBGM(force){
-  if(!_bgmAudio || typeof state==='undefined' || state.floor==null) return;
-  if(!state.player || (byId('startScreen') && byId('startScreen').classList.contains('show'))){ try{ _bgmAudio.pause(); }catch(e){} _bgmKey=null; return; }
-  const key = bgmKeyForFloor(state.floor);
-  if(key!==_bgmKey){                                  /* floor's track changed -> swap on the SAME element (old one stops; never overlaps) */
-    _bgmKey=key; try{ _bgmAudio.src = BGM_FILES[key]; }catch(e){}
-    if(_bgmUnlocked && effMusicVol()>0){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); }
-  } else if(force && _bgmUnlocked && effMusicVol()>0 && _bgmAudio.paused){
-    const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){});
+  const want=_bgmWantKey();
+  if(_actx){                                          /* Web Audio path: gapless loop; mute = gain 0 so the source keeps running for instant unmute */
+    if(!want){ _bgmStopWA(); return; }
+    _bgmSetGain(); _bgmPlayWA(want); return;
   }
+  /* fallback: HTML5 <audio> (only when Web Audio is unavailable) */
+  if(!_bgmAudio || typeof state==='undefined' || state.floor==null) return;
+  if(!want){ try{ _bgmAudio.pause(); }catch(e){} _bgmKey=null; return; }
+  if(want!==_bgmKey){ _bgmKey=want; try{ _bgmAudio.src=BGM_FILES[want]; }catch(e){} if(effMusicVol()>0){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); } }
+  else if(force && effMusicVol()>0 && _bgmAudio.paused){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); }
 }
 function updateMuteBtn(){ const b=byId('btnMute'); if(b){ b.textContent = (_volMaster<=0) ? '🔇' : '🔊'; } }
 
@@ -4838,6 +4885,7 @@ function goStartScreen(){
   ['combat','shop','manual','teleport','endScreen','lobby','mpPanel'].forEach(hide);
   renderStartScreen(); show('startScreen'); renderMpButton();
   try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){}
+  try{ _bgmStopWA(); }catch(e){}
 }
 function renderStartScreen(){
   const s1=byId('tsStartLab'); if(s1) s1.textContent=t('ts.start');
@@ -5085,7 +5133,7 @@ const I18N_ADMIN = {
 
 /* ===== Tutorial copy (shown step-by-step on every game start) ===== */
 const I18N_TUT = {
-'zh-Hant':{tut:{skip:'跳過教學',back:'上一步',next:'下一步',start:'開始遊戲',steps:[
+'zh-Hant':{tut:{skip:'跳過教學',back:'上一步',next:'下一步',start:'開始遊戲',stepsM:[{icon:'🗼',h:'歡迎來到魔塔',t:'你的目標是一路往上爬，擊敗塔頂的魔王，再深入地下樓層探索。\n用畫面下方的方向鍵移動。'},{icon:'🪜',h:'移動與樓梯',t:'走到「往上樓梯」可前往更高樓層，走到「往下樓梯」則返回下層。\n每一層的地圖在你探索後都會記錄下來。'},{icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按畫面的「瞄準」鍵開戰。\n戰鬥是自動回合制，戰鬥畫面中可使用蓄力、技能與逃跑等按鈕。'},{icon:'📖',h:'技能',t:'撿起技能書即可學習。\n在戰鬥畫面中可切換並發動攻擊與防禦技能（需達到對應等級才能裝備）。'},{icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n彩色的門需要對應顏色的鑰匙才能打開，門後通常藏著寶物。'},{icon:'✨',h:'傳送與說明',t:'找到傳送卷軸後，點畫面的「傳送」鍵即可在已探索的樓層之間傳送。\n隨時可點右上角的 ❓ 重新查看遊戲說明。'}],steps:[
   {icon:'🗼',h:'歡迎來到魔塔',t:'你的目標是一路往上爬，擊敗塔頂的魔王，再深入地下樓層探索。\n用 方向鍵 或 WASD 移動；手機則用畫面下方的方向鍵。'},
   {icon:'🪜',h:'移動與樓梯',t:'走到「往上樓梯」可前往更高樓層，走到「往下樓梯」則返回下層。\n每一層的地圖在你探索後都會記錄下來。'},
   {icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按 空白鍵／Enter（手機按「瞄準」）開戰。\n戰鬥是自動回合制；能量累積到 20 可按 C 蓄力暴擊，按 V 則可逃跑。'},
@@ -5093,7 +5141,7 @@ const I18N_TUT = {
   {icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n彩色的門需要對應顏色的鑰匙才能打開，門後通常藏著寶物。'},
   {icon:'✨',h:'傳送與說明',t:'找到傳送卷軸後，按 F 即可在已探索的樓層之間傳送。\n隨時可點右上角的 ❓ 重新查看遊戲說明。'}
 ]}},
-'zh-Hans':{tut:{skip:'跳过教学',back:'上一步',next:'下一步',start:'开始游戏',steps:[
+'zh-Hans':{tut:{skip:'跳过教学',back:'上一步',next:'下一步',start:'开始游戏',stepsM:[{icon:'🗼',h:'欢迎来到魔塔',t:'你的目标是一路往上爬，击败塔顶的魔王，再深入地下楼层探索。\n用画面下方的方向键移动。'},{icon:'🪜',h:'移动与楼梯',t:'走到「往上楼梯」可前往更高楼层，走到「往下楼梯」则返回下层。\n每一层的地图在你探索后都会记录下来。'},{icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按画面的「瞄准」键开战。\n战斗是自动回合制，战斗画面中可使用蓄力、技能与逃跑等按钮。'},{icon:'📖',h:'技能',t:'捡起技能书即可学习。\n在战斗画面中可切换并发动攻击与防御技能（需达到对应等级才能装备）。'},{icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n彩色的门需要对应颜色的钥匙才能打开，门后通常藏着宝物。'},{icon:'✨',h:'传送与说明',t:'找到传送卷轴后，点画面的「传送」键即可在已探索的楼层之间传送。\n随时可点右上角的 ❓ 重新查看游戏说明。'}],steps:[
   {icon:'🗼',h:'欢迎来到魔塔',t:'你的目标是一路往上爬，击败塔顶的魔王，再深入地下楼层探索。\n用 方向键 或 WASD 移动；手机则用画面下方的方向键。'},
   {icon:'🪜',h:'移动与楼梯',t:'走到「向上楼梯」可前往更高楼层，走到「向下楼梯」则返回下层。\n每一层的地图在你探索后都会记录下来。'},
   {icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按 空格键／Enter（手机按「瞄准」）开战。\n战斗是自动回合制；能量累积到 20 可按 C 蓄力暴击，按 V 则可逃跑。'},
@@ -5101,7 +5149,7 @@ const I18N_TUT = {
   {icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n彩色的门需要对应颜色的钥匙才能打开，门后通常藏着宝物。'},
   {icon:'✨',h:'传送与说明',t:'找到传送卷轴后，按 F 即可在已探索的楼层之间传送。\n随时可点右上角的 ❓ 重新查看游戏说明。'}
 ]}},
-'en':{tut:{skip:'Skip tutorial',back:'Back',next:'Next',start:'Start game',steps:[
+'en':{tut:{skip:'Skip tutorial',back:'Back',next:'Next',start:'Start game',stepsM:[{icon:'🗼',h:'Welcome to Magic Tower',t:'Your goal is to climb upward, defeat the demon at the top, then explore the basement floors below.\nUse the on-screen arrow pad to move.'},{icon:'🪜',h:'Moving & stairs',t:'Step onto the up-stairs to go higher, or the down-stairs to go back down.\nEach floor map is recorded once you explore it.'},{icon:'⚔️',h:'Combat',t:'Move into a monster to lock onto it, then tap the on-screen Aim button to fight.\nCombat is auto turn-based; the combat screen has buttons for charging, skills and fleeing.'},{icon:'📖',h:'Skills',t:'Pick up skill books to learn skills.\nIn the combat screen you can switch and cast your attack and defence skills (the level requirement must be met).'},{icon:'🗝️',h:'Items & doors',t:'Collect potions, gems and keys to grow stronger.\nColoured doors need a key of the same colour; treasure often waits behind them.'},{icon:'✨',h:'Teleport & help',t:'After finding a teleport scroll, tap the on-screen Teleport button to warp between explored floors.\nTap the ❓ at the top-right anytime to read these tips again.'}],steps:[
   {icon:'🗼',h:'Welcome to Magic Tower',t:'Your goal is to climb to the top, defeat the demon lord, then descend into the basement floors.\nMove with the arrow keys or WASD; on mobile, use the on-screen D-pad.'},
   {icon:'🪜',h:'Moving & stairs',t:'Step onto the up-stairs to go higher, or the down-stairs to return below.\nEach floor is saved to your map once you have explored it.'},
   {icon:'⚔️',h:'Combat',t:'Move into a monster to lock on, then press Space / Enter (or tap “Aim” on mobile) to fight.\nCombat runs in automatic rounds; at 20 energy press C to charge a critical hit, or press V to flee.'},
@@ -5109,7 +5157,7 @@ const I18N_TUT = {
   {icon:'🗝️',h:'Items & doors',t:'Grab potions, gems and keys to grow stronger.\nColoured doors need a matching key, and treasure is usually hidden just behind them.'},
   {icon:'✨',h:'Teleport & help',t:'Once you find a teleport scroll, press F to warp between floors you have explored.\nTap the ❓ in the top-right corner any time to read these instructions again.'}
 ]}},
-'ja':{tut:{skip:'チュートリアルをスキップ',back:'戻る',next:'次へ',start:'ゲーム開始',steps:[
+'ja':{tut:{skip:'チュートリアルをスキップ',back:'戻る',next:'次へ',start:'ゲーム開始',stepsM:[{icon:'🗼',h:'魔塔へようこそ',t:'目標は上へ登り、塔頂の魔王を倒し、さらに地下階を探索することだ。\n画面下の方向パッドで移動する。'},{icon:'🪜',h:'移動と階段',t:'「上り階段」で上の階へ、「下り階段」で下の階へ移動できる。\n各階のマップは探索すると記録される。'},{icon:'⚔️',h:'戦闘',t:'モンスターに向かって移動するとロックし、画面の「照準」ボタンで戦闘開始。\n戦闘は自動ターン制。戦闘画面のボタンで溜め・スキル・逃走ができる。'},{icon:'📖',h:'スキル',t:'スキルブックを拾うと習得できる。\n戦闘画面で攻撃・防御スキルを切替・発動できる（必要レベルが必要）。'},{icon:'🗝️',h:'アイテムと扉',t:'ポーション・宝石・鍵を集めて強くなろう。\n色付きの扉は同じ色の鍵が必要で、奥には宝が隠れていることが多い。'},{icon:'✨',h:'転送と説明',t:'転送の巻物を見つけたら、画面の「転送」ボタンで探索済みの階へ移動できる。\n右上の ❓ でいつでも説明を読み返せる。'}],steps:[
   {icon:'🗼',h:'魔塔へようこそ',t:'目標は塔を登りきって頂上の魔王を倒し、さらに地下階を探索することです。\n矢印キーまたはWASDで移動します。スマホでは画面下の方向ボタンを使います。'},
   {icon:'🪜',h:'移動と階段',t:'「上り階段」に乗ると上の階へ、「下り階段」に乗ると下の階へ移動します。\n各階のマップは探索すると記録されます。'},
   {icon:'⚔️',h:'戦闘',t:'モンスターに向かって移動するとロックオン、スペース／Enter（スマホは「照準」）で戦闘開始。\n戦闘は自動ターン制。エネルギーが20でCを押すとクリティカルを溜め、Vで逃走できます。'},
@@ -5117,7 +5165,7 @@ const I18N_TUT = {
   {icon:'🗝️',h:'アイテムと扉',t:'ポーション・宝石・鍵を集めて強化しましょう。\n色付きの扉は同じ色の鍵が必要で、扉の奥には宝物が隠れていることが多いです。'},
   {icon:'✨',h:'テレポートとヘルプ',t:'テレポートの巻物を見つけたら、Fで探索済みの階へワープできます。\n右上の❓をタップすれば、いつでもこの説明を読み返せます。'}
 ]}},
-'ko':{tut:{skip:'튜토리얼 건너뛰기',back:'이전',next:'다음',start:'게임 시작',steps:[
+'ko':{tut:{skip:'튜토리얼 건너뛰기',back:'이전',next:'다음',start:'게임 시작',stepsM:[{icon:'🗼',h:'마탑에 오신 것을 환영합니다',t:'목표는 위로 올라가 탑 꼭대기의 마왕을 물리치고, 지하 층도 탐험하는 것입니다.\n화면 아래의 방향 패드로 이동하세요.'},{icon:'🪜',h:'이동과 계단',t:'「올라가는 계단」으로 위층, 「내려가는 계단」으로 아래층으로 이동합니다.\n각 층의 지도는 탐험하면 기록됩니다.'},{icon:'⚔️',h:'전투',t:'몬스터 쪽으로 이동하면 조준되고, 화면의 「조준」 버튼으로 전투를 시작합니다.\n전투는 자동 턴제이며, 전투 화면의 버튼으로 충전·스킬·도주를 할 수 있습니다.'},{icon:'📖',h:'스킬',t:'스킬북을 주우면 배웁니다.\n전투 화면에서 공격·방어 스킬을 전환하고 발동할 수 있습니다(필요 레벨 충족 시).'},{icon:'🗝️',h:'아이템과 문',t:'물약·보석·열쇠를 모아 강해지세요.\n색깔 문은 같은 색 열쇠가 필요하며, 보물이 숨겨져 있는 경우가 많습니다.'},{icon:'✨',h:'이동과 도움말',t:'이동 두루마리를 찾으면 화면의 「이동」 버튼으로 탐험한 층 사이를 이동합니다.\n오른쪽 위 ❓ 를 누르면 언제든 설명을 다시 볼 수 있습니다.'}],steps:[
   {icon:'🗼',h:'마법탑에 오신 것을 환영합니다',t:'목표는 탑을 끝까지 올라가 꼭대기의 마왕을 물리치고, 지하층까지 탐험하는 것입니다.\n방향키 또는 WASD로 이동하세요. 모바일에서는 화면 아래의 방향 버튼을 사용합니다.'},
   {icon:'🪜',h:'이동과 계단',t:'「위층 계단」을 밟으면 위층으로, 「아래층 계단」을 밟으면 아래층으로 이동합니다.\n각 층의 지도는 탐험하면 기록됩니다.'},
   {icon:'⚔️',h:'전투',t:'몬스터를 향해 이동하면 조준되고, 스페이스／Enter(모바일은 「조준」)로 전투를 시작합니다.\n전투는 자동 턴제입니다. 에너지가 20이 되면 C로 치명타를 모으고, V로 도망칠 수 있습니다.'},
@@ -5625,7 +5673,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·17 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·18 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5633,7 +5681,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·17 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·18 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
