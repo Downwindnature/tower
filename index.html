@@ -2739,7 +2739,9 @@ function renderMap(){
           }else if(ITEMS[e.item]&&ITEMS[e.item].weap){
             cell.appendChild(weaponEl(ITEMS[e.item].weap, ITEMS[e.item].tier));   // distinct CSS sword/shield per tier
           }else if(ITEMS[e.item]&&ITEMS[e.item].book){
-            cell.appendChild(bookEl(ITEMS[e.item].book));   // CSS skill-book (red = attack, blue = defence)
+            const _bsk=SKILL_BY_ID[ITEMS[e.item].skill];
+            if(_bsk&&_bsk.img){ const im=document.createElement('img'); im.className='entImgItem'; im.src=_bsk.img; im.alt=''; cell.appendChild(im); }
+            else cell.appendChild(bookEl(ITEMS[e.item].book));   // CSS skill-book (red = attack, blue = defence)
           }else{
             const gl=glyph(ITEMS[e.item].face);
             if(ITEMS[e.item].flash) gl.classList.add('flashStaff');
@@ -5348,8 +5350,8 @@ function _processImg(src, mode, size){
 let _admImgTarget=null, _admImgSig='';
 const _admImgOrig={}, _admImgMode={};
 const _IMG_MODE_LABEL={none:'av.modeNone', chroma:'av.modeChroma', ai:'av.modeAi'};
-function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; return ''; }
-function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; return null; }
+function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; if(row.dataset.atks!=null) return 'atk'+(row.dataset.atks|0); if(row.dataset.defs!=null) return 'def'+(row.dataset.defs|0); return ''; }
+function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; if(row.dataset.atks!=null) return adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null; if(row.dataset.defs!=null) return adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null; return null; }
 function adImg(obj, sig){
   const hasImg=!!(obj&&obj.img), hasOrig=!!_admImgOrig[sig];
   const prev = hasImg ? ('<img src="'+obj.img+'" alt="">') : ((obj&&obj.face)||'');
@@ -5692,7 +5694,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·19 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·20 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5700,7 +5702,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·19 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·20 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -5900,10 +5902,11 @@ function renderAdminBody(){
     const hdr=function(txt){ const h=document.createElement('div'); h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:13px;'; h.textContent=txt; body.appendChild(h); };
     const skRow=function(sk,idx,kind){
       const row=document.createElement('div'); row.className='adRowItem';
+      const sig=(kind==='atk'?'atk':'def')+idx;
       if(kind==='atk') row.dataset.atks=idx; else row.dataset.defs=idx;
       const mainField=(kind==='atk') ? adNum(t('admin.skMult'),sk,'mult',0.1) : adNum(t('admin.skDiv'),sk,'div',0.1);
       row.innerHTML='<div class="adName">'+(sk.name||t('sk.'+sk.id+'.name')||sk.id)+' <span style="color:var(--txt-faint);font-weight:400">('+sk.id+')</span></div><div class="adGrid">'+
-        adText(t('admin.mname'),sk,'name','',24)+adNum(t('admin.skLv'),sk,'lv')+adNum('EN',sk,'en')+adNum(t('admin.skStam'),sk,'stam')+mainField+'</div>';
+        adText(t('admin.mname'),sk,'name','',24)+adNum(t('admin.skLv'),sk,'lv')+adNum('EN',sk,'en')+adNum(t('admin.skStam'),sk,'stam')+mainField+adImg(sk,sig)+'</div>';
       body.appendChild(row);
     };
     if(Array.isArray(adminDraft.atkSkills)){ hdr(t('admin.atkSkills')); adminDraft.atkSkills.forEach(function(sk,i){ skRow(sk,i,'atk'); }); }
