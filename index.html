@@ -3055,9 +3055,10 @@ function weaponFxTier(pl){ const r=(pl&&pl.bestSword)||0; return ['unarmed','iro
 function foeFxKind(foe, floor){ if(foe.trueDmg) return 'cast'; if(foe.boss) return 'boss'; if(floor<0 || floor>=11) return 'beast'; return 'punch'; }
 function playAttackFx(side, kind, crit, snd){
   try{
-    if(snd && CUSTOM_SFX[snd]) playCustomSfx(snd);
+    if(crit){ sfx(side==='me'?'critHurt':'critHit'); }                       /* a crit always fires the distinct crit sound, even if this monster has its own attack sound */
+    else if(snd && CUSTOM_SFX[snd]) playCustomSfx(snd);
     else if(snd && SFX_PRESETS[snd]) sfxPlayPreset(snd);
-    else sfx(side==='me'?(crit?'critHurt':'hurt'):(crit?'critHit':'hit'));
+    else sfx(side==='me'?'hurt':'hit');
   }catch(e){}
   const host=byId(side==='me'?'mePortrait':'foePortrait');
   if(kind && CUSTOM_FX[kind]){
@@ -5782,7 +5783,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·29 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·30 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5790,7 +5791,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·29 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·30 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
