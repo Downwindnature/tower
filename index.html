@@ -2978,6 +2978,7 @@ const FX_FOE_KINDS=['punch','beast','cast','boss'];
 let FX_MAP={ weapon:{}, foe:{} };
 FX_WEAPON_TIERS.forEach(function(k){ FX_MAP.weapon[k]=k; }); FX_FOE_KINDS.forEach(function(k){ FX_MAP.foe[k]=k; });
 FX_MAP.player='';   /* player attack fx override: '' = use weapon-tier fx; else a preset name or a custom 'cfx*' id */
+FX_MAP.playerCrit=''; FX_MAP.foeCrit='';   /* crit-only attack fx: '' = reuse the normal fx (scaled up); else a preset / custom id */
 /* ===== custom uploaded attack media — images (GIF/PNG) for fx, short audio for sfx, kept in localStorage ===== */
 let CUSTOM_FX={}, CUSTOM_SFX={}, _customBuf={};
 function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } }
@@ -3044,7 +3045,7 @@ function bindCustomMediaUI(){
     if(sd){ collectAdminDraft(); const id=sd.getAttribute('data-sfxdel'); delete CUSTOM_SFX[id]; delete _customBuf[id]; saveCustomMedia(); renderAdminBody(); return; }
     if(sp){ playCustomSfx(sp.getAttribute('data-sfxplay')); return; }
     const stb=ev.target.closest('[data-sndtest]'); if(stb){ const w=stb.parentNode; const sel=w?w.querySelector('select[data-sound]'):null; sndTestPlay(stb.getAttribute('data-sndtest'), sel?sel.value:'default'); return; }
-    const fpb=ev.target.closest('[data-fxprev]'); if(fpb){ const w=fpb.parentNode; const sel=w?w.querySelector('select'):null; if(sel) fxPreviewPlay(sel.value, false); return; }
+    const fpb=ev.target.closest('[data-fxprev]'); if(fpb){ const w=fpb.parentNode; const sel=w?w.querySelector('select'):null; if(sel) fxPreviewPlay(sel.value, fpb.getAttribute('data-crit')==='1'); return; }
   }); }
   const ff=byId('admFxFile'); if(ff){ ff.addEventListener('change', function(){ const file=ff.files&&ff.files[0]; if(!file) return; if(!/^image\//.test(file.type||'')){ toast(t('av.bad')); return; } collectAdminDraft(); _processCustomFx(file, function(uri){ if(!uri) return; const id=_nextCustomId(CUSTOM_FX,'cfx'); CUSTOM_FX[id]=uri; saveCustomMedia(); toast(t('admin.fxAdded')); renderAdminBody(); }); }); }
   const sf=byId('admSfxFile'); if(sf){ sf.addEventListener('change', function(){ const file=sf.files&&sf.files[0]; if(!file) return; collectAdminDraft(); _processCustomAudio(file, function(uri){ if(!uri){ toast(t('admin.audioBad')); return; } const id=_nextCustomId(CUSTOM_SFX,'csfx'); CUSTOM_SFX[id]=uri; saveCustomMedia(); toast(t('admin.audioAdded')); renderAdminBody(); }); }); }
@@ -3265,7 +3266,7 @@ function playerAct(action){
   }
   if(skill && anyHit) applyAtkSkillEffect(skill, dealt, crit);
   renderCombat();
-  if(anyHit){ playAttackFx('foe', (FX_MAP.player||fxRemap('weapon',weaponFxTier(pl))), crit, (FX_MAP.player?null:null)); floatDmg('foe','-'+dealt, crit?'crit':null); }   // animation plays as a non-blocking overlay
+  if(anyHit){ const _pfx=(crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl))); playAttackFx('foe', _pfx, crit, null); floatDmg('foe','-'+dealt, crit?'crit':null); }   // crit uses the dedicated crit fx if set, else the normal fx (scaled)
   else { floatDmg('foe','miss!','miss'); }
   if(_shRefl && dealt>0){ const refl=Math.max(1,Math.round(dealt*0.25)); pl.hp-=refl; floatDmg('me','-'+refl,'crit'); log('foe',fmt(t('msg.msReflect'),{n:refl})); renderCombat(); if(pl.hp<=0){ pl.hp=0; renderCombat(); setTimeout(combatLose,240); return; } }
   if(foe.hp<=0){ setTimeout(combatWin, 240); return; }
@@ -3351,7 +3352,7 @@ function foeTurn(){
     else if(anyHit && foe.ability==='weak' && pl.status==='weak'){ if(chance(0.5)){ pl.weakStacks++; log('foe',fmt(t('msg.applyWeak'),{n:pl.weakStacks})); } }
   }
   c.defArmed=null;   // single-use defence consumed
-  if(anyHit){ const _ffx=(c.foe&&c.foe.atkFx)?c.foe.atkFx:fxRemap('foe', c.foeFx||'punch'); playAttackFx('me', _ffx, foeCrit, (c.foe&&c.foe.atkSfx)); }   // foe animation + per-monster fx/sound
+  if(anyHit){ const _ffx=(foeCrit&&FX_MAP.foeCrit)?FX_MAP.foeCrit:((c.foe&&c.foe.atkFx)?c.foe.atkFx:fxRemap('foe', c.foeFx||'punch')); playAttackFx('me', _ffx, foeCrit, (c.foe&&c.foe.atkSfx)); }   // foe animation + per-monster/crit fx/sound
   renderCombat();
   if(pl.hp<=0){ pl.hp=0; renderCombat(); setTimeout(combatLose, 240); return; }
   if(foe.hp<=0){ renderCombat(); setTimeout(combatWin, 240); return; }   // a counter can finish a (non-vampire) foe
@@ -3432,7 +3433,12 @@ function monName(foe){
   if(foe && foe.name && (''+foe.name).trim()) return (''+foe.name).trim();
   return id||'???';
 }
-function itemName(id){ const it=ITEMS[id]; return (it && it.name && (''+it.name).trim()) ? (''+it.name).trim() : t('item.'+id); }
+function _locDisplay(obj, grp, id){ const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(obj&&obj.nameLoc&&obj.nameLoc[L]&&(''+obj.nameLoc[L]).trim()) return (''+obj.nameLoc[L]).trim(); const n=t(grp+'.'+id); if(n&&n.indexOf(grp+'.')!==0) return n; return (obj&&obj.name)||id||''; }
+function itemName(id){ const it=ITEMS[id]; const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
+  if(it && it.nameLoc && it.nameLoc[L] && (''+it.nameLoc[L]).trim()) return (''+it.nameLoc[L]).trim();   /* per-language custom name */
+  const n=t('item.'+id); if(n && n.indexOf('item.')!==0) return n;                                       /* built-in translation */
+  if(it && it.name && (''+it.name).trim()) return (''+it.name).trim();                                   /* legacy single custom name */
+  return n; }
 function skillName(id){ const sk=SKILL_BY_ID[id]; return (sk && sk.name && (''+sk.name).trim()) ? (''+sk.name).trim() : t('sk.'+id+'.name'); }
 function achName(a){ if(!a) return ''; const n=t('achN.'+a.id); return (n && n.indexOf('achN.')!==0) ? n : a.name; }
 function achFlav(a){ if(!a) return ''; const n=t('achF.'+a.id); return (n && n.indexOf('achF.')!==0) ? n : a.flavor; }
@@ -5329,11 +5335,11 @@ const I18N_MP2 = {
 
 /* ---- admin: custom icons + attack-effect labels (merged into the existing admin namespace) ---- */
 const I18N_ADMIN2 = {
-'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',nameLocHint:'各語言名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守衛',fxPreview:'特效預覽',fxPreviewHint:'點下方任一特效旁的 ▶ 即可在此預覽動畫',skNote:'劍王是地下的獨立怪物（已與雙手劍兵分開，可各自設定外觀與數值）。',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物暴擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家暴擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
-'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',nameLocHint:'各语言名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守卫',fxPreview:'特效预览',fxPreviewHint:'点下方任一特效旁的 ▶ 即可在此预览动画',skNote:'剑王是地下的独立怪物（已与双手剑兵分开，可各自设定外观与数值）。',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物暴击',sndMeHit:'玩家攻击',sndMeCrit:'玩家暴击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
-'en':{admin:{tabFx:'Effects',icon:'Icon',mname:'Name',nameLocHint:'names per language',mid:'ID',groundMon:'Ground monsters',basementMon:'Basement monsters',topBoss:'Tower boss',basementBoss:'Basement boss',guards:'3x3 Guards',fxPreview:'Effect preview',fxPreviewHint:'Tap ▶ next to any effect below to preview it here',skNote:'Sword King is an independent basement monster (separate from the Greatsword Soldier; its own look and stats).',tabItems:'Items',tabSkills:'Skills',tabSounds:'Sounds',itemsNote:'Edit item icons and names. Note: potions/weapons/keys use built-in graphics on the map; the icon field mainly affects emoji items, while the name field works for all.',skillsNote:'Tune skill values (level/energy EN/stamina/multiplier or reduction) and names.',soundsNote:'Pick a sound style for each attack event, then Apply locally or Save to cloud below.',skMult:'Mult',skDiv:'Reduce',skLv:'Level',skStam:'Stamina',atkSkills:'Attack skills',defSkills:'Defence skills',soundMap:'Attack sounds',sndDefault:'Default',sndFoeHit:'Monster hit',sndFoeCrit:'Monster crit',sndMeHit:'Player hit',sndMeCrit:'Player crit',sndTry:'(Sounds play in battle; enter a fight after applying to hear them)',snd_thud:'Thud',snd_slash:'Slash',snd_zap:'Zap',snd_roar:'Roar',snd_bite:'Bite',snd_boom:'Boom',imgLabel:'Image',imgUpload:'Upload',imgRemove:'Remove',imgMode:'Cutout',fxNote:'Customize attack effects: pick a preset style for each entry, then Apply locally or Save to cloud below.',fxPlayer:'Player attack effects (by weapon tier)',fxFoe:'Monster attack effects (by type)',fxn_unarmed:'Unarmed',fxn_iron:'Iron',fxn_silver:'Silver (ice)',fxn_knight:'Knight (double)',fxn_holy:'Holy',fxn_divine:'Divine (triple)',fxn_punch:'Punch',fxn_beast:'Beast (claws)',fxn_cast:'Magic ring',fxn_boss:'Boss (red)'}},
-'ja':{admin:{tabFx:'エフェクト',icon:'アイコン',mname:'名前',nameLocHint:'各言語の名前',mid:'ID',groundMon:'地上モンスター',basementMon:'地下モンスター',topBoss:'地上ボス',basementBoss:'地下ボス',guards:'3x3 ガーディアン',fxPreview:'エフェクトプレビュー',fxPreviewHint:'下のエフェクト横の ▶ を押すとここで再生',skNote:'剣王は地下の独立モンスター（両手剣兵とは別、外観・数値も個別設定）。',tabItems:'アイテム',tabSkills:'スキル',tabSounds:'サウンド',itemsNote:'アイテムのアイコンと名前を編集。注:ポーション/武器/鍵はマップ上で内蔵グラフィック。アイコン欄は主に絵文字アイテムに反映、名前欄は全アイテムに有効。',skillsNote:'スキルの数値(レベル/エネルギー EN/スタミナ/倍率または軽減)と名前を調整。',soundsNote:'各攻撃イベントの効果音スタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',skMult:'倍率',skDiv:'軽減',skLv:'レベル',skStam:'スタミナ',atkSkills:'攻撃スキル',defSkills:'防御スキル',soundMap:'攻撃効果音',sndDefault:'デフォルト',sndFoeHit:'モンスター攻撃',sndFoeCrit:'モンスター会心',sndMeHit:'プレイヤー攻撃',sndMeCrit:'プレイヤー会心',sndTry:'(効果音は戦闘中に再生。適用後に戦闘に入ると聞けます)',snd_thud:'打撃',snd_slash:'斬撃',snd_zap:'電撃',snd_roar:'咆哮',snd_bite:'噛みつき',snd_boom:'爆発',imgLabel:'画像',imgUpload:'アップロード',imgRemove:'削除',imgMode:'背景透過',fxNote:'攻撃エフェクトのカスタマイズ：各項目に既存のスタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',fxPlayer:'プレイヤー攻撃エフェクト（武器ランク別）',fxFoe:'モンスター攻撃エフェクト（種類別）',fxn_unarmed:'素手',fxn_iron:'鉄剣',fxn_silver:'銀剣（氷）',fxn_knight:'騎士（二連斬）',fxn_holy:'聖光',fxn_divine:'神聖（三連斬）',fxn_punch:'殴打',fxn_beast:'獣（三爪）',fxn_cast:'魔法陣',fxn_boss:'ボス（赤斬）'}},
-'ko':{admin:{tabFx:'이펙트',icon:'아이콘',mname:'이름',nameLocHint:'언어별 이름',mid:'ID',groundMon:'지상 몬스터',basementMon:'지하 몬스터',topBoss:'지상 보스',basementBoss:'지하 보스',guards:'3x3 가디언',fxPreview:'이펙트 미리보기',fxPreviewHint:'아래 이펙트 옆 ▶ 를 누르면 여기서 재생',skNote:'검왕은 지하의 독립 몬스터입니다(양손검 병사와 별도, 외형·수치 개별 설정).',tabItems:'아이템',tabSkills:'스킬',tabSounds:'사운드',itemsNote:'아이템 아이콘과 이름을 편집. 참고: 물약/무기/열쇠는 지도에서 내장 그래픽. 아이콘 칸은 주로 이모지 아이템에 적용, 이름 칸은 모든 아이템에 유효.',skillsNote:'스킬 수치(레벨/에너지 EN/스태미나/배율 또는 감소)와 이름을 조정.',soundsNote:'각 공격 이벤트의 효과음 스타일을 선택한 뒤 아래 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',skMult:'배율',skDiv:'감소',skLv:'레벨',skStam:'스태미나',atkSkills:'공격 스킬',defSkills:'방어 스킬',soundMap:'공격 효과음',sndDefault:'기본',sndFoeHit:'몬스터 공격',sndFoeCrit:'몬스터 치명',sndMeHit:'플레이어 공격',sndMeCrit:'플레이어 치명',sndTry:'(효과음은 전투 중 재생. 적용 후 전투에 들어가면 들을 수 있습니다)',snd_thud:'타격',snd_slash:'베기',snd_zap:'전격',snd_roar:'포효',snd_bite:'물기',snd_boom:'폭발',imgLabel:'이미지',imgUpload:'업로드',imgRemove:'제거',imgMode:'배경 제거',fxNote:'공격 이펙트 커스터마이즈: 각 항목에 기존 스타일을 선택한 뒤 아래의 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',fxPlayer:'플레이어 공격 이펙트(무기 등급별)',fxFoe:'몬스터 공격 이펙트(종류별)',fxn_unarmed:'맨손',fxn_iron:'철검',fxn_silver:'은검(얼음)',fxn_knight:'기사(이중)',fxn_holy:'성광',fxn_divine:'신성(삼중)',fxn_punch:'주먹',fxn_beast:'야수(삼조)',fxn_cast:'마법진',fxn_boss:'보스(붉은)'}}
+'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',nameLocHint:'各語言名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守衛',fxPreview:'特效預覽',fxPreviewHint:'點下方任一特效旁的 ▶ 即可在此預覽動畫',skNote:'劍王是地下的獨立怪物（已與雙手劍兵分開，可各自設定外觀與數值）。',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物暴擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家暴擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxCrit:'爆擊特效（暴擊時）',fxPlayerCrit:'玩家暴擊特效',fxFoeCrit:'怪物暴擊特效',fxUseNormal:'同一般特效（放大）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
+'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',nameLocHint:'各语言名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守卫',fxPreview:'特效预览',fxPreviewHint:'点下方任一特效旁的 ▶ 即可在此预览动画',skNote:'剑王是地下的独立怪物（已与双手剑兵分开，可各自设定外观与数值）。',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物暴击',sndMeHit:'玩家攻击',sndMeCrit:'玩家暴击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxCrit:'爆击特效（暴击时）',fxPlayerCrit:'玩家暴击特效',fxFoeCrit:'怪物暴击特效',fxUseNormal:'同一般特效（放大）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
+'en':{admin:{tabFx:'Effects',icon:'Icon',mname:'Name',nameLocHint:'names per language',mid:'ID',groundMon:'Ground monsters',basementMon:'Basement monsters',topBoss:'Tower boss',basementBoss:'Basement boss',guards:'3x3 Guards',fxPreview:'Effect preview',fxPreviewHint:'Tap ▶ next to any effect below to preview it here',skNote:'Sword King is an independent basement monster (separate from the Greatsword Soldier; its own look and stats).',tabItems:'Items',tabSkills:'Skills',tabSounds:'Sounds',itemsNote:'Edit item icons and names. Note: potions/weapons/keys use built-in graphics on the map; the icon field mainly affects emoji items, while the name field works for all.',skillsNote:'Tune skill values (level/energy EN/stamina/multiplier or reduction) and names.',soundsNote:'Pick a sound style for each attack event, then Apply locally or Save to cloud below.',skMult:'Mult',skDiv:'Reduce',skLv:'Level',skStam:'Stamina',atkSkills:'Attack skills',defSkills:'Defence skills',soundMap:'Attack sounds',sndDefault:'Default',sndFoeHit:'Monster hit',sndFoeCrit:'Monster crit',sndMeHit:'Player hit',sndMeCrit:'Player crit',sndTry:'(Sounds play in battle; enter a fight after applying to hear them)',snd_thud:'Thud',snd_slash:'Slash',snd_zap:'Zap',snd_roar:'Roar',snd_bite:'Bite',snd_boom:'Boom',imgLabel:'Image',imgUpload:'Upload',imgRemove:'Remove',imgMode:'Cutout',fxNote:'Customize attack effects: pick a preset style for each entry, then Apply locally or Save to cloud below.',fxPlayer:'Player attack effects (by weapon tier)',fxFoe:'Monster attack effects (by type)',fxCrit:'Crit effects (on critical)',fxPlayerCrit:'Player crit FX',fxFoeCrit:'Monster crit FX',fxUseNormal:'Same as normal (scaled)',fxn_unarmed:'Unarmed',fxn_iron:'Iron',fxn_silver:'Silver (ice)',fxn_knight:'Knight (double)',fxn_holy:'Holy',fxn_divine:'Divine (triple)',fxn_punch:'Punch',fxn_beast:'Beast (claws)',fxn_cast:'Magic ring',fxn_boss:'Boss (red)'}},
+'ja':{admin:{tabFx:'エフェクト',icon:'アイコン',mname:'名前',nameLocHint:'各言語の名前',mid:'ID',groundMon:'地上モンスター',basementMon:'地下モンスター',topBoss:'地上ボス',basementBoss:'地下ボス',guards:'3x3 ガーディアン',fxPreview:'エフェクトプレビュー',fxPreviewHint:'下のエフェクト横の ▶ を押すとここで再生',skNote:'剣王は地下の独立モンスター（両手剣兵とは別、外観・数値も個別設定）。',tabItems:'アイテム',tabSkills:'スキル',tabSounds:'サウンド',itemsNote:'アイテムのアイコンと名前を編集。注:ポーション/武器/鍵はマップ上で内蔵グラフィック。アイコン欄は主に絵文字アイテムに反映、名前欄は全アイテムに有効。',skillsNote:'スキルの数値(レベル/エネルギー EN/スタミナ/倍率または軽減)と名前を調整。',soundsNote:'各攻撃イベントの効果音スタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',skMult:'倍率',skDiv:'軽減',skLv:'レベル',skStam:'スタミナ',atkSkills:'攻撃スキル',defSkills:'防御スキル',soundMap:'攻撃効果音',sndDefault:'デフォルト',sndFoeHit:'モンスター攻撃',sndFoeCrit:'モンスター会心',sndMeHit:'プレイヤー攻撃',sndMeCrit:'プレイヤー会心',sndTry:'(効果音は戦闘中に再生。適用後に戦闘に入ると聞けます)',snd_thud:'打撃',snd_slash:'斬撃',snd_zap:'電撃',snd_roar:'咆哮',snd_bite:'噛みつき',snd_boom:'爆発',imgLabel:'画像',imgUpload:'アップロード',imgRemove:'削除',imgMode:'背景透過',fxNote:'攻撃エフェクトのカスタマイズ：各項目に既存のスタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',fxPlayer:'プレイヤー攻撃エフェクト（武器ランク別）',fxFoe:'モンスター攻撃エフェクト（種類別）',fxCrit:'会心エフェクト（クリティカル時）',fxPlayerCrit:'プレイヤー会心エフェクト',fxFoeCrit:'モンスター会心エフェクト',fxUseNormal:'通常と同じ（拡大）',fxn_unarmed:'素手',fxn_iron:'鉄剣',fxn_silver:'銀剣（氷）',fxn_knight:'騎士（二連斬）',fxn_holy:'聖光',fxn_divine:'神聖（三連斬）',fxn_punch:'殴打',fxn_beast:'獣（三爪）',fxn_cast:'魔法陣',fxn_boss:'ボス（赤斬）'}},
+'ko':{admin:{tabFx:'이펙트',icon:'아이콘',mname:'이름',nameLocHint:'언어별 이름',mid:'ID',groundMon:'지상 몬스터',basementMon:'지하 몬스터',topBoss:'지상 보스',basementBoss:'지하 보스',guards:'3x3 가디언',fxPreview:'이펙트 미리보기',fxPreviewHint:'아래 이펙트 옆 ▶ 를 누르면 여기서 재생',skNote:'검왕은 지하의 독립 몬스터입니다(양손검 병사와 별도, 외형·수치 개별 설정).',tabItems:'아이템',tabSkills:'스킬',tabSounds:'사운드',itemsNote:'아이템 아이콘과 이름을 편집. 참고: 물약/무기/열쇠는 지도에서 내장 그래픽. 아이콘 칸은 주로 이모지 아이템에 적용, 이름 칸은 모든 아이템에 유효.',skillsNote:'스킬 수치(레벨/에너지 EN/스태미나/배율 또는 감소)와 이름을 조정.',soundsNote:'각 공격 이벤트의 효과음 스타일을 선택한 뒤 아래 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',skMult:'배율',skDiv:'감소',skLv:'레벨',skStam:'스태미나',atkSkills:'공격 스킬',defSkills:'방어 스킬',soundMap:'공격 효과음',sndDefault:'기본',sndFoeHit:'몬스터 공격',sndFoeCrit:'몬스터 치명',sndMeHit:'플레이어 공격',sndMeCrit:'플레이어 치명',sndTry:'(효과음은 전투 중 재생. 적용 후 전투에 들어가면 들을 수 있습니다)',snd_thud:'타격',snd_slash:'베기',snd_zap:'전격',snd_roar:'포효',snd_bite:'물기',snd_boom:'폭발',imgLabel:'이미지',imgUpload:'업로드',imgRemove:'제거',imgMode:'배경 제거',fxNote:'공격 이펙트 커스터마이즈: 각 항목에 기존 스타일을 선택한 뒤 아래의 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',fxPlayer:'플레이어 공격 이펙트(무기 등급별)',fxFoe:'몬스터 공격 이펙트(종류별)',fxCrit:'치명타 이펙트(크리티컬 시)',fxPlayerCrit:'플레이어 치명 이펙트',fxFoeCrit:'몬스터 치명 이펙트',fxUseNormal:'일반과 동일(확대)',fxn_unarmed:'맨손',fxn_iron:'철검',fxn_silver:'은검(얼음)',fxn_knight:'기사(이중)',fxn_holy:'성광',fxn_divine:'신성(삼중)',fxn_punch:'주먹',fxn_beast:'야수(삼조)',fxn_cast:'마법진',fxn_boss:'보스(붉은)'}}
 };
 (function mergeAdmin2(){ for(const L in I18N_ADMIN2){ if(!I18N[L]) continue; I18N[L].admin = Object.assign({}, I18N[L].admin||{}, I18N_ADMIN2[L].admin); } })();
 
@@ -5534,7 +5540,7 @@ function snapshotConfig(){
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
     map: { floors:FLOORS, grid:GRID, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },
     fx: JSON.parse(JSON.stringify(FX_MAP)),
-    items: (function(){ const o={}; for(const k in ITEMS){ o[k]={face:ITEMS[k].face||'', name:ITEMS[k].name||'', img:ITEMS[k].img||null}; } return o; })(),
+    items: (function(){ const o={}; for(const k in ITEMS){ o[k]={face:ITEMS[k].face||'', name:ITEMS[k].name||'', nameLoc:(ITEMS[k].nameLoc?Object.assign({},ITEMS[k].nameLoc):undefined), img:ITEMS[k].img||null}; } return o; })(),
     atkSkills: ATK_SKILLS.map(function(s){ return Object.assign({}, s); }),
     defSkills: DEF_SKILLS.map(function(s){ return Object.assign({}, s); }),
     guards: [_cp(GUARD_DRAGONS.red), _cp(GUARD_DRAGONS.poison), _cp(ABYSS_GUARD)],
@@ -5574,7 +5580,7 @@ function applyConfig(cfg){
   }
   if(cfg.basementBoss){ Object.assign(BASEMENT_BOSS, cfg.basementBoss); _migrateNameLoc(BASEMENT_BOSS); }
   if(cfg.swordKing){ Object.assign(SWORD_KING, cfg.swordKing); _migrateNameLoc(SWORD_KING); }
-  if(cfg.items){ for(const k in cfg.items){ if(ITEMS[k]){ if(cfg.items[k].face!=null) ITEMS[k].face=cfg.items[k].face; if(cfg.items[k].name!=null) ITEMS[k].name=cfg.items[k].name; if('img' in cfg.items[k]) ITEMS[k].img=cfg.items[k].img||null; } } }
+  if(cfg.items){ for(const k in cfg.items){ if(ITEMS[k]){ if(cfg.items[k].face!=null) ITEMS[k].face=cfg.items[k].face; if(cfg.items[k].name!=null) ITEMS[k].name=cfg.items[k].name; if(cfg.items[k].nameLoc) ITEMS[k].nameLoc=Object.assign({}, cfg.items[k].nameLoc); if('img' in cfg.items[k]) ITEMS[k].img=cfg.items[k].img||null; _migrateNameLoc(ITEMS[k]); } } }
   let _skChanged=false;
   if(Array.isArray(cfg.atkSkills) && cfg.atkSkills.length){ ATK_SKILLS.length=0; cfg.atkSkills.forEach(function(s){ ATK_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
   if(Array.isArray(cfg.defSkills) && cfg.defSkills.length){ DEF_SKILLS.length=0; cfg.defSkills.forEach(function(s){ DEF_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
@@ -5588,7 +5594,7 @@ function applyConfig(cfg){
     if(typeof cfg.map.loopChance==='number') MAPCFG.loopChance=clamp(cfg.map.loopChance,0,0.6);
     if(typeof cfg.map.shopChance==='number') MAPCFG.shopChance=clamp(cfg.map.shopChance,0,1);
   }
-  if(cfg.fx){ if(cfg.fx.weapon) FX_WEAPON_TIERS.forEach(function(k){ if(cfg.fx.weapon[k]) FX_MAP.weapon[k]=cfg.fx.weapon[k]; }); if(cfg.fx.foe) FX_FOE_KINDS.forEach(function(k){ if(cfg.fx.foe[k]) FX_MAP.foe[k]=cfg.fx.foe[k]; }); if(cfg.fx.player!=null) FX_MAP.player=cfg.fx.player; }
+  if(cfg.fx){ if(cfg.fx.weapon) FX_WEAPON_TIERS.forEach(function(k){ if(cfg.fx.weapon[k]) FX_MAP.weapon[k]=cfg.fx.weapon[k]; }); if(cfg.fx.foe) FX_FOE_KINDS.forEach(function(k){ if(cfg.fx.foe[k]) FX_MAP.foe[k]=cfg.fx.foe[k]; }); if(cfg.fx.player!=null) FX_MAP.player=cfg.fx.player; if(cfg.fx.playerCrit!=null) FX_MAP.playerCrit=cfg.fx.playerCrit; if(cfg.fx.foeCrit!=null) FX_MAP.foeCrit=cfg.fx.foeCrit; }
   try{ applyPlayerFace(); }catch(e){}
 }
 
@@ -5776,7 +5782,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·28 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·29 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5784,7 +5790,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·28 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·29 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -5900,13 +5906,13 @@ function adNum(label,obj,key,step){
 function adText(label,obj,key,ph,maxlen){ const v=(obj[key]!=null?String(obj[key]):''); return '<div class="adField"><label>'+label+'</label><input type="text" maxlength="'+(maxlen||12)+'" data-k="'+key+'" value="'+v.replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'"></div>'; }
 function _locName(obj){ const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; return (obj&&obj.nameLoc&&obj.nameLoc[L]!=null)?String(obj.nameLoc[L]):''; }
 function _admName(o){ if(!o) return ''; const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(o.nameLoc&&o.nameLoc[L]&&(''+o.nameLoc[L]).trim()) return (''+o.nameLoc[L]).trim(); const n=t('mon.'+(o.id||'')); if(n&&n.indexOf('mon.')!==0) return n; return o.name||o.id||''; }
-function adNameLoc(obj){
-  const id=(obj&&obj.id)||'';
+function adNameLoc(obj, grp, idOverride){
+  const id=(idOverride!=null?idOverride:((obj&&obj.id)||'')); grp=grp||'mon';
   const langs=[['zh-Hant','繁中'],['zh-Hans','简中'],['en','EN'],['ja','日本'],['ko','한국']];
   let o='<div class="adField adNlField"><label>'+t('admin.mname')+' · '+t('admin.nameLocHint')+'</label><div class="adNlGrid">';
   for(let i=0;i<langs.length;i++){ const lc=langs[i][0];
     const cur=(obj&&obj.nameLoc&&obj.nameLoc[lc]!=null)?String(obj.nameLoc[lc]):'';
-    let ph=(typeof I18N!=='undefined'&&I18N[lc]&&I18N[lc].mon&&I18N[lc].mon[id])||'';
+    let ph=(typeof I18N!=='undefined'&&I18N[lc]&&I18N[lc][grp]&&I18N[lc][grp][id])||'';
     if(!ph) ph=(obj&&obj.name)||id||'';
     o+='<div class="adNlRow"><span class="adNlTag">'+langs[i][1]+'</span><input type="text" maxlength="24" data-knl="'+lc+'" value="'+(''+cur).replace(/"/g,'&quot;')+'" placeholder="'+(''+ph).replace(/"/g,'&quot;')+'"></div>';
   }
@@ -6001,6 +6007,9 @@ function renderAdminBody(){
       FX_PRESETS.forEach(function(pp){ oh+='<option value="'+pp+'"'+(FX_MAP.player===pp?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; });
       oh+=_fxCustomOpts(FX_MAP.player||'')+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div></div>';
       po.innerHTML=oh; body.appendChild(po); }
+    { const cc=document.createElement('div'); cc.className='adRowItem'; cc.dataset.fxcritrow='1';
+      const critSel=function(label,attr,cur){ let s='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select '+attr+'="1"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxUseNormal')+'</option>'; FX_PRESETS.forEach(function(pp){ s+='<option value="'+pp+'"'+(cur===pp?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; }); return s+_fxCustomOpts(cur||'')+'</select><button class="btn adTestBtn" data-fxprev="1" data-crit="1">▶</button></div></div>'; };
+      cc.innerHTML='<div class="adName">💥 '+t('admin.fxCrit')+'</div><div class="adGrid">'+critSel(t('admin.fxPlayerCrit'),'data-fxplayercrit',FX_MAP.playerCrit)+critSel(t('admin.fxFoeCrit'),'data-fxfoecrit',FX_MAP.foeCrit)+'</div>'; body.appendChild(cc); }
     const pr=document.createElement('div'); pr.className='adRowItem'; pr.dataset.fxgroup='weapon';
     let ph='<div class="adName">⚔️ '+t('admin.fxPlayer')+'</div><div class="adGrid">';
     FX_WEAPON_TIERS.forEach(function(k){ ph+=adFxSelect(t('admin.fxn_'+k),'weapon',k,FX_MAP.weapon[k]); });
@@ -6015,8 +6024,8 @@ function renderAdminBody(){
       Object.keys(adminDraft.items).forEach(function(key){
         const it=adminDraft.items[key];
         const row=document.createElement('div'); row.className='adRowItem'; row.dataset.item=key;
-        row.innerHTML='<div class="adName">'+(it.face||'')+' '+(it.name||t('item.'+key)||key)+' <span style="color:var(--txt-faint);font-weight:400">('+key+')</span></div><div class="adGrid">'+
-          adText(t('admin.icon'),it,'face')+adText(t('admin.mname'),it,'name','',24)+adImg(it,'it_'+key)+'</div>';
+        row.innerHTML='<div class="adName">'+(it.face||'')+' '+_locDisplay(it,'item',key)+' <span style="color:var(--txt-faint);font-weight:400">('+key+')</span></div><div class="adGrid">'+
+          adText(t('admin.icon'),it,'face')+adNameLoc(it,'item',key)+adImg(it,'it_'+key)+'</div>';
         body.appendChild(row);
       });
     }
@@ -6107,6 +6116,8 @@ function collectAdminDraft(){
     });
   }
   { const _pf=byId('adminBody').querySelector('select[data-fxplayer]'); if(_pf){ if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}}; adminDraft.fx.player=_pf.value||''; } }
+  { const _pc=byId('adminBody').querySelector('select[data-fxplayercrit]'); if(_pc){ if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}}; adminDraft.fx.playerCrit=_pc.value||''; } }
+  { const _fc=byId('adminBody').querySelector('select[data-fxfoecrit]'); if(_fc){ if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}}; adminDraft.fx.foeCrit=_fc.value||''; } }
   if(byId('adminBody').querySelector('select[data-sound]')){
     if(!adminDraft.sounds) adminDraft.sounds={};
     byId('adminBody').querySelectorAll('select[data-sound]').forEach(function(sel){ adminDraft.sounds[sel.getAttribute('data-sound')]=sel.value; });
