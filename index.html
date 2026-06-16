@@ -863,6 +863,17 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .adTestBtn:hover{border-color:var(--gold-d);background:#352c52;}
 .fxPrevStage{display:flex;justify-content:center;padding:12px 0 4px;}
 .fxPrevHost{position:relative;width:94px;height:94px;display:flex;align-items:center;justify-content:center;font-size:46px;background:radial-gradient(circle,#1a1530 0%,#0d0b14 100%);border:1px solid var(--line);border-radius:12px;}
+.adSubHead{font-size:12px;color:var(--gold);font-weight:700;margin:12px 0 5px;}
+.adFloorGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px;}
+.adFloorCell{display:flex;flex-direction:column;gap:2px;}
+.adFloorLab{font-size:11px;color:var(--txt-dim);text-align:center;}
+.adFloorCell select{font-size:11px;padding:3px 4px;width:100%;}
+.wlStatus{font-size:12px;color:var(--gold);margin:6px 0;font-weight:700;}
+.adWlGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px;margin-top:6px;}
+.adWlCell{display:flex;align-items:center;gap:6px;font-size:12px;padding:5px 7px;border:1px solid var(--line);border-radius:7px;cursor:pointer;background:rgba(255,255,255,0.02);}
+.adWlCell.on{border-color:var(--gold);background:rgba(212,175,55,0.12);}
+.adWlCell input{margin:0;flex:none;}
+.adWlCell span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .adminActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0 4px;}
 .adDataRow{font-family:var(--mono);font-size:12px;color:var(--txt-dim);padding:6px 8px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;}
 .adNote{font-size:11px;color:var(--txt-faint);margin:2px 0 10px;line-height:1.5;}
@@ -1603,6 +1614,10 @@ const I18N = {
 let FLOORS=25, GRID=11;          /* top floor (boss) = 25 */
 const BASEMENT=20;               /* deepest basement = B20 (floor -20) */
 let _realFloor=1;                /* real (possibly negative) floor of the level currently being generated */
+let FLOOR_CFG={};                /* per-floor wandering-monster density multiplier, keyed by real floor (admin Map tab). absent = 1x */
+let FLOOR_WL={};                 /* per-floor monster whitelist (array of ids), keyed by real floor; when set, overrides the range-based roster for that floor */
+let _wlFloor=1;                  /* floor currently being edited in the whitelist picker */
+let FLOOR_TR={};                 /* per-floor loose-pickup (treasure) density multiplier, keyed by real floor (admin Map tab). absent = 1x */
 function hasUp(f){ return f<FLOORS; }
 function hasDown(f){ return f>-BASEMENT; }
 function bossSealed(d){ if(!d||!d.boss||state.cheatActive) return false; for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ const e=d.ent[y]&&d.ent[y][x]; if(e&&e.isBoss) return true; } return false; }   /* boss floor with its boss still present -> no exit (until defeated); admin bypasses */
@@ -1926,6 +1941,21 @@ const GUARD_DRAGONS={
 };
 const ABYSS_GUARD={id:'abyssLord', name:'深淵魔王', face:'😈', hp:16000, atk:1000, def:1000, gold:480, exp:400, atkc:2, agi:22, thrA:55, thrD:50, ability:'poison', ab:'boss', drains:true, atkFx:'demon', atkSfx:'boom'};
 const SWORD_KING={id:'swordKing', face:'🤺', hp:630, atk:175, def:55, gold:44, exp:4, atkc:4, agi:16, minF:15, maxF:24, ab:'pierce', atkFx:null, atkSfx:null};   /* 劍王：地下的獨立怪物（與雙手劍兵分開，各自設定）。地下生成時 scaleFoe 依深度縮放 */
+function migrateFloorRanges(){
+  if(typeof MONSTERS!=='undefined') MONSTERS.forEach(function(m){
+    if(m.sMin==null){ var lo=clamp(m.minF||1,1,FLOORS), hi=clamp(Math.min(m.maxF||FLOORS,FLOORS),1,FLOORS); m.sMin=lo; m.sMax=Math.max(lo,hi); }
+    if(m.bMin==null){
+      if(m.id==='swordsman'){ m.bMin=0; m.bMax=0; }                                  /* 地下版是劍王，雙手劍兵僅地上 */
+      else { var blo=0,bhi=0,minF=m.minF||1,maxF=m.maxF||99; for(var d=1;d<=9;d++){ var eff=effFloor(-d); if(eff>=minF&&eff<=maxF){ if(!blo)blo=d; bhi=d; } } m.bMin=blo; m.bMax=bhi; }
+    }
+  });
+  if(typeof BASEMENT_MONSTERS!=='undefined') BASEMENT_MONSTERS.forEach(function(m){
+    if(m.sMin==null){ m.sMin=0; m.sMax=0; }
+    if(m.bMin==null){ if(m.b20){ m.bMin=0; m.bMax=0; } else { m.bMin=10; m.bMax=BASEMENT-1; } }   /* 地下怪預設 B10-B19；b20 只在 boss 樓層 */
+  });
+  if(typeof SWORD_KING!=='undefined' && SWORD_KING && SWORD_KING.sMin==null){ SWORD_KING.sMin=0; SWORD_KING.sMax=0; SWORD_KING.bMin=1; SWORD_KING.bMax=9; }
+}
+migrateFloorRanges();
 function startCanPierce(foe){ return (START.atk+START.thrA) > (foe.def+foe.thrD); }
 
 /* ============================== Floor helpers ============================== */
@@ -1973,6 +2003,16 @@ function weightedMonster(pool,f){
   const arr=[];
   pool.forEach(function(m,idx){ const w=1+Math.max(0, idx-Math.max(0,8-f)); for(let i=0;i<w;i++) arr.push(m); });
   return pick(arr.length?arr:pool);
+}
+function _rolePick(pool, want){
+  /* bias monster selection by per-monster role (admin Monsters tab). ALWAYS falls back so guards/wanderers are still placed — solvability is never affected. */
+  if(!pool||!pool.length) return pool;
+  const role=function(m){ return (m&&m.role)?m.role:'any'; };
+  if(want==='wander'){ const w=pool.filter(function(m){ var r=role(m); return r==='any'||r==='wander'; }); return w.length?w:pool; }   /* wanderers exclude dedicated guards (block/treasure) */
+  const exact=pool.filter(function(m){ return role(m)===want; }); if(exact.length) return exact;                                       /* prefer the requested guard role */
+  const anyR=pool.filter(function(m){ return role(m)==='any'; }); if(anyR.length) return anyR;                                         /* else generic monsters */
+  const nonW=pool.filter(function(m){ return role(m)!=='wander'; }); if(nonW.length) return nonW;                                      /* else anything not wander-only */
+  return pool;
 }
 function buildItemPool(f){
   /* common pickups that may appear anywhere; bigGold, staffs (thrA/thrD), cure vials,
@@ -2079,17 +2119,21 @@ function genFloorRaw(f){
   const free=function(){return floors.filter(function(c){return !wall[c.y][c.x]&&!occupied(data,c)&&!nearSpawn(data,c);});};   // !wall guard: a cell sealed into a wall AFTER floors[] was captured (vault frame / shop) must never receive an item or monster (問題1)
 
   // monsters
-  const monCount=clamp(3+Math.floor(f/4),3,6);   // fewer wandering mobs; real threat = path guards + treasure/branch guards
+  const _fdMul=(typeof FLOOR_CFG!=='undefined'&&FLOOR_CFG[_realFloor]!=null)?FLOOR_CFG[_realFloor]:1;   // per-floor density (admin Map tab)
+  const monCount=clamp(Math.round((3+Math.floor(f/4))*_fdMul),0,14);   // wandering mobs only; path/treasure guards are placed separately so the floor stays solvable
   const isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };   // weaken / poison / true-damage / life-drain
-  let roster=(_realFloor<=-10) ? BASEMENT_MONSTERS.filter(function(m){return !m.b20;}) : MONSTERS.filter(function(m){return f>=m.minF&&f<=m.maxF&&(f>=15||!isDebuff(m));});   // main tower: NO special-effect monsters before floor 15; B10+ uses the basement bestiary
-  if(_realFloor<0 && _realFloor>-10 && typeof SWORD_KING!=='undefined' && SWORD_KING){ roster=roster.filter(function(m){return m.id!=='swordsman';}); roster.push(SWORD_KING); }   // 地下 B1-B9：劍王以獨立怪物直接生成（不再由雙手劍兵變身）；地表雙手劍兵留在地上
+  const _ALLMON=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);   // unified pool; each monster carries its own surface (sMin/sMax) + basement-depth (bMin/bMax) ranges (admin Monsters tab)
+  let roster;
+  if(_realFloor>0){ const rf=_realFloor; roster=_ALLMON.filter(function(m){ return !m.b20 && (m.sMin|0)>0 && rf>=(m.sMin|0) && rf<=(m.sMax|0) && (rf>=15||!isDebuff(m)); }); }   // surface floor: monsters whose surface range covers it (special-effect mobs still gated < floor 15)
+  else { const dp=-_realFloor; roster=_ALLMON.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }   // basement: monsters whose basement-depth range covers this depth
+  { const _wl=(typeof FLOOR_WL!=='undefined'&&FLOOR_WL[_realFloor])?FLOOR_WL[_realFloor]:null; if(_wl&&_wl.length){ const _w=_ALLMON.filter(function(m){ return !m.b20 && _wl.indexOf(m.id)>=0; }); if(_w.length) roster=_w; } }   // per-floor whitelist (admin Map tab): if set, this floor spawns ONLY the listed monsters
   const weakRoster=roster.filter(function(m){return startCanPierce(scaleFoe(m,f));});
   // (wandering-monster placement moved below, to AFTER the 3x3 vaults — so a vault carves on an empty maze and spawns reliably; monsters then fill the remaining free cells around it)
 
   // ---- placement helpers (treasures tucked away & guarded; cures off the main path) ----
   const nbsOpen=function(c){ const r=[], nb=[[0,-1],[1,0],[0,1],[-1,0]]; for(let i=0;i<nb.length;i++){ const x=c.x+nb[i][0], y=c.y+nb[i][1]; if(x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x]) r.push({x:x,y:y}); } return r; };
-  const strongGuard=function(){ const hard=roster.filter(function(m){return !startCanPierce(scaleFoe(m,f));}); return scaleFoe(weightedMonster(hard.length?hard:roster,f),f); };
-  const weakGuard=function(){ if(weakRoster.length) return scaleFoe(weightedMonster(weakRoster,f),f); const lo=roster.slice().sort(function(a,b){return (a.def+(a.thrD||0))-(b.def+(b.thrD||0));})[0]; return scaleFoe(lo||roster[0],f); };
+  const strongGuard=function(){ const _tre=roster.filter(function(m){return (m.role||'any')==='treasure';}); if(_tre.length) return scaleFoe(weightedMonster(_tre,f),f); const hard=roster.filter(function(m){return !startCanPierce(scaleFoe(m,f));}); return scaleFoe(weightedMonster(_rolePick(hard.length?hard:roster,'treasure'),f),f); };
+  const weakGuard=function(){ if(weakRoster.length) return scaleFoe(weightedMonster(_rolePick(weakRoster,'block'),f),f); const lo=roster.slice().sort(function(a,b){return (a.def+(a.thrD||0))-(b.def+(b.thrD||0));})[0]; return scaleFoe(lo||roster[0],f); };
   const freeKeyCell=function(except){ const c=shuffle(free()).filter(function(p){return !(p.x===except.x&&p.y===except.y);}); return c.length?c[0]:null; };
   function placeBigVault(foeFn, treasureItem, doorColor){
     // Carve a SINGLE-ENTRANCE 3x3 chamber off the maze, seal the other sides (BFS-verified so the
@@ -2298,8 +2342,9 @@ function genFloorRaw(f){
     if(op4<=1) continue;   // never drop a wandering monster INTO a dead-end (those are reserved for guarded treasure)
     const ess=isEssential(c);
     const poolBase= ess ? (weakRoster.length?weakRoster:roster) : roster;
-    let base=weightedMonster(poolBase,f), tries=0;
-    while((typeCnt[base.id]||0)>=3 && tries++<6) base=weightedMonster(poolBase,f);   // cap any one monster type at ~3 per floor (less repetition)
+    const _wp=_rolePick(poolBase,'wander');
+    let base=weightedMonster(_wp,f), tries=0;
+    while((typeCnt[base.id]||0)>=3 && tries++<6) base=weightedMonster(_wp,f);   // cap any one monster type at ~3 per floor (less repetition)
     const foe=scaleFoe(base,f);
     if(_realFloor>0 && ess && !startCanPierce(foe)) continue;   // main tower keeps a START-beatable path; basements may put tough mobs on it
     data.ent[c.y][c.x]={kind:'monster',foe:foe}; typeCnt[base.id]=(typeCnt[base.id]||0)+1;
@@ -2349,7 +2394,8 @@ function genFloorRaw(f){
 
   // items
   const itemPool=buildItemPool(f);
-  const itemCount=clamp(2+Math.floor(f/4),2,5);   // more loose pickups so open areas aren't empty (問題6/8)
+  const _trMul=(typeof FLOOR_TR!=='undefined'&&FLOOR_TR[_realFloor]!=null)?FLOOR_TR[_realFloor]:1;   // per-floor treasure density (admin Map tab)
+  const itemCount=clamp(Math.round((2+Math.floor(f/4))*_trMul),0,12);   // loose pickups (potions) only; gated weapons/books/gems/gold keep their fixed placement
   let ip=0;
   const ic=shuffle(free());
   for(let i=0;i<ic.length;i++){ if(ip>=itemCount) break; const c=ic[i]; data.ent[c.y][c.x]={kind:'item',item:pick(itemPool)}; ip++; }
@@ -3046,6 +3092,12 @@ function bindCustomMediaUI(){
     if(sp){ playCustomSfx(sp.getAttribute('data-sfxplay')); return; }
     const stb=ev.target.closest('[data-sndtest]'); if(stb){ const w=stb.parentNode; const sel=w?w.querySelector('select[data-sound]'):null; sndTestPlay(stb.getAttribute('data-sndtest'), sel?sel.value:'default'); return; }
     const fpb=ev.target.closest('[data-fxprev]'); if(fpb){ const w=fpb.parentNode; const sel=w?w.querySelector('select'):null; if(sel) fxPreviewPlay(sel.value, fpb.getAttribute('data-crit')==='1'); return; }
+  }); }
+  if(ab){ ab.addEventListener('change', function(ev){
+    const wf=ev.target.closest('select[data-wlfloor]');
+    if(wf){ collectAdminDraft(); _wlFloor=parseInt(wf.value,10)||1; renderAdminBody(); return; }
+    const wm=ev.target.closest('input[data-wlmon]');
+    if(wm){ if(!adminDraft.floorWL) adminDraft.floorWL={}; let arr=adminDraft.floorWL[_wlFloor]?adminDraft.floorWL[_wlFloor].slice():[]; const id=wm.getAttribute('data-wlmon'); const ix=arr.indexOf(id); if(wm.checked){ if(ix<0) arr.push(id); } else if(ix>=0){ arr.splice(ix,1); } if(arr.length) adminDraft.floorWL[_wlFloor]=arr; else delete adminDraft.floorWL[_wlFloor]; const cell=wm.closest('.adWlCell'); if(cell) cell.classList.toggle('on', wm.checked); const st=byId('adminBody').querySelector('.wlStatus'); if(st) st.textContent=arr.length?(t('admin.wlActive')+'：'+arr.length):t('admin.wlDefault'); return; }
   }); }
   const ff=byId('admFxFile'); if(ff){ ff.addEventListener('change', function(){ const file=ff.files&&ff.files[0]; if(!file) return; if(!/^image\//.test(file.type||'')){ toast(t('av.bad')); return; } collectAdminDraft(); _processCustomFx(file, function(uri){ if(!uri) return; const id=_nextCustomId(CUSTOM_FX,'cfx'); CUSTOM_FX[id]=uri; saveCustomMedia(); toast(t('admin.fxAdded')); renderAdminBody(); }); }); }
   const sf=byId('admSfxFile'); if(sf){ sf.addEventListener('change', function(){ const file=sf.files&&sf.files[0]; if(!file) return; collectAdminDraft(); _processCustomAudio(file, function(uri){ if(!uri){ toast(t('admin.audioBad')); return; } const id=_nextCustomId(CUSTOM_SFX,'csfx'); CUSTOM_SFX[id]=uri; saveCustomMedia(); toast(t('admin.audioAdded')); renderAdminBody(); }); }); }
@@ -5219,15 +5271,15 @@ const ADMIN_EMAILS = [
 /* ---- extra i18n (accounts + admin), merged into all 5 languages ---- */
 const I18N_ADMIN = {
 'zh-Hant':{acct:{title:'登入帳號',desc:'登入後即可把遊戲進度儲存到雲端。',emailLab:'電子郵件',passLab:'密碼',login:'登入',register:'註冊',logout:'登出',save:'立即儲存進度',load:'載入雲端進度',whoLab:'目前登入',adminBtn:'進入後台',adminLoginTitle:'管理員登入',cancel:'取消',adminOk:'管理員已登入',voiceRetry:'請重新操作一次',accountLab:'登入 / 帳號',close:'關閉',guestOnly:'未設定雲端，僅能本機遊玩',noFirebase:'尚未設定 Firebase，無法登入',needBoth:'請輸入電子郵件與密碼',working:'處理中…',ok:'成功！',fail:'失敗，請重試',loaded:'已載入雲端進度',noSave:'雲端沒有存檔',notAdmin:'你不是管理員',saved:'進度已儲存',adminHere:'你已經在管理員後台了'},
-  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值（hp/攻/防/金/經/連擊/出現樓層/耗體）。',drains:'耗體',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值'}},
+  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值。出現樓層分「地上」「地下」兩段，各填最低~最高層；該段填 0＝不在那裡生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗體',role:'生成角色',role_any:'一般（預設）',role_wander:'只遊蕩',role_block:'擋路守衛',role_treasure:'守護寶物',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值',monDensity:'每層怪物數量',monDensityHint:'調整每層的遊蕩怪物數量（守衛怪物不受影響，地圖仍可破關）。',monWhitelist:'每層怪物白名單',monWhitelistHint:'先選一層樓，再勾選要在那層出現的怪物。不勾任何＝該層用預設（依各怪的樓層範圍）；勾選後該層只生成勾選的怪物。',wlFloorPick:'選擇樓層',wlActive:'白名單啟用',wlDefault:'預設（未限制）',trDensity:'每層寶物數量',trDensityHint:'調整每層散落的拾取物（藥水）數量。武器、技能書、寶石、金幣等關鍵寶物仍依固定規則擺放、不受影響。',surfaceFloors:'地上樓層',basementFloors:'地下樓層',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'zh-Hans':{acct:{title:'登录账号',desc:'登录后即可把游戏进度保存到云端。',emailLab:'电子邮件',passLab:'密码',login:'登录',register:'注册',logout:'登出',save:'立即保存进度',load:'载入云端进度',whoLab:'当前登录',adminBtn:'进入后台',adminLoginTitle:'管理员登录',cancel:'取消',adminOk:'管理员已登录',voiceRetry:'请重新操作一次',accountLab:'登录 / 账号',close:'关闭',guestOnly:'未配置云端，仅能本机游玩',noFirebase:'尚未配置 Firebase，无法登录',needBoth:'请输入电子邮件与密码',working:'处理中…',ok:'成功！',fail:'失败，请重试',loaded:'已载入云端进度',noSave:'云端没有存档',notAdmin:'你不是管理员',saved:'进度已保存',adminHere:'你已经在管理员后台了'},
-  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值（hp/攻/防/金/经/连击/出现楼层/耗体）。',drains:'耗体',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值'}},
+  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值。出现楼层分「地上」「地下」两段，各填最低~最高层；该段填 0＝不在那里生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗体',role:'生成角色',role_any:'一般（默认）',role_wander:'只游荡',role_block:'挡路守卫',role_treasure:'守护宝物',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值',monDensity:'每层怪物数量',monDensityHint:'调整每层的游荡怪物数量（守卫怪物不受影响，地图仍可通关）。',monWhitelist:'每层怪物白名单',monWhitelistHint:'先选一层楼，再勾选要在那层出现的怪物。不勾任何＝该层用默认（依各怪的楼层范围）；勾选后该层只生成勾选的怪物。',wlFloorPick:'选择楼层',wlActive:'白名单启用',wlDefault:'默认（未限制）',trDensity:'每层宝物数量',trDensityHint:'调整每层散落的拾取物（药水）数量。武器、技能书、宝石、金币等关键宝物仍依固定规则摆放、不受影响。',surfaceFloors:'地上楼层',basementFloors:'地下楼层',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'en':{acct:{title:'Sign in',desc:'Sign in to save your progress to the cloud.',emailLab:'Email',passLab:'Password',login:'Log in',register:'Register',logout:'Log out',save:'Save progress now',load:'Load cloud save',whoLab:'Signed in',adminBtn:'Open admin',adminLoginTitle:'Admin sign-in',cancel:'Cancel',adminOk:'Admin signed in',voiceRetry:'Please try again',accountLab:'Sign in / Account',close:'Close',guestOnly:'Cloud not set up — local play only',noFirebase:'Firebase not configured — cannot sign in',needBoth:'Enter email and password',working:'Working…',ok:'Success!',fail:'Failed, try again',loaded:'Cloud save loaded',noSave:'No cloud save found',notAdmin:'You are not an admin',saved:'Progress saved',adminHere:'You are already in the admin console'},
-  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster (hp/atk/def/gold/exp/multi/floors/drains).',drains:'Saps',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults'}},
+  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster. Spawn floors split into Surface and Basement ranges (min-max each); set a range to 0 to skip that area.',surfMin:'Surf min',surfMax:'Surf max',baseMin:'Base min',baseMax:'Base max',drains:'Saps',role:'Spawn role',role_any:'Any (default)',role_wander:'Wander only',role_block:'Path blocker',role_treasure:'Treasure guard',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults',monDensity:'Monsters per floor',monDensityHint:'Tune the wandering-monster count per floor (guards are unaffected, so floors stay solvable).',monWhitelist:'Per-floor monster whitelist',monWhitelistHint:'Pick a floor, then check the monsters allowed there. None checked = that floor uses defaults (per-monster ranges); checked = only those monsters spawn on that floor.',wlFloorPick:'Pick floor',wlActive:'Whitelist active',wlDefault:'Default (no limit)',trDensity:'Treasure per floor',trDensityHint:'Tune the loose pickups (potions) scattered per floor. Key treasures (weapons, skill books, gems, gold) keep their fixed placement and are unaffected.',surfaceFloors:'Surface floors',basementFloors:'Basement floors',densVeryFew:'Very few',densFew:'Few',densNormal:'Normal',densMany:'Many',densVeryMany:'Very many'}},
 'ja':{acct:{title:'ログイン',desc:'ログインすると進行状況をクラウドに保存できます。',emailLab:'メール',passLab:'パスワード',login:'ログイン',register:'登録',logout:'ログアウト',save:'今すぐ保存',load:'クラウドから読込',whoLab:'ログイン中',adminBtn:'管理画面へ',adminLoginTitle:'管理者ログイン',cancel:'キャンセル',adminOk:'管理者としてログイン',voiceRetry:'もう一度操作してください',accountLab:'ログイン / アカウント',close:'閉じる',guestOnly:'クラウド未設定 — ローカルのみ',noFirebase:'Firebase 未設定のためログイン不可',needBoth:'メールとパスワードを入力',working:'処理中…',ok:'成功！',fail:'失敗、再試行',loaded:'クラウドから読み込みました',noSave:'クラウドにデータなし',notAdmin:'管理者ではありません',saved:'保存しました',adminHere:'すでに管理画面にいます'},
-  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値（hp/攻/防/金/経/連撃/出現階/消耗）。',drains:'消耗',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました'}},
+  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値を調整。出現階は「地上」「地下」の2レンジ（各 最小~最大）。0 にするとその領域に出現しません。',surfMin:'地上 最小',surfMax:'地上 最大',baseMin:'地下 最小',baseMax:'地下 最大',drains:'消耗',role:'生成の役割',role_any:'通常（既定）',role_wander:'徘徊のみ',role_block:'道塞ぎ',role_treasure:'宝の守護',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました',monDensity:'階ごとのモンスター数',monDensityHint:'各階の徘徊モンスター数を調整（ガード役は影響なし、攻略可能性は維持）。',monWhitelist:'階ごとのモンスター許可リスト',monWhitelistHint:'階を選び、その階に出すモンスターにチェック。未チェック＝既定（各モンスターの出現階）。チェックした場合、その階はチェックしたモンスターのみ出現。',wlFloorPick:'階を選択',wlActive:'許可リスト有効',wlDefault:'既定（制限なし）',trDensity:'階ごとのアイテム数',trDensityHint:'各階に散らばる拾得アイテム（ポーション）の数を調整。武器・スキル書・宝石・ゴールドなどの重要アイテムは固定配置で影響を受けません。',surfaceFloors:'地上階',basementFloors:'地下階',densVeryFew:'とても少ない',densFew:'少ない',densNormal:'普通',densMany:'多い',densVeryMany:'とても多い'}},
 'ko':{acct:{title:'로그인',desc:'로그인하면 진행 상황을 클라우드에 저장할 수 있습니다.',emailLab:'이메일',passLab:'비밀번호',login:'로그인',register:'가입',logout:'로그아웃',save:'지금 저장',load:'클라우드 불러오기',whoLab:'로그인됨',adminBtn:'관리자 페이지',adminLoginTitle:'관리자 로그인',cancel:'취소',adminOk:'관리자 로그인됨',voiceRetry:'다시 시도해 주세요',accountLab:'로그인 / 계정',close:'닫기',guestOnly:'클라우드 미설정 — 로컬만 가능',noFirebase:'Firebase 미설정 — 로그인 불가',needBoth:'이메일과 비밀번호를 입력',working:'처리 중…',ok:'성공!',fail:'실패, 다시 시도',loaded:'클라우드 저장을 불러왔습니다',noSave:'클라우드 저장 없음',notAdmin:'관리자가 아닙니다',saved:'진행 저장됨',adminHere:'이미 관리자 콘솔에 있습니다'},
-  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치(hp/공/방/골드/경험/연타/출현층/소모).',drains:'소모',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원'}}
+  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치 조정. 출현 층은 지상/지하 두 범위(각 최소~최대); 0으로 두면 해당 영역에 출현하지 않음.',surfMin:'지상 최소',surfMax:'지상 최대',baseMin:'지하 최소',baseMax:'지하 최대',drains:'소모',role:'생성 역할',role_any:'일반(기본)',role_wander:'배회만',role_block:'길막이',role_treasure:'보물 수호',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원',monDensity:'층별 몬스터 수',monDensityHint:'각 층의 배회 몬스터 수를 조정(가드 몬스터는 영향 없음, 클리어 가능 유지).',monWhitelist:'층별 몬스터 화이트리스트',monWhitelistHint:'층을 선택한 뒤 그 층에 나올 몬스터를 체크. 미체크＝기본값(각 몬스터 범위); 체크 시 그 층은 체크한 몬스터만 출현.',wlFloorPick:'층 선택',wlActive:'화이트리스트 적용',wlDefault:'기본값(제한 없음)',trDensity:'층별 아이템 수',trDensityHint:'각 층에 흩어진 습득물(물약) 수를 조정. 무기·스킬북·보석·골드 등 핵심 보물은 고정 배치로 영향받지 않음.',surfaceFloors:'지상층',basementFloors:'지하층',densVeryFew:'아주 적음',densFew:'적음',densNormal:'보통',densMany:'많음',densVeryMany:'아주 많음'}}
 };
 (function mergeAdminI18n(){ for(const L in I18N_ADMIN){ if(!I18N[L]) continue; for(const ns in I18N_ADMIN[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, I18N_ADMIN[L][ns]); } } })();
 
@@ -5540,6 +5592,9 @@ function snapshotConfig(){
     swordKing: _cp(SWORD_KING),
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
     map: { floors:FLOORS, grid:GRID, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },
+    floorCfg: Object.assign({}, FLOOR_CFG),
+    floorWL: (function(){ const o={}; for(const k in FLOOR_WL){ if(Array.isArray(FLOOR_WL[k])) o[k]=FLOOR_WL[k].slice(); } return o; })(),
+    floorTr: Object.assign({}, FLOOR_TR),
     fx: JSON.parse(JSON.stringify(FX_MAP)),
     items: (function(){ const o={}; for(const k in ITEMS){ o[k]={face:ITEMS[k].face||'', name:ITEMS[k].name||'', nameLoc:(ITEMS[k].nameLoc?Object.assign({},ITEMS[k].nameLoc):undefined), img:ITEMS[k].img||null}; } return o; })(),
     atkSkills: ATK_SKILLS.map(function(s){ return Object.assign({}, s); }),
@@ -5581,6 +5636,7 @@ function applyConfig(cfg){
   }
   if(cfg.basementBoss){ Object.assign(BASEMENT_BOSS, cfg.basementBoss); _migrateNameLoc(BASEMENT_BOSS); }
   if(cfg.swordKing){ Object.assign(SWORD_KING, cfg.swordKing); _migrateNameLoc(SWORD_KING); }
+  migrateFloorRanges();   /* fill surface/basement range defaults for any monster the saved config didn't carry them on */
   if(cfg.items){ for(const k in cfg.items){ if(ITEMS[k]){ if(cfg.items[k].face!=null) ITEMS[k].face=cfg.items[k].face; if(cfg.items[k].name!=null) ITEMS[k].name=cfg.items[k].name; if(cfg.items[k].nameLoc) ITEMS[k].nameLoc=Object.assign({}, cfg.items[k].nameLoc); if('img' in cfg.items[k]) ITEMS[k].img=cfg.items[k].img||null; _migrateNameLoc(ITEMS[k]); } } }
   let _skChanged=false;
   if(Array.isArray(cfg.atkSkills) && cfg.atkSkills.length){ ATK_SKILLS.length=0; cfg.atkSkills.forEach(function(s){ ATK_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
@@ -5589,6 +5645,9 @@ function applyConfig(cfg){
   if(Array.isArray(cfg.guards)){ if(cfg.guards[0]) Object.assign(GUARD_DRAGONS.red, cfg.guards[0]); if(cfg.guards[1]) Object.assign(GUARD_DRAGONS.poison, cfg.guards[1]); if(cfg.guards[2]) Object.assign(ABYSS_GUARD, cfg.guards[2]); _migrateNameLoc(GUARD_DRAGONS.red); _migrateNameLoc(GUARD_DRAGONS.poison); _migrateNameLoc(ABYSS_GUARD); }
   if(cfg.sounds) Object.assign(SFX_MAP, cfg.sounds);
   if(cfg.start){ Object.assign(START, cfg.start); if(cfg.start.face) PLAYER_FACE=cfg.start.face; if('img' in cfg.start){ let _hasLocal=false; try{ _hasLocal=!!((localStorage.getItem('mt_player_img')||'').trim()); }catch(e){} if(!_hasLocal) PLAYER_IMG = cfg.start.img||''; } }
+  if(cfg.floorCfg){ FLOOR_CFG={}; for(const k in cfg.floorCfg){ const v=parseFloat(cfg.floorCfg[k]); if(!isNaN(v)) FLOOR_CFG[parseInt(k,10)]=v; } }
+  if(cfg.floorWL){ FLOOR_WL={}; for(const k in cfg.floorWL){ if(Array.isArray(cfg.floorWL[k]) && cfg.floorWL[k].length) FLOOR_WL[parseInt(k,10)]=cfg.floorWL[k].slice(); } }
+  if(cfg.floorTr){ FLOOR_TR={}; for(const k in cfg.floorTr){ const v=parseFloat(cfg.floorTr[k]); if(!isNaN(v)) FLOOR_TR[parseInt(k,10)]=v; } }
   if(cfg.map){
     if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,1,99);
     if(typeof cfg.map.grid==='number') GRID=clamp(cfg.map.grid|0,7,21);
@@ -5783,7 +5842,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·30 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·35 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5791,7 +5850,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·30 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·35 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -5934,8 +5993,9 @@ function renderAdminBody(){
         adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+
         adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+
         adNum(t('end.gold'),m,'gold')+adNum(t('ui.exp'),m,'exp')+adNum('atkc',m,'atkc')+
-        adNum('minF',m,'minF')+adNum('maxF',m,'maxF')+
+        adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+
         '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(m.drains?'':' selected')+'>—</option><option value="1"'+(m.drains?' selected':'')+'>✓</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
         '</div>';
       body.appendChild(row);
     };
@@ -5999,6 +6059,40 @@ function renderAdminBody(){
       adNum(t('admin.floors'),m,'floors')+adNum(t('admin.grid'),m,'grid')+
       adNum(t('admin.loop'),m,'loopChance',0.01)+adNum(t('admin.shop'),m,'shopChance',0.01)+'</div>';
     body.appendChild(row);
+    { const densSel=function(f){ const cur=(FLOOR_CFG[f]!=null)?FLOOR_CFG[f]:1; const lv=[[0.34,'densVeryFew'],[0.67,'densFew'],[1,'densNormal'],[1.5,'densMany'],[2,'densVeryMany']];
+        let s='<div class="adFloorCell"><span class="adFloorLab">'+floorTag(f)+'</span><select data-floormon="'+f+'">';
+        lv.forEach(function(o){ s+='<option value="'+o[0]+'"'+(Math.abs(cur-o[0])<0.001?' selected':'')+'>'+t('admin.'+o[1])+'</option>'; });
+        return s+'</select></div>'; };
+      const dr=document.createElement('div'); dr.className='adRowItem'; dr.dataset.floordens='1';
+      let oh='<div class="adName">👹 '+t('admin.monDensity')+'</div><p class="adNote">'+t('admin.monDensityHint')+'</p>';
+      oh+='<div class="adSubHead">'+t('admin.surfaceFloors')+'</div><div class="adFloorGrid">';
+      for(let f=1; f<=FLOORS; f++) oh+=densSel(f);
+      oh+='</div><div class="adSubHead">'+t('admin.basementFloors')+'</div><div class="adFloorGrid">';
+      for(let f=-1; f>=-BASEMENT; f--) oh+=densSel(f);
+      oh+='</div>'; dr.innerHTML=oh; body.appendChild(dr); }
+    { const trSel=function(f){ const cur=(FLOOR_TR[f]!=null)?FLOOR_TR[f]:1; const lv=[[0.34,'densVeryFew'],[0.67,'densFew'],[1,'densNormal'],[1.5,'densMany'],[2,'densVeryMany']];
+        let s='<div class="adFloorCell"><span class="adFloorLab">'+floorTag(f)+'</span><select data-floortr="'+f+'">';
+        lv.forEach(function(o){ s+='<option value="'+o[0]+'"'+(Math.abs(cur-o[0])<0.001?' selected':'')+'>'+t('admin.'+o[1])+'</option>'; });
+        return s+'</select></div>'; };
+      const trr=document.createElement('div'); trr.className='adRowItem'; trr.dataset.floortr='1';
+      let th2='<div class="adName">💎 '+t('admin.trDensity')+'</div><p class="adNote">'+t('admin.trDensityHint')+'</p>';
+      th2+='<div class="adSubHead">'+t('admin.surfaceFloors')+'</div><div class="adFloorGrid">';
+      for(let f=1; f<=FLOORS; f++) th2+=trSel(f);
+      th2+='</div><div class="adSubHead">'+t('admin.basementFloors')+'</div><div class="adFloorGrid">';
+      for(let f=-1; f>=-BASEMENT; f--) th2+=trSel(f);
+      th2+='</div>'; trr.innerHTML=th2; body.appendChild(trr); }
+    { const seen={}, mons=[]; MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]).forEach(function(mm){ if(!mm.b20 && !seen[mm.id]){ seen[mm.id]=1; mons.push(mm); } });
+      const wlArr=(adminDraft.floorWL&&adminDraft.floorWL[_wlFloor])?adminDraft.floorWL[_wlFloor]:[];
+      const wr=document.createElement('div'); wr.className='adRowItem'; wr.dataset.floorwl='1';
+      let wh='<div class="adName">📋 '+t('admin.monWhitelist')+'</div><p class="adNote">'+t('admin.monWhitelistHint')+'</p>';
+      wh+='<div class="adField" style="max-width:220px"><label>'+t('admin.wlFloorPick')+'</label><select data-wlfloor="1">';
+      for(let f=1;f<=FLOORS;f++) wh+='<option value="'+f+'"'+(_wlFloor===f?' selected':'')+'>'+floorTag(f)+'</option>';
+      for(let f=-1;f>=-BASEMENT;f--) wh+='<option value="'+f+'"'+(_wlFloor===f?' selected':'')+'>'+floorTag(f)+'</option>';
+      wh+='</select></div>';
+      wh+='<div class="wlStatus">'+(wlArr.length?(t('admin.wlActive')+'：'+wlArr.length):t('admin.wlDefault'))+'</div>';
+      wh+='<div class="adWlGrid">';
+      mons.forEach(function(mm){ const on=wlArr.indexOf(mm.id)>=0; wh+='<label class="adWlCell'+(on?' on':'')+'"><input type="checkbox" data-wlmon="'+mm.id+'"'+(on?' checked':'')+'/><span>'+mm.face+' '+t('mon.'+mm.id)+'</span></label>'; });
+      wh+='</div>'; wr.innerHTML=wh; body.appendChild(wr); }
   } else if(adminTab==='fx'){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.fxNote'); body.appendChild(n);
     body.appendChild(_customFxManager());
@@ -6087,6 +6181,9 @@ function collectAdminDraft(){
     if(row.dataset.boss) target=adminDraft.boss;
     else if(row.dataset.start) target=adminDraft.start;
     else if(row.dataset.map) target=adminDraft.map;
+    else if(row.dataset.floordens){ const _fd=row.querySelectorAll('select[data-floormon]'); adminDraft.floorCfg={}; for(let i=0;i<_fd.length;i++){ const ff=parseInt(_fd[i].getAttribute('data-floormon'),10); const vv=parseFloat(_fd[i].value); if(!isNaN(ff)&&!isNaN(vv)&&Math.abs(vv-1)>0.001) adminDraft.floorCfg[ff]=vv; } continue; }
+    else if(row.dataset.floortr){ const _ft=row.querySelectorAll('select[data-floortr]'); adminDraft.floorTr={}; for(let i=0;i<_ft.length;i++){ const ff=parseInt(_ft[i].getAttribute('data-floortr'),10); const vv=parseFloat(_ft[i].value); if(!isNaN(ff)&&!isNaN(vv)&&Math.abs(vv-1)>0.001) adminDraft.floorTr[ff]=vv; } continue; }
+    else if(row.dataset.floorwl){ const _wc=row.querySelectorAll('input[data-wlmon]'); if(_wc.length){ if(!adminDraft.floorWL) adminDraft.floorWL={}; const arr=[]; for(let i=0;i<_wc.length;i++){ if(_wc[i].checked) arr.push(_wc[i].getAttribute('data-wlmon')); } if(arr.length) adminDraft.floorWL[_wlFloor]=arr; else delete adminDraft.floorWL[_wlFloor]; } continue; }
     else if(row.dataset.bboss) target=adminDraft.basementBoss;
     else if(row.dataset.idx!=null) target=adminDraft.monsters[row.dataset.idx|0];
     else if(row.dataset.bidx!=null) target=adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null;
@@ -6102,7 +6199,7 @@ function collectAdminDraft(){
       if(k==='drains'){ target.drains = fields[j].value==='1'; }
       else if(k==='id'){ const vv=(fields[j].value||'').trim(); if(vv) target.id=vv; }
       else if(k==='face'||k==='name'){ target[k] = (fields[j].value||'').trim(); }
-      else if(k==='atkFx'||k==='atkSfx'){ target[k] = fields[j].value||''; }
+      else if(k==='atkFx'||k==='atkSfx'||k==='role'){ target[k] = fields[j].value||''; }
       else { const num=parseFloat(fields[j].value); target[k]= isNaN(num)?0:num; }
     }
     const _nlf=row.querySelectorAll('[data-knl]');
