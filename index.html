@@ -824,7 +824,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .statRow .k{font-size:13px;color:var(--txt-dim);font-weight:600;}
 .statRow .v{font-family:var(--mono);font-size:17px;font-weight:800;color:var(--txt);}
 /* floor indicator above the board */
-.floorBar{display:flex;align-items:baseline;justify-content:center;gap:10px;width:max-content;margin:0 auto;
+.floorBar{display:flex;align-items:center;justify-content:center;gap:10px;width:max-content;margin:0 auto;
   padding:6px 20px;border-radius:10px;background:linear-gradient(180deg,var(--stone-l),var(--stone));
   border:1px solid var(--gold-d);box-shadow:0 0 16px var(--gold-glow);}
 .floorBar .k{font-size:11px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;}
@@ -1014,7 +1014,6 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 <div id="app">
   <div class="topbar">
     <div class="brand"><h1 id="gameTitle">魔塔</h1></div>
-    <div id="cheatBadge"><span id="cheatBadgeLab">管理者模式</span><button id="cheatExit">退出</button></div>
     <div class="topRight">
       <button class="iconbtn settingsBtn" id="btnSettings" title="設定" aria-label="設定">⚙️</button>
       <div class="settingsMenu" id="settingsMenu">
@@ -1072,7 +1071,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 
     <!-- MAP -->
     <div id="mapWrap">
-      <div class="floorBar" id="floorBar"><span class="v num" id="floorNum">1 樓</span></div>
+      <div class="floorBar" id="floorBar"><div id="cheatBadge"><span id="cheatBadgeLab">管理者模式</span><button id="cheatExit">退出</button></div><span class="v num" id="floorNum">1 樓</span></div>
       <div id="mapStage">
         <div id="mapFrame"><div id="grid"></div></div>
         <div id="tipBubble"></div>
@@ -1899,12 +1898,13 @@ function scaleFoe(base,f){
     mult = (depth<10) ? (1 + (depth-1)*0.22) : (1 + (depth-10)*0.25);   // B1-B9 above-ground mobs from floor-20 strength; B10-B20 the basement breed, scaling deeper
   }
   const r=Math.round;
-  let _id=base.id, _name=base.name||null, _atkc=base.atkc||1;
-  if(typeof _realFloor!=='undefined' && _realFloor<0 && base.id==='swordsman'){ _id='swordKing'; _name=null; _atkc=4; }   // 地下的雙手劍士 -> 劍王（4 連擊）；地表維持雙手劍兵
+  let src=base;
+  const _mf=src.minF||mf;
+  let _id=src.id, _name=src.name||null, _atkc=src.atkc||1;
   return {
-    id:_id, face:base.face, name:_name, img:base.img||null, atkFx:base.atkFx||null, atkSfx:base.atkSfx||null, ability:base.ability||null, ab:base.ab||null, atkc:_atkc, agi:base.agi||0, drains:!!base.drains, trueDmg:!!base.trueDmg, master:base.master||null,
-    maxhp:r(base.hp*mult), hp:r(base.hp*mult), atk:(base.trueDmg?base.atk:r(base.atk*mult)), def:r(base.def*mult),
-    gold:r(base.gold*mult), exp:r(base.exp*mult), thrA:6+2*mf, thrD:4+2*mf, boss:false
+    id:_id, face:src.face, name:_name, img:src.img||null, atkFx:src.atkFx||null, atkSfx:src.atkSfx||null, ability:src.ability||null, ab:src.ab||null, atkc:_atkc, agi:src.agi||0, drains:!!src.drains, trueDmg:!!src.trueDmg, master:src.master||null,
+    maxhp:r(src.hp*mult), hp:r(src.hp*mult), atk:(src.trueDmg?src.atk:r(src.atk*mult)), def:r(src.def*mult),
+    gold:r(src.gold*mult), exp:r(src.exp*mult), thrA:6+2*_mf, thrD:4+2*_mf, boss:false
   };
 }
 function makeBoss(){
@@ -1924,6 +1924,7 @@ const GUARD_DRAGONS={
   poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite'}
 };
 const ABYSS_GUARD={id:'abyssLord', name:'深淵魔王', face:'😈', hp:16000, atk:1000, def:1000, gold:480, exp:400, atkc:2, agi:22, thrA:55, thrD:50, ability:'poison', ab:'boss', drains:true, atkFx:'demon', atkSfx:'boom'};
+const SWORD_KING={id:'swordKing', face:'🤺', hp:630, atk:175, def:55, gold:44, exp:4, atkc:4, agi:16, minF:15, maxF:24, ab:'pierce', atkFx:null, atkSfx:null};   /* 劍王：地下的獨立怪物（與雙手劍兵分開，各自設定）。地下生成時 scaleFoe 依深度縮放 */
 function startCanPierce(foe){ return (START.atk+START.thrA) > (foe.def+foe.thrD); }
 
 /* ============================== Floor helpers ============================== */
@@ -2079,7 +2080,8 @@ function genFloorRaw(f){
   // monsters
   const monCount=clamp(3+Math.floor(f/4),3,6);   // fewer wandering mobs; real threat = path guards + treasure/branch guards
   const isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };   // weaken / poison / true-damage / life-drain
-  const roster=(_realFloor<=-10) ? BASEMENT_MONSTERS.filter(function(m){return !m.b20;}) : MONSTERS.filter(function(m){return f>=m.minF&&f<=m.maxF&&(f>=15||!isDebuff(m));});   // main tower: NO special-effect monsters before floor 15; B10+ uses the basement bestiary
+  let roster=(_realFloor<=-10) ? BASEMENT_MONSTERS.filter(function(m){return !m.b20;}) : MONSTERS.filter(function(m){return f>=m.minF&&f<=m.maxF&&(f>=15||!isDebuff(m));});   // main tower: NO special-effect monsters before floor 15; B10+ uses the basement bestiary
+  if(_realFloor<0 && _realFloor>-10 && typeof SWORD_KING!=='undefined' && SWORD_KING){ roster=roster.filter(function(m){return m.id!=='swordsman';}); roster.push(SWORD_KING); }   // 地下 B1-B9：劍王以獨立怪物直接生成（不再由雙手劍兵變身）；地表雙手劍兵留在地上
   const weakRoster=roster.filter(function(m){return startCanPierce(scaleFoe(m,f));});
   // (wandering-monster placement moved below, to AFTER the 3x3 vaults — so a vault carves on an empty maze and spawns reliably; monsters then fill the remaining free cells around it)
 
@@ -4465,10 +4467,18 @@ function _unlockAudio(){
   if(!_actx) sfxInit();
   if(_actx && _actx.state==='suspended'){ try{ _actx.resume(); }catch(e){} }
   updateBGM(true);
+  try{ _bgmPreloadAll(); }catch(e){}
 }
 /* ---- Gapless BGM via Web Audio: AudioBufferSourceNode.loop is sample-accurate (no <audio> loop gap). HTML5 <audio> stays as the pre-unlock fallback. ---- */
 let _bgmGain=null, _bgmSrc=null, _bgmBuf={}, _bgmWaKey=null, _bgmLoading=null;
 function _bgmEnsureGain(){ if(!_actx) return null; if(!_bgmGain){ try{ _bgmGain=_actx.createGain(); _bgmGain.gain.value=effMusicVol(); _bgmGain.connect(_actx.destination); }catch(e){ _bgmGain=null; } } return _bgmGain; }
+function _bgmPreloadAll(){   /* warm-load every floor track so switching floors plays instantly (no ~1.5s fetch/decode delay) */
+  if(!_actx) return;
+  Object.keys(BGM_FILES).forEach(function(key){
+    if(_bgmBuf[key]) return;
+    try{ fetch(BGM_FILES[key]).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ if(!_bgmBuf[key]) _bgmBuf[key]=_bgmTrimSilence(buf); }).catch(function(){}); }catch(e){}
+  });
+}
 function _bgmSetGain(){ if(_bgmGain){ try{ _bgmGain.gain.value=effMusicVol(); }catch(e){} } }
 function _bgmStopWA(){ if(_bgmSrc){ try{ _bgmSrc.stop(); }catch(e){} try{ _bgmSrc.disconnect(); }catch(e){} } _bgmSrc=null; _bgmWaKey=null; }
 function _bgmStartWA(key){ const g=_bgmEnsureGain(); if(!g) return; const buf=_bgmBuf[key]; if(!buf) return; _bgmStopWA(); try{ const src=_actx.createBufferSource(); src.buffer=buf; src.loop=true; src.connect(g); src.start(0); _bgmSrc=src; _bgmWaKey=key; }catch(e){} }
@@ -4488,8 +4498,9 @@ function _bgmTrimSilence(buf){
     if(!n || !ch) return buf;
     const data=[]; for(let c=0;c<ch;c++) data.push(buf.getChannelData(c));
     const thr=0.0030;                                  /* ~-50 dB silence floor */
-    let s=0;  for(; s<n; s++){ let on=false; for(let c=0;c<ch;c++){ if(Math.abs(data[c][s])>thr){ on=true; break; } } if(on) break; }
-    let e=n-1; for(; e>s; e--){ let on=false; for(let c=0;c<ch;c++){ if(Math.abs(data[c][e])>thr){ on=true; break; } } if(on) break; }
+    const win=Math.min(n, Math.max(4096, Math.floor(buf.sampleRate*0.5)));   /* only scan the first/last ~0.5s: encoder padding lives there. Scanning the whole buffer froze the main thread ~1.5s on mobile when each track decoded -> the audible floor-change delay. */
+    let s=0;  for(; s<win; s++){ let on=false; for(let c=0;c<ch;c++){ if(Math.abs(data[c][s])>thr){ on=true; break; } } if(on) break; } if(s>=win) s=0;
+    let e=n-1; const eLim=Math.max(s, n-1-win); for(; e>eLim; e--){ let on=false; for(let c=0;c<ch;c++){ if(Math.abs(data[c][e])>thr){ on=true; break; } } if(on) break; } if(e<=eLim) e=n-1;
     const len=e-s+1;
     if(s>=e || len<Math.floor(buf.sampleRate*0.1) || len>=n-2) return buf;   /* nothing meaningful to trim */
     const out=_actx.createBuffer(ch, len, buf.sampleRate);
@@ -5317,11 +5328,11 @@ const I18N_MP2 = {
 
 /* ---- admin: custom icons + attack-effect labels (merged into the existing admin namespace) ---- */
 const I18N_ADMIN2 = {
-'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',nameLocHint:'各語言名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守衛',fxPreview:'特效預覽',fxPreviewHint:'點下方任一特效旁的 ▶ 即可在此預覽動畫',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物暴擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家暴擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
-'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',nameLocHint:'各语言名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守卫',fxPreview:'特效预览',fxPreviewHint:'点下方任一特效旁的 ▶ 即可在此预览动画',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物暴击',sndMeHit:'玩家攻击',sndMeCrit:'玩家暴击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
-'en':{admin:{tabFx:'Effects',icon:'Icon',mname:'Name',nameLocHint:'names per language',mid:'ID',groundMon:'Ground monsters',basementMon:'Basement monsters',topBoss:'Tower boss',basementBoss:'Basement boss',guards:'3x3 Guards',fxPreview:'Effect preview',fxPreviewHint:'Tap ▶ next to any effect below to preview it here',tabItems:'Items',tabSkills:'Skills',tabSounds:'Sounds',itemsNote:'Edit item icons and names. Note: potions/weapons/keys use built-in graphics on the map; the icon field mainly affects emoji items, while the name field works for all.',skillsNote:'Tune skill values (level/energy EN/stamina/multiplier or reduction) and names.',soundsNote:'Pick a sound style for each attack event, then Apply locally or Save to cloud below.',skMult:'Mult',skDiv:'Reduce',skLv:'Level',skStam:'Stamina',atkSkills:'Attack skills',defSkills:'Defence skills',soundMap:'Attack sounds',sndDefault:'Default',sndFoeHit:'Monster hit',sndFoeCrit:'Monster crit',sndMeHit:'Player hit',sndMeCrit:'Player crit',sndTry:'(Sounds play in battle; enter a fight after applying to hear them)',snd_thud:'Thud',snd_slash:'Slash',snd_zap:'Zap',snd_roar:'Roar',snd_bite:'Bite',snd_boom:'Boom',imgLabel:'Image',imgUpload:'Upload',imgRemove:'Remove',imgMode:'Cutout',fxNote:'Customize attack effects: pick a preset style for each entry, then Apply locally or Save to cloud below.',fxPlayer:'Player attack effects (by weapon tier)',fxFoe:'Monster attack effects (by type)',fxn_unarmed:'Unarmed',fxn_iron:'Iron',fxn_silver:'Silver (ice)',fxn_knight:'Knight (double)',fxn_holy:'Holy',fxn_divine:'Divine (triple)',fxn_punch:'Punch',fxn_beast:'Beast (claws)',fxn_cast:'Magic ring',fxn_boss:'Boss (red)'}},
-'ja':{admin:{tabFx:'エフェクト',icon:'アイコン',mname:'名前',nameLocHint:'各言語の名前',mid:'ID',groundMon:'地上モンスター',basementMon:'地下モンスター',topBoss:'地上ボス',basementBoss:'地下ボス',guards:'3x3 ガーディアン',fxPreview:'エフェクトプレビュー',fxPreviewHint:'下のエフェクト横の ▶ を押すとここで再生',tabItems:'アイテム',tabSkills:'スキル',tabSounds:'サウンド',itemsNote:'アイテムのアイコンと名前を編集。注:ポーション/武器/鍵はマップ上で内蔵グラフィック。アイコン欄は主に絵文字アイテムに反映、名前欄は全アイテムに有効。',skillsNote:'スキルの数値(レベル/エネルギー EN/スタミナ/倍率または軽減)と名前を調整。',soundsNote:'各攻撃イベントの効果音スタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',skMult:'倍率',skDiv:'軽減',skLv:'レベル',skStam:'スタミナ',atkSkills:'攻撃スキル',defSkills:'防御スキル',soundMap:'攻撃効果音',sndDefault:'デフォルト',sndFoeHit:'モンスター攻撃',sndFoeCrit:'モンスター会心',sndMeHit:'プレイヤー攻撃',sndMeCrit:'プレイヤー会心',sndTry:'(効果音は戦闘中に再生。適用後に戦闘に入ると聞けます)',snd_thud:'打撃',snd_slash:'斬撃',snd_zap:'電撃',snd_roar:'咆哮',snd_bite:'噛みつき',snd_boom:'爆発',imgLabel:'画像',imgUpload:'アップロード',imgRemove:'削除',imgMode:'背景透過',fxNote:'攻撃エフェクトのカスタマイズ：各項目に既存のスタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',fxPlayer:'プレイヤー攻撃エフェクト（武器ランク別）',fxFoe:'モンスター攻撃エフェクト（種類別）',fxn_unarmed:'素手',fxn_iron:'鉄剣',fxn_silver:'銀剣（氷）',fxn_knight:'騎士（二連斬）',fxn_holy:'聖光',fxn_divine:'神聖（三連斬）',fxn_punch:'殴打',fxn_beast:'獣（三爪）',fxn_cast:'魔法陣',fxn_boss:'ボス（赤斬）'}},
-'ko':{admin:{tabFx:'이펙트',icon:'아이콘',mname:'이름',nameLocHint:'언어별 이름',mid:'ID',groundMon:'지상 몬스터',basementMon:'지하 몬스터',topBoss:'지상 보스',basementBoss:'지하 보스',guards:'3x3 가디언',fxPreview:'이펙트 미리보기',fxPreviewHint:'아래 이펙트 옆 ▶ 를 누르면 여기서 재생',tabItems:'아이템',tabSkills:'스킬',tabSounds:'사운드',itemsNote:'아이템 아이콘과 이름을 편집. 참고: 물약/무기/열쇠는 지도에서 내장 그래픽. 아이콘 칸은 주로 이모지 아이템에 적용, 이름 칸은 모든 아이템에 유효.',skillsNote:'스킬 수치(레벨/에너지 EN/스태미나/배율 또는 감소)와 이름을 조정.',soundsNote:'각 공격 이벤트의 효과음 스타일을 선택한 뒤 아래 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',skMult:'배율',skDiv:'감소',skLv:'레벨',skStam:'스태미나',atkSkills:'공격 스킬',defSkills:'방어 스킬',soundMap:'공격 효과음',sndDefault:'기본',sndFoeHit:'몬스터 공격',sndFoeCrit:'몬스터 치명',sndMeHit:'플레이어 공격',sndMeCrit:'플레이어 치명',sndTry:'(효과음은 전투 중 재생. 적용 후 전투에 들어가면 들을 수 있습니다)',snd_thud:'타격',snd_slash:'베기',snd_zap:'전격',snd_roar:'포효',snd_bite:'물기',snd_boom:'폭발',imgLabel:'이미지',imgUpload:'업로드',imgRemove:'제거',imgMode:'배경 제거',fxNote:'공격 이펙트 커스터마이즈: 각 항목에 기존 스타일을 선택한 뒤 아래의 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',fxPlayer:'플레이어 공격 이펙트(무기 등급별)',fxFoe:'몬스터 공격 이펙트(종류별)',fxn_unarmed:'맨손',fxn_iron:'철검',fxn_silver:'은검(얼음)',fxn_knight:'기사(이중)',fxn_holy:'성광',fxn_divine:'신성(삼중)',fxn_punch:'주먹',fxn_beast:'야수(삼조)',fxn_cast:'마법진',fxn_boss:'보스(붉은)'}}
+'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',nameLocHint:'各語言名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守衛',fxPreview:'特效預覽',fxPreviewHint:'點下方任一特效旁的 ▶ 即可在此預覽動畫',skNote:'劍王是地下的獨立怪物（已與雙手劍兵分開，可各自設定外觀與數值）。',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物暴擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家暴擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
+'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',nameLocHint:'各语言名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守卫',fxPreview:'特效预览',fxPreviewHint:'点下方任一特效旁的 ▶ 即可在此预览动画',skNote:'剑王是地下的独立怪物（已与双手剑兵分开，可各自设定外观与数值）。',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物暴击',sndMeHit:'玩家攻击',sndMeCrit:'玩家暴击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
+'en':{admin:{tabFx:'Effects',icon:'Icon',mname:'Name',nameLocHint:'names per language',mid:'ID',groundMon:'Ground monsters',basementMon:'Basement monsters',topBoss:'Tower boss',basementBoss:'Basement boss',guards:'3x3 Guards',fxPreview:'Effect preview',fxPreviewHint:'Tap ▶ next to any effect below to preview it here',skNote:'Sword King is an independent basement monster (separate from the Greatsword Soldier; its own look and stats).',tabItems:'Items',tabSkills:'Skills',tabSounds:'Sounds',itemsNote:'Edit item icons and names. Note: potions/weapons/keys use built-in graphics on the map; the icon field mainly affects emoji items, while the name field works for all.',skillsNote:'Tune skill values (level/energy EN/stamina/multiplier or reduction) and names.',soundsNote:'Pick a sound style for each attack event, then Apply locally or Save to cloud below.',skMult:'Mult',skDiv:'Reduce',skLv:'Level',skStam:'Stamina',atkSkills:'Attack skills',defSkills:'Defence skills',soundMap:'Attack sounds',sndDefault:'Default',sndFoeHit:'Monster hit',sndFoeCrit:'Monster crit',sndMeHit:'Player hit',sndMeCrit:'Player crit',sndTry:'(Sounds play in battle; enter a fight after applying to hear them)',snd_thud:'Thud',snd_slash:'Slash',snd_zap:'Zap',snd_roar:'Roar',snd_bite:'Bite',snd_boom:'Boom',imgLabel:'Image',imgUpload:'Upload',imgRemove:'Remove',imgMode:'Cutout',fxNote:'Customize attack effects: pick a preset style for each entry, then Apply locally or Save to cloud below.',fxPlayer:'Player attack effects (by weapon tier)',fxFoe:'Monster attack effects (by type)',fxn_unarmed:'Unarmed',fxn_iron:'Iron',fxn_silver:'Silver (ice)',fxn_knight:'Knight (double)',fxn_holy:'Holy',fxn_divine:'Divine (triple)',fxn_punch:'Punch',fxn_beast:'Beast (claws)',fxn_cast:'Magic ring',fxn_boss:'Boss (red)'}},
+'ja':{admin:{tabFx:'エフェクト',icon:'アイコン',mname:'名前',nameLocHint:'各言語の名前',mid:'ID',groundMon:'地上モンスター',basementMon:'地下モンスター',topBoss:'地上ボス',basementBoss:'地下ボス',guards:'3x3 ガーディアン',fxPreview:'エフェクトプレビュー',fxPreviewHint:'下のエフェクト横の ▶ を押すとここで再生',skNote:'剣王は地下の独立モンスター（両手剣兵とは別、外観・数値も個別設定）。',tabItems:'アイテム',tabSkills:'スキル',tabSounds:'サウンド',itemsNote:'アイテムのアイコンと名前を編集。注:ポーション/武器/鍵はマップ上で内蔵グラフィック。アイコン欄は主に絵文字アイテムに反映、名前欄は全アイテムに有効。',skillsNote:'スキルの数値(レベル/エネルギー EN/スタミナ/倍率または軽減)と名前を調整。',soundsNote:'各攻撃イベントの効果音スタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',skMult:'倍率',skDiv:'軽減',skLv:'レベル',skStam:'スタミナ',atkSkills:'攻撃スキル',defSkills:'防御スキル',soundMap:'攻撃効果音',sndDefault:'デフォルト',sndFoeHit:'モンスター攻撃',sndFoeCrit:'モンスター会心',sndMeHit:'プレイヤー攻撃',sndMeCrit:'プレイヤー会心',sndTry:'(効果音は戦闘中に再生。適用後に戦闘に入ると聞けます)',snd_thud:'打撃',snd_slash:'斬撃',snd_zap:'電撃',snd_roar:'咆哮',snd_bite:'噛みつき',snd_boom:'爆発',imgLabel:'画像',imgUpload:'アップロード',imgRemove:'削除',imgMode:'背景透過',fxNote:'攻撃エフェクトのカスタマイズ：各項目に既存のスタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',fxPlayer:'プレイヤー攻撃エフェクト（武器ランク別）',fxFoe:'モンスター攻撃エフェクト（種類別）',fxn_unarmed:'素手',fxn_iron:'鉄剣',fxn_silver:'銀剣（氷）',fxn_knight:'騎士（二連斬）',fxn_holy:'聖光',fxn_divine:'神聖（三連斬）',fxn_punch:'殴打',fxn_beast:'獣（三爪）',fxn_cast:'魔法陣',fxn_boss:'ボス（赤斬）'}},
+'ko':{admin:{tabFx:'이펙트',icon:'아이콘',mname:'이름',nameLocHint:'언어별 이름',mid:'ID',groundMon:'지상 몬스터',basementMon:'지하 몬스터',topBoss:'지상 보스',basementBoss:'지하 보스',guards:'3x3 가디언',fxPreview:'이펙트 미리보기',fxPreviewHint:'아래 이펙트 옆 ▶ 를 누르면 여기서 재생',skNote:'검왕은 지하의 독립 몬스터입니다(양손검 병사와 별도, 외형·수치 개별 설정).',tabItems:'아이템',tabSkills:'스킬',tabSounds:'사운드',itemsNote:'아이템 아이콘과 이름을 편집. 참고: 물약/무기/열쇠는 지도에서 내장 그래픽. 아이콘 칸은 주로 이모지 아이템에 적용, 이름 칸은 모든 아이템에 유효.',skillsNote:'스킬 수치(레벨/에너지 EN/스태미나/배율 또는 감소)와 이름을 조정.',soundsNote:'각 공격 이벤트의 효과음 스타일을 선택한 뒤 아래 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',skMult:'배율',skDiv:'감소',skLv:'레벨',skStam:'스태미나',atkSkills:'공격 스킬',defSkills:'방어 스킬',soundMap:'공격 효과음',sndDefault:'기본',sndFoeHit:'몬스터 공격',sndFoeCrit:'몬스터 치명',sndMeHit:'플레이어 공격',sndMeCrit:'플레이어 치명',sndTry:'(효과음은 전투 중 재생. 적용 후 전투에 들어가면 들을 수 있습니다)',snd_thud:'타격',snd_slash:'베기',snd_zap:'전격',snd_roar:'포효',snd_bite:'물기',snd_boom:'폭발',imgLabel:'이미지',imgUpload:'업로드',imgRemove:'제거',imgMode:'배경 제거',fxNote:'공격 이펙트 커스터마이즈: 각 항목에 기존 스타일을 선택한 뒤 아래의 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',fxPlayer:'플레이어 공격 이펙트(무기 등급별)',fxFoe:'몬스터 공격 이펙트(종류별)',fxn_unarmed:'맨손',fxn_iron:'철검',fxn_silver:'은검(얼음)',fxn_knight:'기사(이중)',fxn_holy:'성광',fxn_divine:'신성(삼중)',fxn_punch:'주먹',fxn_beast:'야수(삼조)',fxn_cast:'마법진',fxn_boss:'보스(붉은)'}}
 };
 (function mergeAdmin2(){ for(const L in I18N_ADMIN2){ if(!I18N[L]) continue; I18N[L].admin = Object.assign({}, I18N[L].admin||{}, I18N_ADMIN2[L].admin); } })();
 
@@ -5410,8 +5421,8 @@ function _processImg(src, mode, size){
 let _admImgTarget=null, _admImgSig='';
 const _admImgOrig={}, _admImgMode={};
 const _IMG_MODE_LABEL={none:'av.modeNone', chroma:'av.modeChroma', ai:'av.modeAi'};
-function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; if(row.dataset.atks!=null) return 'atk'+(row.dataset.atks|0); if(row.dataset.defs!=null) return 'def'+(row.dataset.defs|0); if(row.dataset.guard!=null) return 'g'+(row.dataset.guard|0); return ''; }
-function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; if(row.dataset.atks!=null) return adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null; if(row.dataset.defs!=null) return adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null; if(row.dataset.guard!=null) return adminDraft.guards?adminDraft.guards[row.dataset.guard|0]:null; return null; }
+function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; if(row.dataset.atks!=null) return 'atk'+(row.dataset.atks|0); if(row.dataset.defs!=null) return 'def'+(row.dataset.defs|0); if(row.dataset.guard!=null) return 'g'+(row.dataset.guard|0); if(row.dataset.sk!=null) return 'sk'; return ''; }
+function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; if(row.dataset.atks!=null) return adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null; if(row.dataset.defs!=null) return adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null; if(row.dataset.guard!=null) return adminDraft.guards?adminDraft.guards[row.dataset.guard|0]:null; if(row.dataset.sk!=null) return adminDraft.swordKing||null; return null; }
 function adImg(obj, sig){
   const hasImg=!!(obj&&obj.img), hasOrig=!!_admImgOrig[sig];
   const prev = hasImg ? ('<img src="'+obj.img+'" alt="">') : ((obj&&obj.face)||'');
@@ -5478,11 +5489,11 @@ function achCtx(){
     won:!!(state&&state._achWon), playMs:(state&&state.startTime)?(Date.now()-state.startTime):0,
     feat:(state&&state.feat)||{}, got:achEarnedCount() };
 }
-function checkAchievements(){
+function checkAchievements(silent){
   if(typeof ACHIEVEMENTS==='undefined') return; const ctx=achCtx();
   for(let i=0;i<ACHIEVEMENTS.length;i++){ const a=ACHIEVEMENTS[i]; if(_achSet.has(a.id)) continue;
     let ok=false; try{ ok=!!a.test(ctx); }catch(e){}
-    if(ok){ achEarn(a.id); achPopup(a); } }
+    if(ok){ achEarn(a.id); if(!silent) achPopup(a); } }   /* silent: record without toast (used on save-load so already-earned ones don't repeat) */
 }
 function markFeat(name){ if(typeof state==='undefined') return; if(!state.feat) state.feat={}; if(state.feat[name]) return; state.feat[name]=true; try{ checkAchievements(); }catch(e){} }
 let _achQueue=[], _achBusy=false;
@@ -5518,6 +5529,7 @@ function snapshotConfig(){
     basementMonsters: BASEMENT_MONSTERS.map(_cp),
     boss: _cp(BOSS),
     basementBoss: _cp(BASEMENT_BOSS),
+    swordKing: _cp(SWORD_KING),
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
     map: { floors:FLOORS, grid:GRID, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },
     fx: JSON.parse(JSON.stringify(FX_MAP)),
@@ -5535,6 +5547,7 @@ function _monTemplateById(id){
   if(typeof BASEMENT_BOSS!=='undefined' && BASEMENT_BOSS && BASEMENT_BOSS.id===id) return BASEMENT_BOSS;
   if(typeof GUARD_DRAGONS!=='undefined' && GUARD_DRAGONS){ if(GUARD_DRAGONS.red && GUARD_DRAGONS.red.id===id) return GUARD_DRAGONS.red; if(GUARD_DRAGONS.poison && GUARD_DRAGONS.poison.id===id) return GUARD_DRAGONS.poison; }
   if(typeof ABYSS_GUARD!=='undefined' && ABYSS_GUARD && ABYSS_GUARD.id===id) return ABYSS_GUARD;
+  if(typeof SWORD_KING!=='undefined' && SWORD_KING && SWORD_KING.id===id) return SWORD_KING;
   return null;
 }
 function refreshEntityIcons(){
@@ -5559,6 +5572,7 @@ function applyConfig(cfg){
     BASEMENT_MONSTERS.length=0; cfg.basementMonsters.forEach(function(m){ BASEMENT_MONSTERS.push(Object.assign({}, m)); }); BASEMENT_MONSTERS.forEach(_migrateNameLoc);
   }
   if(cfg.basementBoss){ Object.assign(BASEMENT_BOSS, cfg.basementBoss); _migrateNameLoc(BASEMENT_BOSS); }
+  if(cfg.swordKing){ Object.assign(SWORD_KING, cfg.swordKing); _migrateNameLoc(SWORD_KING); }
   if(cfg.items){ for(const k in cfg.items){ if(ITEMS[k]){ if(cfg.items[k].face!=null) ITEMS[k].face=cfg.items[k].face; if(cfg.items[k].name!=null) ITEMS[k].name=cfg.items[k].name; if('img' in cfg.items[k]) ITEMS[k].img=cfg.items[k].img||null; } } }
   let _skChanged=false;
   if(Array.isArray(cfg.atkSkills) && cfg.atkSkills.length){ ATK_SKILLS.length=0; cfg.atkSkills.forEach(function(s){ ATK_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
@@ -5623,6 +5637,7 @@ function restoreRun(s){
   state.noStairTrigger=(onDown||onUp)? {x:state.px,y:state.py} : null;   /* don't auto-change floor on a restored staircase tile */
   state.target=null; state.over=false; state.busy=false; state.combat=null;
   ['startScreen','authScreen','adminScreen','lobby'].forEach(function(id){ hide(id); });
+  try{ checkAchievements(true); }catch(e){}   /* silently record achievements this save already qualifies for -> no repeat popups on load */
   applyLang(); renderAll(); try{ updateBGM(true); }catch(e){}
   return true;
 }
@@ -5760,7 +5775,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·25 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·27 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5768,7 +5783,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·25 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·27 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -5922,6 +5937,20 @@ function renderAdminBody(){
       hdr(t('admin.basementMon')+' ('+adminDraft.basementMonsters.length+')');
       adminDraft.basementMonsters.forEach(function(m,idx){ monRow(m,idx,true); });
     }
+    if(adminDraft.swordKing){
+      hdr(t('mon.swordKing'));
+      const _skn=document.createElement('p'); _skn.className='adNote'; _skn.textContent=t('admin.skNote'); body.appendChild(_skn);
+      const sk=adminDraft.swordKing;
+      const row=document.createElement('div'); row.className='adRowItem'; row.dataset.sk='1';
+      row.innerHTML='<div class="adName">'+(sk.face||'')+' '+_admName(sk)+' <span style="color:var(--txt-faint);font-weight:400">('+sk.id+')</span></div>'+
+        '<div class="adGrid">'+
+        adText(t('admin.icon'),sk,'face')+adNameLoc(sk)+adText(t('admin.mid'),sk,'id','',24)+adImg(sk,'sk')+adAtkFx(sk)+adAtkSfx(sk)+
+        adNum('HP',sk,'hp')+adNum(t('ui.atk'),sk,'atk')+adNum(t('ui.def'),sk,'def')+
+        adNum(t('end.gold'),sk,'gold')+adNum(t('ui.exp'),sk,'exp')+adNum('atkc',sk,'atkc')+
+        '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(sk.drains?'':' selected')+'>—</option><option value="1"'+(sk.drains?' selected':'')+'>✓</option></select></div>'+
+        '</div>';
+      body.appendChild(row);
+    }
   } else if(adminTab==='boss'){
     const hdr=function(txt){ const h=document.createElement('div'); h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:13px;'; h.textContent=txt; body.appendChild(h); };
     const bossRow=function(b,isBase){
@@ -6054,6 +6083,7 @@ function collectAdminDraft(){
     else if(row.dataset.atks!=null) target=adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null;
     else if(row.dataset.defs!=null) target=adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null;
     else if(row.dataset.guard!=null) target=adminDraft.guards?adminDraft.guards[row.dataset.guard|0]:null;
+    else if(row.dataset.sk!=null) target=adminDraft.swordKing;
     if(!target) continue;
     const fields=row.querySelectorAll('[data-k]');
     for(let j=0;j<fields.length;j++){
