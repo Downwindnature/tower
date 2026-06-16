@@ -3407,9 +3407,14 @@ function fleeCombat(){
   hide('combat'); toast(t('msg.fled')); renderAll(); markFeat('flee');
 }
 function monName(foe){
+  const id=(foe&&foe.id)||''; const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
+  const tpl=(typeof _monTemplateById==='function')?_monTemplateById(id):null;
+  if(tpl && tpl.nameLoc && tpl.nameLoc[L] && (''+tpl.nameLoc[L]).trim()) return (''+tpl.nameLoc[L]).trim();   // per-language custom name set in admin
+  const n=t('mon.'+id);
+  if(n && n.indexOf('mon.')!==0) return n;                                                                      // built-in translation for the current language
+  if(tpl && tpl.name && (''+tpl.name).trim()) return (''+tpl.name).trim();                                      // legacy single custom name (ids without i18n)
   if(foe && foe.name && (''+foe.name).trim()) return (''+foe.name).trim();
-  const n=t('mon.'+((foe&&foe.id)||''));
-  return (n && n.indexOf('mon.')!==0) ? n : ((foe&&foe.id)||'???');
+  return id||'???';
 }
 function itemName(id){ const it=ITEMS[id]; return (it && it.name && (''+it.name).trim()) ? (''+it.name).trim() : t('item.'+id); }
 function skillName(id){ const sk=SKILL_BY_ID[id]; return (sk && sk.name && (''+sk.name).trim()) ? (''+sk.name).trim() : t('sk.'+id+'.name'); }
@@ -3505,9 +3510,10 @@ function doBuy(o,cost){
 function scrollManualSelIntoView(){
   const body=byId('manualBody'); if(!body) return;
   const sel=body.querySelector('.monRow.sel'); if(!sel || body.clientHeight<=0) return;
-  const top=sel.offsetTop, bot=top+sel.offsetHeight;
-  if(top<body.scrollTop) body.scrollTop=Math.max(0,top-6);
-  else if(bot>body.scrollTop+body.clientHeight) body.scrollTop=bot-body.clientHeight+6;
+  const cr=body.getBoundingClientRect(), sr=sel.getBoundingClientRect();   // viewport-relative -> correct regardless of offsetParent / CSS positioning
+  const relTop=sr.top-cr.top, relBot=sr.bottom-cr.top;
+  if(relTop<0) body.scrollTop=Math.max(0, body.scrollTop+relTop-6);                              // selected row above the view -> scroll up
+  else if(relBot>body.clientHeight) body.scrollTop=body.scrollTop+(relBot-body.clientHeight)+6;  // below the view -> scroll down
 }
 function openManual(){
   try{ refreshEntityIcons(); }catch(e){}   // pull in cloud-edited names so the bestiary always matches the cloud version (all languages)
@@ -4174,7 +4180,7 @@ function relocalizeOpen(){
   if(byId('startScreen').classList.contains('show')) renderStartScreen();
   if(byId('endScreen').classList.contains('show') && state._reloEnd) state._reloEnd();
   if(typeof updateAuthUI==='function') updateAuthUI();
-  if(byId('adminScreen') && byId('adminScreen').classList.contains('show') && typeof localizeAdmin==='function'){ localizeAdmin(); renderAdminBody(); }
+  if(byId('adminScreen') && byId('adminScreen').classList.contains('show') && typeof localizeAdmin==='function'){ try{ collectAdminDraft(); }catch(e){} localizeAdmin(); renderAdminBody(); }
 }
 
 /* ============================== New game ============================== */
@@ -5276,11 +5282,11 @@ const I18N_MP2 = {
 
 /* ---- admin: custom icons + attack-effect labels (merged into the existing admin namespace) ---- */
 const I18N_ADMIN2 = {
-'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物暴擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家暴擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
-'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物暴击',sndMeHit:'玩家攻击',sndMeCrit:'玩家暴击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
-'en':{admin:{tabFx:'Effects',icon:'Icon',mname:'Name',mid:'ID',groundMon:'Ground monsters',basementMon:'Basement monsters',topBoss:'Tower boss',basementBoss:'Basement boss',tabItems:'Items',tabSkills:'Skills',tabSounds:'Sounds',itemsNote:'Edit item icons and names. Note: potions/weapons/keys use built-in graphics on the map; the icon field mainly affects emoji items, while the name field works for all.',skillsNote:'Tune skill values (level/energy EN/stamina/multiplier or reduction) and names.',soundsNote:'Pick a sound style for each attack event, then Apply locally or Save to cloud below.',skMult:'Mult',skDiv:'Reduce',skLv:'Level',skStam:'Stamina',atkSkills:'Attack skills',defSkills:'Defence skills',soundMap:'Attack sounds',sndDefault:'Default',sndFoeHit:'Monster hit',sndFoeCrit:'Monster crit',sndMeHit:'Player hit',sndMeCrit:'Player crit',sndTry:'(Sounds play in battle; enter a fight after applying to hear them)',snd_thud:'Thud',snd_slash:'Slash',snd_zap:'Zap',snd_roar:'Roar',snd_bite:'Bite',snd_boom:'Boom',imgLabel:'Image',imgUpload:'Upload',imgRemove:'Remove',imgMode:'Cutout',fxNote:'Customize attack effects: pick a preset style for each entry, then Apply locally or Save to cloud below.',fxPlayer:'Player attack effects (by weapon tier)',fxFoe:'Monster attack effects (by type)',fxn_unarmed:'Unarmed',fxn_iron:'Iron',fxn_silver:'Silver (ice)',fxn_knight:'Knight (double)',fxn_holy:'Holy',fxn_divine:'Divine (triple)',fxn_punch:'Punch',fxn_beast:'Beast (claws)',fxn_cast:'Magic ring',fxn_boss:'Boss (red)'}},
-'ja':{admin:{tabFx:'エフェクト',icon:'アイコン',mname:'名前',mid:'ID',groundMon:'地上モンスター',basementMon:'地下モンスター',topBoss:'地上ボス',basementBoss:'地下ボス',tabItems:'アイテム',tabSkills:'スキル',tabSounds:'サウンド',itemsNote:'アイテムのアイコンと名前を編集。注:ポーション/武器/鍵はマップ上で内蔵グラフィック。アイコン欄は主に絵文字アイテムに反映、名前欄は全アイテムに有効。',skillsNote:'スキルの数値(レベル/エネルギー EN/スタミナ/倍率または軽減)と名前を調整。',soundsNote:'各攻撃イベントの効果音スタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',skMult:'倍率',skDiv:'軽減',skLv:'レベル',skStam:'スタミナ',atkSkills:'攻撃スキル',defSkills:'防御スキル',soundMap:'攻撃効果音',sndDefault:'デフォルト',sndFoeHit:'モンスター攻撃',sndFoeCrit:'モンスター会心',sndMeHit:'プレイヤー攻撃',sndMeCrit:'プレイヤー会心',sndTry:'(効果音は戦闘中に再生。適用後に戦闘に入ると聞けます)',snd_thud:'打撃',snd_slash:'斬撃',snd_zap:'電撃',snd_roar:'咆哮',snd_bite:'噛みつき',snd_boom:'爆発',imgLabel:'画像',imgUpload:'アップロード',imgRemove:'削除',imgMode:'背景透過',fxNote:'攻撃エフェクトのカスタマイズ：各項目に既存のスタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',fxPlayer:'プレイヤー攻撃エフェクト（武器ランク別）',fxFoe:'モンスター攻撃エフェクト（種類別）',fxn_unarmed:'素手',fxn_iron:'鉄剣',fxn_silver:'銀剣（氷）',fxn_knight:'騎士（二連斬）',fxn_holy:'聖光',fxn_divine:'神聖（三連斬）',fxn_punch:'殴打',fxn_beast:'獣（三爪）',fxn_cast:'魔法陣',fxn_boss:'ボス（赤斬）'}},
-'ko':{admin:{tabFx:'이펙트',icon:'아이콘',mname:'이름',mid:'ID',groundMon:'지상 몬스터',basementMon:'지하 몬스터',topBoss:'지상 보스',basementBoss:'지하 보스',tabItems:'아이템',tabSkills:'스킬',tabSounds:'사운드',itemsNote:'아이템 아이콘과 이름을 편집. 참고: 물약/무기/열쇠는 지도에서 내장 그래픽. 아이콘 칸은 주로 이모지 아이템에 적용, 이름 칸은 모든 아이템에 유효.',skillsNote:'스킬 수치(레벨/에너지 EN/스태미나/배율 또는 감소)와 이름을 조정.',soundsNote:'각 공격 이벤트의 효과음 스타일을 선택한 뒤 아래 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',skMult:'배율',skDiv:'감소',skLv:'레벨',skStam:'스태미나',atkSkills:'공격 스킬',defSkills:'방어 스킬',soundMap:'공격 효과음',sndDefault:'기본',sndFoeHit:'몬스터 공격',sndFoeCrit:'몬스터 치명',sndMeHit:'플레이어 공격',sndMeCrit:'플레이어 치명',sndTry:'(효과음은 전투 중 재생. 적용 후 전투에 들어가면 들을 수 있습니다)',snd_thud:'타격',snd_slash:'베기',snd_zap:'전격',snd_roar:'포효',snd_bite:'물기',snd_boom:'폭발',imgLabel:'이미지',imgUpload:'업로드',imgRemove:'제거',imgMode:'배경 제거',fxNote:'공격 이펙트 커스터마이즈: 각 항목에 기존 스타일을 선택한 뒤 아래의 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',fxPlayer:'플레이어 공격 이펙트(무기 등급별)',fxFoe:'몬스터 공격 이펙트(종류별)',fxn_unarmed:'맨손',fxn_iron:'철검',fxn_silver:'은검(얼음)',fxn_knight:'기사(이중)',fxn_holy:'성광',fxn_divine:'신성(삼중)',fxn_punch:'주먹',fxn_beast:'야수(삼조)',fxn_cast:'마법진',fxn_boss:'보스(붉은)'}}
+'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守衛',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物暴擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家暴擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
+'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守卫',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物暴击',sndMeHit:'玩家攻击',sndMeCrit:'玩家暴击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
+'en':{admin:{tabFx:'Effects',icon:'Icon',mname:'Name',mid:'ID',groundMon:'Ground monsters',basementMon:'Basement monsters',topBoss:'Tower boss',basementBoss:'Basement boss',guards:'3x3 Guards',tabItems:'Items',tabSkills:'Skills',tabSounds:'Sounds',itemsNote:'Edit item icons and names. Note: potions/weapons/keys use built-in graphics on the map; the icon field mainly affects emoji items, while the name field works for all.',skillsNote:'Tune skill values (level/energy EN/stamina/multiplier or reduction) and names.',soundsNote:'Pick a sound style for each attack event, then Apply locally or Save to cloud below.',skMult:'Mult',skDiv:'Reduce',skLv:'Level',skStam:'Stamina',atkSkills:'Attack skills',defSkills:'Defence skills',soundMap:'Attack sounds',sndDefault:'Default',sndFoeHit:'Monster hit',sndFoeCrit:'Monster crit',sndMeHit:'Player hit',sndMeCrit:'Player crit',sndTry:'(Sounds play in battle; enter a fight after applying to hear them)',snd_thud:'Thud',snd_slash:'Slash',snd_zap:'Zap',snd_roar:'Roar',snd_bite:'Bite',snd_boom:'Boom',imgLabel:'Image',imgUpload:'Upload',imgRemove:'Remove',imgMode:'Cutout',fxNote:'Customize attack effects: pick a preset style for each entry, then Apply locally or Save to cloud below.',fxPlayer:'Player attack effects (by weapon tier)',fxFoe:'Monster attack effects (by type)',fxn_unarmed:'Unarmed',fxn_iron:'Iron',fxn_silver:'Silver (ice)',fxn_knight:'Knight (double)',fxn_holy:'Holy',fxn_divine:'Divine (triple)',fxn_punch:'Punch',fxn_beast:'Beast (claws)',fxn_cast:'Magic ring',fxn_boss:'Boss (red)'}},
+'ja':{admin:{tabFx:'エフェクト',icon:'アイコン',mname:'名前',mid:'ID',groundMon:'地上モンスター',basementMon:'地下モンスター',topBoss:'地上ボス',basementBoss:'地下ボス',guards:'3x3 ガーディアン',tabItems:'アイテム',tabSkills:'スキル',tabSounds:'サウンド',itemsNote:'アイテムのアイコンと名前を編集。注:ポーション/武器/鍵はマップ上で内蔵グラフィック。アイコン欄は主に絵文字アイテムに反映、名前欄は全アイテムに有効。',skillsNote:'スキルの数値(レベル/エネルギー EN/スタミナ/倍率または軽減)と名前を調整。',soundsNote:'各攻撃イベントの効果音スタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',skMult:'倍率',skDiv:'軽減',skLv:'レベル',skStam:'スタミナ',atkSkills:'攻撃スキル',defSkills:'防御スキル',soundMap:'攻撃効果音',sndDefault:'デフォルト',sndFoeHit:'モンスター攻撃',sndFoeCrit:'モンスター会心',sndMeHit:'プレイヤー攻撃',sndMeCrit:'プレイヤー会心',sndTry:'(効果音は戦闘中に再生。適用後に戦闘に入ると聞けます)',snd_thud:'打撃',snd_slash:'斬撃',snd_zap:'電撃',snd_roar:'咆哮',snd_bite:'噛みつき',snd_boom:'爆発',imgLabel:'画像',imgUpload:'アップロード',imgRemove:'削除',imgMode:'背景透過',fxNote:'攻撃エフェクトのカスタマイズ：各項目に既存のスタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',fxPlayer:'プレイヤー攻撃エフェクト（武器ランク別）',fxFoe:'モンスター攻撃エフェクト（種類別）',fxn_unarmed:'素手',fxn_iron:'鉄剣',fxn_silver:'銀剣（氷）',fxn_knight:'騎士（二連斬）',fxn_holy:'聖光',fxn_divine:'神聖（三連斬）',fxn_punch:'殴打',fxn_beast:'獣（三爪）',fxn_cast:'魔法陣',fxn_boss:'ボス（赤斬）'}},
+'ko':{admin:{tabFx:'이펙트',icon:'아이콘',mname:'이름',mid:'ID',groundMon:'지상 몬스터',basementMon:'지하 몬스터',topBoss:'지상 보스',basementBoss:'지하 보스',guards:'3x3 가디언',tabItems:'아이템',tabSkills:'스킬',tabSounds:'사운드',itemsNote:'아이템 아이콘과 이름을 편집. 참고: 물약/무기/열쇠는 지도에서 내장 그래픽. 아이콘 칸은 주로 이모지 아이템에 적용, 이름 칸은 모든 아이템에 유효.',skillsNote:'스킬 수치(레벨/에너지 EN/스태미나/배율 또는 감소)와 이름을 조정.',soundsNote:'각 공격 이벤트의 효과음 스타일을 선택한 뒤 아래 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',skMult:'배율',skDiv:'감소',skLv:'레벨',skStam:'스태미나',atkSkills:'공격 스킬',defSkills:'방어 스킬',soundMap:'공격 효과음',sndDefault:'기본',sndFoeHit:'몬스터 공격',sndFoeCrit:'몬스터 치명',sndMeHit:'플레이어 공격',sndMeCrit:'플레이어 치명',sndTry:'(효과음은 전투 중 재생. 적용 후 전투에 들어가면 들을 수 있습니다)',snd_thud:'타격',snd_slash:'베기',snd_zap:'전격',snd_roar:'포효',snd_bite:'물기',snd_boom:'폭발',imgLabel:'이미지',imgUpload:'업로드',imgRemove:'제거',imgMode:'배경 제거',fxNote:'공격 이펙트 커스터마이즈: 각 항목에 기존 스타일을 선택한 뒤 아래의 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',fxPlayer:'플레이어 공격 이펙트(무기 등급별)',fxFoe:'몬스터 공격 이펙트(종류별)',fxn_unarmed:'맨손',fxn_iron:'철검',fxn_silver:'은검(얼음)',fxn_knight:'기사(이중)',fxn_holy:'성광',fxn_divine:'신성(삼중)',fxn_punch:'주먹',fxn_beast:'야수(삼조)',fxn_cast:'마법진',fxn_boss:'보스(붉은)'}}
 };
 (function mergeAdmin2(){ for(const L in I18N_ADMIN2){ if(!I18N[L]) continue; I18N[L].admin = Object.assign({}, I18N[L].admin||{}, I18N_ADMIN2[L].admin); } })();
 
@@ -5369,8 +5375,8 @@ function _processImg(src, mode, size){
 let _admImgTarget=null, _admImgSig='';
 const _admImgOrig={}, _admImgMode={};
 const _IMG_MODE_LABEL={none:'av.modeNone', chroma:'av.modeChroma', ai:'av.modeAi'};
-function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; if(row.dataset.atks!=null) return 'atk'+(row.dataset.atks|0); if(row.dataset.defs!=null) return 'def'+(row.dataset.defs|0); return ''; }
-function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; if(row.dataset.atks!=null) return adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null; if(row.dataset.defs!=null) return adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null; return null; }
+function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; if(row.dataset.atks!=null) return 'atk'+(row.dataset.atks|0); if(row.dataset.defs!=null) return 'def'+(row.dataset.defs|0); if(row.dataset.guard!=null) return 'g'+(row.dataset.guard|0); return ''; }
+function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; if(row.dataset.atks!=null) return adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null; if(row.dataset.defs!=null) return adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null; if(row.dataset.guard!=null) return adminDraft.guards?adminDraft.guards[row.dataset.guard|0]:null; return null; }
 function adImg(obj, sig){
   const hasImg=!!(obj&&obj.img), hasOrig=!!_admImgOrig[sig];
   const prev = hasImg ? ('<img src="'+obj.img+'" alt="">') : ((obj&&obj.face)||'');
@@ -5471,17 +5477,19 @@ function renderAchPanel(){
   if(cb) cb.style.display=pc?'none':'';
 }
 function snapshotConfig(){
+  const _cp=function(o){ const r=Object.assign({}, o); if(o&&o.nameLoc) r.nameLoc=Object.assign({}, o.nameLoc); return r; };
   return {
-    monsters: MONSTERS.map(function(m){ return Object.assign({}, m); }),
-    basementMonsters: BASEMENT_MONSTERS.map(function(m){ return Object.assign({}, m); }),
-    boss: Object.assign({}, BOSS),
-    basementBoss: Object.assign({}, BASEMENT_BOSS),
+    monsters: MONSTERS.map(_cp),
+    basementMonsters: BASEMENT_MONSTERS.map(_cp),
+    boss: _cp(BOSS),
+    basementBoss: _cp(BASEMENT_BOSS),
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
     map: { floors:FLOORS, grid:GRID, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },
     fx: JSON.parse(JSON.stringify(FX_MAP)),
     items: (function(){ const o={}; for(const k in ITEMS){ o[k]={face:ITEMS[k].face||'', name:ITEMS[k].name||'', img:ITEMS[k].img||null}; } return o; })(),
     atkSkills: ATK_SKILLS.map(function(s){ return Object.assign({}, s); }),
     defSkills: DEF_SKILLS.map(function(s){ return Object.assign({}, s); }),
+    guards: [_cp(GUARD_DRAGONS.red), _cp(GUARD_DRAGONS.poison), _cp(ABYSS_GUARD)],
     sounds: Object.assign({}, SFX_MAP)
   };
 }
@@ -5490,6 +5498,8 @@ function _monTemplateById(id){
   for(let i=0;i<BASEMENT_MONSTERS.length;i++){ if(BASEMENT_MONSTERS[i].id===id) return BASEMENT_MONSTERS[i]; }
   if(typeof BOSS!=='undefined' && BOSS && BOSS.id===id) return BOSS;
   if(typeof BASEMENT_BOSS!=='undefined' && BASEMENT_BOSS && BASEMENT_BOSS.id===id) return BASEMENT_BOSS;
+  if(typeof GUARD_DRAGONS!=='undefined' && GUARD_DRAGONS){ if(GUARD_DRAGONS.red && GUARD_DRAGONS.red.id===id) return GUARD_DRAGONS.red; if(GUARD_DRAGONS.poison && GUARD_DRAGONS.poison.id===id) return GUARD_DRAGONS.poison; }
+  if(typeof ABYSS_GUARD!=='undefined' && ABYSS_GUARD && ABYSS_GUARD.id===id) return ABYSS_GUARD;
   return null;
 }
 function refreshEntityIcons(){
@@ -5503,21 +5513,23 @@ function refreshEntityIcons(){
   try{ const c=state.combat; if(c&&c.foe){ const t2=_monTemplateById(c.foe.id); if(t2){ c.foe.img=t2.img||null; if(t2.face) c.foe.face=t2.face; } } }catch(e){}
   try{ applyPlayerFace(); }catch(e){}
 }
+function _migrateNameLoc(o){ if(o && o.name && (''+o.name).trim() && (!o.nameLoc || typeof o.nameLoc!=='object')) o.nameLoc={'zh-Hant':(''+o.name).trim()}; return o; }
 function applyConfig(cfg){
   if(!cfg) return;
   if(Array.isArray(cfg.monsters) && cfg.monsters.length){
-    MONSTERS.length=0; cfg.monsters.forEach(function(m){ MONSTERS.push(Object.assign({}, m)); });
+    MONSTERS.length=0; cfg.monsters.forEach(function(m){ MONSTERS.push(Object.assign({}, m)); }); MONSTERS.forEach(_migrateNameLoc);
   }
-  if(cfg.boss) Object.assign(BOSS, cfg.boss);
+  if(cfg.boss){ Object.assign(BOSS, cfg.boss); _migrateNameLoc(BOSS); }
   if(Array.isArray(cfg.basementMonsters) && cfg.basementMonsters.length){
-    BASEMENT_MONSTERS.length=0; cfg.basementMonsters.forEach(function(m){ BASEMENT_MONSTERS.push(Object.assign({}, m)); });
+    BASEMENT_MONSTERS.length=0; cfg.basementMonsters.forEach(function(m){ BASEMENT_MONSTERS.push(Object.assign({}, m)); }); BASEMENT_MONSTERS.forEach(_migrateNameLoc);
   }
-  if(cfg.basementBoss) Object.assign(BASEMENT_BOSS, cfg.basementBoss);
+  if(cfg.basementBoss){ Object.assign(BASEMENT_BOSS, cfg.basementBoss); _migrateNameLoc(BASEMENT_BOSS); }
   if(cfg.items){ for(const k in cfg.items){ if(ITEMS[k]){ if(cfg.items[k].face!=null) ITEMS[k].face=cfg.items[k].face; if(cfg.items[k].name!=null) ITEMS[k].name=cfg.items[k].name; if('img' in cfg.items[k]) ITEMS[k].img=cfg.items[k].img||null; } } }
   let _skChanged=false;
   if(Array.isArray(cfg.atkSkills) && cfg.atkSkills.length){ ATK_SKILLS.length=0; cfg.atkSkills.forEach(function(s){ ATK_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
   if(Array.isArray(cfg.defSkills) && cfg.defSkills.length){ DEF_SKILLS.length=0; cfg.defSkills.forEach(function(s){ DEF_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
   if(_skChanged){ for(const k in SKILL_BY_ID) delete SKILL_BY_ID[k]; ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ SKILL_BY_ID[s.id]=s; }); }
+  if(Array.isArray(cfg.guards)){ if(cfg.guards[0]) Object.assign(GUARD_DRAGONS.red, cfg.guards[0]); if(cfg.guards[1]) Object.assign(GUARD_DRAGONS.poison, cfg.guards[1]); if(cfg.guards[2]) Object.assign(ABYSS_GUARD, cfg.guards[2]); _migrateNameLoc(GUARD_DRAGONS.red); _migrateNameLoc(GUARD_DRAGONS.poison); _migrateNameLoc(ABYSS_GUARD); }
   if(cfg.sounds) Object.assign(SFX_MAP, cfg.sounds);
   if(cfg.start){ Object.assign(START, cfg.start); if(cfg.start.face) PLAYER_FACE=cfg.start.face; if('img' in cfg.start){ let _hasLocal=false; try{ _hasLocal=!!((localStorage.getItem('mt_player_img')||'').trim()); }catch(e){} if(!_hasLocal) PLAYER_IMG = cfg.start.img||''; } }
   if(cfg.map){
@@ -5686,7 +5698,7 @@ function doCloudLoad(){
 }
 
 /* ---- admin backend ---- */
-let adminDraft=null, adminTab='monsters';
+let adminDraft=null, adminTab='monsters', _admRenderLang='zh-Hant';
 const ADMIN_TABS=[['monsters','tabMon','mtTabMon'],['boss','tabBoss','mtTabBoss'],['player','tabPlayer','mtTabPlayer'],['map','tabMap','mtTabMap'],['fx','tabFx','mtTabFx'],['items','tabItems','mtTabItems'],['skills','tabSkills','mtTabSkills'],['sounds','tabSounds','mtTabSounds'],['data','tabData','mtTabData']];
 function buildAdminTabs(){
   let tb=document.querySelector('.adminTabs');
@@ -5713,7 +5725,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·21 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·23 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5721,7 +5733,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·21 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·23 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -5835,8 +5847,12 @@ function adNum(label,obj,key,step){
   return '<div class="adField"><label>'+label+'</label><input type="number" step="'+(step||1)+'" data-k="'+key+'" value="'+(obj[key]!=null?obj[key]:0)+'"></div>';
 }
 function adText(label,obj,key,ph,maxlen){ const v=(obj[key]!=null?String(obj[key]):''); return '<div class="adField"><label>'+label+'</label><input type="text" maxlength="'+(maxlen||12)+'" data-k="'+key+'" value="'+v.replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'"></div>'; }
+function _locName(obj){ const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; return (obj&&obj.nameLoc&&obj.nameLoc[L]!=null)?String(obj.nameLoc[L]):''; }
+function _admName(o){ if(!o) return ''; const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(o.nameLoc&&o.nameLoc[L]&&(''+o.nameLoc[L]).trim()) return (''+o.nameLoc[L]).trim(); const n=t('mon.'+(o.id||'')); if(n&&n.indexOf('mon.')!==0) return n; return o.name||o.id||''; }
+function adNameLoc(obj){ const v=_locName(obj); let ph=t('mon.'+((obj&&obj.id)||'')); if(!ph||ph.indexOf('mon.')===0) ph=(obj&&obj.name)||(obj&&obj.id)||''; return '<div class="adField"><label>'+t('admin.mname')+' ('+((typeof state!=='undefined'&&state.lang)||'zh-Hant')+')</label><input type="text" maxlength="24" data-knl="1" value="'+(''+v).replace(/"/g,'&quot;')+'" placeholder="'+(''+ph).replace(/"/g,'&quot;')+'"></div>'; }
 function adFxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><select data-fxgroup="'+group+'" data-fxkey="'+key+'">'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select></div>'; }
 function renderAdminBody(){
+  _admRenderLang=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
   const body=byId('adminBody'); body.innerHTML='';
   if(adminTab==='monsters'){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.monNote'); body.appendChild(n);
@@ -5844,9 +5860,9 @@ function renderAdminBody(){
     const monRow=function(m,idx,isBase){
       const row=document.createElement('div'); row.className='adRowItem';
       if(isBase) row.dataset.bidx=idx; else row.dataset.idx=idx;
-      row.innerHTML='<div class="adName">'+(m.face||'')+' '+(m.name||t('mon.'+m.id)||m.id)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span></div>'+
+      row.innerHTML='<div class="adName">'+(m.face||'')+' '+_admName(m)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span></div>'+
         '<div class="adGrid">'+
-        adText(t('admin.icon'),m,'face')+adText(t('admin.mname'),m,'name','',24)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+
+        adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+
         adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+
         adNum(t('end.gold'),m,'gold')+adNum(t('ui.exp'),m,'exp')+adNum('atkc',m,'atkc')+
         adNum('minF',m,'minF')+adNum('maxF',m,'maxF')+
@@ -5865,14 +5881,25 @@ function renderAdminBody(){
     const bossRow=function(b,isBase){
       const row=document.createElement('div'); row.className='adRowItem';
       if(isBase) row.dataset.bboss='1'; else row.dataset.boss='1';
-      row.innerHTML='<div class="adName">'+(b.face||'🐉')+' '+(b.name||t('mon.'+b.id)||b.id)+' <span style="color:var(--txt-faint);font-weight:400">('+b.id+')</span></div><div class="adGrid">'+
-        adText(t('admin.icon'),b,'face')+adText(t('admin.mname'),b,'name','',24)+adText(t('admin.mid'),b,'id','',24)+adImg(b,(isBase?'bboss':'boss'))+adAtkFx(b)+adAtkSfx(b)+
+      row.innerHTML='<div class="adName">'+(b.face||'🐉')+' '+_admName(b)+' <span style="color:var(--txt-faint);font-weight:400">('+b.id+')</span></div><div class="adGrid">'+
+        adText(t('admin.icon'),b,'face')+adNameLoc(b)+adText(t('admin.mid'),b,'id','',24)+adImg(b,(isBase?'bboss':'boss'))+adAtkFx(b)+adAtkSfx(b)+
         adNum('HP',b,'hp')+adNum(t('ui.atk'),b,'atk')+adNum(t('ui.def'),b,'def')+
         adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adNum('atkc',b,'atkc')+'</div>';
       body.appendChild(row);
     };
     hdr(t('admin.topBoss')); bossRow(adminDraft.boss,false);
     if(adminDraft.basementBoss){ hdr(t('admin.basementBoss')); bossRow(adminDraft.basementBoss,true); }
+    if(Array.isArray(adminDraft.guards)){
+      hdr(t('admin.guards'));
+      adminDraft.guards.forEach(function(g,gi){
+        const row=document.createElement('div'); row.className='adRowItem'; row.dataset.guard=gi;
+        row.innerHTML='<div class="adName">'+(g.face||'🐉')+' '+_admName(g)+' <span style="color:var(--txt-faint);font-weight:400">('+g.id+')</span></div><div class="adGrid">'+
+          adText(t('admin.icon'),g,'face')+adNameLoc(g)+adText(t('admin.mid'),g,'id','',24)+adImg(g,'g'+gi)+adAtkFx(g)+adAtkSfx(g)+
+          adNum('HP',g,'hp')+adNum(t('ui.atk'),g,'atk')+adNum(t('ui.def'),g,'def')+
+          adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adNum('atkc',g,'atkc')+'</div>';
+        body.appendChild(row);
+      });
+    }
   } else if(adminTab==='player'){
     const s=adminDraft.start;
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.playerNote'); body.appendChild(n);
@@ -5979,6 +6006,7 @@ function collectAdminDraft(){
     else if(row.dataset.item) target=adminDraft.items?adminDraft.items[row.dataset.item]:null;
     else if(row.dataset.atks!=null) target=adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null;
     else if(row.dataset.defs!=null) target=adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null;
+    else if(row.dataset.guard!=null) target=adminDraft.guards?adminDraft.guards[row.dataset.guard|0]:null;
     if(!target) continue;
     const fields=row.querySelectorAll('[data-k]');
     for(let j=0;j<fields.length;j++){
@@ -5989,6 +6017,8 @@ function collectAdminDraft(){
       else if(k==='atkFx'||k==='atkSfx'){ target[k] = fields[j].value||''; }
       else { const num=parseFloat(fields[j].value); target[k]= isNaN(num)?0:num; }
     }
+    const _nlf=row.querySelectorAll('[data-knl]');
+    if(_nlf.length){ const _LL=_admRenderLang||'zh-Hant'; if(!target.nameLoc||typeof target.nameLoc!=='object') target.nameLoc={}; for(let j=0;j<_nlf.length;j++){ const _vv=(_nlf[j].value||'').trim(); if(_vv) target.nameLoc[_LL]=_vv; else delete target.nameLoc[_LL]; } }
   }
   if(byId('adminBody').querySelector('select[data-fxgroup]')){
     if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}};
