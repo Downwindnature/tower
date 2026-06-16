@@ -485,7 +485,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 
 /* ============ Overlay base ============ */
 #adminEnterBtn{position:fixed;left:10px;top:10px;z-index:200;border:1px solid #6b4914;background:linear-gradient(180deg,#f6d488,var(--gold) 65%,var(--gold-d));color:#2a1c06;font-weight:800;padding:7px 12px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 #6b4914;font-size:13px;}
-#cheatBadge{flex:0 0 auto;display:none;align-items:center;gap:8px;padding:4px 6px 4px 12px;border-radius:999px;background:linear-gradient(180deg,#f6d488,var(--gold) 70%,var(--gold-d));color:#2a1c06;font-weight:800;font-size:12px;letter-spacing:.5px;box-shadow:0 2px 8px rgba(0,0,0,.45);border:1px solid #6b4914;white-space:nowrap;}
+#cheatBadge{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);flex:0 0 auto;display:none;align-items:center;gap:8px;padding:4px 6px 4px 12px;border-radius:999px;background:linear-gradient(180deg,#f6d488,var(--gold) 70%,var(--gold-d));color:#2a1c06;font-weight:800;font-size:12px;letter-spacing:.5px;box-shadow:0 2px 8px rgba(0,0,0,.45);border:1px solid #6b4914;white-space:nowrap;}
 #cheatBadge.show{display:flex;}
 #cheatBadge button{background:#2a1c06;color:var(--gold);font-weight:800;border-radius:999px;padding:3px 11px;font-size:11px;cursor:pointer;border:none;}
 #adminEnterBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #6b4914;}
@@ -824,7 +824,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .statRow .k{font-size:13px;color:var(--txt-dim);font-weight:600;}
 .statRow .v{font-family:var(--mono);font-size:17px;font-weight:800;color:var(--txt);}
 /* floor indicator above the board */
-.floorBar{display:flex;align-items:center;justify-content:center;gap:10px;width:max-content;margin:0 auto;
+.floorBar{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:max-content;margin:0 auto;
   padding:6px 20px;border-radius:10px;background:linear-gradient(180deg,var(--stone-l),var(--stone));
   border:1px solid var(--gold-d);box-shadow:0 0 16px var(--gold-glow);}
 .floorBar .k{font-size:11px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;}
@@ -1004,6 +1004,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   .actbtns .row{flex-direction:column;gap:6px;width:100%;}
   .hintbar{display:none;}
 }
+@media (max-width:560px){ #cheatBadge{font-size:10px;gap:5px;padding:3px 4px 3px 9px;right:calc(100% + 6px);} #cheatBadge button{padding:2px 7px;font-size:10px;} }
 @media (max-width:380px) and (orientation:portrait){
   .dpad{grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);}
   #controls{gap:8px;padding:6px 4px;}
@@ -5775,7 +5776,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·27 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·28 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5783,7 +5784,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·27 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·28 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
