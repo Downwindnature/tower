@@ -1181,7 +1181,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   <div class="closeRow"><button class="btn gold" id="manualClose" data-close>關閉 <span class="qk">Q</span></button></div>
 </div></div>
 
-<div class="overlay" id="monPrev"><div class="modal manualModal">
+<div class="overlay" id="monPrev" style="z-index:120"><div class="modal manualModal">
   <h2><span id="monPrevTitle">怪物預覽</span></h2>
   <div id="monPrevBody"></div>
   <div class="closeRow"><button class="btn gold" data-close>關閉 <span class="qk">Q</span></button></div>
@@ -4491,6 +4491,10 @@ function bindInput(){
       }
       return;
     }
+    if(byId('monPrev').classList.contains('show')){
+      if(e.key==='q'||e.key==='Q'||e.key==='Escape'){ e.preventDefault(); hide('monPrev'); return; }
+      return;
+    }
     if(byId('teleport').classList.contains('show')){            /* PC: Up/Down adjust the floor, Enter confirms */
       if(e.key==='ArrowUp'){ e.preventDefault(); tpStep(1); return; }
       if(e.key==='ArrowDown'){ e.preventDefault(); tpStep(-1); return; }
@@ -6189,7 +6193,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·9 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·10 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6197,7 +6201,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·9 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·10 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6588,7 +6592,7 @@ function showMonPreview(m){
   html+='</div>';
   byId('monPrevBody').innerHTML=html;
   byId('monPrevTitle').textContent=t('admin.previewTitle');
-  show('monPrev');
+  byId('monPrev').classList.add('show');
 }
 function collectAdminDraft(){
   if(!adminDraft) return;
