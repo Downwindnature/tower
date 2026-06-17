@@ -1181,6 +1181,12 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   <div class="closeRow"><button class="btn gold" id="manualClose" data-close>關閉 <span class="qk">Q</span></button></div>
 </div></div>
 
+<div class="overlay" id="monPrev"><div class="modal manualModal">
+  <h2><span id="monPrevTitle">怪物預覽</span></h2>
+  <div id="monPrevBody"></div>
+  <div class="closeRow"><button class="btn gold" data-close>關閉 <span class="qk">Q</span></button></div>
+</div></div>
+
 <!-- ===== Loot / acquisitions record overlay ===== -->
 <div class="overlay" id="loot"><div class="modal">
   <h2><span id="lootTitle">戰利品紀錄</span></h2>
@@ -4304,7 +4310,7 @@ function genFloor(f){
 function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f)); try{ return genBossFloorRaw(f); } finally{ RAND=prev; } }
 function ensureFloor(f){ if(!state.floors[f]){ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } }
 function curFloor(){ return state.floors[state.floor]; }
-const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg'];
+const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev'];
 function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} ae.style.display = (isAdmin && !open && onMenu) ? '' : 'none'; }
 function show(id){
   /* only ONE modal overlay open at a time — close any other so windows never stack */
@@ -5784,6 +5790,14 @@ const I18N_SKILLFX = {
   for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 
 /* ---- 技能/能力 聲音區塊 + 「無」選項 標籤 ---- */
+const I18N_MONPREV = {
+'zh-Hant':{ admin:{preview:'預覽', previewTitle:'怪物預覽', previewFloors:'出現樓層', previewAb:'特性／能力'} },
+'zh-Hans':{ admin:{preview:'预览', previewTitle:'怪物预览', previewFloors:'出现楼层', previewAb:'特性／能力'} },
+'en':{ admin:{preview:'Preview', previewTitle:'Monster preview', previewFloors:'Floors', previewAb:'Traits / abilities'} },
+'ja':{ admin:{preview:'プレビュー', previewTitle:'魔物プレビュー', previewFloors:'出現階', previewAb:'特性／能力'} },
+'ko':{ admin:{preview:'미리보기', previewTitle:'몬스터 미리보기', previewFloors:'출현 층', previewAb:'특성／능력'} }
+};
+(function mergeMonPrev(){ for(const L in I18N_MONPREV){ if(!I18N[L]) continue; const S=I18N_MONPREV[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 const I18N_SKILLSFX = {
 'zh-Hant':{ admin:{fxNone:'無', sfxSkills:'技能聲音（攻擊／防禦）', sfxAbilities:'怪物能力聲音'} },
 'zh-Hans':{ admin:{fxNone:'无', sfxSkills:'技能声音（攻击／防御）', sfxAbilities:'怪物能力声音'} },
@@ -6175,7 +6189,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·8 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·9 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6183,7 +6197,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·8 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·9 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6326,24 +6340,13 @@ function renderAdminBody(){
     const monRow=function(m,idx,isBase){
       const row=document.createElement('div'); row.className='adRowItem';
       if(isBase) row.dataset.bidx=idx; else row.dataset.idx=idx;
-      row.innerHTML='<div class="adName">'+(m.face||'')+' '+_admName(m)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span></div>'+
+      row.innerHTML='<div class="adName">'+(m.face||'')+' '+_admName(m)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span>'+_adPrev()+'</div>'+
         '<div class="adGrid">'+
         adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+adCritFx(m)+adCritSfx(m)+
         adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+
         adNum(t('end.gold'),m,'gold')+adNum(t('ui.exp'),m,'exp')+adNum('atkc',m,'atkc')+
         adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+
-        '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(m.drains?'':' selected')+'>—</option><option value="1"'+(m.drains?' selected':'')+'>✓</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
-        '<div class="adField"><label>'+t('admin.abTrue')+'</label><select data-k="trueDmg"><option value="0"'+(m.trueDmg?'':' selected')+'>'+t('admin.abNone')+'</option><option value="1"'+(m.trueDmg?' selected':'')+'>\u2713</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.abStatus')+'</label><select data-k="ability"><option value=""'+(!m.ability?' selected':'')+'>'+t('admin.abNone')+'</option><option value="poison"'+(m.ability==='poison'?' selected':'')+'>'+t('ab.poison')+'</option><option value="weak"'+(m.ability==='weak'?' selected':'')+'>'+t('ab.weak')+'</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.abTag')+'</label><select data-k="ab">'+['','solid','vampire','pierce','multi','first','magic','poison','weak'].map(function(av){return '<option value="'+av+'"'+((m.ab||'')===av?' selected':'')+'>'+(av===''?t('admin.abNone'):t('ab.'+av))+'</option>';}).join('')+'</select></div>'+
-        adNum(t('admin.abCrit'),{critMult:(m.critMult!=null?m.critMult:2)},'critMult')+
-        '<div class=\"adField\"><label>'+t('admin.abDeath')+'</label><select data-k=\"deathTerrain\"><option value=\"\"'+(!m.deathTerrain?' selected':'')+'>'+t('admin.abNone')+'</option><option value=\"ice\"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value=\"lava\"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select></div>'+
-        adNum(t('admin.abBonusDmg'),m,'bonusDmg')+adNum(t('admin.abDrainEn'),m,'drainEn')+
-        adNum(t('admin.abAtkcMin'),m,'atkcMin')+adNum(t('admin.abAtkcMax'),m,'atkcMax')+
-        adNum(t('admin.abStatDownP'),m,'statDownPct')+adNum(t('admin.abStatDownN'),m,'statDownN')+
-        '<div class="adField"><label>'+t('admin.abNoFlee')+'</label><select data-k="noFlee"><option value="0"'+(!m.noFlee?' selected':'')+'>—</option><option value="1"'+(m.noFlee?' selected':'')+'>✓</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.abRevive')+'</label><select data-k="revive"><option value="0"'+(!m.revive?' selected':'')+'>—</option><option value="1"'+(m.revive?' selected':'')+'>✓</option></select></div>'+
+        adMonAbilities(m)+
         '</div>';
       body.appendChild(row);
     };
@@ -6358,12 +6361,12 @@ function renderAdminBody(){
       const _skn=document.createElement('p'); _skn.className='adNote'; _skn.textContent=t('admin.skNote'); body.appendChild(_skn);
       const sk=adminDraft.swordKing;
       const row=document.createElement('div'); row.className='adRowItem'; row.dataset.sk='1';
-      row.innerHTML='<div class="adName">'+(sk.face||'')+' '+_admName(sk)+' <span style="color:var(--txt-faint);font-weight:400">('+sk.id+')</span></div>'+
+      row.innerHTML='<div class="adName">'+(sk.face||'')+' '+_admName(sk)+' <span style="color:var(--txt-faint);font-weight:400">('+sk.id+')</span>'+_adPrev()+'</div>'+
         '<div class="adGrid">'+
         adText(t('admin.icon'),sk,'face')+adNameLoc(sk)+adText(t('admin.mid'),sk,'id','',24)+adImg(sk,'sk')+adAtkFx(sk)+adAtkSfx(sk)+adCritFx(sk)+adCritSfx(sk)+
         adNum('HP',sk,'hp')+adNum(t('ui.atk'),sk,'atk')+adNum(t('ui.def'),sk,'def')+
         adNum(t('end.gold'),sk,'gold')+adNum(t('ui.exp'),sk,'exp')+adNum('atkc',sk,'atkc')+
-        '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(sk.drains?'':' selected')+'>—</option><option value="1"'+(sk.drains?' selected':'')+'>✓</option></select></div>'+
+        adMonAbilities(sk)+
         '</div>';
       body.appendChild(row);
     }
@@ -6372,10 +6375,10 @@ function renderAdminBody(){
     const bossRow=function(b,isBase){
       const row=document.createElement('div'); row.className='adRowItem';
       if(isBase) row.dataset.bboss='1'; else row.dataset.boss='1';
-      row.innerHTML='<div class="adName">'+(b.face||'🐉')+' '+_admName(b)+' <span style="color:var(--txt-faint);font-weight:400">('+b.id+')</span></div><div class="adGrid">'+
+      row.innerHTML='<div class="adName">'+(b.face||'🐉')+' '+_admName(b)+' <span style="color:var(--txt-faint);font-weight:400">('+b.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
         adText(t('admin.icon'),b,'face')+adNameLoc(b)+adText(t('admin.mid'),b,'id','',24)+adImg(b,(isBase?'bboss':'boss'))+adAtkFx(b)+adAtkSfx(b)+adCritFx(b)+adCritSfx(b)+
         adNum('HP',b,'hp')+adNum(t('ui.atk'),b,'atk')+adNum(t('ui.def'),b,'def')+
-        adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adNum('atkc',b,'atkc')+'</div>';
+        adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adNum('atkc',b,'atkc')+adMonAbilities(b)+'</div>';
       body.appendChild(row);
     };
     hdr(t('admin.topBoss')); bossRow(adminDraft.boss,false);
@@ -6384,10 +6387,10 @@ function renderAdminBody(){
       hdr(t('admin.guards'));
       adminDraft.guards.forEach(function(g,gi){
         const row=document.createElement('div'); row.className='adRowItem'; row.dataset.guard=gi;
-        row.innerHTML='<div class="adName">'+(g.face||'🐉')+' '+_admName(g)+' <span style="color:var(--txt-faint);font-weight:400">('+g.id+')</span></div><div class="adGrid">'+
+        row.innerHTML='<div class="adName">'+(g.face||'🐉')+' '+_admName(g)+' <span style="color:var(--txt-faint);font-weight:400">('+g.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
           adText(t('admin.icon'),g,'face')+adNameLoc(g)+adText(t('admin.mid'),g,'id','',24)+adImg(g,'g'+gi)+adAtkFx(g)+adAtkSfx(g)+adCritFx(g)+adCritSfx(g)+
           adNum('HP',g,'hp')+adNum(t('ui.atk'),g,'atk')+adNum(t('ui.def'),g,'def')+
-          adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adNum('atkc',g,'atkc')+'</div>';
+          adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adNum('atkc',g,'atkc')+adMonAbilities(g)+'</div>';
         body.appendChild(row);
       });
     }
@@ -6537,6 +6540,56 @@ function renderAdminBody(){
     }).catch(function(e){ loading.textContent=t('admin.dataPermErr'); loading.style.color='var(--txt-dim)'; });
   }
 }
+function adMonAbilities(m){
+  return ''+
+        '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(m.drains?'':' selected')+'>—</option><option value="1"'+(m.drains?' selected':'')+'>✓</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
+        '<div class="adField"><label>'+t('admin.abTrue')+'</label><select data-k="trueDmg"><option value="0"'+(m.trueDmg?'':' selected')+'>'+t('admin.abNone')+'</option><option value="1"'+(m.trueDmg?' selected':'')+'>\u2713</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.abStatus')+'</label><select data-k="ability"><option value=""'+(!m.ability?' selected':'')+'>'+t('admin.abNone')+'</option><option value="poison"'+(m.ability==='poison'?' selected':'')+'>'+t('ab.poison')+'</option><option value="weak"'+(m.ability==='weak'?' selected':'')+'>'+t('ab.weak')+'</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.abTag')+'</label><select data-k="ab">'+['','solid','vampire','pierce','multi','first','magic','poison','weak'].map(function(av){return '<option value="'+av+'"'+((m.ab||'')===av?' selected':'')+'>'+(av===''?t('admin.abNone'):t('ab.'+av))+'</option>';}).join('')+'</select></div>'+
+        adNum(t('admin.abCrit'),{critMult:(m.critMult!=null?m.critMult:2)},'critMult')+
+        '<div class=\"adField\"><label>'+t('admin.abDeath')+'</label><select data-k=\"deathTerrain\"><option value=\"\"'+(!m.deathTerrain?' selected':'')+'>'+t('admin.abNone')+'</option><option value=\"ice\"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value=\"lava\"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select></div>'+
+        adNum(t('admin.abBonusDmg'),m,'bonusDmg')+adNum(t('admin.abDrainEn'),m,'drainEn')+
+        adNum(t('admin.abAtkcMin'),m,'atkcMin')+adNum(t('admin.abAtkcMax'),m,'atkcMax')+
+        adNum(t('admin.abStatDownP'),m,'statDownPct')+adNum(t('admin.abStatDownN'),m,'statDownN')+
+        '<div class="adField"><label>'+t('admin.abNoFlee')+'</label><select data-k="noFlee"><option value="0"'+(!m.noFlee?' selected':'')+'>—</option><option value="1"'+(m.noFlee?' selected':'')+'>✓</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.abRevive')+'</label><select data-k="revive"><option value="0"'+(!m.revive?' selected':'')+'>—</option><option value="1"'+(m.revive?' selected':'')+'>✓</option></select></div>'+
+  '';
+}
+function _adPrev(){ return '<button type="button" data-prev class="adPrevBtn" style="margin-left:8px;padding:1px 9px;font-size:12px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);cursor:pointer;vertical-align:middle">👁 '+t('admin.preview')+'</button>'; }
+function _adRowMon(row){
+  if(!adminDraft||!row) return null; const d=row.dataset;
+  if(d.idx!=null) return adminDraft.monsters?adminDraft.monsters[d.idx|0]:null;
+  if(d.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[d.bidx|0]:null;
+  if(d.sk!=null) return adminDraft.swordKing||null;
+  if(d.boss!=null) return adminDraft.boss||null;
+  if(d.bboss!=null) return adminDraft.basementBoss||null;
+  if(d.guard!=null) return adminDraft.guards?adminDraft.guards[d.guard|0]:null;
+  return null;
+}
+function showMonPreview(m){
+  if(!m) return;
+  let foe; try{ foe=mkFoeDirect(m); }catch(e){ foe=Object.assign({}, m); }
+  let effs=[]; try{ effs=abEffects(foe)||[]; }catch(e){ effs=[]; }
+  const atkc=(m.atkcMax>m.atkcMin && m.atkcMax)?((m.atkcMin||1)+'~'+m.atkcMax):(m.atkc||1);
+  const hasS=((m.sMin||0)||(m.sMax||0)); const hasB=((m.bMin||0)||(m.bMax||0));
+  const fl=[]; if(hasS) fl.push((m.sMin||0)+'F~'+(m.sMax||0)+'F'); if(hasB) fl.push('B'+(m.bMin||0)+'~B'+(m.bMax||0));
+  const flStr=fl.length?fl.join(' · '):'—';
+  const st=function(k,v){ return '<div style="display:flex;justify-content:space-between;gap:10px"><span style="color:var(--txt-faint)">'+k+'</span><span class="num">'+v+'</span></div>'; };
+  const faceHtml = m.img?('<img src="'+m.img+'" alt="" style="width:48px;height:48px;object-fit:contain;border-radius:8px">'):('<span style="font-size:40px;line-height:1">'+(m.face||'')+'</span>');
+  let html='<div class="monDetail" style="padding:2px">';
+  html+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'+faceHtml+'<div><div class="mdName" style="font-size:18px">'+_admName(m)+'</div><div style="color:var(--txt-faint);font-size:12px">'+(m.id||'')+'</div></div></div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px 16px;font-size:14px;margin-bottom:12px">';
+  html+=st('HP',m.hp||0)+st(t('ui.atk'),m.atk||0)+st(t('ui.def'),m.def||0)+st(t('manual.speed'),m.agi||0)+st(t('end.gold'),m.gold||0)+st(t('ui.exp'),m.exp||0)+st('atkc',atkc)+st(t('admin.previewFloors'),flStr);
+  html+='</div>';
+  html+='<div style="color:var(--gold);font-weight:600;margin-bottom:5px;font-size:13px">'+t('admin.previewAb')+'</div>';
+  if(effs.length){ for(let i=0;i<effs.length;i++){ html+='<div class="efLine"><span class="efName">'+effs[i][0]+'</span>'+effs[i][1]+'</div>'; } }
+  else { html+='<div class="efLine">'+t('manual.effNone')+'</div>'; }
+  html+='</div>';
+  byId('monPrevBody').innerHTML=html;
+  byId('monPrevTitle').textContent=t('admin.previewTitle');
+  show('monPrev');
+}
 function collectAdminDraft(){
   if(!adminDraft) return;
   const rows=byId('adminBody').querySelectorAll('.adRowItem');
@@ -6608,6 +6661,7 @@ function adminResetDefaults(){ if(!DEFAULT_CONFIG) return; adminDraft=JSON.parse
 
 /* ---- bind account & admin UI (called from boot) ---- */
 function bindAccountAdmin(){
+  { const _ab=byId('adminBody'); if(_ab && !_ab._prevBound){ _ab._prevBound=true; _ab.addEventListener('click',function(ev){ const b=(ev.target&&ev.target.closest)?ev.target.closest('[data-prev]'):null; if(!b) return; ev.preventDefault(); ev.stopPropagation(); const row=b.closest('.adRowItem'); if(!row) return; try{ collectAdminDraft(); }catch(e){} const mon=_adRowMon(row); if(mon) showMonPreview(mon); }); } }
   const ss=byId('ssAccount'); if(ss) ss.addEventListener('click', openAuth);
   { const _stat=byId('ssAcctStat'); if(_stat) _stat.addEventListener('click', function(){ if(typeof Account!=='undefined' && Account.user) openAuth(); }); }
   byId('authLogin').addEventListener('click', function(){ authDo('login'); });
