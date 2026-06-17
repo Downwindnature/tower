@@ -3178,6 +3178,8 @@ let FX_MAP={ weapon:{}, foe:{} };
 FX_WEAPON_TIERS.forEach(function(k){ FX_MAP.weapon[k]=k; }); FX_FOE_KINDS.forEach(function(k){ FX_MAP.foe[k]=k; });
 FX_MAP.player='';   /* player attack fx override: '' = use weapon-tier fx; else a preset name or a custom 'cfx*' id */
 FX_MAP.playerCrit=''; FX_MAP.foeCrit='';   /* crit-only attack fx: '' = reuse the normal fx (scaled up); else a preset / custom id */
+FX_MAP.skill={}; FX_MAP.ability={};   /* per attack/defence skill (skill id) + per monster ability (ability key) custom fx */
+FX_MAP.skillSfx={}; FX_MAP.abilitySfx={};   /* matching custom sounds for skills / abilities */
 /* ===== custom uploaded attack media — images (GIF/PNG) for fx, short audio for sfx, kept in localStorage ===== */
 let CUSTOM_FX={}, CUSTOM_SFX={}, _customBuf={};
 function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } }
@@ -3258,8 +3260,8 @@ function bindCustomMediaUI(){
 function fxRemap(group, base){ try{ return (FX_MAP[group] && FX_MAP[group][base]) || base; }catch(e){ return base; } }
 function weaponFxTier(pl){ const r=(pl&&pl.bestSword)||0; return ['unarmed','iron','silver','knight','holy','divine'][r]||'unarmed'; }
 function foeFxKind(foe, floor){ if(foe.trueDmg) return 'cast'; if(foe.boss) return 'boss'; if(floor<0 || floor>=11) return 'beast'; return 'punch'; }
-function playAttackFx(side, kind, crit, snd){
-  try{
+function playAttackFx(side, kind, crit, snd, noSnd){
+  if(!noSnd) try{
     if(crit){ if(snd && CUSTOM_SFX[snd]) playCustomSfx(snd); else if(snd && SFX_PRESETS[snd]) sfxPlayPreset(snd); else sfx(side==='me'?'critHurt':'critHit'); }   /* crit: use this monster's own crit sound if set, else the built-in crit sound */
     else if(snd && CUSTOM_SFX[snd]) playCustomSfx(snd);
     else if(snd && SFX_PRESETS[snd]) sfxPlayPreset(snd);
@@ -3279,6 +3281,7 @@ function playAttackFx(side, kind, crit, snd){
   setTimeout(function(){ if(fx.parentNode) fx.parentNode.removeChild(fx); }, dur);
   return dur;
 }
+function playEventFx(side, mapName, key){ try{ const m=FX_MAP[mapName]; if(m && m[key]) playAttackFx(side, m[key], false, null, true); const sm=FX_MAP[mapName+'Sfx']; const sId=sm&&sm[key]; if(sId){ if(CUSTOM_SFX[sId]) playCustomSfx(sId); else if(SFX_PRESETS[sId]) sfxPlayPreset(sId); } }catch(e){} }
 function openCombat(x,y,ent){
   const foe=ent.foe;
   state.combat={ x:x,y:y,ent:ent,foe:foe, foeMaxHp:foe.maxhp, foePreHp:foe.hp,
@@ -3390,6 +3393,7 @@ function combatDefSkill(){
   pl.en=clamp(pl.en-s.en,0,100); c.meStam=clamp(c.meStam-s.stam,0,100);
   if(id==='shendun'){ c.shendunBonus=Math.floor((pl.hp+pl.def)*pl.lv/100); c.shendunHits=3; log('me',fmt(t('msg.skillCast'),{n:t('sk.shendun.name')})); }
   else { c.defArmed=id; log('me',fmt(t('msg.defArm'),{n:skillName(id)})); }
+  playEventFx('me','skill',id);   /* 防禦技能特效＋聲音 */
   renderCombat();
 }
 function updateCritBtn(){
@@ -3473,7 +3477,7 @@ function playerAct(action){
   }
   if(skill && anyHit) applyAtkSkillEffect(skill, dealt, crit);
   renderCombat();
-  if(anyHit){ const _pfx=(crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl))); playAttackFx('foe', _pfx, crit, null); floatDmg('foe','-'+dealt, crit?'crit':null); }   // crit uses the dedicated crit fx if set, else the normal fx (scaled)
+  if(anyHit){ const _pfx=(skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); playAttackFx('foe', _pfx, crit, (skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); floatDmg('foe','-'+dealt, crit?'crit':null); }   // crit uses the dedicated crit fx if set, else the normal fx (scaled)
   else { floatDmg('foe','miss!','miss'); }
   if(_shRefl && dealt>0){ const refl=Math.max(1,Math.round(dealt*0.25)); pl.hp-=refl; floatDmg('me','-'+refl,'crit'); log('foe',fmt(t('msg.msReflect'),{n:refl})); renderCombat(); if(pl.hp<=0){ pl.hp=0; renderCombat(); setTimeout(combatLose,240); return; } }
   if(foe.hp<=0){ setTimeout(combatWin, 240); return; }
@@ -3542,7 +3546,8 @@ function foeTurn(){
       if(def && def.id==='enerdun'){ c.foeSkip=true; break; }   // 能量盾: cancel remaining hits + foe skips next round
     }
   }
-  if(anyHit && (foe.statDownPct>0||foe.statDownN>0)){ const _rp=1-(foe.statDownPct||0)/100; pl.atk=Math.max(1,Math.floor(pl.atk*_rp)-(foe.statDownN||0)); pl.def=Math.max(0,Math.floor(pl.def*_rp)-(foe.statDownN||0)); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
+  if(anyHit && foe.drainEn>0){ try{ playEventFx('me','ability','drainEn'); }catch(_e){} }   /* 吸能特效 */
+  if(anyHit && (foe.statDownPct>0||foe.statDownN>0)){ const _rp=1-(foe.statDownPct||0)/100; pl.atk=Math.max(1,Math.floor(pl.atk*_rp)-(foe.statDownN||0)); pl.def=Math.max(0,Math.floor(pl.def*_rp)-(foe.statDownN||0)); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ playEventFx('me','ability','statDown'); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
   c.halveNext=false;
   applyMasterSkill(foe, taken);
   if(def && def.id==='healShield'){ const healed=Math.floor((beforeTotal-taken)*0.6); if(healed>0){ pl.hp+=healed; log('me',fmt(t('msg.healShield'),{n:healed})); } }
@@ -3574,15 +3579,15 @@ function applyAilmentFromFoe(foe){
   const pl=state.player;
   const baseChance = foe.boss?0.5 : 0.35 + 0.03*state.floor;
   if(foe.ability==='poison'){
-    if(chance(clamp(baseChance,0,0.85))){ pl.status='poison'; pl.poisonStep=ri(1,4); log('foe',t('msg.applyPoison')); }
+    if(chance(clamp(baseChance,0,0.85))){ pl.status='poison'; pl.poisonStep=ri(1,4); log('foe',t('msg.applyPoison')); try{ playEventFx('me','ability','poison'); }catch(_e){} }
   }else if(foe.ability==='weak'){
-    if(chance(clamp(baseChance,0,0.85))){ pl.status='weak'; pl.weakStacks=1; pl.hp=Math.max(1,pl.hp-15); log('foe',fmt(t('msg.applyWeak'),{n:1})); }
+    if(chance(clamp(baseChance,0,0.85))){ pl.status='weak'; pl.weakStacks=1; pl.hp=Math.max(1,pl.hp-15); log('foe',fmt(t('msg.applyWeak'),{n:1})); try{ playEventFx('me','ability','weak'); }catch(_e){} }
   }
 }
 function combatWin(){
   clearTimeout(combatTimer); try{ sfx('defeat'); }catch(e){}
   const c=state.combat, pl=state.player, foe=c.foe;
-  if(c && foe && foe.revive && !c.revived){ c.revived=true; foe.hp=Math.max(1,Math.round((foe.maxhp||foe.hp||1)*0.5)); try{ log('foe',t('msg.revive')); }catch(e){} state.busy=false; try{ renderCombat(); }catch(e){} try{ refreshCombatButtons(); }catch(e){} return; }   /* 死亡復活一次 */
+  if(c && foe && foe.revive && !c.revived){ c.revived=true; foe.hp=Math.max(1,Math.round((foe.maxhp||foe.hp||1)*0.5)); try{ log('foe',t('msg.revive')); }catch(e){} try{ playEventFx('foe','ability','revive'); }catch(e){} state.busy=false; try{ renderCombat(); }catch(e){} try{ refreshCombatButtons(); }catch(e){} return; }   /* 死亡復活一次 */
   log('sys',fmt(t('msg.win'),{name:monName(foe)}),true);
   const d=curFloor(); d.ent[c.y][c.x]=null;
   if(foe.big){ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ if(dx===0&&dy===0)continue; const bx=c.x+dx,by=c.y+dy; if(bx>=0&&by>=0&&bx<GRID&&by<GRID){ const be=d.ent[by][bx]; if(be&&be.kind==='bigBody'&&be.ax===c.x&&be.ay===c.y) d.ent[by][bx]=null; } } if(foe.dropItem) d.ent[c.y][c.x]={kind:'item',item:foe.dropItem}; }
@@ -5767,6 +5772,28 @@ const I18N_CRITFX = {
 (function mergeCritFx(){ for(const L in I18N_CRITFX){ if(!I18N[L]) continue; const S=I18N_CRITFX[L];
   for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 
+/* ---- 技能特效 / 能力特效 區塊標籤 ---- */
+const I18N_SKILLFX = {
+'zh-Hant':{ admin:{fxSkills:'技能特效（攻擊／防禦）', fxAbilities:'怪物能力特效'} },
+'zh-Hans':{ admin:{fxSkills:'技能特效（攻击／防御）', fxAbilities:'怪物能力特效'} },
+'en':{ admin:{fxSkills:'Skill FX (attack / defence)', fxAbilities:'Monster ability FX'} },
+'ja':{ admin:{fxSkills:'スキルエフェクト（攻撃／防御）', fxAbilities:'魔物能力エフェクト'} },
+'ko':{ admin:{fxSkills:'스킬 효과(공격／방어)', fxAbilities:'몬스터 능력 효과'} }
+};
+(function mergeSkillFx(){ for(const L in I18N_SKILLFX){ if(!I18N[L]) continue; const S=I18N_SKILLFX[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
+/* ---- 技能/能力 聲音區塊 + 「無」選項 標籤 ---- */
+const I18N_SKILLSFX = {
+'zh-Hant':{ admin:{fxNone:'無', sfxSkills:'技能聲音（攻擊／防禦）', sfxAbilities:'怪物能力聲音'} },
+'zh-Hans':{ admin:{fxNone:'无', sfxSkills:'技能声音（攻击／防御）', sfxAbilities:'怪物能力声音'} },
+'en':{ admin:{fxNone:'None', sfxSkills:'Skill sound (attack / defence)', sfxAbilities:'Monster ability sound'} },
+'ja':{ admin:{fxNone:'なし', sfxSkills:'スキル音（攻撃／防御）', sfxAbilities:'魔物能力サウンド'} },
+'ko':{ admin:{fxNone:'없음', sfxSkills:'스킬 소리(공격／방어)', sfxAbilities:'몬스터 능력 소리'} }
+};
+(function mergeSkillSfx(){ for(const L in I18N_SKILLSFX){ if(!I18N[L]) continue; const S=I18N_SKILLSFX[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
 /* ---- game-data snapshot / apply (cloud-editable parameters) ---- */
 let DEFAULT_CONFIG=null;
 /* ---- shared image processor (reused by monster/boss icon upload) ---- */
@@ -5959,7 +5986,7 @@ function applyConfig(cfg){
     if(typeof cfg.map.loopChance==='number') MAPCFG.loopChance=clamp(cfg.map.loopChance,0,0.6);
     if(typeof cfg.map.shopChance==='number') MAPCFG.shopChance=clamp(cfg.map.shopChance,0,1);
   }
-  if(cfg.fx){ if(cfg.fx.weapon) FX_WEAPON_TIERS.forEach(function(k){ if(cfg.fx.weapon[k]) FX_MAP.weapon[k]=cfg.fx.weapon[k]; }); if(cfg.fx.foe) FX_FOE_KINDS.forEach(function(k){ if(cfg.fx.foe[k]) FX_MAP.foe[k]=cfg.fx.foe[k]; }); if(cfg.fx.player!=null) FX_MAP.player=cfg.fx.player; if(cfg.fx.playerCrit!=null) FX_MAP.playerCrit=cfg.fx.playerCrit; if(cfg.fx.foeCrit!=null) FX_MAP.foeCrit=cfg.fx.foeCrit; }
+  if(cfg.fx){ if(cfg.fx.weapon) FX_WEAPON_TIERS.forEach(function(k){ if(cfg.fx.weapon[k]) FX_MAP.weapon[k]=cfg.fx.weapon[k]; }); if(cfg.fx.foe) FX_FOE_KINDS.forEach(function(k){ if(cfg.fx.foe[k]) FX_MAP.foe[k]=cfg.fx.foe[k]; }); if(cfg.fx.player!=null) FX_MAP.player=cfg.fx.player; if(cfg.fx.playerCrit!=null) FX_MAP.playerCrit=cfg.fx.playerCrit; if(cfg.fx.foeCrit!=null) FX_MAP.foeCrit=cfg.fx.foeCrit; if(cfg.fx.skill) Object.assign(FX_MAP.skill, cfg.fx.skill); if(cfg.fx.ability) Object.assign(FX_MAP.ability, cfg.fx.ability); if(cfg.fx.skillSfx) Object.assign(FX_MAP.skillSfx, cfg.fx.skillSfx); if(cfg.fx.abilitySfx) Object.assign(FX_MAP.abilitySfx, cfg.fx.abilitySfx); }
   try{ applyPlayerFace(); }catch(e){}
 }
 
@@ -6147,7 +6174,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·5 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·7 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6155,7 +6182,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·5 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·7 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6286,6 +6313,9 @@ function adNameLoc(obj, grp, idOverride){
   return o+'</div></div>';
 }
 function adFxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select data-fxgroup="'+group+'" data-fxkey="'+key+'">'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div>'; }
+function adFxSelectN(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select data-fxgroup="'+group+'" data-fxkey="'+key+'"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxNone')+'</option>'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur||'')+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div>'; }
+function adSfxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><select data-sfxgroup="'+group+'" data-sfxkey="'+key+'"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxNone')+'</option>'; SFX_PRESET_KEYS.forEach(function(kk){ o+='<option value="'+kk+'"'+(kk===cur?' selected':'')+'>'+t('admin.snd_'+kk)+'</option>'; }); return o+_sfxCustomOpts(cur||'')+'</select></div>'; }
+
 function renderAdminBody(){
   _admRenderLang=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
   const body=byId('adminBody'); body.innerHTML='';
@@ -6430,6 +6460,22 @@ function renderAdminBody(){
     let fh='<div class="adName">👹 '+t('admin.fxFoe')+'</div><div class="adGrid">';
     FX_FOE_KINDS.forEach(function(k){ fh+=adFxSelect(t('admin.fxn_'+k),'foe',k,FX_MAP.foe[k]); });
     fr.innerHTML=fh+'</div>'; body.appendChild(fr);
+    const skr=document.createElement('div'); skr.className='adRowItem'; skr.dataset.fxgroup='skill';
+    let skh='<div class="adName">📖 '+t('admin.fxSkills')+'</div><div class="adGrid">';
+    ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ skh+=adFxSelectN(skillName(s.id),'skill',s.id,FX_MAP.skill[s.id]); });
+    skr.innerHTML=skh+'</div>'; body.appendChild(skr);
+    const abr=document.createElement('div'); abr.className='adRowItem'; abr.dataset.fxgroup='ability';
+    let abh='<div class="adName">✨ '+t('admin.fxAbilities')+'</div><div class="adGrid">';
+    [['poison',t('status.poison')],['weak',t('status.weak')],['drainEn',t('ab.drainEn')],['statDown',t('ab.statDown')],['revive',t('ab.revive')]].forEach(function(p){ abh+=adFxSelectN(p[1],'ability',p[0],FX_MAP.ability[p[0]]); });
+    abr.innerHTML=abh+'</div>'; body.appendChild(abr);
+    const sksr=document.createElement('div'); sksr.className='adRowItem';
+    let sksh='<div class="adName">\ud83d\udd0a '+t('admin.sfxSkills')+'</div><div class="adGrid">';
+    ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ sksh+=adSfxSelect(skillName(s.id),'skill',s.id,FX_MAP.skillSfx[s.id]); });
+    sksr.innerHTML=sksh+'</div>'; body.appendChild(sksr);
+    const absr=document.createElement('div'); absr.className='adRowItem';
+    let absh='<div class="adName">\ud83d\udd0a '+t('admin.sfxAbilities')+'</div><div class="adGrid">';
+    [['poison',t('status.poison')],['weak',t('status.weak')],['drainEn',t('ab.drainEn')],['statDown',t('ab.statDown')],['revive',t('ab.revive')]].forEach(function(p){ absh+=adSfxSelect(p[1],'ability',p[0],FX_MAP.abilitySfx[p[0]]); });
+    absr.innerHTML=absh+'</div>'; body.appendChild(absr);
   } else if(adminTab==='items'){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.itemsNote'); body.appendChild(n);
     if(adminDraft.items){
@@ -6526,6 +6572,14 @@ function collectAdminDraft(){
     if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}};
     byId('adminBody').querySelectorAll('select[data-fxgroup]').forEach(function(sel){
       const g=sel.getAttribute('data-fxgroup'), kk=sel.getAttribute('data-fxkey');
+      if(!adminDraft.fx[g]) adminDraft.fx[g]={};
+      adminDraft.fx[g][kk]=sel.value;
+    });
+  }
+  if(byId('adminBody').querySelector('select[data-sfxgroup]')){
+    if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}};
+    byId('adminBody').querySelectorAll('select[data-sfxgroup]').forEach(function(sel){
+      const g=sel.getAttribute('data-sfxgroup')+'Sfx', kk=sel.getAttribute('data-sfxkey');
       if(!adminDraft.fx[g]) adminDraft.fx[g]={};
       adminDraft.fx[g][kk]=sel.value;
     });
