@@ -159,8 +159,11 @@ select.langsel option{color:#15151c;background:#eef0f7;}
    box-shadow:inset 0 2px 0 rgba(255,255,255,.04),inset 0 -3px 4px rgba(0,0,0,.7),0 0 0 1px #060309;}
 .tile.wall.brick{background:linear-gradient(180deg,#4a3320,#2c1d11);box-shadow:inset 0 2px 0 rgba(255,205,140,.07),inset 0 -3px 4px rgba(0,0,0,.7),0 0 0 1px #19100a;}
 .tile.stairs{background:radial-gradient(circle at 50% 40%,rgba(232,176,75,.22),#1c1530);}
-.tile.lava{background:linear-gradient(64deg,transparent 0 45.5%,#ff2200 45.5% 46.5%,#ffcc44 47% 48%,#ff2200 48.5% 49.5%,transparent 49.5%),linear-gradient(117deg,transparent 0 38%,#e01e00 38% 39%,#ff9a2a 39.5% 40.5%,#e01e00 41% 42%,transparent 42%),linear-gradient(19deg,transparent 0 60.5%,#ff3300 60.5% 61.5%,#ffb733 62% 63%,#ff3300 63.5% 64.5%,transparent 64.5%),linear-gradient(150deg,transparent 0 26.5%,#c41a00 26.5% 27.5%,#ff7a1a 28% 29%,transparent 29.5%),linear-gradient(95deg,transparent 0 70.5%,#ff2a00 70.5% 71.5%,#ffaa30 72% 73%,transparent 73.5%),radial-gradient(circle at 40% 44%,#5e2f18 0%,#2a1208 56%,#140905 100%);box-shadow:inset 0 0 10px rgba(255,55,0,.55),inset 0 0 2px rgba(0,0,0,.55);animation:lavaCracks 1.7s ease-in-out infinite alternate;}
+.tile.lava{background:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAeAB4AAD/4QLoRXhpZgAATU0AKgAAAAgABAE7AAIAAAAKAAABSodpAAQAAAABAAABVJydAAEAAAAUAAACzOocAAcAAAEMAAAAPgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAd2VpdGFpLTAzAAAFkAMAAgAAABQAAAKikAQAAgAAABQAAAK2kpEAAgAAAAM1NAAAkpIAAgAAAAM1NAAA6hwABwAAAQwAAAGWAAAAABzqAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyMDI2OjA2OjE3IDE1OjIwOjI0ADIwMjY6MDY6MTcgMTU6MjA6MjQAAAB3AGUAaQB0AGEAaQAtADAAMwAAAP/hBBxodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIi8+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPjx4bXA6Q3JlYXRlRGF0ZT4yMDI2LTA2LTE3VDE1OjIwOjI0LjU0MzwveG1wOkNyZWF0ZURhdGU+PC9yZGY6RGVzY3JpcHRpb24+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iPjxkYzpjcmVhdG9yPjxyZGY6U2VxIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+PHJkZjpsaT53ZWl0YWktMDM8L3JkZjpsaT48L3JkZjpTZXE+DQoJCQk8L2RjOmNyZWF0b3I+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/eHBhY2tldCBlbmQ9J3cnPz7/2wBDAAcFBQYFBAcGBQYIBwcIChELCgkJChUPEAwRGBUaGRgVGBcbHichGx0lHRcYIi4iJSgpKywrGiAvMy8qMicqKyr/2wBDAQcICAoJChQLCxQqHBgcKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKir/wAARCAA1ADcDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDh4WaKbY3cdKeF+yQtM0hUryo9aVITNIG3jcTjFT/ZVWTDDJz0aspzcXZI7aFCM1zTdkiKJ5JovOkTLycDtUSo9pIGuN3lZzx2q5NErSKA5TZ2FE9qZIgrOSD1BrnjWlOF3udmIwVKnilSjK8WV5DuJMfyxv1NRtA8b7Q2ABxnvUpVbdUjTJPqalS2eRWkeXJ7A9q3hUctzjxGGhRdoyTKkMhgkI7minJEZJCc80Vocug9cK6mNuMdPer0btLhzyQMGs0JMmFRARnitC3ndoxHJFtZen1rKo03Y9DB83xJLTuVpH8uUlssSeAB0NWpGmmjURADA+YmmFCr7pfvdfpUQkbzXUdDx1rk5/f5Oh606PJT+s3Tk+gTFVkX260ks7IgVIj83RqJbeby85AB9e9Kso2gycEcACupK2x5EZe1jyzsvMiZvn/cgjjkUU3M0hKr90HIIorZM4JJKTUWIl832glY8jPAq1C0hlMkvA65FUILaaU5RguD19a1DGs0IjD9eDiuetJ8yjHc9bA0qfs5VajVl0YyS4EznaMADqakMUZCMqY7nHeqE8Bgbyw+Fx3NW4QyW+WcsCPl9qcqcnDTcKWLpqtzTXudiKe9PmGEQkBe+agVnxvMZIFLJEWjdyWBPqKtwENZD6c1UH7pyYinF17JWTKkN4UmLCPdn+GigWkryExEAeuaK2h70bnNWp+zm4jLVmTK5z8ppwQwR+ajHIwaKKRKFWXztzyruJHr0pLEsZuWO0HhaKKzUm5WNpRXITzyNKxjJwD6dqgunkiQRxvtAHpRRWS0Z6XxUk2Ns3ZJdu4kYoooroWx4z3P/9k=) center/cover no-repeat,radial-gradient(circle at 40% 44%,#5e2f18 0%,#2a1208 56%,#140905 100%);box-shadow:inset 0 0 10px rgba(255,55,0,.5),inset 0 0 2px rgba(0,0,0,.55);animation:lavaCracks 1.7s ease-in-out infinite alternate;}
 @keyframes lavaCracks{0%{filter:brightness(.82) saturate(1.25);box-shadow:inset 0 0 8px rgba(255,50,0,.45),inset 0 0 2px rgba(0,0,0,.55);}100%{filter:brightness(1.34) saturate(1.45);box-shadow:inset 0 0 16px rgba(255,95,12,.8),inset 0 0 2px rgba(0,0,0,.5);}}
+.tile.barrier{background:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAeAB4AAD/4QLoRXhpZgAATU0AKgAAAAgABAE7AAIAAAAKAAABSodpAAQAAAABAAABVJydAAEAAAAUAAACzOocAAcAAAEMAAAAPgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAd2VpdGFpLTAzAAAFkAMAAgAAABQAAAKikAQAAgAAABQAAAK2kpEAAgAAAAMwNQAAkpIAAgAAAAMwNQAA6hwABwAAAQwAAAGWAAAAABzqAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyMDI2OjA2OjE3IDE1OjIwOjUyADIwMjY6MDY6MTcgMTU6MjA6NTIAAAB3AGUAaQB0AGEAaQAtADAAMwAAAP/hBBxodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIi8+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPjx4bXA6Q3JlYXRlRGF0ZT4yMDI2LTA2LTE3VDE1OjIwOjUyLjA0NTwveG1wOkNyZWF0ZURhdGU+PC9yZGY6RGVzY3JpcHRpb24+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iPjxkYzpjcmVhdG9yPjxyZGY6U2VxIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+PHJkZjpsaT53ZWl0YWktMDM8L3JkZjpsaT48L3JkZjpTZXE+DQoJCQk8L2RjOmNyZWF0b3I+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/eHBhY2tldCBlbmQ9J3cnPz7/2wBDAAcFBQYFBAcGBQYIBwcIChELCgkJChUPEAwRGBUaGRgVGBcbHichGx0lHRcYIi4iJSgpKywrGiAvMy8qMicqKyr/2wBDAQcICAoJChQLCxQqHBgcKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKir/wAARCAA2ADQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDjtOtZrm+eCBGfIxwM12uk/Di4u7YT3BeE9hjFS/Ciyi/tKe9uhkRrnBFbeqajqWq6w8GmNIED4+XoK9XD0YuOp4uJxE1Pli9TMHwvVm4mYnvgU6L4YC3bdFIyD3rvooI9E0pGv3PnAZZ81kHXLXUJ3NuHl28JGp5z2NX7JP4Uckq9RPWRyF18LWRXdJXLHnbjrXG6rodzpjqLiGRFJwMjAr2+2uI9Ptybt/Nu5PupnJWsjx5ZNd+EHuLpAssfKcc1nKndWaOijiJKWsrnizfIxAGaKRI225bgn1ory3ue8noeofDF1vLG82/KSpBNegadY2nh20ku7l1LuM5rz74RyLax35K5EeTitHW9ROs6gI5rz7HErY2e1etSpynGy2PncTONOpzLcy/FXii81PV/7PhjzGwDA+1T+HZU0FxcognuZBgR+la+paJp5liayuUefylAAHJ461s+F/CiRsbu9G9yflBFdsq1ONPlOPkdSrpuSaN4bknvBquoSfvXO4J2FHxCYR+F7hhg4HSuolkjRTGkiq6jpnoK4rxfsfwvduZxMJOPpXmxqSnK72PTdONOCjHdnhT3Cztv2Y7UVCYGLtjgBscUV573PYWx6R8Ksuuoxty7rwB3q9qWhzTagSkRI3fMf6Vw3g7Xn0G9e8Gdq8GvSbXxzYTqLiOPdvOGNezharUfdPncdRkqup0/hzQBBGk9zhiB8oI6Vs32px2EJCKWfBwF7VyTfESCGMKIdtZlz4mt9TjbLOC3LFeKUqVSc7yKjXhTp2prUrp4hkn1mdFdmZgVJ9DUmrK8Pw5n88kSZ4zWaLzSrSYSMJM5ycHrWZ4y8ZxappiWNshjjXOB6/Wt6/LCCsjmw3PUqann3nOjMNx654op8SIykuxBzRXzjcrn16SsSxHyZXj6qRyKkmma1hKRkgtzwelFFbXa2MbJ7jre4uJflaUk46k1P5ktmu9ZXJPvRRR7Sfcfs49hjO8pDPI53DpmmTWCeZ8xJyOOelFFTOpJrVj5IroU3DRuVznFFFFQUf/Z) center/cover no-repeat,linear-gradient(135deg,#cfeeff,#6fc2ee 55%,#2f86c4);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),inset 0 -3px 6px rgba(0,45,90,.45),0 0 0 1px #1c5f8c,0 0 7px rgba(120,200,255,.4);}
+.tile.portalAimCell{box-shadow:inset 0 0 0 2px rgba(244,207,58,.8),inset 0 0 0 100px rgba(244,207,58,.16);z-index:2;}
+.tile.portalAimOk{box-shadow:inset 0 0 0 2px rgba(74,222,128,.95),inset 0 0 0 100px rgba(74,222,128,.30),0 0 9px rgba(74,222,128,.55);z-index:3;}
 .tile.downstair{background:radial-gradient(circle at 50% 60%,rgba(120,180,240,.22),#161426);}
 .tile.downstair.sealed{background:radial-gradient(circle at 50% 60%,rgba(150,150,160,.16),#141220);filter:grayscale(.55);}
 .tile.downstair .glyph-ent{transform:scaleY(-1);filter:hue-rotate(180deg) saturate(.6);}
@@ -1077,6 +1080,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
           <div class="keyCell"><div class="kc r"></div><div class="cnt num" id="keyR">0</div></div>
           <div class="keyCell"><div class="kc w"></div><div class="cnt num" id="keyW">0</div></div>
           <div class="keyCell"><div class="kc p"></div><div class="cnt num" id="keyP">0</div></div>
+          <div class="keyCell" id="portalKeyCell" style="display:none"><div class="kc" style="display:grid;place-items:center;background:transparent;box-shadow:none;font-size:14px">🚪</div><div class="cnt num" id="portalCnt">0</div></div>
         </div>
       </div>
     </div>
@@ -1105,6 +1109,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
           <div class="row">
             <button class="abtn" id="btnManual2"><span id="manLab2">怪物手冊</span><span class="keyTip">E</span></button>
             <button class="abtn" id="btnTeleport2"><span id="tpLab2">樓層傳送</span><span class="keyTip">F</span></button>
+            <button class="abtn" id="btnPortal2" style="display:none"><span id="portalLab2">任意門</span><span class="keyTip">T</span></button>
             <button class="abtn" id="btnHelp2"><span id="helpLab2">說明</span></button>
           </div>
         </div>
@@ -1213,6 +1218,15 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   <h2><span id="helpTitle">玩法說明</span></h2>
   <div class="helpList" id="helpList"></div>
   <div class="closeRow"><button class="btn gold" id="helpClose" data-close>開始冒險</button></div>
+</div></div>
+
+<!-- ===== 任意門：確認 / 老頭劇情 對話框 ===== -->
+<div class="overlay" id="portalDlg"><div class="modal">
+  <div class="portalDlgBody" id="portalDlgBody" style="font-size:15px;line-height:1.7;white-space:pre-wrap;margin:4px 2px 4px"></div>
+  <div class="closeRow">
+    <button class="btn" id="portalDlgNo"><span id="portalDlgNoLab">退出</span><span class="keyTip">Q</span></button>
+    <button class="btn gold" id="portalDlgYes"><span id="portalDlgYesLab">確認</span><span class="keyTip">Enter</span></button>
+  </div>
 </div></div>
 
 <!-- ===== Audio settings (three sliders: master / music / sfx) ===== -->
@@ -1510,7 +1524,7 @@ const I18N = {
   shop:{blue:{n:'蓝色次级商店',d:'以金币兑换能力。'},red:{n:'红色高级商店',d:'以金币兑换更强能力。'},old:{n:'蓝衣老人',d:'以经验值兑换能力。'},older:{n:'年迈蓝衣老人',d:'以经验值兑换大量能力。'},healer:{n:'白衣治疗老人',d:'以金币解除中毒或虚弱，前方有怪物把守，需击退才能靠近。'},healP:{n:'解毒老人',d:'地下专属。以金币解除中毒，前方有怪物把守，需击退才能靠近。'},healW:{n:'解虚弱老人',d:'地下专属。以金币解除虚弱，前方有怪物把守，需击退才能靠近。'},
         keySell:{n:'卖钥匙的老人',d:'以金币购买钥匙（不贩售白金钥匙）。'},keyBuy:{n:'收钥匙的老人',d:'把多余的钥匙换成金币。'},exp:'经验',gold:'金币',leave:'离开',lvlPack:'升级套装',packSub:'Lv+{l} · 生命+{s} · 攻+{a} · 防+{d}',stOpt:'体力 +{x}',atkOpt:'攻击 +{x}',defOpt:'防御 +{x}',curePoison:'解除中毒',cureWeak:'解除虚弱',buy:'兑换',buyKey:'买 {k}',sellKey:'卖 {k}',sell:'卖出'},
   manual:{title:'怪物手册',desc:'以下为本层怪物的能力，以及「以当前状态击败对方时，你预计承受的伤害」。',noFoe:'本层没有怪物。',navHint:'方向键选怪 · Alt 看详细 · Q 离开',back:'返回',speed:'速度',reward:'报酬',yourHit:'你每回合伤害',foeHit:'每回合受伤',altHint:'按 Alt 查看完整资料，再按一次返回列表',nameLab:'名称',specialLab:'特殊',effectLab:'效果',hp:'体力',dealt:'给予伤害',atkc:'攻回数',taken:'承受伤害',total:'总',energy:'能量',totalRounds:'总回合',effTrue:'造成固定真实伤害，完全无视防御。',effSolid:'你对它造成的伤害减半。',effPierce:'攻击会无视你一半的防御。',effVampire:'攻击时吸取部分伤害回复自身。',effBoss:'强大的头目，数值全面提升。',effWeak:'攻击有几率使你虚弱，降低攻防并侵蚀生命。',effPoison:'攻击有几率使你中毒，行走时持续扣血。',effDrains:'攻击会降低你的体力，使你更易落空。',effMulti:'每回合连续攻击 {n} 次。',effNone:'没有特殊能力。',kill:'需 {n} 回合',take:'预计受伤',cantHurt:'无法击破'},
-  sk:{huangu:{name:'幻骨',desc:'将少量防御转为攻击，造成伤害≥等级时生效、整场叠加。伤害×1.5。'},tianti:{name:'天体',desc:'吸取怪物现有能量的一半（扣除消耗）；与暴击同用则不吸。伤害×1.3。'},jinshi:{name:'金石',desc:'手下留情不致死，回复造成伤害的30%。伤害×0.8。'},zhuanti:{name:'转体',desc:'降低怪物体力。伤害×1.8。'},shenlei:{name:'神垒',desc:'伤害×5，但不致死（最低保留1滴血）。'},yandun:{name:'岩盾',desc:'受到的伤害除以2.5。'},enerdun:{name:'能量盾',desc:'受伤除以1.5；怪物下回合无法行动，并中止本回合剩余连击。'},counterdun:{name:'反击盾',desc:'受伤除以1.3；反弹伤害，并反射衰弱与中毒。'},healShield:{name:'疗愈盾',desc:'受伤除以2.5；回复被挡下伤害的60%。'},shendun:{name:'神盾',desc:'防御提升(生命+防御)×等级÷100，可抵挡3次攻击。'}},
+  sk:{huangu:{name:'幻骨',desc:'将少量防御转为攻击，造成伤害≥等级时生效、整场叠加。伤害×1.5。'},tianti:{name:'天体',desc:'吸取怪物现有能量的一半（扣除消耗）；与爆击同用则不吸。伤害×1.3。'},jinshi:{name:'金石',desc:'手下留情不致死，回复造成伤害的30%。伤害×0.8。'},zhuanti:{name:'转体',desc:'降低怪物体力。伤害×1.8。'},shenlei:{name:'神垒',desc:'伤害×5，但不致死（最低保留1滴血）。'},yandun:{name:'岩盾',desc:'受到的伤害除以2.5。'},enerdun:{name:'能量盾',desc:'受伤除以1.5；怪物下回合无法行动，并中止本回合剩余连击。'},counterdun:{name:'反击盾',desc:'受伤除以1.3；反弹伤害，并反射衰弱与中毒。'},healShield:{name:'疗愈盾',desc:'受伤除以2.5；回复被挡下伤害的60%。'},shendun:{name:'神盾',desc:'防御提升(生命+防御)×等级÷100，可抵挡3次攻击。'}},
   tp:{goTo:'前往 {n}',descPerm:'已取得传送宝物，可自由前往到过的楼层。',title:'楼层传送',desc:'选择要前往的已探索楼层。',cur:'当前',locked:'未探索',floor:'{n} 楼',needScroll:'需要传送卷轴，请在地图上寻找',scrolls:'（剩余 {n} 张）',goHere:'回到下楼梯',bossLock:'已踏入最终楼层，击败此处的首领前无法离开'},
   help:{title:'玩法说明',start:'我知道了',kbTitle:'快捷键（电脑版）',kbManual:'按 E 打开怪物手册',kbTeleport:'按 F 打开楼层传送',kbAtk:'按 Y 选择攻击技能',kbDef:'按 U 选择防御技能',items:[
     ['🎯','<b>移动与开战</b>：方向键 / WASD 或屏幕方向键移动；撞向怪物会以红框锁定，按空格或红色瞄准键开战。'],
@@ -1815,7 +1829,7 @@ const ITEMS={
   bk_yandun:{book:'def',skill:'yandun'}, bk_enerdun:{book:'def',skill:'enerdun'}, bk_counterdun:{book:'def',skill:'counterdun'}, bk_healShield:{book:'def',skill:'healShield'}, bk_shendun:{book:'def',skill:'shendun'},
   keyY:{key:'y'}, keyB:{key:'b'}, keyR:{key:'r'}, keyW:{key:'w'}, keyP:{key:'p'}
 };
-const SHOP_GLYPH={blue:'🏪',red:'🏬',old:'🧓',older:'👴',healP:'👵',healW:'🤶',keySell:'🔑',keyBuy:'💰'};
+const SHOP_GLYPH={blue:'🏪',red:'🏬',old:'🧓',older:'👴',healP:'👵',healW:'🤶',keySell:'🔑',keyBuy:'💰',portal:'👴'};
 const KEY_OF={y:'keyY',b:'keyB',r:'keyR',w:'keyW',p:'keyP'};
 
 const SKILLS=[
@@ -1884,14 +1898,14 @@ let state={
   target:null, combat:null, busy:false, kills:0, tile:36,
   hpRef:800, stRef:100, tipSeen:false, over:false, cheatActive:false, cheatSnap:null,
   px:0, py:0, curShop:null,
-  seed:0, mode:'solo', worldId:null, isHost:false, others:{}, cleared:{}, mpReady:false, finished:false, basementUnlocked:false
+  seed:0, mode:'solo', worldId:null, isHost:false, others:{}, cleared:{}, mpReady:false, finished:false, basementUnlocked:false, portalAim:false
 };
 
 function freshPlayer(){
   return {
     lv:1, hp:START.hp, atk:START.atk, def:START.def, en:START.en, reserve:START.reserve,
     thrA:START.thrA, thrD:START.thrD, gold:0, exp:0, atkc:1,
-    keys:{y:5,b:1,r:0,w:0,p:0}, status:'normal', weakStacks:0, poisonStep:0, tpScrolls:0, hasManual:false, icePendant:false,
+    keys:{y:5,b:1,r:0,w:0,p:0}, status:'normal', weakStacks:0, poisonStep:0, tpScrolls:0, hasManual:false, icePendant:false, portals:0, portalGot:false,
     atkSkills:[], defSkills:[], atkEquip:null, defEquip:null, bestSword:0, loot:[]
   };
 }
@@ -1934,7 +1948,7 @@ function makeBasementBoss(){
     maxhp:BASEMENT_BOSS.hp,hp:BASEMENT_BOSS.hp,atk:BASEMENT_BOSS.atk,def:BASEMENT_BOSS.def,gold:BASEMENT_BOSS.gold,exp:BASEMENT_BOSS.exp,
     thrA:60,thrD:55,boss:true};
 }
-function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,master:base.master||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
+function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,master:base.master||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
 const GUARD_DRAGONS={
   red:    {id:'redDragon',  name:'紅龍', face:'🐉', hp:760,  atk:58, def:26, gold:90,  exp:4, atkc:1, agi:8, thrA:45, thrD:35, atkFx:'dragon', atkSfx:'roar'},
   poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite'}
@@ -2816,6 +2830,10 @@ function renderMap(){
           const dr=document.createElement('div'); dr.className='door '+e.color; cell.appendChild(dr);
         }else if(e.kind==='shop'){
           cell.classList.remove('wall'); cell.classList.add('floor'); cell.classList.add('shopTile'); cell.classList.add('shop-'+e.shop); cell.appendChild(glyph(SHOP_GLYPH[e.shop]));
+        }else if(e.kind==='barrier'){
+          cell.classList.remove('floor'); cell.classList.add('barrier');   // 冰封障礙：用任意門開路
+        }else if(e.kind==='npc'){
+          cell.appendChild(glyph(SHOP_GLYPH[e.shop]||'👴'));   // 神秘老頭（可通行）
         }else if(e.kind==='shopwall'){
           cell.classList.remove('wall'); cell.classList.add('floor'); cell.classList.add('shopwall');   // lit storefront flank (no dim 24H glyph, no wall look)
         }
@@ -2831,6 +2849,11 @@ function renderMap(){
           cell.appendChild(op);
         }
       }
+      if(state.portalAim && (Math.abs(x-state.px)+Math.abs(y-state.py))===1){
+        cell.classList.add('portalAimCell');
+        const _pe=d.ent[y][x]; if((_pe&&_pe.kind==='barrier')||d.wall[y][x]) cell.classList.add('portalAimOk');
+      }
+      if(state.portalTarget && state.portalTarget.x===x && state.portalTarget.y===y) cell.classList.add('portalAimOk');
       if(x===state.px&&y===state.py){
         const p=document.createElement('div'); p.className='player';
         if(PLAYER_IMG){ const im=document.createElement('img'); im.className='entImg'; im.src=PLAYER_IMG; im.alt=''; p.appendChild(im); }
@@ -2858,6 +2881,7 @@ function renderStats(){
   byId('expVal').textContent=pl.exp;
   byId('keyY').textContent=pl.keys.y; byId('keyB').textContent=pl.keys.b;
   byId('keyR').textContent=pl.keys.r; byId('keyW').textContent=pl.keys.w; byId('keyP').textContent=pl.keys.p;
+  { const _pc=byId('portalCnt'); if(_pc) _pc.textContent=(pl.portals||0); const _pk=byId('portalKeyCell'); if(_pk) _pk.style.display=pl.portalGot?'':'none'; }
   state.hpRef=Math.max(state.hpRef,pl.hp); state.stRef=Math.max(state.stRef,pl.reserve);
   const chip=byId('statusChip'); chip.classList.remove('poison','weak');
   if(pl.status==='poison'){chip.classList.add('poison'); byId('statusText').textContent=t('status.poison');}
@@ -2865,13 +2889,140 @@ function renderStats(){
   else { byId('statusText').textContent=t('status.normal'); }
   const pm=byId('btnManual2'); if(pm) pm.style.display = pl.hasManual?'':'none';
   const pt=byId('btnTeleport2'); if(pt) pt.style.display = (state.mode==='solo' && ((pl.tpScrolls||0)>0 || state.cheatActive))?'':'none';
+  { const pp=byId('btnPortal2'); if(pp){ const _cf=curFloor(); const _show=(state.mode==='solo' && pl.portalGot && _cf && portalUsableFloor(_cf.f)); pp.style.display=_show?'':'none'; const _pl=byId('portalLab2'); if(_pl) _pl.textContent=t('ui.portal')+' \u00d7'+(pl.portals||0); if(!state.portalAim) pp.classList.remove('active'); } }
   renderSkillSlots();
 }
 
 /* ============================== Movement & interaction ============================== */
+function portalUsableFloor(f){ return f!==FLOORS && f!==-BASEMENT; }   /* 任意門：頭目層不可用 */
+function _syncPortalBtn(){ const b=byId('btnPortal2'); if(b){ if(state.portalAim) b.classList.add('active'); else b.classList.remove('active'); } }
+function togglePortalAim(){
+  const pl=state.player; if(!pl||!pl.portalGot) return;
+  if(anyOverlayOpen()||state.busy||state.over) return;
+  const d=curFloor(); if(!d) return;
+  if(!portalUsableFloor(d.f)){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalFloor')); }catch(e){} return; }
+  if((pl.portals||0)<=0){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalNone')); }catch(e){} return; }
+  state.portalAim=!state.portalAim; _syncPortalBtn();
+  try{ toast(state.portalAim? t('msg.portalAim') : t('msg.portalCancel')); }catch(e){}
+}
+function usePortalDir(dx,dy){
+  const pl=state.player, d=curFloor();
+  if(!pl||!d){ state.portalAim=false; _syncPortalBtn(); return; }
+  const nx=state.px+dx, ny=state.py+dy;
+  if(!portalUsableFloor(d.f)){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalFloor')); }catch(e){} return; }
+  if(nx<0||ny<0||nx>=GRID||ny>=GRID){ state.portalAim=false; _syncPortalBtn(); try{ renderMap(); }catch(e){} try{ toast(t('msg.portalNeedWall')); }catch(e){} return; }
+  const en=d.ent[ny][nx];
+  const conv=(en&&en.kind==='barrier') || !!d.wall[ny][nx];
+  if(!conv){ state.portalAim=false; _syncPortalBtn(); try{ renderMap(); }catch(e){} try{ toast(t('msg.portalNeedWall')); }catch(e){} return; }
+  if((pl.portals||0)<=0){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalNone')); }catch(e){} return; }
+  state.portalAim=false; _syncPortalBtn();
+  state.portalTarget={x:nx,y:ny};
+  try{ renderMap(); }catch(e){}
+  openPortalConfirm();
+}
+function doPortalConvert(){
+  const pl=state.player, d=curFloor(), tg=state.portalTarget;
+  state.portalTarget=null;
+  if(!pl||!d||!tg){ try{ renderMap(); }catch(e){} return; }
+  if((pl.portals||0)<=0){ try{ toast(t('msg.portalNone')); }catch(e){} try{ renderMap(); }catch(e){} return; }
+  const en=d.ent[tg.y][tg.x];
+  const conv=(en&&en.kind==='barrier') || !!d.wall[tg.y][tg.x];
+  if(!conv){ try{ toast(t('msg.portalNeedWall')); }catch(e){} try{ renderMap(); }catch(e){} return; }
+  pl.portals--;
+  d.wall[tg.y][tg.x]=false; d.ent[tg.y][tg.x]={kind:'door',color:'y'};
+  try{ sfx('door'); }catch(e){}
+  try{ toast(t('msg.portalMade')); }catch(e){}
+  try{ renderMap(); }catch(e){} try{ renderStats(); }catch(e){}
+}
+/* ---- generic old-man / portal dialog (reused by the convert-confirm and the first-time story) ---- */
+let _portalYes=null, _portalNo=null;
+function openPortalDlg(bodyHtml, yesLabel, noLabel, onYes, onNo){
+  const bb=byId('portalDlgBody'); if(bb) bb.innerHTML=bodyHtml;
+  const yl=byId('portalDlgYesLab'); if(yl) yl.textContent=yesLabel;
+  const nb=byId('portalDlgNo');
+  if(noLabel==null){ if(nb) nb.style.display='none'; }
+  else { if(nb) nb.style.display=''; const nl=byId('portalDlgNoLab'); if(nl) nl.textContent=noLabel; }
+  _portalYes=onYes||null; _portalNo=onNo||null;
+  show('portalDlg');
+}
+function _portalDlgConfirm(){ const f=_portalYes; _portalYes=null; _portalNo=null; hide('portalDlg'); if(f){ try{ f(); }catch(e){} } }
+function _portalDlgCancel(){ const f=_portalNo; _portalYes=null; _portalNo=null; hide('portalDlg'); if(f){ try{ f(); }catch(e){} } }
+function openPortalConfirm(){
+  openPortalDlg(t('msg.portalAsk'), t('ui.confirm'), t('ui.exit'), doPortalConvert, function(){ state.portalTarget=null; try{ renderMap(); }catch(e){} });
+}
+function openPortalStory(){
+  openPortalDlg(t('msg.portalStory'), t('msg.portalTake'), null, function(){
+    const pl=state.player; if(!pl) return;
+    pl.portalGot=true; pl.portals=(pl.portals||0)+5; if((pl.keys.y||0)<1) pl.keys.y=1;
+    try{ toast(t('msg.portalLearn')); }catch(e){} try{ renderStats(); }catch(e){}
+  }, null);
+}
+function openOldMan(cell){
+  const pl=state.player; if(!pl) return;
+  if(!pl.portalGot){ openPortalStory(); }
+  else { openShop(cell); }
+}
+function reachAvoidBarriers(d, start){
+  const seen=[]; for(let y=0;y<GRID;y++){ const r=[]; for(let x=0;x<GRID;x++) r.push(false); seen.push(r); }
+  if(!start) return seen;
+  const q=[start]; seen[start.y][start.x]=true;
+  const dirs=[[0,-1],[1,0],[0,1],[-1,0]];
+  while(q.length){ const c=q.shift();
+    for(let i=0;i<dirs.length;i++){ const x=c.x+dirs[i][0], y=c.y+dirs[i][1];
+      if(x<0||y<0||x>=GRID||y>=GRID) continue;
+      if(seen[y][x]) continue;
+      if(d.wall[y][x]) continue;
+      const en=d.ent[y][x]; if(en&&en.kind==='barrier') continue;
+      seen[y][x]=true; q.push({x:x,y:y});
+    }
+  }
+  return seen;
+}
+function install2FGate(d){
+  try{
+    const S=d.stairs; if(!S||!d.start) return;
+    const dirs=[[0,-1],[1,0],[0,1],[-1,0]];
+    const nbrs=[];
+    for(let i=0;i<dirs.length;i++){ const x=S.x+dirs[i][0], y=S.y+dirs[i][1];
+      if(x<0||y<0||x>=GRID||y>=GRID) continue;
+      if(d.wall[y][x]) continue;
+      if(x===d.start.x&&y===d.start.y) continue;
+      nbrs.push({x:x,y:y});
+    }
+    let sealed=false;
+    if(nbrs.length){
+      for(let i=0;i<nbrs.length;i++){ d.ent[nbrs[i].y][nbrs[i].x]={kind:'barrier'}; }
+      const reach=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
+      let stranded=0;
+      for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ if(!d.wall[y][x] && !(reach[y]&&reach[y][x])) stranded++; }
+      let canBreak=false;
+      for(let i=0;i<nbrs.length && !canBreak;i++){ const c=nbrs[i];
+        for(let j=0;j<dirs.length;j++){ const x=c.x+dirs[j][0], y=c.y+dirs[j][1];
+          if(x<0||y<0||x>=GRID||y>=GRID) continue;
+          if(x===S.x&&y===S.y) continue;
+          if(d.wall[y][x]) continue;
+          if(reach[y]&&reach[y][x]){ canBreak=true; break; }
+        }
+      }
+      if(canBreak && (stranded-nbrs.length)<=6){ sealed=true; }
+      else { for(let i=0;i<nbrs.length;i++){ d.ent[nbrs[i].y][nbrs[i].x]=null; } }
+    }
+    const reachF=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
+    let oc=null,bd=1e9;
+    for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
+      if(d.wall[y][x]||d.ent[y][x]) continue;
+      if(!(reachF[y]&&reachF[y][x])) continue;
+      if(x===d.start.x&&y===d.start.y) continue;
+      const dist=Math.abs(x-S.x)+Math.abs(y-S.y);
+      if(dist<bd){ bd=dist; oc={x:x,y:y}; }
+    }
+    if(oc){ d.ent[oc.y][oc.x]={kind:'npc', shop:'portal'}; d.portalGate=sealed; }
+  }catch(e){}
+}
 function tryMove(dx,dy){
   if(state.busy||state.over) return;
   if(anyOverlayOpen()) return;
+  if(state.portalAim){ usePortalDir(dx,dy); return; }
   const d=curFloor();
   const nx=state.px+dx, ny=state.py+dy;
   if(nx<0||ny<0||nx>=GRID||ny>=GRID) return;
@@ -2879,6 +3030,7 @@ function tryMove(dx,dy){
   if(eHit && eHit.kind==='shop'){ if(state.target){ state.target=null; renderMap(); } openShop(eHit); return; }   // impassable counter: bump to trade
   if(d.wall[ny][nx]){ if(state.target){state.target=null; renderMap();} return; }
   const e=d.ent[ny][nx];
+  if(e&&e.kind==='barrier'){ if(state.target){state.target=null; renderMap();} try{ toast(t('msg.barrierBlock')); }catch(_e){} return; }
   if(e&&e.kind==='bigBody'){ const a=d.ent[e.ay]&&d.ent[e.ay][e.ax]; if(a&&a.kind==='monster'){ state.target={x:nx,y:ny}; renderMap(); toast(lockMsg(a.foe)); } return; }
   if(e&&e.kind==='monster'){
     state.target={x:nx,y:ny}; renderMap();
@@ -2895,6 +3047,7 @@ function tryMove(dx,dy){
   }
   state.px=nx; state.py=ny; state.target=null; dismissTip();
   const cell=d.ent[ny][nx];
+  if(cell&&cell.kind==='npc'){ try{ openOldMan(cell); }catch(_e){} }
   if(cell&&cell.kind==='item'){ const _bk=!!(ITEMS[cell.item]&&ITEMS[cell.item].book); pickUp(cell.item); d.ent[ny][nx]=null; mpClear(state.floor,nx,ny,'item'); try{ sfx(_bk?'levelup':'pickup'); }catch(e){} try{ checkAchievements(); }catch(e){} }
   if(d.lava && d.lava[ny][nx]){ const plv=state.player;
     if(plv.icePendant){ d.lava[ny][nx]=false; toast(t('msg.iceMelt')); renderMap(); }
@@ -3166,6 +3319,7 @@ function refreshCombatButtons(){
     dBtn.disabled = state.busy || c.done || pl.lv<dS.lv || pl.en<dS.en || c.meStam<dS.stam;
     dBtn.classList.toggle('armed', c.defArmed===pl.defEquip || (pl.defEquip==='shendun' && c.shendunHits>0)); }
   else { byId('cbDefLab').textContent=t('cb.defUse'); byId('cbDefCost').textContent=''; dBtn.disabled=true; }
+  { const _fB=byId('cbFlee'); if(_fB){ const _nf=!!(c.foe&&c.foe.noFlee); _fB.disabled=(_nf||state.busy||c.done); _fB.style.opacity=_nf?'0.45':''; } }
   updateCritBtn();
 }
 /* in-combat skill switching — pick among the attack/defence skills you already own */
@@ -3363,28 +3517,32 @@ function foeTurn(){
   const def = c.defArmed ? SKILL_BY_ID[c.defArmed] : null;   /* single-use defence skill armed for this round */
   let taken=0, anyHit=false, beforeTotal=0, hits=0;
   const foeCrit = c.foeEn>=100; if(foeCrit) c.foeEn=0;
-  for(let i=0;i<foe.atkc;i++){
+  const _nHits=(foe.atkcMax>foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+Math.floor(RAND()*(foe.atkcMax-foe.atkcMin+1))):foe.atkc;   /* 隨機連擊 X~Y */
+  for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
       let dmg;
       if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); }   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
       else {
         const myDef = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);   // 神盾 buff while charges remain; 幻骨 lowers DEF
         dmg=dmgDown(foe.atk,(foe.ab==='pierce'?Math.floor(myDef*0.5):myDef),pl.thrD); if(dmg<0)dmg=0;
-        if(foeCrit) dmg*=2;
+        if(foeCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2));
         if(c.halveNext){ dmg=Math.ceil(dmg/2); }
       }
       if(c.shendunHits>0) c.shendunHits--;
       const before=dmg;
       if(!foe.trueDmg && def && def.div && def.div>1){ dmg=Math.ceil(dmg/def.div); }   // 岩盾/能量盾/反擊盾/療癒盾 mitigation — true damage (mages) bypasses it
+      if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       pl.hp-=dmg; taken+=dmg; anyHit=true; hits++;
       if(foe.ab==='vampire'&&dmg>0){ foe.hp=Math.min(foe.maxhp,foe.hp+Math.round(dmg*0.3)); }
       if(foe.drains){ c.meStam=clamp(c.meStam-STAM_DRAIN,0,100); }
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
       pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100);   /* player also charges when taking a hit */
+      if(foe.drainEn>0){ pl.en=clamp(pl.en-foe.drainEn,0,100); }   /* 吸取能量 */
       if(def && def.id==='enerdun'){ c.foeSkip=true; break; }   // 能量盾: cancel remaining hits + foe skips next round
     }
   }
+  if(anyHit && (foe.statDownPct>0||foe.statDownN>0)){ const _rp=1-(foe.statDownPct||0)/100; pl.atk=Math.max(1,Math.floor(pl.atk*_rp)-(foe.statDownN||0)); pl.def=Math.max(0,Math.floor(pl.def*_rp)-(foe.statDownN||0)); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
   c.halveNext=false;
   applyMasterSkill(foe, taken);
   if(def && def.id==='healShield'){ const healed=Math.floor((beforeTotal-taken)*0.6); if(healed>0){ pl.hp+=healed; log('me',fmt(t('msg.healShield'),{n:healed})); } }
@@ -3424,9 +3582,12 @@ function applyAilmentFromFoe(foe){
 function combatWin(){
   clearTimeout(combatTimer); try{ sfx('defeat'); }catch(e){}
   const c=state.combat, pl=state.player, foe=c.foe;
+  if(c && foe && foe.revive && !c.revived){ c.revived=true; foe.hp=Math.max(1,Math.round((foe.maxhp||foe.hp||1)*0.5)); try{ log('foe',t('msg.revive')); }catch(e){} state.busy=false; try{ renderCombat(); }catch(e){} try{ refreshCombatButtons(); }catch(e){} return; }   /* 死亡復活一次 */
   log('sys',fmt(t('msg.win'),{name:monName(foe)}),true);
   const d=curFloor(); d.ent[c.y][c.x]=null;
   if(foe.big){ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ if(dx===0&&dy===0)continue; const bx=c.x+dx,by=c.y+dy; if(bx>=0&&by>=0&&bx<GRID&&by<GRID){ const be=d.ent[by][bx]; if(be&&be.kind==='bigBody'&&be.ax===c.x&&be.ay===c.y) d.ent[by][bx]=null; } } if(foe.dropItem) d.ent[c.y][c.x]={kind:'item',item:foe.dropItem}; }
+  if(foe.deathTerrain==='ice'){ d.ent[c.y][c.x]={kind:'barrier'}; try{ log('sys',t('msg.leftIce')); }catch(_e){} }
+  else if(foe.deathTerrain==='lava'){ if(!d.lava){ d.lava=[]; for(let _y=0;_y<GRID;_y++){ const _r=[]; for(let _x=0;_x<GRID;_x++) _r.push(false); d.lava.push(_r); } } d.lava[c.y][c.x]=true; try{ log('sys',t('msg.leftLava')); }catch(_e){} }
   pl.gold+=foe.gold; pl.exp+=foe.exp; state.kills++;
   log('sys',fmt(t('msg.reward'),{name:monName(foe),g:foe.gold,e:foe.exp}));   /* settlement shown in the dialog box */
   try{ checkAchievements(); }catch(e){}
@@ -3473,6 +3634,7 @@ function closeCombat(){
 function fleeCombat(){
   clearTimeout(combatTimer);
   const c=state.combat; if(!c||c.done) return;
+  if(c.foe && c.foe.noFlee){ try{ toast(t('msg.cantFlee')); }catch(e){} return; }   /* 禁止逃跑 */
   c.foe.hp=c.foePreHp; c.done=true; state.busy=false; state.target=null; state.combat=null;
   hide('combat'); toast(t('msg.fled')); renderAll(); markFeat('flee');
 }
@@ -3512,6 +3674,7 @@ function shopOptions(type){
   }
   if(type==='healP'){ return [{kind:'curePoison',res:'gold',cost:100}]; }   // 解毒專賣
   if(type==='healW'){ return [{kind:'cureWeak',  res:'gold',cost:100}]; }   // 解衰弱專賣
+  if(type==='portal'){ return [{kind:'buyPortal', res:'gold', cost:75}]; }
   if(type==='old'){
     return [{kind:'pack',res:'exp',cost:70, pack:{l:1,s:300,a:3,d:3}},{kind:'st', res:'exp',cost:25, amt:500},{kind:'atk',res:'exp',cost:25, amt:4},{kind:'def',res:'exp',cost:25, amt:4}];
   }
@@ -3541,6 +3704,7 @@ function renderShop(){
     else if(o.kind==='cureWeak'){ title=t('shop.cureWeak'); }
     else if(o.kind==='buyKey'){ title=fmt(t('shop.buyKey'),{k:itemName(KEY_OF[o.keyCol])}); }
     else if(o.kind==='sellKey'){ title=fmt(t('shop.sellKey'),{k:itemName(KEY_OF[o.keyCol])}); }
+    else if(o.kind==='buyPortal'){ title=t('shop.buyPortal'); }
     else { title=fmt(t('shop.defOpt'),{x:o.amt}); }
     const have = o.res==='exp'? pl.exp : pl.gold;
     const row=document.createElement('div'); row.className='shopOpt';
@@ -3576,6 +3740,7 @@ function doBuy(o,cost){
   else if(o.kind==='curePoison'){ pl.status='normal'; pl.poisonStep=0; }
   else if(o.kind==='cureWeak'){ pl.weakStacks=0; pl.status='normal'; }
   else if(o.kind==='buyKey'){ pl.keys[o.keyCol]=(pl.keys[o.keyCol]||0)+1; }
+  else if(o.kind==='buyPortal'){ pl.portals=(pl.portals||0)+1; }
   if(SHOP_INFLATE[cell.shop]) cell.inflation = (cell.inflation||0) + SHOP_INFLATE[cell.shop];   // 每次購買後微漲（藍+2、紅+6、老人各自；各店獨立累計）
   toast(o.kind==='curePoison'? t('msg.curePoison') : (o.kind==='cureWeak'? t('msg.cureWeak') : t('msg.bought')));
   renderShop(); renderStats();
@@ -3775,6 +3940,8 @@ function renderLoot(){
     body.appendChild(g);
   }
 }
+function foeHitCount(foe){ return (foe.atkcMax>foe.atkcMin && foe.atkcMin>0) ? Math.round((foe.atkcMin+foe.atkcMax)/2) : (foe.atkc||1); }
+function foePerHitDmg(foe, pl){ const base = foe.trueDmg ? foe.atk : Math.max(0,dmgDown(foe.atk,effDef(pl),pl.thrD)); return base + (foe.bonusDmg||0); }
 function abEffects(foe){
   const out=[];
   if(foe.trueDmg) out.push([t('ab.magic'),t('manual.effTrue')]);
@@ -3785,7 +3952,15 @@ function abEffects(foe){
   if(foe.ab==='weak'||foe.ability==='weak') out.push([t('ab.weak'),t('manual.effWeak')]);
   if(foe.ability==='poison') out.push([t('ab.poison'),t('manual.effPoison')]);
   if(foe.drains) out.push([t('ab.drain'),t('manual.effDrains')]);
-  if((foe.atkc||1)>1) out.push([t('ab.multi'),fmt(t('manual.effMulti'),{n:foe.atkc})]);
+  if((foe.atkc||1)>1 && !(foe.atkcMax>foe.atkcMin && foe.atkcMin>0)) out.push([t('ab.multi'),fmt(t('manual.effMulti'),{n:foe.atkc})]);
+  if(foe.atkcMax>foe.atkcMin && foe.atkcMin>0) out.push([t('ab.randMulti'),fmt(t('manual.effRandMulti'),{a:foe.atkcMin,b:foe.atkcMax})]);
+  if(foe.bonusDmg>0) out.push([t('ab.bonusDmg'),fmt(t('manual.effBonusDmg'),{n:foe.bonusDmg})]);
+  if(foe.drainEn>0) out.push([t('ab.drainEn'),fmt(t('manual.effDrainEn'),{n:foe.drainEn})]);
+  if(foe.statDownPct>0||foe.statDownN>0) out.push([t('ab.statDown'),fmt(t('manual.effStatDown'),{p:foe.statDownPct||0,n:foe.statDownN||0})]);
+  if(foe.noFlee) out.push([t('ab.noFlee'),t('manual.effNoFlee')]);
+  if(foe.revive) out.push([t('ab.revive'),t('manual.effRevive')]);
+  if(foe.deathTerrain==='ice') out.push([t('ab.deathIce'),t('manual.effDeathIce')]);
+  if(foe.deathTerrain==='lava') out.push([t('ab.deathLava'),t('manual.effDeathLava')]);
   return out;
 }
 function statRowHtml(cells,total){
@@ -3798,14 +3973,14 @@ function renderManualDetail(foe, body){
   byId('manualDesc').textContent=t('manual.altHint');
   const pred=predictDamage(foe); const pl=state.player;
   const myHit=dmgUp(effAtk(pl),foe.def,pl.thrA)*(pl.atkc||1);
-  const foeHit=(foe.trueDmg?foe.atk:dmgDown(foe.atk,effDef(pl),pl.thrD))*(foe.atkc||1);
+  const foeHit=foePerHitDmg(foe,pl)*foeHitCount(foe);
   const effs=abEffects(foe);
   const specialName=effs.length?effs[0][0]:t('cb.none');
   let effHtml='';
   if(effs.length){ for(let i=0;i<effs.length;i++){ effHtml+='<div class="efLine"><span class="efName">'+effs[i][0]+'</span>'+effs[i][1]+'</div>'; } }
   else { effHtml='<div class="efLine">'+t('manual.effNone')+'</div>'; }
   const list=state.manualList||[]; const idx=state.manualIdx||0;
-  const row1=statRowHtml([[t('manual.hp'),foe.maxhp],[t('manual.dealt'),pred.killable?myHit:'—'],[t('manual.atkc'),foe.atkc||1],[t('manual.taken'),foeHit]],[t('manual.total'),pred.killable?pred.dmg:'\u221e']);
+  const row1=statRowHtml([[t('manual.hp'),foe.maxhp],[t('manual.dealt'),pred.killable?myHit:'—'],[t('manual.atkc'),(foe.atkcMax>foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+'~'+foe.atkcMax):(foe.atkc||1)],[t('manual.taken'),foeHit]],[t('manual.total'),pred.killable?pred.dmg:'\u221e']);
   const row2=statRowHtml([[t('cb.atk'),foe.atk],[t('cb.def'),foe.def],[t('manual.energy'),100],[t('manual.speed'),foe.agi||0]],[t('manual.totalRounds'),pred.killable?pred.rounds:'\u2014']);
   const wrap=document.createElement('div'); wrap.className='monDetail';
   wrap.innerHTML=
@@ -3824,8 +3999,7 @@ function predictDamage(foe){
   if(myHit<=0) return {killable:false,cls:'dmg-fatal'};
   const perRound=myHit*pl.atkc;
   const rounds=Math.ceil(foe.maxhp/perRound);
-  const foeHit = foe.trueDmg ? foe.atk : dmgDown(foe.atk,effDef(pl),pl.thrD);   // mages ignore DEF
-  const foePer=Math.max(0,foeHit)*foe.atkc;
+  const foePer=foePerHitDmg(foe,pl)*foeHitCount(foe);   // includes flat bonus dmg + avg hits for random multi
   const dmg=Math.max(0,(rounds-1))*foePer;
   let cls='dmg-safe'; const r=dmg/Math.max(1,pl.hp);
   if(dmg<=0) cls='dmg-safe'; else if(r<0.25) cls='dmg-warn'; else if(r<0.7) cls='dmg-dan'; else cls='dmg-fatal';
@@ -4118,13 +4292,14 @@ function genFloor(f){
     _realFloor=f;
     const d=genFloorRaw(effFloor(f));   /* basements & normal floors scale by effective floor */
     d.f=f;                              /* keep the real floor identity (negative = basement) */
+    if(f===2 && state.mode==='solo'){ try{ install2FGate(d); }catch(_e){} }   /* 任意門劇情關卡：封住 2F→3F，放老頭 */
     return d;
   } finally{ RAND=prev; }
 }
 function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f)); try{ return genBossFloorRaw(f); } finally{ RAND=prev; } }
 function ensureFloor(f){ if(!state.floors[f]){ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } }
 function curFloor(){ return state.floors[state.floor]; }
-const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel'];
+const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg'];
 function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} ae.style.display = (isAdmin && !open && onMenu) ? '' : 'none'; }
 function show(id){
   /* only ONE modal overlay open at a time — close any other so windows never stack */
@@ -4364,6 +4539,11 @@ function bindInput(){
       if(e.key==='Enter'||e.key==='q'||e.key==='Q'){ e.preventDefault(); hide('achPanel'); return; }
       return;
     }
+    if(byId('portalDlg').classList.contains('show')){
+      if(e.key==='Enter'){ e.preventDefault(); _portalDlgConfirm(); return; }
+      if(e.key==='q'||e.key==='Q'||e.key==='Escape'){ e.preventDefault(); _portalDlgCancel(); return; }
+      return;
+    }
     if(anyOverlayOpen()) return;
     let used=true;
     switch(e.key){
@@ -4378,6 +4558,7 @@ function bindInput(){
       case 'y': case 'Y': if(state.player && ensureSkills(state.player).atkSkills.length){ openSkillPicker('atk'); } else { used=false; } break;   // choose attack skill
       case 'u': case 'U': if(state.player && ensureSkills(state.player).defSkills.length){ openSkillPicker('def'); } else { used=false; } break;   // choose defence skill
       case 'b': case 'B': if(state.player){ openLoot(); } else { used=false; } break;   // loot / acquisitions record
+      case 't': case 'T': if(state.player&&state.player.portalGot){ togglePortalAim(); } else { used=false; } break;   // 任意門瞄準
       default: used=false;
     }
     if(used) e.preventDefault();
@@ -4430,6 +4611,9 @@ function bindInput(){
   { const _d=byId('defSlot'); if(_d) _d.addEventListener('click',function(){ openSkillPicker('def'); }); }
   byId('btnManual2').addEventListener('click',openManual);
   byId('btnTeleport2').addEventListener('click',openTeleport);
+  { const _bp=byId('btnPortal2'); if(_bp) _bp.addEventListener('click', togglePortalAim); }
+  { const _py=byId('portalDlgYes'); if(_py) _py.addEventListener('click', _portalDlgConfirm); }
+  { const _pn=byId('portalDlgNo'); if(_pn) _pn.addEventListener('click', _portalDlgCancel); }
   byId('btnHelp2').addEventListener('click',openHelp);
   byId('cheatOk').addEventListener('click',submitCheat);
   byId('cheatExit').addEventListener('click',exitCheat);
@@ -5271,15 +5455,15 @@ const ADMIN_EMAILS = [
 /* ---- extra i18n (accounts + admin), merged into all 5 languages ---- */
 const I18N_ADMIN = {
 'zh-Hant':{acct:{title:'登入帳號',desc:'登入後即可把遊戲進度儲存到雲端。',emailLab:'電子郵件',passLab:'密碼',login:'登入',register:'註冊',logout:'登出',save:'立即儲存進度',load:'載入雲端進度',whoLab:'目前登入',adminBtn:'進入後台',adminLoginTitle:'管理員登入',cancel:'取消',adminOk:'管理員已登入',voiceRetry:'請重新操作一次',accountLab:'登入 / 帳號',close:'關閉',guestOnly:'未設定雲端，僅能本機遊玩',noFirebase:'尚未設定 Firebase，無法登入',needBoth:'請輸入電子郵件與密碼',working:'處理中…',ok:'成功！',fail:'失敗，請重試',loaded:'已載入雲端進度',noSave:'雲端沒有存檔',notAdmin:'你不是管理員',saved:'進度已儲存',adminHere:'你已經在管理員後台了'},
-  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值。出現樓層分「地上」「地下」兩段，各填最低~最高層；該段填 0＝不在那裡生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗體',role:'生成角色',role_any:'一般（預設）',role_wander:'只遊蕩',role_block:'擋路守衛',role_treasure:'守護寶物',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值',monDensity:'每層怪物數量',monDensityHint:'調整每層的遊蕩怪物數量（守衛怪物不受影響，地圖仍可破關）。',monWhitelist:'每層怪物白名單',monWhitelistHint:'先選一層樓，再勾選要在那層出現的怪物。不勾任何＝該層用預設（依各怪的樓層範圍）；勾選後該層只生成勾選的怪物。',wlFloorPick:'選擇樓層',wlActive:'白名單啟用',wlDefault:'預設（未限制）',trDensity:'每層寶物數量',trDensityHint:'調整每層散落的拾取物（藥水）數量。武器、技能書、寶石、金幣等關鍵寶物仍依固定規則擺放、不受影響。',surfaceFloors:'地上樓層',basementFloors:'地下樓層',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
+  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值。出現樓層分「地上」「地下」兩段，各填最低~最高層；該段填 0＝不在那裡生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗體',role:'生成角色',role_any:'一般（預設）',role_wander:'只遊蕩',role_block:'擋路守衛',role_treasure:'守護寶物',abTrue:'真實傷害',abStatus:'異常狀態',abTag:'特性標籤',abCrit:'爆擊倍率',abNone:'無',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值',monDensity:'每層怪物數量',monDensityHint:'調整每層的遊蕩怪物數量（守衛怪物不受影響，地圖仍可破關）。',monWhitelist:'每層怪物白名單',monWhitelistHint:'先選一層樓，再勾選要在那層出現的怪物。不勾任何＝該層用預設（依各怪的樓層範圍）；勾選後該層只生成勾選的怪物。',wlFloorPick:'選擇樓層',wlActive:'白名單啟用',wlDefault:'預設（未限制）',trDensity:'每層寶物數量',trDensityHint:'調整每層散落的拾取物（藥水）數量。武器、技能書、寶石、金幣等關鍵寶物仍依固定規則擺放、不受影響。',surfaceFloors:'地上樓層',basementFloors:'地下樓層',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'zh-Hans':{acct:{title:'登录账号',desc:'登录后即可把游戏进度保存到云端。',emailLab:'电子邮件',passLab:'密码',login:'登录',register:'注册',logout:'登出',save:'立即保存进度',load:'载入云端进度',whoLab:'当前登录',adminBtn:'进入后台',adminLoginTitle:'管理员登录',cancel:'取消',adminOk:'管理员已登录',voiceRetry:'请重新操作一次',accountLab:'登录 / 账号',close:'关闭',guestOnly:'未配置云端，仅能本机游玩',noFirebase:'尚未配置 Firebase，无法登录',needBoth:'请输入电子邮件与密码',working:'处理中…',ok:'成功！',fail:'失败，请重试',loaded:'已载入云端进度',noSave:'云端没有存档',notAdmin:'你不是管理员',saved:'进度已保存',adminHere:'你已经在管理员后台了'},
-  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值。出现楼层分「地上」「地下」两段，各填最低~最高层；该段填 0＝不在那里生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗体',role:'生成角色',role_any:'一般（默认）',role_wander:'只游荡',role_block:'挡路守卫',role_treasure:'守护宝物',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值',monDensity:'每层怪物数量',monDensityHint:'调整每层的游荡怪物数量（守卫怪物不受影响，地图仍可通关）。',monWhitelist:'每层怪物白名单',monWhitelistHint:'先选一层楼，再勾选要在那层出现的怪物。不勾任何＝该层用默认（依各怪的楼层范围）；勾选后该层只生成勾选的怪物。',wlFloorPick:'选择楼层',wlActive:'白名单启用',wlDefault:'默认（未限制）',trDensity:'每层宝物数量',trDensityHint:'调整每层散落的拾取物（药水）数量。武器、技能书、宝石、金币等关键宝物仍依固定规则摆放、不受影响。',surfaceFloors:'地上楼层',basementFloors:'地下楼层',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
+  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值。出现楼层分「地上」「地下」两段，各填最低~最高层；该段填 0＝不在那里生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗体',role:'生成角色',role_any:'一般（默认）',role_wander:'只游荡',role_block:'挡路守卫',role_treasure:'守护宝物',abTrue:'真实伤害',abStatus:'异常状态',abTag:'特性标签',abCrit:'爆击倍率',abNone:'无',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值',monDensity:'每层怪物数量',monDensityHint:'调整每层的游荡怪物数量（守卫怪物不受影响，地图仍可通关）。',monWhitelist:'每层怪物白名单',monWhitelistHint:'先选一层楼，再勾选要在那层出现的怪物。不勾任何＝该层用默认（依各怪的楼层范围）；勾选后该层只生成勾选的怪物。',wlFloorPick:'选择楼层',wlActive:'白名单启用',wlDefault:'默认（未限制）',trDensity:'每层宝物数量',trDensityHint:'调整每层散落的拾取物（药水）数量。武器、技能书、宝石、金币等关键宝物仍依固定规则摆放、不受影响。',surfaceFloors:'地上楼层',basementFloors:'地下楼层',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'en':{acct:{title:'Sign in',desc:'Sign in to save your progress to the cloud.',emailLab:'Email',passLab:'Password',login:'Log in',register:'Register',logout:'Log out',save:'Save progress now',load:'Load cloud save',whoLab:'Signed in',adminBtn:'Open admin',adminLoginTitle:'Admin sign-in',cancel:'Cancel',adminOk:'Admin signed in',voiceRetry:'Please try again',accountLab:'Sign in / Account',close:'Close',guestOnly:'Cloud not set up — local play only',noFirebase:'Firebase not configured — cannot sign in',needBoth:'Enter email and password',working:'Working…',ok:'Success!',fail:'Failed, try again',loaded:'Cloud save loaded',noSave:'No cloud save found',notAdmin:'You are not an admin',saved:'Progress saved',adminHere:'You are already in the admin console'},
-  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster. Spawn floors split into Surface and Basement ranges (min-max each); set a range to 0 to skip that area.',surfMin:'Surf min',surfMax:'Surf max',baseMin:'Base min',baseMax:'Base max',drains:'Saps',role:'Spawn role',role_any:'Any (default)',role_wander:'Wander only',role_block:'Path blocker',role_treasure:'Treasure guard',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults',monDensity:'Monsters per floor',monDensityHint:'Tune the wandering-monster count per floor (guards are unaffected, so floors stay solvable).',monWhitelist:'Per-floor monster whitelist',monWhitelistHint:'Pick a floor, then check the monsters allowed there. None checked = that floor uses defaults (per-monster ranges); checked = only those monsters spawn on that floor.',wlFloorPick:'Pick floor',wlActive:'Whitelist active',wlDefault:'Default (no limit)',trDensity:'Treasure per floor',trDensityHint:'Tune the loose pickups (potions) scattered per floor. Key treasures (weapons, skill books, gems, gold) keep their fixed placement and are unaffected.',surfaceFloors:'Surface floors',basementFloors:'Basement floors',densVeryFew:'Very few',densFew:'Few',densNormal:'Normal',densMany:'Many',densVeryMany:'Very many'}},
+  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster. Spawn floors split into Surface and Basement ranges (min-max each); set a range to 0 to skip that area.',surfMin:'Surf min',surfMax:'Surf max',baseMin:'Base min',baseMax:'Base max',drains:'Saps',role:'Spawn role',role_any:'Any (default)',role_wander:'Wander only',role_block:'Path blocker',role_treasure:'Treasure guard',abTrue:'True dmg',abStatus:'Ailment',abTag:'Trait',abCrit:'Crit \u00d7',abNone:'None',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults',monDensity:'Monsters per floor',monDensityHint:'Tune the wandering-monster count per floor (guards are unaffected, so floors stay solvable).',monWhitelist:'Per-floor monster whitelist',monWhitelistHint:'Pick a floor, then check the monsters allowed there. None checked = that floor uses defaults (per-monster ranges); checked = only those monsters spawn on that floor.',wlFloorPick:'Pick floor',wlActive:'Whitelist active',wlDefault:'Default (no limit)',trDensity:'Treasure per floor',trDensityHint:'Tune the loose pickups (potions) scattered per floor. Key treasures (weapons, skill books, gems, gold) keep their fixed placement and are unaffected.',surfaceFloors:'Surface floors',basementFloors:'Basement floors',densVeryFew:'Very few',densFew:'Few',densNormal:'Normal',densMany:'Many',densVeryMany:'Very many'}},
 'ja':{acct:{title:'ログイン',desc:'ログインすると進行状況をクラウドに保存できます。',emailLab:'メール',passLab:'パスワード',login:'ログイン',register:'登録',logout:'ログアウト',save:'今すぐ保存',load:'クラウドから読込',whoLab:'ログイン中',adminBtn:'管理画面へ',adminLoginTitle:'管理者ログイン',cancel:'キャンセル',adminOk:'管理者としてログイン',voiceRetry:'もう一度操作してください',accountLab:'ログイン / アカウント',close:'閉じる',guestOnly:'クラウド未設定 — ローカルのみ',noFirebase:'Firebase 未設定のためログイン不可',needBoth:'メールとパスワードを入力',working:'処理中…',ok:'成功！',fail:'失敗、再試行',loaded:'クラウドから読み込みました',noSave:'クラウドにデータなし',notAdmin:'管理者ではありません',saved:'保存しました',adminHere:'すでに管理画面にいます'},
-  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値を調整。出現階は「地上」「地下」の2レンジ（各 最小~最大）。0 にするとその領域に出現しません。',surfMin:'地上 最小',surfMax:'地上 最大',baseMin:'地下 最小',baseMax:'地下 最大',drains:'消耗',role:'生成の役割',role_any:'通常（既定）',role_wander:'徘徊のみ',role_block:'道塞ぎ',role_treasure:'宝の守護',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました',monDensity:'階ごとのモンスター数',monDensityHint:'各階の徘徊モンスター数を調整（ガード役は影響なし、攻略可能性は維持）。',monWhitelist:'階ごとのモンスター許可リスト',monWhitelistHint:'階を選び、その階に出すモンスターにチェック。未チェック＝既定（各モンスターの出現階）。チェックした場合、その階はチェックしたモンスターのみ出現。',wlFloorPick:'階を選択',wlActive:'許可リスト有効',wlDefault:'既定（制限なし）',trDensity:'階ごとのアイテム数',trDensityHint:'各階に散らばる拾得アイテム（ポーション）の数を調整。武器・スキル書・宝石・ゴールドなどの重要アイテムは固定配置で影響を受けません。',surfaceFloors:'地上階',basementFloors:'地下階',densVeryFew:'とても少ない',densFew:'少ない',densNormal:'普通',densMany:'多い',densVeryMany:'とても多い'}},
+  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値を調整。出現階は「地上」「地下」の2レンジ（各 最小~最大）。0 にするとその領域に出現しません。',surfMin:'地上 最小',surfMax:'地上 最大',baseMin:'地下 最小',baseMax:'地下 最大',drains:'消耗',role:'生成の役割',role_any:'通常（既定）',role_wander:'徘徊のみ',role_block:'道塞ぎ',role_treasure:'宝の守護',abTrue:'防御無視',abStatus:'状態異常',abTag:'特性',abCrit:'会心倍率',abNone:'なし',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました',monDensity:'階ごとのモンスター数',monDensityHint:'各階の徘徊モンスター数を調整（ガード役は影響なし、攻略可能性は維持）。',monWhitelist:'階ごとのモンスター許可リスト',monWhitelistHint:'階を選び、その階に出すモンスターにチェック。未チェック＝既定（各モンスターの出現階）。チェックした場合、その階はチェックしたモンスターのみ出現。',wlFloorPick:'階を選択',wlActive:'許可リスト有効',wlDefault:'既定（制限なし）',trDensity:'階ごとのアイテム数',trDensityHint:'各階に散らばる拾得アイテム（ポーション）の数を調整。武器・スキル書・宝石・ゴールドなどの重要アイテムは固定配置で影響を受けません。',surfaceFloors:'地上階',basementFloors:'地下階',densVeryFew:'とても少ない',densFew:'少ない',densNormal:'普通',densMany:'多い',densVeryMany:'とても多い'}},
 'ko':{acct:{title:'로그인',desc:'로그인하면 진행 상황을 클라우드에 저장할 수 있습니다.',emailLab:'이메일',passLab:'비밀번호',login:'로그인',register:'가입',logout:'로그아웃',save:'지금 저장',load:'클라우드 불러오기',whoLab:'로그인됨',adminBtn:'관리자 페이지',adminLoginTitle:'관리자 로그인',cancel:'취소',adminOk:'관리자 로그인됨',voiceRetry:'다시 시도해 주세요',accountLab:'로그인 / 계정',close:'닫기',guestOnly:'클라우드 미설정 — 로컬만 가능',noFirebase:'Firebase 미설정 — 로그인 불가',needBoth:'이메일과 비밀번호를 입력',working:'처리 중…',ok:'성공!',fail:'실패, 다시 시도',loaded:'클라우드 저장을 불러왔습니다',noSave:'클라우드 저장 없음',notAdmin:'관리자가 아닙니다',saved:'진행 저장됨',adminHere:'이미 관리자 콘솔에 있습니다'},
-  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치 조정. 출현 층은 지상/지하 두 범위(각 최소~최대); 0으로 두면 해당 영역에 출현하지 않음.',surfMin:'지상 최소',surfMax:'지상 최대',baseMin:'지하 최소',baseMax:'지하 최대',drains:'소모',role:'생성 역할',role_any:'일반(기본)',role_wander:'배회만',role_block:'길막이',role_treasure:'보물 수호',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원',monDensity:'층별 몬스터 수',monDensityHint:'각 층의 배회 몬스터 수를 조정(가드 몬스터는 영향 없음, 클리어 가능 유지).',monWhitelist:'층별 몬스터 화이트리스트',monWhitelistHint:'층을 선택한 뒤 그 층에 나올 몬스터를 체크. 미체크＝기본값(각 몬스터 범위); 체크 시 그 층은 체크한 몬스터만 출현.',wlFloorPick:'층 선택',wlActive:'화이트리스트 적용',wlDefault:'기본값(제한 없음)',trDensity:'층별 아이템 수',trDensityHint:'각 층에 흩어진 습득물(물약) 수를 조정. 무기·스킬북·보석·골드 등 핵심 보물은 고정 배치로 영향받지 않음.',surfaceFloors:'지상층',basementFloors:'지하층',densVeryFew:'아주 적음',densFew:'적음',densNormal:'보통',densMany:'많음',densVeryMany:'아주 많음'}}
+  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치 조정. 출현 층은 지상/지하 두 범위(각 최소~최대); 0으로 두면 해당 영역에 출현하지 않음.',surfMin:'지상 최소',surfMax:'지상 최대',baseMin:'지하 최소',baseMax:'지하 최대',drains:'소모',role:'생성 역할',role_any:'일반(기본)',role_wander:'배회만',role_block:'길막이',role_treasure:'보물 수호',abTrue:'방어 무시',abStatus:'상태이상',abTag:'특성',abCrit:'치명 배율',abNone:'없음',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원',monDensity:'층별 몬스터 수',monDensityHint:'각 층의 배회 몬스터 수를 조정(가드 몬스터는 영향 없음, 클리어 가능 유지).',monWhitelist:'층별 몬스터 화이트리스트',monWhitelistHint:'층을 선택한 뒤 그 층에 나올 몬스터를 체크. 미체크＝기본값(각 몬스터 범위); 체크 시 그 층은 체크한 몬스터만 출현.',wlFloorPick:'층 선택',wlActive:'화이트리스트 적용',wlDefault:'기본값(제한 없음)',trDensity:'층별 아이템 수',trDensityHint:'각 층에 흩어진 습득물(물약) 수를 조정. 무기·스킬북·보석·골드 등 핵심 보물은 고정 배치로 영향받지 않음.',surfaceFloors:'지상층',basementFloors:'지하층',densVeryFew:'아주 적음',densFew:'적음',densNormal:'보통',densMany:'많음',densVeryMany:'아주 많음'}}
 };
 (function mergeAdminI18n(){ for(const L in I18N_ADMIN){ if(!I18N[L]) continue; for(const ns in I18N_ADMIN[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, I18N_ADMIN[L][ns]); } } })();
 
@@ -5288,7 +5472,7 @@ const I18N_TUT = {
 'zh-Hant':{tut:{skip:'跳過教學',back:'上一步',next:'下一步',start:'開始遊戲',stepsM:[{icon:'🗼',h:'歡迎來到魔塔',t:'你的目標是一路往上爬，擊敗塔頂的魔王，再深入地下樓層探索。\n用畫面下方的方向鍵移動。'},{icon:'🪜',h:'移動與樓梯',t:'走到「往上樓梯」可前往更高樓層，走到「往下樓梯」則返回下層。\n每一層的地圖在你探索後都會記錄下來。'},{icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按畫面的「瞄準」鍵開戰。\n戰鬥是自動回合制，戰鬥畫面中可使用蓄力、技能與逃跑等按鈕。'},{icon:'📖',h:'技能',t:'撿起技能書即可學習。\n在戰鬥畫面中可切換並發動攻擊與防禦技能（需達到對應等級才能裝備）。'},{icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n彩色的門需要對應顏色的鑰匙才能打開，門後通常藏著寶物。'},{icon:'✨',h:'傳送與說明',t:'找到傳送卷軸後，點畫面的「傳送」鍵即可在已探索的樓層之間傳送。\n隨時可點右上角的 ❓ 重新查看遊戲說明。'}],steps:[
   {icon:'🗼',h:'歡迎來到魔塔',t:'你的目標是一路往上爬，擊敗塔頂的魔王，再深入地下樓層探索。\n用 方向鍵 或 WASD 移動；手機則用畫面下方的方向鍵。'},
   {icon:'🪜',h:'移動與樓梯',t:'走到「往上樓梯」可前往更高樓層，走到「往下樓梯」則返回下層。\n每一層的地圖在你探索後都會記錄下來。'},
-  {icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按 空白鍵／Enter（手機按「瞄準」）開戰。\n戰鬥是自動回合制；能量累積到 20 可按 C 蓄力暴擊，按 V 則可逃跑。'},
+  {icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按 空白鍵／Enter（手機按「瞄準」）開戰。\n戰鬥是自動回合制；能量累積到 20 可按 C 蓄力爆擊，按 V 則可逃跑。'},
   {icon:'📖',h:'技能',t:'撿起技能書即可學習。戰鬥外用 Y／U 切換攻擊與防禦技能，戰鬥中用 Z／X 發動。\n技能需要達到對應等級才能裝備。'},
   {icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n彩色的門需要對應顏色的鑰匙才能打開，門後通常藏著寶物。'},
   {icon:'✨',h:'傳送與說明',t:'找到傳送卷軸後，按 F 即可在已探索的樓層之間傳送。\n隨時可點右上角的 ❓ 重新查看遊戲說明。'}
@@ -5296,7 +5480,7 @@ const I18N_TUT = {
 'zh-Hans':{tut:{skip:'跳过教学',back:'上一步',next:'下一步',start:'开始游戏',stepsM:[{icon:'🗼',h:'欢迎来到魔塔',t:'你的目标是一路往上爬，击败塔顶的魔王，再深入地下楼层探索。\n用画面下方的方向键移动。'},{icon:'🪜',h:'移动与楼梯',t:'走到「往上楼梯」可前往更高楼层，走到「往下楼梯」则返回下层。\n每一层的地图在你探索后都会记录下来。'},{icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按画面的「瞄准」键开战。\n战斗是自动回合制，战斗画面中可使用蓄力、技能与逃跑等按钮。'},{icon:'📖',h:'技能',t:'捡起技能书即可学习。\n在战斗画面中可切换并发动攻击与防御技能（需达到对应等级才能装备）。'},{icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n彩色的门需要对应颜色的钥匙才能打开，门后通常藏着宝物。'},{icon:'✨',h:'传送与说明',t:'找到传送卷轴后，点画面的「传送」键即可在已探索的楼层之间传送。\n随时可点右上角的 ❓ 重新查看游戏说明。'}],steps:[
   {icon:'🗼',h:'欢迎来到魔塔',t:'你的目标是一路往上爬，击败塔顶的魔王，再深入地下楼层探索。\n用 方向键 或 WASD 移动；手机则用画面下方的方向键。'},
   {icon:'🪜',h:'移动与楼梯',t:'走到「向上楼梯」可前往更高楼层，走到「向下楼梯」则返回下层。\n每一层的地图在你探索后都会记录下来。'},
-  {icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按 空格键／Enter（手机按「瞄准」）开战。\n战斗是自动回合制；能量累积到 20 可按 C 蓄力暴击，按 V 则可逃跑。'},
+  {icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按 空格键／Enter（手机按「瞄准」）开战。\n战斗是自动回合制；能量累积到 20 可按 C 蓄力爆击，按 V 则可逃跑。'},
   {icon:'📖',h:'技能',t:'捡起技能书即可学习。战斗外用 Y／U 切换攻击与防御技能，战斗中用 Z／X 发动。\n技能需要达到对应等级才能装备。'},
   {icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n彩色的门需要对应颜色的钥匙才能打开，门后通常藏着宝物。'},
   {icon:'✨',h:'传送与说明',t:'找到传送卷轴后，按 F 即可在已探索的楼层之间传送。\n随时可点右上角的 ❓ 重新查看游戏说明。'}
@@ -5388,8 +5572,8 @@ const I18N_MP2 = {
 
 /* ---- admin: custom icons + attack-effect labels (merged into the existing admin namespace) ---- */
 const I18N_ADMIN2 = {
-'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',nameLocHint:'各語言名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守衛',fxPreview:'特效預覽',fxPreviewHint:'點下方任一特效旁的 ▶ 即可在此預覽動畫',skNote:'劍王是地下的獨立怪物（已與雙手劍兵分開，可各自設定外觀與數值）。',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物暴擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家暴擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxCrit:'爆擊特效（暴擊時）',fxPlayerCrit:'玩家暴擊特效',fxFoeCrit:'怪物暴擊特效',fxUseNormal:'同一般特效（放大）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
-'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',nameLocHint:'各语言名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守卫',fxPreview:'特效预览',fxPreviewHint:'点下方任一特效旁的 ▶ 即可在此预览动画',skNote:'剑王是地下的独立怪物（已与双手剑兵分开，可各自设定外观与数值）。',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物暴击',sndMeHit:'玩家攻击',sndMeCrit:'玩家暴击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxCrit:'爆击特效（暴击时）',fxPlayerCrit:'玩家暴击特效',fxFoeCrit:'怪物暴击特效',fxUseNormal:'同一般特效（放大）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
+'zh-Hant':{admin:{tabFx:'特效',icon:'圖示',mname:'名稱',nameLocHint:'各語言名稱',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守衛',fxPreview:'特效預覽',fxPreviewHint:'點下方任一特效旁的 ▶ 即可在此預覽動畫',skNote:'劍王是地下的獨立怪物（已與雙手劍兵分開，可各自設定外觀與數值）。',tabItems:'寶物',tabSkills:'技能',tabSounds:'聲音',itemsNote:'編輯寶物道具的圖示與名稱。註:藥水/武器/鑰匙在地圖上是內建圖形,圖示欄主要影響有 emoji 的寶物;名稱欄對全部道具皆有效。',skillsNote:'調整技能的數值(等級/能量 EN/體力/倍率或減免)與名稱。',soundsNote:'替不同的攻擊事件挑選音效樣式,改完按下方「套用到本機」或「儲存到雲端」。',skMult:'倍率',skDiv:'減免',skLv:'等級',skStam:'體力',atkSkills:'攻擊技能',defSkills:'防禦技能',soundMap:'攻擊音效',sndDefault:'預設',sndFoeHit:'怪物攻擊',sndFoeCrit:'怪物爆擊',sndMeHit:'玩家攻擊',sndMeCrit:'玩家爆擊',sndTry:'(音效在戰鬥中播放;套用後進入戰鬥即可聽到)',snd_thud:'重擊',snd_slash:'揮砍',snd_zap:'電擊',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'圖片',imgUpload:'上傳圖片',imgRemove:'移除',imgMode:'去背',fxNote:'自訂攻擊特效：替每個項目挑一種現成的特效樣式，改完按下方「套用到本機」或「儲存到雲端」。',fxPlayer:'玩家攻擊特效（依武器階）',fxFoe:'怪物攻擊特效（依類型）',fxCrit:'爆擊特效（爆擊時）',fxPlayerCrit:'玩家爆擊特效',fxFoeCrit:'怪物爆擊特效',fxUseNormal:'同一般特效（放大）',fxn_unarmed:'素手',fxn_iron:'鐵劍',fxn_silver:'銀劍（冰光）',fxn_knight:'騎士（雙斬）',fxn_holy:'聖光',fxn_divine:'神聖（三斬）',fxn_punch:'拳擊',fxn_beast:'野獸（三爪）',fxn_cast:'魔法環',fxn_boss:'魔王（紅斬）'}},
+'zh-Hans':{admin:{tabFx:'特效',icon:'图示',mname:'名称',nameLocHint:'各语言名称',mid:'ID',groundMon:'地表怪物',basementMon:'地下怪物',topBoss:'地表魔王',basementBoss:'地下魔王',guards:'3x3 守卫',fxPreview:'特效预览',fxPreviewHint:'点下方任一特效旁的 ▶ 即可在此预览动画',skNote:'剑王是地下的独立怪物（已与双手剑兵分开，可各自设定外观与数值）。',tabItems:'宝物',tabSkills:'技能',tabSounds:'声音',itemsNote:'编辑宝物道具的图示与名称。注:药水/武器/钥匙在地图上是内建图形,图示栏主要影响有 emoji 的宝物;名称栏对全部道具皆有效。',skillsNote:'调整技能的数值(等级/能量 EN/体力/倍率或减免)与名称。',soundsNote:'为不同的攻击事件挑选音效样式,改完按下方「应用到本机」或「保存到云端」。',skMult:'倍率',skDiv:'减免',skLv:'等级',skStam:'体力',atkSkills:'攻击技能',defSkills:'防御技能',soundMap:'攻击音效',sndDefault:'默认',sndFoeHit:'怪物攻击',sndFoeCrit:'怪物爆击',sndMeHit:'玩家攻击',sndMeCrit:'玩家爆击',sndTry:'(音效在战斗中播放;应用后进入战斗即可听到)',snd_thud:'重击',snd_slash:'挥砍',snd_zap:'电击',snd_roar:'咆哮',snd_bite:'啃咬',snd_boom:'爆裂',imgLabel:'图片',imgUpload:'上传图片',imgRemove:'移除',imgMode:'去背',fxNote:'自定义攻击特效：为每个项目挑一种现成的特效样式，改完按下方「应用到本机」或「保存到云端」。',fxPlayer:'玩家攻击特效（按武器阶）',fxFoe:'怪物攻击特效（按类型）',fxCrit:'爆击特效（爆击时）',fxPlayerCrit:'玩家爆击特效',fxFoeCrit:'怪物爆击特效',fxUseNormal:'同一般特效（放大）',fxn_unarmed:'徒手',fxn_iron:'铁剑',fxn_silver:'银剑（冰光）',fxn_knight:'骑士（双斩）',fxn_holy:'圣光',fxn_divine:'神圣（三斩）',fxn_punch:'拳击',fxn_beast:'野兽（三爪）',fxn_cast:'魔法环',fxn_boss:'魔王（红斩）'}},
 'en':{admin:{tabFx:'Effects',icon:'Icon',mname:'Name',nameLocHint:'names per language',mid:'ID',groundMon:'Ground monsters',basementMon:'Basement monsters',topBoss:'Tower boss',basementBoss:'Basement boss',guards:'3x3 Guards',fxPreview:'Effect preview',fxPreviewHint:'Tap ▶ next to any effect below to preview it here',skNote:'Sword King is an independent basement monster (separate from the Greatsword Soldier; its own look and stats).',tabItems:'Items',tabSkills:'Skills',tabSounds:'Sounds',itemsNote:'Edit item icons and names. Note: potions/weapons/keys use built-in graphics on the map; the icon field mainly affects emoji items, while the name field works for all.',skillsNote:'Tune skill values (level/energy EN/stamina/multiplier or reduction) and names.',soundsNote:'Pick a sound style for each attack event, then Apply locally or Save to cloud below.',skMult:'Mult',skDiv:'Reduce',skLv:'Level',skStam:'Stamina',atkSkills:'Attack skills',defSkills:'Defence skills',soundMap:'Attack sounds',sndDefault:'Default',sndFoeHit:'Monster hit',sndFoeCrit:'Monster crit',sndMeHit:'Player hit',sndMeCrit:'Player crit',sndTry:'(Sounds play in battle; enter a fight after applying to hear them)',snd_thud:'Thud',snd_slash:'Slash',snd_zap:'Zap',snd_roar:'Roar',snd_bite:'Bite',snd_boom:'Boom',imgLabel:'Image',imgUpload:'Upload',imgRemove:'Remove',imgMode:'Cutout',fxNote:'Customize attack effects: pick a preset style for each entry, then Apply locally or Save to cloud below.',fxPlayer:'Player attack effects (by weapon tier)',fxFoe:'Monster attack effects (by type)',fxCrit:'Crit effects (on critical)',fxPlayerCrit:'Player crit FX',fxFoeCrit:'Monster crit FX',fxUseNormal:'Same as normal (scaled)',fxn_unarmed:'Unarmed',fxn_iron:'Iron',fxn_silver:'Silver (ice)',fxn_knight:'Knight (double)',fxn_holy:'Holy',fxn_divine:'Divine (triple)',fxn_punch:'Punch',fxn_beast:'Beast (claws)',fxn_cast:'Magic ring',fxn_boss:'Boss (red)'}},
 'ja':{admin:{tabFx:'エフェクト',icon:'アイコン',mname:'名前',nameLocHint:'各言語の名前',mid:'ID',groundMon:'地上モンスター',basementMon:'地下モンスター',topBoss:'地上ボス',basementBoss:'地下ボス',guards:'3x3 ガーディアン',fxPreview:'エフェクトプレビュー',fxPreviewHint:'下のエフェクト横の ▶ を押すとここで再生',skNote:'剣王は地下の独立モンスター（両手剣兵とは別、外観・数値も個別設定）。',tabItems:'アイテム',tabSkills:'スキル',tabSounds:'サウンド',itemsNote:'アイテムのアイコンと名前を編集。注:ポーション/武器/鍵はマップ上で内蔵グラフィック。アイコン欄は主に絵文字アイテムに反映、名前欄は全アイテムに有効。',skillsNote:'スキルの数値(レベル/エネルギー EN/スタミナ/倍率または軽減)と名前を調整。',soundsNote:'各攻撃イベントの効果音スタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',skMult:'倍率',skDiv:'軽減',skLv:'レベル',skStam:'スタミナ',atkSkills:'攻撃スキル',defSkills:'防御スキル',soundMap:'攻撃効果音',sndDefault:'デフォルト',sndFoeHit:'モンスター攻撃',sndFoeCrit:'モンスター会心',sndMeHit:'プレイヤー攻撃',sndMeCrit:'プレイヤー会心',sndTry:'(効果音は戦闘中に再生。適用後に戦闘に入ると聞けます)',snd_thud:'打撃',snd_slash:'斬撃',snd_zap:'電撃',snd_roar:'咆哮',snd_bite:'噛みつき',snd_boom:'爆発',imgLabel:'画像',imgUpload:'アップロード',imgRemove:'削除',imgMode:'背景透過',fxNote:'攻撃エフェクトのカスタマイズ：各項目に既存のスタイルを選び、下の「ローカルに適用」か「クラウドに保存」を押してください。',fxPlayer:'プレイヤー攻撃エフェクト（武器ランク別）',fxFoe:'モンスター攻撃エフェクト（種類別）',fxCrit:'会心エフェクト（クリティカル時）',fxPlayerCrit:'プレイヤー会心エフェクト',fxFoeCrit:'モンスター会心エフェクト',fxUseNormal:'通常と同じ（拡大）',fxn_unarmed:'素手',fxn_iron:'鉄剣',fxn_silver:'銀剣（氷）',fxn_knight:'騎士（二連斬）',fxn_holy:'聖光',fxn_divine:'神聖（三連斬）',fxn_punch:'殴打',fxn_beast:'獣（三爪）',fxn_cast:'魔法陣',fxn_boss:'ボス（赤斬）'}},
 'ko':{admin:{tabFx:'이펙트',icon:'아이콘',mname:'이름',nameLocHint:'언어별 이름',mid:'ID',groundMon:'지상 몬스터',basementMon:'지하 몬스터',topBoss:'지상 보스',basementBoss:'지하 보스',guards:'3x3 가디언',fxPreview:'이펙트 미리보기',fxPreviewHint:'아래 이펙트 옆 ▶ 를 누르면 여기서 재생',skNote:'검왕은 지하의 독립 몬스터입니다(양손검 병사와 별도, 외형·수치 개별 설정).',tabItems:'아이템',tabSkills:'스킬',tabSounds:'사운드',itemsNote:'아이템 아이콘과 이름을 편집. 참고: 물약/무기/열쇠는 지도에서 내장 그래픽. 아이콘 칸은 주로 이모지 아이템에 적용, 이름 칸은 모든 아이템에 유효.',skillsNote:'스킬 수치(레벨/에너지 EN/스태미나/배율 또는 감소)와 이름을 조정.',soundsNote:'각 공격 이벤트의 효과음 스타일을 선택한 뒤 아래 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',skMult:'배율',skDiv:'감소',skLv:'레벨',skStam:'스태미나',atkSkills:'공격 스킬',defSkills:'방어 스킬',soundMap:'공격 효과음',sndDefault:'기본',sndFoeHit:'몬스터 공격',sndFoeCrit:'몬스터 치명',sndMeHit:'플레이어 공격',sndMeCrit:'플레이어 치명',sndTry:'(효과음은 전투 중 재생. 적용 후 전투에 들어가면 들을 수 있습니다)',snd_thud:'타격',snd_slash:'베기',snd_zap:'전격',snd_roar:'포효',snd_bite:'물기',snd_boom:'폭발',imgLabel:'이미지',imgUpload:'업로드',imgRemove:'제거',imgMode:'배경 제거',fxNote:'공격 이펙트 커스터마이즈: 각 항목에 기존 스타일을 선택한 뒤 아래의 「로컬 적용」 또는 「클라우드 저장」을 누르세요.',fxPlayer:'플레이어 공격 이펙트(무기 등급별)',fxFoe:'몬스터 공격 이펙트(종류별)',fxCrit:'치명타 이펙트(크리티컬 시)',fxPlayerCrit:'플레이어 치명 이펙트',fxFoeCrit:'몬스터 치명 이펙트',fxUseNormal:'일반과 동일(확대)',fxn_unarmed:'맨손',fxn_iron:'철검',fxn_silver:'은검(얼음)',fxn_knight:'기사(이중)',fxn_holy:'성광',fxn_divine:'신성(삼중)',fxn_punch:'주먹',fxn_beast:'야수(삼조)',fxn_cast:'마법진',fxn_boss:'보스(붉은)'}}
@@ -5461,6 +5645,116 @@ const I18N_AV = {
 'ko':{av:{hint:'캐릭터 아이콘 커스터마이즈(지도와 전투에 표시, 이 기기에만 저장). 업로드 후 배경 제거를 선택할 수 있습니다.',upload:'이미지 업로드',remove:'제거',done:'캐릭터 아이콘을 업데이트했습니다',bad:'이 이미지를 읽을 수 없습니다. 다른 이미지를 시도하세요',modeNone:'원본',modeChroma:'가장자리 제거',modeAi:'AI 제거',aiwork:'AI로 배경 제거 중…(첫 실행 시 모델 다운로드)',aifail:'AI 제거 실패 — 가장자리 제거를 쓰거나 연결을 확인하세요'}}
 };
 (function mergeAv(){ for(const L in I18N_AV){ if(!I18N[L]) continue; I18N[L].av = I18N_AV[L].av; } })();
+
+/* ---- 任意門 (portal door) i18n ---- */
+const I18N_PORTAL = {
+'zh-Hant':{ ui:{portal:'任意門'},
+  shop:{ portal:{n:'神秘老頭',d:'傳授任意門，並可補充（每個 75 金幣）'}, buyPortal:'購買任意門' },
+  msg:{ portalLearn:'老頭傳授了你「任意門」之術！獲得 5 個任意門。對著牆使用，可開出一道用黃鑰匙打開的黃色門。',
+    portalAim:'選擇方向，對相鄰的牆使用任意門。', portalCancel:'已取消任意門。',
+    portalNeedWall:'只能對著牆使用任意門。', portalNone:'沒有任意門了，可向老頭購買。',
+    portalFloor:'這個樓層無法使用任意門。', portalMade:'牆變成了黃色門！用黃鑰匙打開。',
+    portalBad:'無法在這裡使用任意門。', barrierBlock:'冰封的牆擋住了去路，對著它使用任意門吧。' } },
+'zh-Hans':{ ui:{portal:'任意门'},
+  shop:{ portal:{n:'神秘老头',d:'传授任意门，并可补充（每个 75 金币）'}, buyPortal:'购买任意门' },
+  msg:{ portalLearn:'老头传授了你「任意门」之术！获得 5 个任意门。对着墙使用，可开出一道用黄钥匙打开的黄色门。',
+    portalAim:'选择方向，对相邻的墙使用任意门。', portalCancel:'已取消任意门。',
+    portalNeedWall:'只能对着墙使用任意门。', portalNone:'没有任意门了，可向老头购买。',
+    portalFloor:'这个楼层无法使用任意门。', portalMade:'墙变成了黄色门！用黄钥匙打开。',
+    portalBad:'无法在这里使用任意门。', barrierBlock:'冰封的墙挡住了去路，对着它使用任意门吧。' } },
+'en':{ ui:{portal:'Portal'},
+  shop:{ portal:{n:'Mysterious Old Man',d:'Teaches Portals; restock at 75 gold each'}, buyPortal:'Buy Portal' },
+  msg:{ portalLearn:'The old man taught you the Portal art! Got 5 portals. Use one on a wall to open a yellow door (needs a yellow key).',
+    portalAim:'Pick a direction to open a portal on an adjacent wall.', portalCancel:'Portal canceled.',
+    portalNeedWall:'Portals can only be used on a wall.', portalNone:'No portals left. Buy more from the old man.',
+    portalFloor:"Portals can't be used on this floor.", portalMade:'The wall became a yellow door! Open it with a yellow key.',
+    portalBad:"Can't use a portal there.", barrierBlock:'An icy barrier blocks the way. Use a portal on it.' } },
+'ja':{ ui:{portal:'任意の扉'},
+  shop:{ portal:{n:'謎の老人',d:'任意の扉を授け、補充も可（1つ75金貨）'}, buyPortal:'任意の扉を購入' },
+  msg:{ portalLearn:'老人が「任意の扉」の術を授けた！任意の扉を5つ入手。壁に使うと黄色い鍵で開く黄色い扉ができる。',
+    portalAim:'方向を選んで隣の壁に任意の扉を使う。', portalCancel:'任意の扉をキャンセル。',
+    portalNeedWall:'任意の扉は壁にのみ使えます。', portalNone:'任意の扉がありません。老人から購入できます。',
+    portalFloor:'この階では任意の扉は使えません。', portalMade:'壁が黄色い扉になった！黄色い鍵で開けよう。',
+    portalBad:'そこには任意の扉を使えません。', barrierBlock:'氷の壁が道を塞いでいる。任意の扉を使おう。' } },
+'ko':{ ui:{portal:'임의의 문'},
+  shop:{ portal:{n:'신비한 노인',d:'임의의 문 전수, 보충 가능(개당 75골드)'}, buyPortal:'임의의 문 구입' },
+  msg:{ portalLearn:"노인이 '임의의 문' 기술을 전수했다! 임의의 문 5개 획득. 벽에 사용하면 노란 열쇠로 여는 노란 문이 열린다.",
+    portalAim:'방향을 선택해 인접한 벽에 임의의 문을 사용.', portalCancel:'임의의 문 취소.',
+    portalNeedWall:'임의의 문은 벽에만 사용할 수 있습니다.', portalNone:'임의의 문이 없습니다. 노인에게서 구입하세요.',
+    portalFloor:'이 층에서는 임의의 문을 사용할 수 없습니다.', portalMade:'벽이 노란 문이 되었다! 노란 열쇠로 열어라.',
+    portalBad:'거기에는 임의의 문을 사용할 수 없습니다.', barrierBlock:'얼음 벽이 길을 막고 있다. 임의의 문을 사용하라.' } }
+};
+(function mergePortal(){ for(const L in I18N_PORTAL){ if(!I18N[L]) continue; const S=I18N_PORTAL[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
+/* ---- 任意門 UX 文字（確認視窗 / 老頭劇情）---- */
+const I18N_PORTAL2 = {
+'zh-Hant':{ ui:{confirm:'確認', exit:'退出'},
+  msg:{ portalAsk:'是否將該格子變為黃色門？', portalTake:'收下任意門',
+    portalStory:'一位白鬍老頭攔住了你。\n「孩子，前面的路被封住了……老夫送你一樣東西——『任意門』。\n對著牆壁或冰塊使用，就能開出一道黃色門，幫你快速打通通道、更快往上爬塔。\n先給你 5 個，不夠了就再回來找老夫吧。」' } },
+'zh-Hans':{ ui:{confirm:'确认', exit:'退出'},
+  msg:{ portalAsk:'是否将该格子变为黄色门？', portalTake:'收下任意门',
+    portalStory:'一位白胡老头拦住了你。\n「孩子，前面的路被封住了……老夫送你一样东西——『任意门』。\n对着墙壁或冰块使用，就能开出一道黄色门，帮你快速打通通道、更快往上爬塔。\n先给你 5 个，不够了就再回来找老夫吧。」' } },
+'en':{ ui:{confirm:'Confirm', exit:'Exit'},
+  msg:{ portalAsk:'Turn this tile into a yellow door?', portalTake:'Take the Portals',
+    portalStory:'A white-bearded old man stops you.\n"Child, the path ahead is sealed... Let me give you something — the Portal.\nUse it on a wall or ice to open a yellow door, so you can carve passages and climb the tower faster.\nHere are 5 to start; come back if you need more."' } },
+'ja':{ ui:{confirm:'決定', exit:'やめる'},
+  msg:{ portalAsk:'このマスを黄色い扉に変えますか？', portalTake:'受け取る',
+    portalStory:'白髭の老人が立ちはだかった。\n「坊や、この先の道は塞がれておる……『任意の扉』を授けよう。\n壁や氷に使えば黄色い扉が開き、道を切り開いて速く塔を登れる。\nまずは5つ。足りなければまた来なさい。」' } },
+'ko':{ ui:{confirm:'확인', exit:'나가기'},
+  msg:{ portalAsk:'이 칸을 노란 문으로 바꿀까요?', portalTake:'받기',
+    portalStory:'흰 수염의 노인이 앞을 막아섰다.\n"얘야, 앞길이 막혔구나…… \'임의의 문\'을 주마.\n벽이나 얼음에 사용하면 노란 문이 열려 길을 빠르게 뚫고 탑을 더 빨리 오를 수 있지.\n우선 5개를 주마. 부족하면 다시 찾아오너라."' } }
+};
+(function mergePortal2(){ for(const L in I18N_PORTAL2){ if(!I18N[L]) continue; const S=I18N_PORTAL2[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
+/* ---- 死亡地形（怪物倒下後留下冰/岩漿）i18n ---- */
+const I18N_DEATHT = {
+'zh-Hant':{ admin:{abDeath:'死亡地形', deathIce:'冰封', deathLava:'岩漿'},
+  msg:{ leftIce:'怪物倒下後留下了一道冰封的牆，用任意門開路吧。', leftLava:'怪物倒下後留下了一灘岩漿，小心別踩上去。' } },
+'zh-Hans':{ admin:{abDeath:'死亡地形', deathIce:'冰封', deathLava:'岩浆'},
+  msg:{ leftIce:'怪物倒下后留下了一道冰封的墙，用任意门开路吧。', leftLava:'怪物倒下后留下了一滩岩浆，小心别踩上去。' } },
+'en':{ admin:{abDeath:'Death terrain', deathIce:'Ice', deathLava:'Lava'},
+  msg:{ leftIce:'The fallen monster left an icy barrier. Use a portal to break through.', leftLava:'The fallen monster left a pool of lava. Watch your step.' } },
+'ja':{ admin:{abDeath:'死亡地形', deathIce:'氷結', deathLava:'溶岩'},
+  msg:{ leftIce:'倒した魔物が氷の壁を残した。任意の扉で道を開こう。', leftLava:'倒した魔物が溶岩を残した。踏まないよう注意。' } },
+'ko':{ admin:{abDeath:'사망 지형', deathIce:'얼음', deathLava:'용암'},
+  msg:{ leftIce:'쓰러진 몬스터가 얼음 벽을 남겼다. 임의의 문으로 길을 뚫어라.', leftLava:'쓰러진 몬스터가 용암을 남겼다. 밟지 않도록 조심.' } }
+};
+(function mergeDeathT(){ for(const L in I18N_DEATHT){ if(!I18N[L]) continue; const S=I18N_DEATHT[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
+/* ---- Batch-2 怪物能力 i18n（admin 標籤 + 戰鬥訊息） ---- */
+const I18N_AB2 = {
+'zh-Hant':{ admin:{abBonusDmg:'加成傷害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'復活一次', abAtkcMin:'連擊min', abAtkcMax:'連擊max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
+  msg:{ revive:'怪物復活了！', cantFlee:'無法從這個敵人身邊逃跑！', statDown:'你的攻擊與防禦被削弱了！' } },
+'zh-Hans':{ admin:{abBonusDmg:'加成伤害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'复活一次', abAtkcMin:'连击min', abAtkcMax:'连击max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
+  msg:{ revive:'怪物复活了！', cantFlee:'无法从这个敌人身边逃跑！', statDown:'你的攻击与防御被削弱了！' } },
+'en':{ admin:{abBonusDmg:'Bonus dmg', abDrainEn:'Drain EN', abNoFlee:'No flee', abRevive:'Revive 1x', abAtkcMin:'Hits min', abAtkcMax:'Hits max', abStatDownP:'Weaken%', abStatDownN:'Weaken+'},
+  msg:{ revive:'The monster revived!', cantFlee:"You can't flee from this enemy!", statDown:'Your attack and defense were weakened!' } },
+'ja':{ admin:{abBonusDmg:'追加ダメ', abDrainEn:'気力吸収', abNoFlee:'逃走不可', abRevive:'一度復活', abAtkcMin:'連撃min', abAtkcMax:'連撃max', abStatDownP:'弱体%', abStatDownN:'弱体+'},
+  msg:{ revive:'魔物が復活した！', cantFlee:'この敵からは逃げられない！', statDown:'攻撃力と防御力が弱体化した！' } },
+'ko':{ admin:{abBonusDmg:'추가뎀', abDrainEn:'기력흡수', abNoFlee:'도주불가', abRevive:'1회부활', abAtkcMin:'연타min', abAtkcMax:'연타max', abStatDownP:'약화%', abStatDownN:'약화+'},
+  msg:{ revive:'몬스터가 부활했다!', cantFlee:'이 적에게서 도망칠 수 없다!', statDown:'공격력과 방어력이 약화되었다!' } }
+};
+(function mergeAB2(){ for(const L in I18N_AB2){ if(!I18N[L]) continue; const S=I18N_AB2[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
+/* ---- 怪物手冊：Batch-2 能力的標籤與說明 ---- */
+const I18N_MANUAL2 = {
+'zh-Hant':{ ab:{deathIce:'冰封',deathLava:'岩漿',bonusDmg:'加傷',drainEn:'吸能',noFlee:'纏身',revive:'復活',randMulti:'亂擊',statDown:'弱化'},
+  manual:{ effDeathIce:'死亡後在原地留下冰封障礙，阻擋通路（可用任意門開門繞過）。', effDeathLava:'死亡後在原地留下岩漿，踩到會受傷。', effBonusDmg:'每次命中額外造成 {n} 點傷害（無視防禦）。', effDrainEn:'每次命中吸取你 {n} 點能量。', effNoFlee:'無法從這隻怪物身邊逃跑。', effRevive:'被擊敗時會復活一次，恢復半數體力。', effRandMulti:'每回合攻擊 {a}～{b} 次（隨機）。', effStatDown:'命中時削弱你的攻擊與防禦（先 {p}% 再 -{n}），每回合一次。' } },
+'zh-Hans':{ ab:{deathIce:'冰封',deathLava:'岩浆',bonusDmg:'加伤',drainEn:'吸能',noFlee:'缠身',revive:'复活',randMulti:'乱击',statDown:'弱化'},
+  manual:{ effDeathIce:'死亡后在原地留下冰封障碍，阻挡通路（可用任意门开门绕过）。', effDeathLava:'死亡后在原地留下岩浆，踩到会受伤。', effBonusDmg:'每次命中额外造成 {n} 点伤害（无视防御）。', effDrainEn:'每次命中吸取你 {n} 点能量。', effNoFlee:'无法从这只怪物身边逃跑。', effRevive:'被击败时会复活一次，恢复半数体力。', effRandMulti:'每回合攻击 {a}～{b} 次（随机）。', effStatDown:'命中时削弱你的攻击与防御（先 {p}% 再 -{n}），每回合一次。' } },
+'en':{ ab:{deathIce:'Frost',deathLava:'Lava',bonusDmg:'Bonus',drainEn:'Drain',noFlee:'Bind',revive:'Revive',randMulti:'Flurry',statDown:'Weaken'},
+  manual:{ effDeathIce:'On death, leaves an icy barrier blocking the path (use a portal to get around).', effDeathLava:'On death, leaves lava that damages you if stepped on.', effBonusDmg:'Each hit deals {n} extra damage (ignores defense).', effDrainEn:'Each hit drains {n} of your energy.', effNoFlee:"You can't flee from this monster.", effRevive:'Revives once when defeated, restoring half its HP.', effRandMulti:'Attacks {a}-{b} times per round (random).', effStatDown:'On hit, weakens your attack and defense ({p}% then -{n}), once per round.' } },
+'ja':{ ab:{deathIce:'氷結',deathLava:'溶岩',bonusDmg:'追加',drainEn:'吸収',noFlee:'拘束',revive:'復活',randMulti:'乱撃',statDown:'弱体'},
+  manual:{ effDeathIce:'撃破時、その場に氷の壁を残し通路を塞ぐ（任意の扉で迂回可能）。', effDeathLava:'撃破時、その場に溶岩を残す。踏むとダメージ。', effBonusDmg:'命中ごとに追加で {n} ダメージ（防御無視）。', effDrainEn:'命中ごとに気力を {n} 吸収する。', effNoFlee:'この魔物からは逃げられない。', effRevive:'撃破時に一度だけ復活し、体力が半分回復する。', effRandMulti:'毎ターン {a}～{b} 回攻撃（ランダム）。', effStatDown:'命中時、攻撃力と防御力を弱体化（{p}% の後 -{n}）、毎ターン一度。' } },
+'ko':{ ab:{deathIce:'빙결',deathLava:'용암',bonusDmg:'추가',drainEn:'흡수',noFlee:'속박',revive:'부활',randMulti:'난타',statDown:'약화'},
+  manual:{ effDeathIce:'처치 시 그 자리에 얼음 장벽을 남겨 통로를 막는다(임의의 문으로 우회 가능).', effDeathLava:'처치 시 그 자리에 용암을 남긴다. 밟으면 피해.', effBonusDmg:'명중마다 추가로 {n} 피해(방어 무시).', effDrainEn:'명중마다 기력을 {n} 흡수한다.', effNoFlee:'이 몬스터에게서 도망칠 수 없다.', effRevive:'처치될 때 한 번 부활하여 체력을 절반 회복한다.', effRandMulti:'매 턴 {a}~{b}회 공격(무작위).', effStatDown:'명중 시 공격력과 방어력을 약화({p}% 후 -{n}), 매 턴 한 번.' } }
+};
+(function mergeManual2(){ for(const L in I18N_MANUAL2){ if(!I18N[L]) continue; const S=I18N_MANUAL2[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 
 /* ---- game-data snapshot / apply (cloud-editable parameters) ---- */
 let DEFAULT_CONFIG=null;
@@ -5842,7 +6136,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0614·35 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·4 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -5850,7 +6144,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0614·35 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·4 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -5996,6 +6290,16 @@ function renderAdminBody(){
         adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+
         '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(m.drains?'':' selected')+'>—</option><option value="1"'+(m.drains?' selected':'')+'>✓</option></select></div>'+
         '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
+        '<div class="adField"><label>'+t('admin.abTrue')+'</label><select data-k="trueDmg"><option value="0"'+(m.trueDmg?'':' selected')+'>'+t('admin.abNone')+'</option><option value="1"'+(m.trueDmg?' selected':'')+'>\u2713</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.abStatus')+'</label><select data-k="ability"><option value=""'+(!m.ability?' selected':'')+'>'+t('admin.abNone')+'</option><option value="poison"'+(m.ability==='poison'?' selected':'')+'>'+t('ab.poison')+'</option><option value="weak"'+(m.ability==='weak'?' selected':'')+'>'+t('ab.weak')+'</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.abTag')+'</label><select data-k="ab">'+['','solid','vampire','pierce','multi','first','magic','poison','weak'].map(function(av){return '<option value="'+av+'"'+((m.ab||'')===av?' selected':'')+'>'+(av===''?t('admin.abNone'):t('ab.'+av))+'</option>';}).join('')+'</select></div>'+
+        adNum(t('admin.abCrit'),{critMult:(m.critMult!=null?m.critMult:2)},'critMult')+
+        '<div class=\"adField\"><label>'+t('admin.abDeath')+'</label><select data-k=\"deathTerrain\"><option value=\"\"'+(!m.deathTerrain?' selected':'')+'>'+t('admin.abNone')+'</option><option value=\"ice\"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value=\"lava\"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select></div>'+
+        adNum(t('admin.abBonusDmg'),m,'bonusDmg')+adNum(t('admin.abDrainEn'),m,'drainEn')+
+        adNum(t('admin.abAtkcMin'),m,'atkcMin')+adNum(t('admin.abAtkcMax'),m,'atkcMax')+
+        adNum(t('admin.abStatDownP'),m,'statDownPct')+adNum(t('admin.abStatDownN'),m,'statDownN')+
+        '<div class="adField"><label>'+t('admin.abNoFlee')+'</label><select data-k="noFlee"><option value="0"'+(!m.noFlee?' selected':'')+'>—</option><option value="1"'+(m.noFlee?' selected':'')+'>✓</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.abRevive')+'</label><select data-k="revive"><option value="0"'+(!m.revive?' selected':'')+'>—</option><option value="1"'+(m.revive?' selected':'')+'>✓</option></select></div>'+
         '</div>';
       body.appendChild(row);
     };
@@ -6199,7 +6503,7 @@ function collectAdminDraft(){
       if(k==='drains'){ target.drains = fields[j].value==='1'; }
       else if(k==='id'){ const vv=(fields[j].value||'').trim(); if(vv) target.id=vv; }
       else if(k==='face'||k==='name'){ target[k] = (fields[j].value||'').trim(); }
-      else if(k==='atkFx'||k==='atkSfx'||k==='role'){ target[k] = fields[j].value||''; }
+      else if(k==='atkFx'||k==='atkSfx'||k==='role'||k==='ability'||k==='ab'||k==='deathTerrain'){ target[k] = fields[j].value||''; }
       else { const num=parseFloat(fields[j].value); target[k]= isNaN(num)?0:num; }
     }
     const _nlf=row.querySelectorAll('[data-knl]');
