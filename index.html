@@ -5928,7 +5928,7 @@ function snapshotConfig(){
     floorWL: (function(){ const o={}; for(const k in FLOOR_WL){ if(Array.isArray(FLOOR_WL[k])) o[k]=FLOOR_WL[k].slice(); } return o; })(),
     floorTr: Object.assign({}, FLOOR_TR),
     fx: JSON.parse(JSON.stringify(FX_MAP)),
-    items: (function(){ const o={}; for(const k in ITEMS){ o[k]={face:ITEMS[k].face||'', name:ITEMS[k].name||'', nameLoc:(ITEMS[k].nameLoc?Object.assign({},ITEMS[k].nameLoc):undefined), img:ITEMS[k].img||null}; } return o; })(),
+    items: (function(){ const o={}; for(const k in ITEMS){ o[k]={face:ITEMS[k].face||'', name:ITEMS[k].name||'', nameLoc:(ITEMS[k].nameLoc?Object.assign({},ITEMS[k].nameLoc):null), img:ITEMS[k].img||null}; } return o; })(),
     atkSkills: ATK_SKILLS.map(function(s){ return Object.assign({}, s); }),
     defSkills: DEF_SKILLS.map(function(s){ return Object.assign({}, s); }),
     guards: [_cp(GUARD_DRAGONS.red), _cp(GUARD_DRAGONS.poison), _cp(ABYSS_GUARD)],
@@ -5996,12 +5996,13 @@ function serializeRun(){
   return { player:state.player, floor:state.floor, maxFloor:state.maxFloor, minFloor:state.minFloor, seed:state.seed,
            kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
 }
+function _fbSafe(o){ try{ return JSON.parse(JSON.stringify(o===undefined?null:o)); }catch(e){ return o; } }   /* Realtime DB rejects undefined/NaN/Infinity; round-trip sanitises */
 function cloudSave(now){
   if(typeof Net==='undefined' || !Net.db || !Net.uid) return;
   if(state.mode!=='solo' || !state.player || state.over) return;
   const doSave=function(){
     Net.db.ref('players/'+Net.uid).update({
-      email: (typeof Account!=='undefined'&&Account.user&&Account.user.email)||'', updatedAt: Net.ts(), save: serializeRun()
+      email: (typeof Account!=='undefined'&&Account.user&&Account.user.email)||'', updatedAt: Net.ts(), save: _fbSafe(serializeRun())
     }).catch(function(e){ console.warn('cloud save failed', e); });
   };
   if(now){ clearTimeout(saveTimer); doSave(); return; }
@@ -6174,7 +6175,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·7 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·8 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6182,7 +6183,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·7 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·8 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6597,7 +6598,7 @@ function adminSaveToCloud(){
   if(!Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   if(!Net.db){ byId('adminMsg').textContent=t('acct.noFirebase'); return; }
   collectAdminDraft();
-  Net.db.ref('gameConfig').set(adminDraft).then(function(){
+  Net.db.ref('gameConfig').set(_fbSafe(adminDraft)).then(function(){
     applyConfig(adminDraft); try{ localStorage.setItem('mt_gameConfig', JSON.stringify(adminDraft)); }catch(e){} try{ refreshEntityIcons(); }catch(e){}
     if(state.player) renderAll();
     byId('adminMsg').textContent=t('admin.savedCloud');
