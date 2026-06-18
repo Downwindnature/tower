@@ -3037,10 +3037,9 @@ function install2FGate(d){
         }
       }
       if(canBreak){ sealed=true;
-        /* approach B — 2F's portal tutorial must fire reliably, so we seal whenever it's breakable. Move every monster/item the seal would BURY (the walled neighbours) or STRAND (the pocket behind it) to the NEAREST reachable open cell: nothing is lost or cut off, and the loot stays close by. */
+        /* approach B — 2F's portal tutorial must fire reliably, so we seal whenever it's breakable. Only loot the new walls would BURY (the walled neighbour cells) is moved to the nearest reachable cell; the pocket BEHIND the seal is left UNTOUCHED so guarded treasures stay guarded (treasure still behind its monster) — the player reaches them by breaking the seal with the portal. */
         const _moved=[];
         for(let i=0;i<nbrs.length;i++){ const c=nbrs[i]; const e=d.ent[c.y][c.x]; if(e){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }
-        for(let i=0;i<stranded.length;i++){ const c=stranded[i]; if(c.x===S.x&&c.y===S.y) continue; const e=d.ent[c.y][c.x]; if(e&&(e.kind==='monster'||e.kind==='item')){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }
         for(let m=0;m<_moved.length;m++){ const it=_moved[m]; let best=null,bdd=1e9;
           for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
             if(d.wall[y][x]||d.ent[y][x]) continue;
@@ -6329,7 +6328,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·11 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·12 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6337,7 +6336,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·11 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·12 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
