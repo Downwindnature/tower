@@ -5847,6 +5847,14 @@ const I18N_MONPREV = {
 'ko':{ admin:{preview:'미리보기', previewTitle:'몬스터 미리보기', previewFloors:'출현 층', previewAb:'특성／능력'} }
 };
 (function mergeMonPrev(){ for(const L in I18N_MONPREV){ if(!I18N[L]) continue; const S=I18N_MONPREV[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+const I18N_MONSEARCH = {
+'zh-Hant':{admin:{monSearch:'搜尋怪物…'}},
+'zh-Hans':{admin:{monSearch:'搜索怪物…'}},
+'en':{admin:{monSearch:'Search monsters…'}},
+'ja':{admin:{monSearch:'魔物を検索…'}},
+'ko':{admin:{monSearch:'몬스터 검색…'}}
+};
+(function(){ for(const L in I18N_MONSEARCH){ if(!I18N[L])continue; const S=I18N_MONSEARCH[L]; for(const ns in S){ I18N[L][ns]=Object.assign({},I18N[L][ns]||{},S[ns]); } } })();
 const I18N_ADDMON = {
 'zh-Hant':{ admin:{addMon:'新增怪物', delMon:'刪除', delMonConfirm:'確定要刪除怪物「{n}」嗎？', newMon:'新怪物'} },
 'zh-Hans':{ admin:{addMon:'新增怪物', delMon:'删除', delMonConfirm:'确定要删除怪物「{n}」吗？', newMon:'新怪物'} },
@@ -6219,7 +6227,7 @@ function doCloudLoad(){
 }
 
 /* ---- admin backend ---- */
-let adminDraft=null, adminTab='monsters', _admRenderLang='zh-Hant';
+let adminDraft=null, adminTab='monsters', _admRenderLang='zh-Hant', _monSearch='', _collapse={surf:false,base:false}, _pinNext=null;
 const ADMIN_TABS=[['monsters','tabMon','mtTabMon'],['boss','tabBoss','mtTabBoss'],['player','tabPlayer','mtTabPlayer'],['map','tabMap','mtTabMap'],['fx','tabFx','mtTabFx'],['items','tabItems','mtTabItems'],['skills','tabSkills','mtTabSkills'],['sounds','tabSounds','mtTabSounds'],['data','tabData','mtTabData']];
 function buildAdminTabs(){
   let tb=document.querySelector('.adminTabs');
@@ -6246,7 +6254,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·2 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·3 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6254,7 +6262,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·2 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·3 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6336,6 +6344,7 @@ function adminLoginDo(){
   }).catch(function(){ msg.textContent=t('acct.fail'); });
 }
 function setAdminTab(tab){
+  try{ collectAdminDraft(); }catch(e){}
   adminTab=tab;
   buildAdminTabs();
   renderAdminBody();
@@ -6390,13 +6399,15 @@ function adSfxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+
 
 function renderAdminBody(){
   _admRenderLang=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
-  const body=byId('adminBody'); body.innerHTML='';
+  const body=byId('adminBody'); body.innerHTML=''; const _pinId=_pinNext; _pinNext=null;
   if(adminTab==='monsters'){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.monNote'); body.appendChild(n);
     const hdr=function(txt){ const h=document.createElement('div'); h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:13px;'; h.textContent=txt; body.appendChild(h); };
+    const secHdr=function(txt, sec){ const h=document.createElement('div'); h.className='adSecHead'; h.dataset.collapse=sec; h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:13px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px'; h.innerHTML='<span class="secArrow" style="display:inline-block;width:12px">'+(_collapse[sec]?'▶':'▼')+'</span><span>'+txt+'</span>'; body.appendChild(h); };
     const monRow=function(m,idx,isBase){
       const row=document.createElement('div'); row.className='adRowItem';
       if(isBase) row.dataset.bidx=idx; else row.dataset.idx=idx;
+      row.dataset.sec=isBase?'base':'surf'; row.dataset.monname=(_admName(m)+' '+(m.id||'')).toLowerCase();
       row.innerHTML='<div class="adName">'+(m.face||'')+' '+_admName(m)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span>'+_adPrev()+_adDel(isBase,idx)+'</div>'+
         '<div class="adGrid">'+
         adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+adCritFx(m)+adCritSfx(m)+
@@ -6407,18 +6418,20 @@ function renderAdminBody(){
         '</div>';
       body.appendChild(row);
     };
+    { const _sb=document.createElement('div'); _sb.style.cssText='margin:2px 2px 10px'; const _si=document.createElement('input'); _si.type='text'; _si.setAttribute('data-monsearch','1'); _si.className='cpInp'; _si.placeholder=t('admin.monSearch'); _si.style.cssText='max-width:280px'; _si.value=_monSearch||''; _sb.appendChild(_si); body.appendChild(_sb); }
     { const _addRow=document.createElement('div'); _addRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:2px 2px 12px';
       const _mk=function(kind,lab){ const b=document.createElement('button'); b.type='button'; b.className='btn'; b.setAttribute('data-addmon',kind); b.style.cssText='padding:6px 14px;font-size:13px'; b.textContent='＋ '+lab; return b; };
       _addRow.appendChild(_mk('s', t('admin.addMon')+'（'+t('admin.groundMon')+'）'));
       if(Array.isArray(adminDraft.basementMonsters)) _addRow.appendChild(_mk('b', t('admin.addMon')+'（'+t('admin.basementMon')+'）'));
       body.appendChild(_addRow);
     }
-    hdr(t('admin.groundMon')+' ('+adminDraft.monsters.length+')');
-    adminDraft.monsters.forEach(function(m,idx){ monRow(m,idx,false); });
+    secHdr(t('admin.groundMon')+' ('+adminDraft.monsters.length+')', 'surf');
+    { var _surf=adminDraft.monsters.map(function(m,idx){return {m:m,idx:idx};}); _surf.sort(_byMonName); _pinFirst(_surf,_pinId); _surf.forEach(function(o){ monRow(o.m,o.idx,false); }); }
     if(Array.isArray(adminDraft.basementMonsters)){
-      hdr(t('admin.basementMon')+' ('+adminDraft.basementMonsters.length+')');
-      adminDraft.basementMonsters.forEach(function(m,idx){ monRow(m,idx,true); });
+      secHdr(t('admin.basementMon')+' ('+adminDraft.basementMonsters.length+')', 'base');
+      { var _base=adminDraft.basementMonsters.map(function(m,idx){return {m:m,idx:idx};}); _base.sort(_byMonName); _pinFirst(_base,_pinId); _base.forEach(function(o){ monRow(o.m,o.idx,true); }); }
     }
+    applyMonFilters();
     if(adminDraft.swordKing){
       hdr(t('mon.swordKing'));
       const _skn=document.createElement('p'); _skn.className='adNote'; _skn.textContent=t('admin.skNote'); body.appendChild(_skn);
@@ -6495,7 +6508,7 @@ function renderAdminBody(){
       th2+='</div><div class="adSubHead">'+t('admin.basementFloors')+'</div><div class="adFloorGrid">';
       for(let f=-1; f>=-BASEMENT; f--) th2+=trSel(f);
       th2+='</div>'; trr.innerHTML=th2; body.appendChild(trr); }
-    { const seen={}, mons=[]; MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]).forEach(function(mm){ if(!mm.b20 && !seen[mm.id]){ seen[mm.id]=1; mons.push(mm); } });
+    { const seen={}, mons=[]; (adminDraft.monsters||[]).concat(adminDraft.basementMonsters||[]).concat((adminDraft.swordKing)?[adminDraft.swordKing]:[]).forEach(function(mm){ if(!mm.b20 && !seen[mm.id]){ seen[mm.id]=1; mons.push(mm); } });
       const wlArr=(adminDraft.floorWL&&adminDraft.floorWL[_wlFloor])?adminDraft.floorWL[_wlFloor]:[];
       const wr=document.createElement('div'); wr.className='adRowItem'; wr.dataset.floorwl='1';
       let wh='<div class="adName">📋 '+t('admin.monWhitelist')+'</div><p class="adNote">'+t('admin.monWhitelistHint')+'</p>';
@@ -6505,7 +6518,7 @@ function renderAdminBody(){
       wh+='</select></div>';
       wh+='<div class="wlStatus">'+(wlArr.length?(t('admin.wlActive')+'：'+wlArr.length):t('admin.wlDefault'))+'</div>';
       wh+='<div class="adWlGrid">';
-      mons.forEach(function(mm){ const on=wlArr.indexOf(mm.id)>=0; wh+='<label class="adWlCell'+(on?' on':'')+'"><input type="checkbox" data-wlmon="'+mm.id+'"'+(on?' checked':'')+'/><span>'+mm.face+' '+t('mon.'+mm.id)+'</span></label>'; });
+      mons.forEach(function(mm){ const on=wlArr.indexOf(mm.id)>=0; wh+='<label class="adWlCell'+(on?' on':'')+'"><input type="checkbox" data-wlmon="'+mm.id+'"'+(on?' checked':'')+'/><span>'+(mm.face||'')+' '+_admName(mm)+'</span></label>'; });
       wh+='</div>'; wr.innerHTML=wh; body.appendChild(wr); }
   } else if(adminTab==='fx'){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.fxNote'); body.appendChild(n);
@@ -6655,6 +6668,18 @@ function showMonPreview(m){
   byId('monPrevTitle').textContent=t('admin.previewTitle');
   byId('monPrev').classList.add('show');
 }
+function applyMonFilters(){
+  try{
+    var q=(_monSearch||'').trim().toLowerCase();
+    var rows=document.querySelectorAll('.adRowItem[data-sec]');
+    for(var i=0;i<rows.length;i++){ var r=rows[i]; var sec=r.dataset.sec; var nm=r.dataset.monname||'';
+      var open=!_collapse[sec]; var match=!q||nm.indexOf(q)>=0;
+      r.style.display=(open&&match)?'':'none';
+    }
+  }catch(e){}
+}
+function _byMonName(a,b){ try{ return (_admName(a.m)||'').localeCompare((_admName(b.m)||''), undefined, {numeric:true, sensitivity:'base'}); }catch(e){ return 0; } }
+function _pinFirst(arr,pid){ if(!pid) return; for(var i=0;i<arr.length;i++){ if(arr[i].m && arr[i].m.id===pid){ var p=arr.splice(i,1)[0]; arr.unshift(p); break; } } }
 function _adDel(isBase,idx){ return '<button type="button" data-delmon="'+(isBase?'b':'s')+idx+'" class="adDelBtn" title="'+t('admin.delMon')+'" style="margin-left:6px;padding:1px 8px;font-size:12px;border-radius:7px;border:1px solid rgba(255,120,120,.4);background:rgba(255,80,80,.12);color:#ff9a9a;cursor:pointer;vertical-align:middle">✕</button>'; }
 function addMonster(kind){
   if(!adminDraft) return;
@@ -6662,9 +6687,9 @@ function addMonster(kind){
   const uid='mon_'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
   if(kind==='b'){
     if(!Array.isArray(adminDraft.basementMonsters)) adminDraft.basementMonsters=[];
-    adminDraft.basementMonsters.push({id:uid, name:t('admin.newMon'), face:'👾', hp:300, atk:60, def:20, gold:20, exp:3, atkc:1, agi:10, sMin:0, sMax:0, bMin:1, bMax:20, ab:[]});
+    adminDraft.basementMonsters.push({id:uid, name:t('admin.newMon'), face:'👾', hp:300, atk:60, def:20, gold:20, exp:3, atkc:1, agi:10, sMin:0, sMax:0, bMin:1, bMax:20, ab:[]}); _collapse.base=false; _pinNext=uid;
   } else {
-    adminDraft.monsters.push({id:uid, name:t('admin.newMon'), face:'👾', hp:100, atk:20, def:5, gold:10, exp:2, atkc:1, agi:10, sMin:1, sMax:25, bMin:0, bMax:0, ab:[]});
+    adminDraft.monsters.push({id:uid, name:t('admin.newMon'), face:'👾', hp:100, atk:20, def:5, gold:10, exp:2, atkc:1, agi:10, sMin:1, sMax:25, bMin:0, bMax:0, ab:[]}); _collapse.surf=false; _pinNext=uid;
   }
   try{ renderAdminBody(); }catch(e){}
 }
@@ -6751,7 +6776,7 @@ function adminResetDefaults(){ if(!DEFAULT_CONFIG) return; adminDraft=JSON.parse
 
 /* ---- bind account & admin UI (called from boot) ---- */
 function bindAccountAdmin(){
-  { const _ab=byId('adminBody'); if(_ab && !_ab._prevBound){ _ab._prevBound=true; _ab.addEventListener('click',function(ev){ if(!ev.target||!ev.target.closest) return; const addB=ev.target.closest('[data-addmon]'); if(addB){ ev.preventDefault(); addMonster(addB.getAttribute('data-addmon')); return; } const delB=ev.target.closest('[data-delmon]'); if(delB){ ev.preventDefault(); delMonster(delB.getAttribute('data-delmon')); return; } const b=ev.target.closest('[data-prev]'); if(b){ ev.preventDefault(); ev.stopPropagation(); const row=b.closest('.adRowItem'); if(!row) return; try{ collectAdminDraft(); }catch(e){} const mon=_adRowMon(row); if(mon) showMonPreview(mon); return; } }); } }
+  { const _ab=byId('adminBody'); if(_ab && !_ab._prevBound){ _ab._prevBound=true; _ab.addEventListener('click',function(ev){ if(!ev.target||!ev.target.closest) return; const addB=ev.target.closest('[data-addmon]'); if(addB){ ev.preventDefault(); addMonster(addB.getAttribute('data-addmon')); return; } const delB=ev.target.closest('[data-delmon]'); if(delB){ ev.preventDefault(); delMonster(delB.getAttribute('data-delmon')); return; } const colB=ev.target.closest('[data-collapse]'); if(colB){ const sec=colB.getAttribute('data-collapse'); _collapse[sec]=!_collapse[sec]; const ar=colB.querySelector('.secArrow'); if(ar) ar.textContent=_collapse[sec]?'▶':'▼'; applyMonFilters(); return; } const b=ev.target.closest('[data-prev]'); if(b){ ev.preventDefault(); ev.stopPropagation(); const row=b.closest('.adRowItem'); if(!row) return; try{ collectAdminDraft(); }catch(e){} const mon=_adRowMon(row); if(mon) showMonPreview(mon); return; } }); _ab.addEventListener('input',function(ev){ const _t=ev.target; if(_t && _t.getAttribute && _t.getAttribute('data-monsearch')){ _monSearch=_t.value||''; applyMonFilters(); } }); } }
   const ss=byId('ssAccount'); if(ss) ss.addEventListener('click', openAuth);
   { const _stat=byId('ssAcctStat'); if(_stat) _stat.addEventListener('click', function(){ if(typeof Account!=='undefined' && Account.user) openAuth(); }); }
   byId('authLogin').addEventListener('click', function(){ authDo('login'); });
