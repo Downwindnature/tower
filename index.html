@@ -2936,6 +2936,7 @@ function _isKeyWall(d, wx, wy){
   /* a wall is "key" only if breaking it reaches cells you otherwise can't get to (past a monster/barrier or a sealed pocket) */
   if(wx<0||wy<0||wx>=GRID||wy>=GRID) return false;
   const wasWall=d.wall[wy][wx], wasEnt=d.ent[wy][wx];
+  if(wasEnt && (wasEnt.kind==='shop'||wasEnt.kind==='npc'||wasEnt.kind==='shopwall')) return false;   // a shop / old-man counter must never become a door
   const isBar=!!(wasEnt&&wasEnt.kind==='barrier');
   if(!wasWall && !isBar) return false;
   const before=_portalFree(d);
@@ -3061,7 +3062,7 @@ function install2FGate(d){
       }
       else { for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=false; } }   // would block loot or strand too much -> leave the stairs open
     }
-    /* seat the old man as a SHOP-LIKE COUNTER: an empty wall cell with a reachable open front, kept off the sealed stairs' edge, met early on the way up */
+    /* seat the old man as a SHOP-LIKE COUNTER: an empty wall cell with a reachable open front, kept off the sealed stairs' edge; placed at the nearest wall to the up-stairs (to 3F) — a corner counter on the way up */
     const reachF=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
     const _frontOK=function(x,y){
       for(let k=0;k<dirs.length;k++){ const fx=x+dirs[k][0], fy=y+dirs[k][1];
@@ -3078,13 +3079,13 @@ function install2FGate(d){
       if(!d.wall[y][x]||d.ent[y][x]) continue;                               // an empty WALL cell (a counter, like the shops)
       if(Math.abs(x-S.x)+Math.abs(y-S.y)<=1) continue;                       // not crammed against the stairs
       if(!_frontOK(x,y)) continue;
-      const dist=Math.abs(x-d.start.x)+Math.abs(y-d.start.y);
+      const dist=Math.abs(x-S.x)+Math.abs(y-S.y);
       if(dist<bd){ bd=dist; oc={x:x,y:y}; }
     }
     if(!oc){                                                                 // relax the stairs-adjacency rule
       for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
         if(!d.wall[y][x]||d.ent[y][x]||!_frontOK(x,y)) continue;
-        const dist=Math.abs(x-d.start.x)+Math.abs(y-d.start.y);
+        const dist=Math.abs(x-S.x)+Math.abs(y-S.y);
         if(dist<bd){ bd=dist; oc={x:x,y:y}; }
       }
     }
@@ -6335,7 +6336,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·9 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·10 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6343,7 +6344,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·9 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·10 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
