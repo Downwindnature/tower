@@ -1970,16 +1970,14 @@ const SWORD_KING={id:'swordKing', face:'🤺', hp:630, atk:175, def:55, gold:44,
 function migrateFloorRanges(){
   if(typeof MONSTERS!=='undefined') MONSTERS.forEach(function(m){
     if(m.sMin==null){ var lo=clamp(m.minF||1,1,FLOORS), hi=clamp(Math.min(m.maxF||FLOORS,FLOORS),1,FLOORS); m.sMin=lo; m.sMax=Math.max(lo,hi); }
-    if(m.bMin==null){
-      if(m.id==='swordsman'){ m.bMin=0; m.bMax=0; }                                  /* 地下版是劍王，雙手劍兵僅地上 */
-      else { var blo=0,bhi=0,minF=m.minF||1,maxF=m.maxF||99; for(var d=1;d<=9;d++){ var eff=effFloor(-d); if(eff>=minF&&eff<=maxF){ if(!blo)blo=d; bhi=d; } } m.bMin=blo; m.bMax=bhi; }
-    }
+    if(m.id==='swordsman'){ m.bMin=0; m.bMax=0; }                                  /* 雙手劍兵永遠僅地上（地下版是劍王，兩者分開） */
+    else if(m.bMin==null){ var blo=0,bhi=0,minF=m.minF||1,maxF=m.maxF||99; for(var d=1;d<=9;d++){ var eff=effFloor(-d); if(eff>=minF&&eff<=maxF){ if(!blo)blo=d; bhi=d; } } m.bMin=blo; m.bMax=bhi; }
   });
   if(typeof BASEMENT_MONSTERS!=='undefined') BASEMENT_MONSTERS.forEach(function(m){
     if(m.sMin==null){ m.sMin=0; m.sMax=0; }
     if(m.bMin==null){ if(m.b20){ m.bMin=0; m.bMax=0; } else { m.bMin=10; m.bMax=BASEMENT-1; } }   /* 地下怪預設 B10-B19；b20 只在 boss 樓層 */
   });
-  if(typeof SWORD_KING!=='undefined' && SWORD_KING && SWORD_KING.sMin==null){ SWORD_KING.sMin=0; SWORD_KING.sMax=0; SWORD_KING.bMin=1; SWORD_KING.bMax=9; }
+  if(typeof SWORD_KING!=='undefined' && SWORD_KING){ SWORD_KING.sMin=0; SWORD_KING.sMax=0; if(!(SWORD_KING.bMin>0)){ SWORD_KING.bMin=1; SWORD_KING.bMax=9; } }
 }
 migrateFloorRanges();
 function startCanPierce(foe){ return (START.atk+START.thrA) > (foe.def+foe.thrD); }
@@ -6254,7 +6252,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·3 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·4 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6262,7 +6260,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·3 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·4 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6431,21 +6429,21 @@ function renderAdminBody(){
       secHdr(t('admin.basementMon')+' ('+adminDraft.basementMonsters.length+')', 'base');
       { var _base=adminDraft.basementMonsters.map(function(m,idx){return {m:m,idx:idx};}); _base.sort(_byMonName); _pinFirst(_base,_pinId); _base.forEach(function(o){ monRow(o.m,o.idx,true); }); }
     }
-    applyMonFilters();
     if(adminDraft.swordKing){
-      hdr(t('mon.swordKing'));
-      const _skn=document.createElement('p'); _skn.className='adNote'; _skn.textContent=t('admin.skNote'); body.appendChild(_skn);
-      const sk=adminDraft.swordKing;
-      const row=document.createElement('div'); row.className='adRowItem'; row.dataset.sk='1';
+      const sk=adminDraft.swordKing; const _skNm=(_admName(sk)+' '+(sk.id||'')).toLowerCase();
+      const _skn=document.createElement('p'); _skn.className='adNote'; _skn.dataset.sec='base'; _skn.dataset.monname=_skNm; _skn.style.cssText='margin-top:10px'; _skn.textContent=t('admin.skNote'); body.appendChild(_skn);
+      const row=document.createElement('div'); row.className='adRowItem'; row.dataset.sk='1'; row.dataset.sec='base'; row.dataset.monname=_skNm;
       row.innerHTML='<div class="adName">'+(sk.face||'')+' '+_admName(sk)+' <span style="color:var(--txt-faint);font-weight:400">('+sk.id+')</span>'+_adPrev()+'</div>'+
         '<div class="adGrid">'+
         adText(t('admin.icon'),sk,'face')+adNameLoc(sk)+adText(t('admin.mid'),sk,'id','',24)+adImg(sk,'sk')+adAtkFx(sk)+adAtkSfx(sk)+adCritFx(sk)+adCritSfx(sk)+
         adNum('HP',sk,'hp')+adNum(t('ui.atk'),sk,'atk')+adNum(t('ui.def'),sk,'def')+
         adNum(t('end.gold'),sk,'gold')+adNum(t('ui.exp'),sk,'exp')+adNum('atkc',sk,'atkc')+
+        adNum(t('admin.baseMin'),sk,'bMin')+adNum(t('admin.baseMax'),sk,'bMax')+
         adMonAbilities(sk)+
         '</div>';
       body.appendChild(row);
     }
+    applyMonFilters();
   } else if(adminTab==='boss'){
     const hdr=function(txt){ const h=document.createElement('div'); h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:13px;'; h.textContent=txt; body.appendChild(h); };
     const bossRow=function(b,isBase){
@@ -6671,7 +6669,7 @@ function showMonPreview(m){
 function applyMonFilters(){
   try{
     var q=(_monSearch||'').trim().toLowerCase();
-    var rows=document.querySelectorAll('.adRowItem[data-sec]');
+    var rows=document.querySelectorAll('[data-sec]');
     for(var i=0;i<rows.length;i++){ var r=rows[i]; var sec=r.dataset.sec; var nm=r.dataset.monname||'';
       var open=!_collapse[sec]; var match=!q||nm.indexOf(q)>=0;
       r.style.display=(open&&match)?'':'none';
