@@ -6246,7 +6246,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·1 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·2 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6254,7 +6254,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·1 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·2 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6407,13 +6407,17 @@ function renderAdminBody(){
         '</div>';
       body.appendChild(row);
     };
+    { const _addRow=document.createElement('div'); _addRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:2px 2px 12px';
+      const _mk=function(kind,lab){ const b=document.createElement('button'); b.type='button'; b.className='btn'; b.setAttribute('data-addmon',kind); b.style.cssText='padding:6px 14px;font-size:13px'; b.textContent='＋ '+lab; return b; };
+      _addRow.appendChild(_mk('s', t('admin.addMon')+'（'+t('admin.groundMon')+'）'));
+      if(Array.isArray(adminDraft.basementMonsters)) _addRow.appendChild(_mk('b', t('admin.addMon')+'（'+t('admin.basementMon')+'）'));
+      body.appendChild(_addRow);
+    }
     hdr(t('admin.groundMon')+' ('+adminDraft.monsters.length+')');
     adminDraft.monsters.forEach(function(m,idx){ monRow(m,idx,false); });
-    { const _amb=document.createElement('button'); _amb.type='button'; _amb.className='btn'; _amb.setAttribute('data-addmon','s'); _amb.style.cssText='margin:8px 2px 4px;padding:5px 14px;font-size:13px'; _amb.textContent='＋ '+t('admin.addMon'); body.appendChild(_amb); }
     if(Array.isArray(adminDraft.basementMonsters)){
       hdr(t('admin.basementMon')+' ('+adminDraft.basementMonsters.length+')');
       adminDraft.basementMonsters.forEach(function(m,idx){ monRow(m,idx,true); });
-      { const _bmb=document.createElement('button'); _bmb.type='button'; _bmb.className='btn'; _bmb.setAttribute('data-addmon','b'); _bmb.style.cssText='margin:8px 2px 4px;padding:5px 14px;font-size:13px'; _bmb.textContent='＋ '+t('admin.addMon'); body.appendChild(_bmb); }
     }
     if(adminDraft.swordKing){
       hdr(t('mon.swordKing'));
