@@ -167,6 +167,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .tile.downstair{background:radial-gradient(circle at 50% 60%,rgba(120,180,240,.22),#161426);}
 .tile.downstair.sealed{background:radial-gradient(circle at 50% 60%,rgba(150,150,160,.16),#141220);filter:grayscale(.55);}
 .tile.downstair .glyph-ent{transform:scaleY(-1);filter:hue-rotate(180deg) saturate(.6);}
+.entImgGlyph{width:90%;height:90%;object-fit:contain;position:relative;z-index:2;display:block;margin:auto;}
 .glyph-ent{font-size:74%;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.55));position:relative;z-index:2;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla","EmojiOne Color","Android Emoji","Segoe UI Symbol",sans-serif;}
 .tile.bigAnchor{overflow:visible;z-index:6;}
 .big3{transform:scale(3.2);z-index:7;filter:drop-shadow(0 0 8px rgba(255,110,40,.78)) drop-shadow(0 2px 3px rgba(0,0,0,.6));}
@@ -388,21 +389,24 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .mdNav{display:flex;align-items:center;gap:8px;}
 .navBtn{min-width:42px;height:34px;border-radius:8px;background:var(--stone);border:1px solid var(--line);color:var(--txt);font-size:15px;cursor:pointer;}
 .navBtn:active{background:var(--stone-d);}
-.cbSwitch{margin-top:10px;display:flex;flex-direction:column;gap:10px;}
-.cbSwSec{background:rgba(0,0,0,.22);border-radius:10px;padding:9px 10px;border:1px solid var(--line);}
+.cbSwitch{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+.cbWin{text-align:center;padding:36px 18px 30px;}
+.cbWinTtl{font-size:23px;font-weight:800;color:var(--gold);margin-bottom:16px;letter-spacing:1px;line-height:1.35;}
+.cbWinRew{font-size:16px;color:var(--txt);font-family:var(--mono);letter-spacing:.5px;}
+.cbSwSec{background:rgba(0,0,0,.22);border-radius:10px;padding:6px 9px;border:1px solid var(--line);}
 .cbSwSec.atk{border-left:3px solid var(--red);}
 .cbSwSec.def{border-left:3px solid #4f7fd0;}
-.cbSwTitle{font-size:11px;color:var(--txt-dim);font-weight:700;margin-bottom:7px;}
+.cbSwTitle{font-size:11px;color:var(--txt-dim);font-weight:700;margin-bottom:4px;}
 .cbSwCards{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;}
 .cbSwCard{flex:none;min-width:54px;padding:8px 9px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:var(--stone);border:2px solid transparent;color:var(--txt);white-space:nowrap;}
 .cbSwSec.atk .cbSwCard.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;}
 .cbSwSec.def .cbSwCard.sel{border-color:#7fb0ff;box-shadow:0 0 0 1px #7fb0ff inset;}
-.cbSwBar{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px;}
+.cbSwBar{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:5px;}
 .cbSwArr{min-width:38px;height:30px;border-radius:7px;background:var(--stone);border:1px solid var(--line);color:var(--txt);font-size:14px;cursor:pointer;}
 .cbSwArr:active{background:var(--stone-d);}
 .cbSwArr[disabled]{opacity:.35;cursor:default;}
 .cbSwSel{font-weight:800;font-size:14px;color:var(--txt);min-width:80px;text-align:center;}
-.cbSwDesc{margin-top:7px;font-size:11px;line-height:1.5;color:var(--txt-faint);text-align:center;}
+.cbSwDesc{margin-top:4px;font-size:11px;line-height:1.5;color:var(--txt-faint);text-align:center;}
 .cbSwCard.lock{opacity:.42;cursor:not-allowed;}
 .cbSwLv{display:inline-block;margin-left:5px;font-size:10px;font-family:var(--mono);color:var(--gold);font-weight:800;}
 .mdIdx{color:var(--txt-dim);font-family:var(--mono);font-size:13px;min-width:50px;text-align:center;}
@@ -615,7 +619,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .cbStatusChip.poison{background:rgba(95,194,107,.2);color:#9be08a;}
 .cbStatusChip.weak{background:rgba(155,108,255,.2);color:#c4a9ff;}
 
-.cbLog{height:78px;overflow:auto;border-radius:9px;padding:8px 11px;margin-bottom:12px;font-size:12px;line-height:1.65;
+.cbLog{height:44px;overflow:auto;border-radius:9px;padding:7px 11px;margin-top:10px;margin-bottom:0;font-size:12px;line-height:1.65;
   background:rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.4);color:var(--txt-dim);}
 .cbLog .me-l{color:#ffd98a;} .cbLog .foe-l{color:#ff9aa8;} .cbLog .sys-l{color:var(--teal);}
 .cbLog .crit{color:#ffcaca;font-weight:700;}
@@ -877,6 +881,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .adWlCell.on{border-color:var(--gold);background:rgba(212,175,55,0.12);}
 .adWlCell input{margin:0;flex:none;}
 .adWlCell span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.adWlImg{width:16px;height:16px;object-fit:contain;flex:none;border-radius:3px;}
 .adminActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0 4px;}
 .adDataRow{font-family:var(--mono);font-size:12px;color:var(--txt-dim);padding:6px 8px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;}
 .adNote{font-size:11px;color:var(--txt-faint);margin:2px 0 10px;line-height:1.5;}
@@ -1125,7 +1130,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 <!-- ===== Combat overlay ===== -->
 <div class="overlay" id="combat"><div class="modal">
   <div class="cbHead"><div class="floorx" id="cbFloor"></div></div>
-  <div class="combatants">
+  <div class="combatants" id="cbCombatants">
     <div class="combatant me">
       <div class="portrait" id="mePortrait"><span class="pg">🧝</span><span id="meDmg"></span></div>
       <div class="cname" id="meName">勇者</div>
@@ -1152,7 +1157,8 @@ select.langsel option{color:#15151c;background:#eef0f7;}
       <div id="foeStatus"></div>
     </div>
   </div>
-  <div class="cbLog" id="cbLog"></div>
+  <div class="cbWin" id="cbWinPanel" style="display:none"></div>
+  <div class="cbSwitch" id="cbSwitch"></div>
   <div class="cbActions cb4">
     <button class="abtn atkS" id="cbAtkSkill"><span class="cbSkN" id="cbAtkLab">攻擊技</span><span class="cbSkC" id="cbAtkCost"></span><span class="kbd">Z</span></button>
     <button class="abtn defS" id="cbDefSkill"><span class="cbSkN" id="cbDefLab">防禦技</span><span class="cbSkC" id="cbDefCost"></span><span class="kbd">X</span></button>
@@ -1160,7 +1166,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
     <button class="abtn flee" id="cbFlee"><span id="cbFleeLab">逃跑</span><span class="kbd">V</span></button>
     <button class="abtn cbEnd" id="cbEndBtn" style="display:none;grid-column:1/-1"><span id="cbEndLab">關閉</span><span class="kbd" id="cbEndKbd">↵ Enter</span></button>
   </div>
-  <div class="cbSwitch" id="cbSwitch"></div>
+  <div class="cbLog" id="cbLog"></div>
 </div></div>
 
 <!-- ===== Shop overlay ===== -->
@@ -1841,7 +1847,30 @@ const ITEMS={
   bk_yandun:{book:'def',skill:'yandun'}, bk_enerdun:{book:'def',skill:'enerdun'}, bk_counterdun:{book:'def',skill:'counterdun'}, bk_healShield:{book:'def',skill:'healShield'}, bk_shendun:{book:'def',skill:'shendun'},
   keyY:{key:'y'}, keyB:{key:'b'}, keyR:{key:'r'}, keyW:{key:'w'}, keyP:{key:'p'}
 };
+/* ===== Treasure pickup gain values (admin-customisable; defaults = classic values) =====
+   s = which stat the pickup boosts (drives the gain text); v = amount granted on pickup. */
+const ITEM_GAIN_DEF={
+  potR:{s:'hp',v:200}, potB:{s:'hp',v:500},
+  gemR:{s:'atk',v:2}, gemB:{s:'def',v:2},
+  bigGold:{s:'gold',v:150}, feather:{s:'exp',v:5},
+  ironSword:{s:'atk',v:10}, silverSword:{s:'atk',v:20}, knightSword:{s:'atk',v:40}, holySword:{s:'atk',v:50}, divineSword:{s:'atk',v:100},
+  ironShield:{s:'def',v:10}, silverShield:{s:'def',v:20}, knightShield:{s:'def',v:40}, holyShield:{s:'def',v:50}, divineShield:{s:'def',v:100}
+};
+const ITEM_GAIN_ORDER=['potR','potB','gemR','ironSword','silverSword','knightSword','holySword','divineSword','gemB','ironShield','silverShield','knightShield','holyShield','divineShield','bigGold','feather'];
+let ITEM_GAIN={}; (function(){ for(const k in ITEM_GAIN_DEF) ITEM_GAIN[k]=ITEM_GAIN_DEF[k].v; })();
+function itemGainN(id){ const v=ITEM_GAIN[id]; return (typeof v==='number'&&!isNaN(v))?v:(ITEM_GAIN_DEF[id]?ITEM_GAIN_DEF[id].v:0); }
 const SHOP_GLYPH={blue:'🏪',red:'🏬',old:'🧓',older:'👴',healP:'👵',healW:'🤶',keySell:'🔑',keyBuy:'💰',portal:'👴'};
+/* ===== Custom map-glyph images (admin-uploadable, cloud-synced). img=null -> use built-in emoji/CSS. ===== */
+let GLYPH_CFG={
+  shop_blue:{face:'🏪',img:null}, shop_red:{face:'🏬',img:null},
+  shop_old:{face:'🧓',img:null}, shop_older:{face:'👴',img:null},
+  shop_healP:{face:'👵',img:null}, shop_healW:{face:'🤶',img:null},
+  shop_keySell:{face:'🔑',img:null}, shop_keyBuy:{face:'💰',img:null}, shop_portal:{face:'👴',img:null},
+  stair_up:{face:'🪜',img:null}, stair_down:{face:'🪜',img:null}
+};
+const GLYPH_ORDER=['shop_blue','shop_red','shop_old','shop_older','shop_healP','shop_healW','shop_keySell','shop_keyBuy','shop_portal','stair_up','stair_down'];
+function glyphImg(key){ const g=GLYPH_CFG[key]; return (g&&g.img)?g.img:null; }
+function _glyphImgEl(src){ const im=document.createElement('img'); im.className='entImgGlyph'; im.src=src; im.alt=''; return im; }
 const KEY_OF={y:'keyY',b:'keyB',r:'keyR',w:'keyW',p:'keyP'};
 
 const SKILLS=[
@@ -1934,11 +1963,7 @@ function scaleFoe(base,f){
   // Main tower: stats are FIXED per type (the base value IS the in-game value, regardless of floor).
   // Basements are different: mobs start at the floor-20+ tier and grow MORE terrifying the deeper you go.
   const mf=base.minF||1;
-  let mult=1;
-  if(typeof _realFloor!=='undefined' && _realFloor<0){
-    const depth=-_realFloor;
-    mult = (depth<10) ? (1 + (depth-1)*0.22) : (1 + (depth-10)*0.25);   // B1-B9 above-ground mobs from floor-20 strength; B10-B20 the basement breed, scaling deeper
-  }
+  const mult=1;   // 數值固定：地上、地下都用各怪設定的原始數值，不隨樓層/深度縮放（同原版魔塔）
   const r=Math.round;
   let src=base;
   const _mf=src.minF||mf;
@@ -2795,10 +2820,10 @@ function renderMap(){
       if(d.wall[y][x] && wallBrick(d.f,x,y)) cell.classList.add('brick');
       if(!d.wall[y][x] && d.lava && d.lava[y][x]){ cell.classList.add('lava'); }
       const isStairs=(x===d.stairs.x&&y===d.stairs.y)&&!d.boss;
-      if(isStairs){ cell.classList.add('stairs'); cell.appendChild(stairEl('up')); }
+      if(isStairs){ cell.classList.add('stairs'); const _gu=glyphImg('stair_up'); cell.appendChild(_gu?_glyphImgEl(_gu):stairEl('up')); }
       const isDown=hasDown(d.f)&&(x===d.start.x&&y===d.start.y)&&!sealed;
       if(isDown){ const hidden=(downFloor(d.f)<0)&&!state.basementUnlocked;   // basement stairs are invisible until revealed, but the tile stays passable
-        if(!hidden){ cell.classList.add('downstair'); cell.appendChild(stairEl('down')); } }
+        if(!hidden){ cell.classList.add('downstair'); const _gd=glyphImg('stair_down'); cell.appendChild(_gd?_glyphImgEl(_gd):stairEl('down')); } }
       const e=d.ent[y][x];
       if(e){
         if(e.kind==='monster'){
@@ -2829,11 +2854,11 @@ function renderMap(){
         }else if(e.kind==='door'){
           const dr=document.createElement('div'); dr.className='door '+e.color; cell.appendChild(dr);
         }else if(e.kind==='shop'){
-          cell.classList.remove('wall'); cell.classList.add('floor'); cell.classList.add('shopTile'); cell.classList.add('shop-'+e.shop); cell.appendChild(glyph(SHOP_GLYPH[e.shop]));
+          cell.classList.remove('wall'); cell.classList.add('floor'); cell.classList.add('shopTile'); cell.classList.add('shop-'+e.shop); { const _gs=glyphImg('shop_'+e.shop); cell.appendChild(_gs?_glyphImgEl(_gs):glyph(SHOP_GLYPH[e.shop])); }
         }else if(e.kind==='barrier'){
           cell.classList.remove('floor'); cell.classList.add('barrier');   // 冰封障礙：用任意門開路
         }else if(e.kind==='npc'){
-          cell.classList.remove('wall'); cell.classList.remove('brick'); cell.classList.add('floor'); cell.classList.add('shopTile'); cell.appendChild(glyph(SHOP_GLYPH[e.shop]||'👴'));   // portal old man (impassable counter)
+          cell.classList.remove('wall'); cell.classList.remove('brick'); cell.classList.add('floor'); cell.classList.add('shopTile'); { const _gn=glyphImg('shop_'+e.shop); cell.appendChild(_gn?_glyphImgEl(_gn):glyph(SHOP_GLYPH[e.shop]||'👴')); }   // portal old man (impassable counter)
         }else if(e.kind==='shopwall'){
           cell.classList.remove('wall'); cell.classList.add('floor'); cell.classList.add('shopwall');   // lit storefront flank (no dim 24H glyph, no wall look)
         }
@@ -3179,15 +3204,9 @@ function pickUpSkillBook(kind, skillId){
 }
 function pickGainText(id){
   const A=t('msg.gAtk'), D=t('msg.gDef'), H=t('msg.gHp'), G=t('msg.gGold'), E=t('msg.gExp');
-  switch(id){
-    case 'gemR': return fmt(A,{n:2});
-    case 'gemB': return fmt(D,{n:2});
-    case 'ironSword': return fmt(A,{n:10}); case 'silverSword': return fmt(A,{n:20}); case 'knightSword': return fmt(A,{n:40}); case 'holySword': return fmt(A,{n:50}); case 'divineSword': return fmt(A,{n:100});
-    case 'ironShield': return fmt(D,{n:10}); case 'silverShield': return fmt(D,{n:20}); case 'knightShield': return fmt(D,{n:40}); case 'holyShield': return fmt(D,{n:50}); case 'divineShield': return fmt(D,{n:100});
-    case 'potR': return fmt(H,{n:200}); case 'potB': return fmt(H,{n:500});
-    case 'bigGold': return fmt(G,{n:150}); case 'feather': return fmt(E,{n:5});
-    default: return '';
-  }
+  const g=ITEM_GAIN_DEF[id];
+  if(g){ const n=itemGainN(id); switch(g.s){ case 'hp': return fmt(H,{n:n}); case 'atk': return fmt(A,{n:n}); case 'def': return fmt(D,{n:n}); case 'gold': return fmt(G,{n:n}); case 'exp': return fmt(E,{n:n}); } }
+  return '';
 }
 function pickUp(id){
   const pl=state.player;
@@ -3196,24 +3215,24 @@ function pickUp(id){
   if(_it && _it.weap==='sword'){ const r=SWORD_RANK[_it.tier]||0; if(r>(pl.bestSword||0)) pl.bestSword=r; }   // remember the best sword for the attack animation
   const _lootSnap=_statSnap(pl);
   switch(id){
-    case 'potR': pl.hp+=200; break;
-    case 'potB': pl.hp+=500; break;
+    case 'potR': pl.hp+=itemGainN('potR'); break;
+    case 'potB': pl.hp+=itemGainN('potB'); break;
     case 'vialR': if(pl.status==='weak'){pl.weakStacks=0; pl.status='normal'; toast(t('msg.cureWeak')); renderStats();} else {toast(t('msg.noCure'));} return;
     case 'vialG': if(pl.status==='poison'){pl.status='normal'; pl.poisonStep=0; toast(t('msg.curePoison')); renderStats();} else {toast(t('msg.noCure'));} return;
-    case 'gemR': pl.atk+=2; break;
-    case 'gemB': pl.def+=2; break;
-    case 'bigGold': pl.gold+=150; break;
-    case 'feather': pl.exp+=5; break;
+    case 'gemR': pl.atk+=itemGainN('gemR'); break;
+    case 'gemB': pl.def+=itemGainN('gemB'); break;
+    case 'bigGold': pl.gold+=itemGainN('bigGold'); break;
+    case 'feather': pl.exp+=itemGainN('feather'); break;
     case 'tpScroll': pl.tpScrolls++; toast(t('msg.gotTeleport')); hintOnce('teleF'); break;
     case 'bestiary': if(pl.hasManual){ toast(t('msg.haveManual')); return; } pl.hasManual=true; toast(t('msg.gotManual')); hintOnce('manualE'); break;
     case 'icePendant': pl.icePendant=true; toast(t('msg.gotIce')); break;
     case 'jug': pl.hp=Math.round(pl.hp*2.5); break;
     case 'staff1': wingsPackage(pl,1); recordLoot('staff1','treasure',_lootSnap); toast(fmt(t('msg.lvUp'),{x:pl.lv})); renderStats(); return;
     case 'staff3': wingsPackage(pl,3); recordLoot('staff3','treasure',_lootSnap); toast(fmt(t('msg.lvUp'),{x:pl.lv})); renderStats(); return;
-    case 'ironSword': pl.atk+=10; break;   case 'silverSword': pl.atk+=20; break;   case 'knightSword': pl.atk+=40; break;
-    case 'holySword': pl.atk+=50; break;   case 'divineSword': pl.atk+=100; break;
-    case 'ironShield': pl.def+=10; break;  case 'silverShield': pl.def+=20; break;  case 'knightShield': pl.def+=40; break;
-    case 'holyShield': pl.def+=50; break;  case 'divineShield': pl.def+=100; break;
+    case 'ironSword': pl.atk+=itemGainN('ironSword'); break;   case 'silverSword': pl.atk+=itemGainN('silverSword'); break;   case 'knightSword': pl.atk+=itemGainN('knightSword'); break;
+    case 'holySword': pl.atk+=itemGainN('holySword'); break;   case 'divineSword': pl.atk+=itemGainN('divineSword'); break;
+    case 'ironShield': pl.def+=itemGainN('ironShield'); break;  case 'silverShield': pl.def+=itemGainN('silverShield'); break;  case 'knightShield': pl.def+=itemGainN('knightShield'); break;
+    case 'holyShield': pl.def+=itemGainN('holyShield'); break;  case 'divineShield': pl.def+=itemGainN('divineShield'); break;
     case 'keyY': pl.keys.y++; break; case 'keyB': pl.keys.b++; break;
     case 'keyR': pl.keys.r++; break; case 'keyW': pl.keys.w++; break; case 'keyP': pl.keys.p++; break;
   }
@@ -3363,6 +3382,7 @@ function openCombat(x,y,ent){
     atkBuff:0, defDebuff:0, defArmed:null, shendunBonus:0, shendunHits:0, foeSkip:false, mIdx:0, shieldHalf:false, shieldReflect:false, playerStun:false, foeFx:foeFxKind(foe,state.floor) };
   clearTimeout(combatTimer);
   byId('cbEndBtn').style.display='none';
+  { const _wp=byId('cbWinPanel'); if(_wp){ _wp.style.display='none'; } const _cm=byId('cbCombatants'); if(_cm){ _cm.style.display=''; } const _lg=byId('cbLog'); if(_lg){ _lg.style.display=''; } }
   byId('cbAtkSkill').style.display=''; byId('cbDefSkill').style.display=''; byId('cbFlee').style.display=''; byId('cbCritBtn').style.display='';
   byId('cbFloor').textContent=floorTag(state.floor);
   { const _ff=byId('foeFace'); if(_ff){ if(foe.img){ _ff.classList.add('pgImg'); _ff.innerHTML='<img class="entImg" src="'+foe.img+'" alt="">'; } else { _ff.classList.remove('pgImg'); _ff.textContent=foe.face; } } }
@@ -3370,9 +3390,9 @@ function openCombat(x,y,ent){
   byId('foeName').textContent=monName(foe);
   byId('meName').textContent=t('cb.hero');
   byId('cbLog').innerHTML='';
-  log('sys',fmt(t('msg.start'),{name:monName(foe)}));
   renderCombat(); renderCombatSkillSwitch(); show('combat');
-  scheduleRound();   /* rounds run automatically */
+  if(hasAb(foe,'first')){ try{ log('foe',t('msg.foeFirst')); }catch(_e){} state.busy=true; refreshCombatButtons(); clearTimeout(combatTimer); combatTimer=setTimeout(foeTurn,420); }   /* 先攻：怪物先發制人，先打一擊 */
+  else { scheduleRound(); }   /* rounds run automatically */
 }
 function combatPaused(){ return !state.combat; }   /* combat never pauses now — skills are instant (Z / X) */
 function scheduleRound(ms){
@@ -3600,7 +3620,8 @@ function foeTurn(){
   const def = c.defArmed ? SKILL_BY_ID[c.defArmed] : null;   /* single-use defence skill armed for this round */
   let taken=0, anyHit=false, beforeTotal=0, hits=0;
   const foeCrit = c.foeEn>=100; if(foeCrit) c.foeEn=0;
-  const _nHits=(foe.atkcMax>foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+Math.floor(RAND()*(foe.atkcMax-foe.atkcMin+1))):foe.atkc;   /* 隨機連擊 X~Y */
+  let _nHits=(foe.atkcMax>foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+Math.floor(RAND()*(foe.atkcMax-foe.atkcMin+1))):foe.atkc;
+  if(hasAb(foe,'multi')&&_nHits<2) _nHits=2;   /* 連擊標籤保證至少 2 段攻擊 */
   for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
       let dmg;
@@ -3697,6 +3718,9 @@ function showCombatEnd(){
   byId('cbCritBtn').style.display='none';
   byId('cbEndBtn').style.display='';
   { const sw=byId('cbSwitch'); if(sw){ sw.style.display='none'; sw.innerHTML=''; } }
+  { const _c=state.combat, _wp=byId('cbWinPanel'), _cm=byId('cbCombatants'), _lg=byId('cbLog');
+    if(_c && _c.win && _c.reward && _wp){ _wp.innerHTML='<div class="cbWinTtl">'+fmt(t('cb.winPopT'),{name:_c.reward.name})+'</div><div class="cbWinRew">'+fmt(t('cb.winPopR'),{g:_c.reward.g,e:_c.reward.e})+'</div>'; _wp.style.display='block'; if(_cm) _cm.style.display='none'; if(_lg) _lg.style.display='none'; }
+    else { if(_wp) _wp.style.display='none'; } }
 }
 /* called by the Close button / Enter key after a fight ends */
 function closeCombat(){
@@ -4066,7 +4090,7 @@ function renderManualDetail(foe, body){
   else { effHtml='<div class="efLine">'+t('manual.effNone')+'</div>'; }
   const list=state.manualList||[]; const idx=state.manualIdx||0;
   const row1=statRowHtml([[t('manual.hp'),foe.maxhp],[t('manual.dealt'),pred.killable?myHit:'—'],[t('manual.atkc'),(foe.atkcMax>foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+'~'+foe.atkcMax):(foe.atkc||1)],[t('manual.taken'),foeHit]],[t('manual.total'),pred.killable?pred.dmg:'\u221e']);
-  const row2=statRowHtml([[t('cb.atk'),foe.atk],[t('cb.def'),foe.def],[t('manual.energy'),100],[t('manual.speed'),foe.agi||0]],[t('manual.totalRounds'),pred.killable?pred.rounds:'\u2014']);
+  const row2=statRowHtml([[t('cb.atk'),foe.atk],[t('cb.def'),foe.def],[t('manual.energy'),100]],[t('manual.totalRounds'),pred.killable?pred.rounds:'\u2014']);
   const wrap=document.createElement('div'); wrap.className='monDetail';
   wrap.innerHTML=
     '<div class="mdTop"><span class="mdK">'+t('manual.nameLab')+'</span><span class="mdName">'+monName(foe)+'</span><span class="mdK mdSp">'+t('manual.specialLab')+'</span><span class="mdSpecial">'+specialName+'</span></div>'+
@@ -5712,6 +5736,20 @@ const I18N_TS = {
 'ko':{ts:{start:'게임 시작',manual:'게임 설명',rank:'순위표',resume:'이어하기'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치',namePh:'닉네임 입력'}}
 };
 (function mergeTs(){ for(const L in I18N_TS){ if(!I18N[L]) continue; const o=I18N_TS[L]; for(const ns in o){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, o[ns]); } } })();
+(function mergeGlyphs(){ const S={
+ 'zh-Hant':{admin:{glyphTitle:'地圖圖示',glyphHint:'替商店、NPC、樓梯上傳自訂圖片（留空＝用內建圖示）。改完按下方「儲存到雲端」。',gly_shop_blue:'商店(藍)',gly_shop_red:'商店(紅)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治療婆婆',gly_shop_healW:'治療婦人',gly_shop_keySell:'賣鑰匙',gly_shop_keyBuy:'買鑰匙',gly_shop_portal:'任意門老人',gly_stair_up:'上樓梯',gly_stair_down:'下樓梯'}},
+ 'zh-Hans':{admin:{glyphTitle:'地图图示',glyphHint:'为商店、NPC、楼梯上传自定义图片（留空＝用内建图示）。改完按下方「保存到云端」。',gly_shop_blue:'商店(蓝)',gly_shop_red:'商店(红)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治疗婆婆',gly_shop_healW:'治疗妇人',gly_shop_keySell:'卖钥匙',gly_shop_keyBuy:'买钥匙',gly_shop_portal:'任意门老人',gly_stair_up:'上楼梯',gly_stair_down:'下楼梯'}},
+ 'en':{admin:{glyphTitle:'Map glyphs',glyphHint:'Upload custom images for shops, NPCs and stairs (blank = built-in icons). Save to cloud below.',gly_shop_blue:'Shop (blue)',gly_shop_red:'Shop (red)',gly_shop_old:'Shopkeeper',gly_shop_older:'Shopkeeper (elder)',gly_shop_healP:'Healer (granny)',gly_shop_healW:'Healer (woman)',gly_shop_keySell:'Key seller',gly_shop_keyBuy:'Key buyer',gly_shop_portal:'Portal NPC',gly_stair_up:'Stairs up',gly_stair_down:'Stairs down'}},
+ 'ja':{admin:{glyphTitle:'マップ図示',glyphHint:'店・NPC・階段に画像をアップロード（空欄＝内蔵図示）。下の「クラウドに保存」を押してください。',gly_shop_blue:'店(青)',gly_shop_red:'店(赤)',gly_shop_old:'店主',gly_shop_older:'店主(翁)',gly_shop_healP:'治療(婆)',gly_shop_healW:'治療(婦)',gly_shop_keySell:'鍵売り',gly_shop_keyBuy:'鍵買い',gly_shop_portal:'任意門の人',gly_stair_up:'上り階段',gly_stair_down:'下り階段'}},
+ 'ko':{admin:{glyphTitle:'맵 아이콘',glyphHint:'상점·NPC·계단에 커스텀 이미지를 업로드(비우면 내장 아이콘). 아래 「클라우드 저장」을 누르세요.',gly_shop_blue:'상점(파랑)',gly_shop_red:'상점(빨강)',gly_shop_old:'상점 노인',gly_shop_older:'상점 노옹',gly_shop_healP:'치료 할머니',gly_shop_healW:'치료 부인',gly_shop_keySell:'열쇠 판매',gly_shop_keyBuy:'열쇠 구매',gly_shop_portal:'포탈 NPC',gly_stair_up:'위 계단',gly_stair_down:'아래 계단'}}
+}; for(const L in S){ if(!I18N[L]) continue; for(const ns in S[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[L][ns]); } } })();
+(function mergeItemGain(){ const S={
+ 'zh-Hant':{admin:{igTitle:'寶物得到數值',igHint:'設定每個寶物拾取時增加的數值（生命／攻擊／防禦／金幣／經驗）。'}},
+ 'zh-Hans':{admin:{igTitle:'宝物获得数值',igHint:'设定每个宝物拾取时增加的数值（生命／攻击／防御／金币／经验）。'}},
+ 'en':{admin:{igTitle:'Treasure gain values',igHint:'Set how much each treasure grants on pickup (HP / ATK / DEF / gold / EXP).'}},
+ 'ja':{admin:{igTitle:'宝物の獲得量',igHint:'各宝物を拾ったときに増える量（HP／攻撃／防御／ゴールド／経験）を設定。'}},
+ 'ko':{admin:{igTitle:'보물 획득 수치',igHint:'각 보물을 주울 때 증가하는 수치(HP／공격／방어／골드／경험)를 설정.'}}
+}; for(const L in S){ if(!I18N[L]) continue; for(const ns in S[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[L][ns]); } } })();
 const I18N_ACH = {
 'zh-Hant':{ach:{got:'獲得成就',title:'成就'}},
 'zh-Hans':{ach:{got:'获得成就',title:'成就'}},
@@ -5759,6 +5797,15 @@ const I18N_CUST = {
 'en':{admin:{fxPlayerAtk:'Player attack FX (override)',fxUseWeapon:'Use weapon tier (default)',fxnCustom:'Custom FX',sndCustom:'Custom SFX',customFxTitle:'Custom attack FX (GIF / transparent PNG)',customSfxTitle:'Custom attack SFX (audio)',uploadFx:'+ Upload GIF / PNG',uploadSfx:'+ Upload audio',noCustomFx:'No custom FX yet — upload one.',noCustomSfx:'No custom SFX yet — upload one.',del:'Delete',customHint:'Media is stored on this device only (not synced to cloud). Assign it to the player or a monster via the dropdowns above. Convert video to GIF before uploading.',fxTooBig:'That GIF is too large — use a smaller/shorter one (under ~800KB).',audioBad:'Could not decode that audio — try another file.',audioAdded:'Custom sound added',fxAdded:'Custom effect added'}}
 };
 (function mergeCust(){ for(const L in I18N_CUST){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_CUST[L].admin); } })();
+/* ---- combat: first-strike message + victory popup (merged into all 5 languages) ---- */
+const I18N_COMBATX = {
+ 'zh-Hant':{msg:{foeFirst:'敵方先發制人！'}, cb:{winPopT:'🏆 戰勝 {name}',winPopR:'獲得 {g} 金幣　{e} 經驗'}},
+ 'zh-Hans':{msg:{foeFirst:'敌方先发制人！'}, cb:{winPopT:'🏆 战胜 {name}',winPopR:'获得 {g} 金币　{e} 经验'}},
+ 'en':{msg:{foeFirst:'The enemy strikes first!'}, cb:{winPopT:'🏆 Defeated {name}',winPopR:'Gained {g} gold · {e} EXP'}},
+ 'ja':{msg:{foeFirst:'敵が先手を取った！'}, cb:{winPopT:'🏆 {name} を撃破',winPopR:'{g} ゴールド・{e} 経験を獲得'}},
+ 'ko':{msg:{foeFirst:'적이 선공했다!'}, cb:{winPopT:'🏆 {name} 격파',winPopR:'{g} 골드 · {e} 경험 획득'}}
+};
+(function mergeCombatX(){ for(const L in I18N_COMBATX){ if(!I18N[L]) continue; for(const ns in I18N_COMBATX[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, I18N_COMBATX[L][ns]); } } })();
 /* ---- player avatar (self-uploaded image) i18n ---- */
 const I18N_AV = {
 'zh-Hant':{av:{hint:'自訂你的角色圖示（會顯示在地圖與戰鬥中，僅存在這台裝置）。上傳後可選擇去背。',upload:'上傳圖片',remove:'移除',done:'角色圖示已更新',bad:'無法讀取這張圖片，請換一張',modeNone:'原圖',modeChroma:'邊緣去背',modeAi:'AI去背',aiwork:'AI 去背處理中…（首次需下載模型，請稍候）',aifail:'AI 去背失敗，請改用邊緣去背或檢查網路連線'}},
@@ -5966,8 +6013,8 @@ function _processImg(src, mode, size){
 let _admImgTarget=null, _admImgSig='';
 const _admImgOrig={}, _admImgMode={};
 const _IMG_MODE_LABEL={none:'av.modeNone', chroma:'av.modeChroma', ai:'av.modeAi'};
-function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; if(row.dataset.atks!=null) return 'atk'+(row.dataset.atks|0); if(row.dataset.defs!=null) return 'def'+(row.dataset.defs|0); if(row.dataset.guard!=null) return 'g'+(row.dataset.guard|0); if(row.dataset.sk!=null) return 'sk'; return ''; }
-function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; if(row.dataset.atks!=null) return adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null; if(row.dataset.defs!=null) return adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null; if(row.dataset.guard!=null) return adminDraft.guards?adminDraft.guards[row.dataset.guard|0]:null; if(row.dataset.sk!=null) return adminDraft.swordKing||null; return null; }
+function _admSig(row){ if(!row) return ''; if(row.dataset.boss) return 'boss'; if(row.dataset.bboss) return 'bboss'; if(row.dataset.idx!=null) return 'm'+(row.dataset.idx|0); if(row.dataset.bidx!=null) return 'bm'+(row.dataset.bidx|0); if(row.dataset.item) return 'it_'+row.dataset.item; if(row.dataset.atks!=null) return 'atk'+(row.dataset.atks|0); if(row.dataset.defs!=null) return 'def'+(row.dataset.defs|0); if(row.dataset.guard!=null) return 'g'+(row.dataset.guard|0); if(row.dataset.sk!=null) return 'sk'; if(row.dataset.glyph) return 'gly_'+row.dataset.glyph; return ''; }
+function _admTargetOf(row){ if(!row||!adminDraft) return null; if(row.dataset.boss) return adminDraft.boss; if(row.dataset.bboss) return adminDraft.basementBoss; if(row.dataset.idx!=null) return adminDraft.monsters[row.dataset.idx|0]; if(row.dataset.bidx!=null) return adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null; if(row.dataset.item) return adminDraft.items?adminDraft.items[row.dataset.item]:null; if(row.dataset.atks!=null) return adminDraft.atkSkills?adminDraft.atkSkills[row.dataset.atks|0]:null; if(row.dataset.defs!=null) return adminDraft.defSkills?adminDraft.defSkills[row.dataset.defs|0]:null; if(row.dataset.guard!=null) return adminDraft.guards?adminDraft.guards[row.dataset.guard|0]:null; if(row.dataset.sk!=null) return adminDraft.swordKing||null; if(row.dataset.glyph) return (adminDraft.glyphs&&adminDraft.glyphs[row.dataset.glyph])?adminDraft.glyphs[row.dataset.glyph]:null; return null; }
 function adImg(obj, sig){
   const hasImg=!!(obj&&obj.img), hasOrig=!!_admImgOrig[sig];
   const prev = hasImg ? ('<img src="'+obj.img+'" alt="">') : ((obj&&obj.face)||'');
@@ -6080,6 +6127,8 @@ function snapshotConfig(){
     floorCfg: Object.assign({}, FLOOR_CFG),
     floorWL: (function(){ const o={}; for(const k in FLOOR_WL){ if(Array.isArray(FLOOR_WL[k])) o[k]=FLOOR_WL[k].slice(); } return o; })(),
     floorTr: Object.assign({}, FLOOR_TR),
+    itemGain: Object.assign({}, ITEM_GAIN),
+    glyphs: (function(){ const o={}; for(const k in GLYPH_CFG){ o[k]={face:GLYPH_CFG[k].face||'', img:GLYPH_CFG[k].img||null}; } return o; })(),
     fx: JSON.parse(JSON.stringify(FX_MAP)),
     items: (function(){ const o={}; for(const k in ITEMS){ o[k]={face:ITEMS[k].face||'', name:ITEMS[k].name||'', nameLoc:(ITEMS[k].nameLoc?Object.assign({},ITEMS[k].nameLoc):null), img:ITEMS[k].img||null}; } return o; })(),
     atkSkills: ATK_SKILLS.map(function(s){ return Object.assign({}, s); }),
@@ -6088,9 +6137,10 @@ function snapshotConfig(){
     sounds: Object.assign({}, SFX_MAP)
   };
 }
-function _monTemplateById(id){
-  for(let i=0;i<MONSTERS.length;i++){ if(MONSTERS[i].id===id) return MONSTERS[i]; }
-  for(let i=0;i<BASEMENT_MONSTERS.length;i++){ if(BASEMENT_MONSTERS[i].id===id) return BASEMENT_MONSTERS[i]; }
+function _monTemplateById(id, preferBasement){
+  const _GS=function(){ for(let i=0;i<MONSTERS.length;i++){ if(MONSTERS[i].id===id) return MONSTERS[i]; } return null; };
+  const _BS=function(){ for(let i=0;i<BASEMENT_MONSTERS.length;i++){ if(BASEMENT_MONSTERS[i].id===id) return BASEMENT_MONSTERS[i]; } return null; };
+  const _pref = preferBasement ? (_BS()||_GS()) : (_GS()||_BS()); if(_pref) return _pref;
   if(typeof BOSS!=='undefined' && BOSS && BOSS.id===id) return BOSS;
   if(typeof BASEMENT_BOSS!=='undefined' && BASEMENT_BOSS && BASEMENT_BOSS.id===id) return BASEMENT_BOSS;
   if(typeof GUARD_DRAGONS!=='undefined' && GUARD_DRAGONS){ if(GUARD_DRAGONS.red && GUARD_DRAGONS.red.id===id) return GUARD_DRAGONS.red; if(GUARD_DRAGONS.poison && GUARD_DRAGONS.poison.id===id) return GUARD_DRAGONS.poison; }
@@ -6100,13 +6150,13 @@ function _monTemplateById(id){
 }
 function refreshEntityIcons(){
   try{ const fl=state.floors||{};
-    for(const fk in fl){ const d=fl[fk]; if(!d||!d.ent) continue;
+    for(const fk in fl){ const d=fl[fk]; if(!d||!d.ent) continue; const _isB=(parseInt(fk,10)<0);
       for(let y=0;y<d.ent.length;y++){ const rowA=d.ent[y]; if(!rowA) continue;
         for(let x=0;x<rowA.length;x++){ const e=rowA[x];
-          if(e && e.kind==='monster' && e.foe){ const tpl=_monTemplateById(e.foe.id);
+          if(e && e.kind==='monster' && e.foe){ const tpl=_monTemplateById(e.foe.id, _isB);
             if(tpl){ e.foe.img=tpl.img||null; if(tpl.face) e.foe.face=tpl.face; if('name' in tpl) e.foe.name=tpl.name||null; } } } } }
   }catch(e){}
-  try{ const c=state.combat; if(c&&c.foe){ const t2=_monTemplateById(c.foe.id); if(t2){ c.foe.img=t2.img||null; if(t2.face) c.foe.face=t2.face; } } }catch(e){}
+  try{ const c=state.combat; if(c&&c.foe){ const t2=_monTemplateById(c.foe.id, (state.floor<0)); if(t2){ c.foe.img=t2.img||null; if(t2.face) c.foe.face=t2.face; } } }catch(e){}
   try{ applyPlayerFace(); }catch(e){}
 }
 function _migrateNameLoc(o){ if(o && o.name && (''+o.name).trim() && (!o.nameLoc || typeof o.nameLoc!=='object')) o.nameLoc={'zh-Hant':(''+o.name).trim()}; return o; }
@@ -6133,6 +6183,8 @@ function applyConfig(cfg){
   if(cfg.floorCfg){ FLOOR_CFG={}; for(const k in cfg.floorCfg){ const v=parseFloat(cfg.floorCfg[k]); if(!isNaN(v)) FLOOR_CFG[parseInt(k,10)]=v; } }
   if(cfg.floorWL){ FLOOR_WL={}; for(const k in cfg.floorWL){ if(Array.isArray(cfg.floorWL[k]) && cfg.floorWL[k].length) FLOOR_WL[parseInt(k,10)]=cfg.floorWL[k].slice(); } }
   if(cfg.floorTr){ FLOOR_TR={}; for(const k in cfg.floorTr){ const v=parseFloat(cfg.floorTr[k]); if(!isNaN(v)) FLOOR_TR[parseInt(k,10)]=v; } }
+  if(cfg.itemGain){ for(const k in cfg.itemGain){ const v=parseFloat(cfg.itemGain[k]); if(!isNaN(v)) ITEM_GAIN[k]=v; } }
+  if(cfg.glyphs){ for(const k in cfg.glyphs){ if(GLYPH_CFG[k]&&cfg.glyphs[k]){ if('img' in cfg.glyphs[k]) GLYPH_CFG[k].img=cfg.glyphs[k].img||null; if(cfg.glyphs[k].face) GLYPH_CFG[k].face=cfg.glyphs[k].face; } } }
   if(cfg.map){
     if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,1,99);
     if(typeof cfg.map.grid==='number') GRID=clamp(cfg.map.grid|0,7,21);
@@ -6328,7 +6380,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·12 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·15 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6336,7 +6388,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·12 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·15 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6582,6 +6634,10 @@ function renderAdminBody(){
       th2+='</div><div class="adSubHead">'+t('admin.basementFloors')+'</div><div class="adFloorGrid">';
       for(let f=-1; f>=-BASEMENT; f--) th2+=trSel(f);
       th2+='</div>'; trr.innerHTML=th2; body.appendChild(trr); }
+    { const igRow=document.createElement('div'); igRow.className='adRowItem'; igRow.dataset.itemgain='1';
+      let ih='<div class="adName">🎁 '+t('admin.igTitle')+'</div><p class="adNote">'+t('admin.igHint')+'</p><div class="adGrid">';
+      ITEM_GAIN_ORDER.forEach(function(iid){ const cur=(adminDraft.itemGain&&adminDraft.itemGain[iid]!=null)?adminDraft.itemGain[iid]:(ITEM_GAIN_DEF[iid]?ITEM_GAIN_DEF[iid].v:0); const fc=(ITEMS[iid]&&ITEMS[iid].face)?ITEMS[iid].face+' ':''; ih+='<div class="adField"><label>'+fc+itemName(iid)+'</label><input type="number" step="1" data-igk="'+iid+'" value="'+cur+'"></div>'; });
+      ih+='</div>'; igRow.innerHTML=ih; body.appendChild(igRow); }
     { const seen={}, mons=[]; (adminDraft.monsters||[]).concat(adminDraft.basementMonsters||[]).concat((adminDraft.swordKing)?[adminDraft.swordKing]:[]).forEach(function(mm){ if(!mm.b20 && !seen[mm.id]){ seen[mm.id]=1; mons.push(mm); } });
       const wlArr=(adminDraft.floorWL&&adminDraft.floorWL[_wlFloor])?adminDraft.floorWL[_wlFloor]:[];
       const wr=document.createElement('div'); wr.className='adRowItem'; wr.dataset.floorwl='1';
@@ -6592,8 +6648,13 @@ function renderAdminBody(){
       wh+='</select></div>';
       wh+='<div class="wlStatus">'+(wlArr.length?(t('admin.wlActive')+'：'+wlArr.length):t('admin.wlDefault'))+'</div>';
       wh+='<div class="adWlGrid">';
-      mons.forEach(function(mm){ const on=wlArr.indexOf(mm.id)>=0; wh+='<label class="adWlCell'+(on?' on':'')+'"><input type="checkbox" data-wlmon="'+mm.id+'"'+(on?' checked':'')+'/><span>'+(mm.face||'')+' '+_admName(mm)+'</span></label>'; });
+      mons.forEach(function(mm){ const on=wlArr.indexOf(mm.id)>=0; const _ic=mm.img?('<img class="adWlImg" src="'+mm.img+'" alt="">'):(mm.face||''); wh+='<label class="adWlCell'+(on?' on':'')+'"><input type="checkbox" data-wlmon="'+mm.id+'"'+(on?' checked':'')+'/><span>'+_ic+' '+_admName(mm)+'</span></label>'; });
       wh+='</div>'; wr.innerHTML=wh; body.appendChild(wr); }
+    { const gh=document.createElement('p'); gh.className='adNote'; gh.innerHTML='<b>'+t('admin.glyphTitle')+'</b> — '+t('admin.glyphHint'); body.appendChild(gh);
+      GLYPH_ORDER.forEach(function(gk){ const go=(adminDraft.glyphs&&adminDraft.glyphs[gk])?adminDraft.glyphs[gk]:GLYPH_CFG[gk];
+        const gr=document.createElement('div'); gr.className='adRowItem'; gr.dataset.glyph=gk;
+        gr.innerHTML='<div class="adName">'+((go&&go.face)||'')+' '+t('admin.gly_'+gk)+'</div>'+adImg(go,'gly_'+gk);
+        body.appendChild(gr); }); }
   } else if(adminTab==='fx'){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.fxNote'); body.appendChild(n);
     body.appendChild(_customFxManager());
@@ -6732,7 +6793,7 @@ function showMonPreview(m){
   let html='<div class="monDetail" style="padding:2px">';
   html+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'+faceHtml+'<div><div class="mdName" style="font-size:18px">'+_admName(m)+'</div><div style="color:var(--txt-faint);font-size:12px">'+(m.id||'')+'</div></div></div>';
   html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px 16px;font-size:14px;margin-bottom:12px">';
-  html+=st('HP',m.hp||0)+st(t('ui.atk'),m.atk||0)+st(t('ui.def'),m.def||0)+st(t('manual.speed'),m.agi||0)+st(t('end.gold'),m.gold||0)+st(t('ui.exp'),m.exp||0)+st('atkc',atkc)+st(t('admin.previewFloors'),flStr);
+  html+=st('HP',m.hp||0)+st(t('ui.atk'),m.atk||0)+st(t('ui.def'),m.def||0)+st(t('end.gold'),m.gold||0)+st(t('ui.exp'),m.exp||0)+st('atkc',atkc)+st(t('admin.previewFloors'),flStr);
   html+='</div>';
   html+='<div style="color:var(--gold);font-weight:600;margin-bottom:5px;font-size:13px">'+t('admin.previewAb')+'</div>';
   if(effs.length){ for(let i=0;i<effs.length;i++){ html+='<div class="efLine"><span class="efName">'+effs[i][0]+'</span>'+effs[i][1]+'</div>'; } }
@@ -6789,6 +6850,7 @@ function collectAdminDraft(){
     else if(row.dataset.floordens){ const _fd=row.querySelectorAll('select[data-floormon]'); adminDraft.floorCfg={}; for(let i=0;i<_fd.length;i++){ const ff=parseInt(_fd[i].getAttribute('data-floormon'),10); const vv=parseFloat(_fd[i].value); if(!isNaN(ff)&&!isNaN(vv)&&Math.abs(vv-1)>0.001) adminDraft.floorCfg[ff]=vv; } continue; }
     else if(row.dataset.floortr){ const _ft=row.querySelectorAll('select[data-floortr]'); adminDraft.floorTr={}; for(let i=0;i<_ft.length;i++){ const ff=parseInt(_ft[i].getAttribute('data-floortr'),10); const vv=parseFloat(_ft[i].value); if(!isNaN(ff)&&!isNaN(vv)&&Math.abs(vv-1)>0.001) adminDraft.floorTr[ff]=vv; } continue; }
     else if(row.dataset.floorwl){ const _wc=row.querySelectorAll('input[data-wlmon]'); if(_wc.length){ if(!adminDraft.floorWL) adminDraft.floorWL={}; const arr=[]; for(let i=0;i<_wc.length;i++){ if(_wc[i].checked) arr.push(_wc[i].getAttribute('data-wlmon')); } if(arr.length) adminDraft.floorWL[_wlFloor]=arr; else delete adminDraft.floorWL[_wlFloor]; } continue; }
+    else if(row.dataset.itemgain){ const _ig=row.querySelectorAll('input[data-igk]'); adminDraft.itemGain={}; for(let _q=0;_q<_ig.length;_q++){ const _v=parseFloat(_ig[_q].value); if(!isNaN(_v)) adminDraft.itemGain[_ig[_q].dataset.igk]=_v; } }
     else if(row.dataset.bboss) target=adminDraft.basementBoss;
     else if(row.dataset.idx!=null) target=adminDraft.monsters[row.dataset.idx|0];
     else if(row.dataset.bidx!=null) target=adminDraft.basementMonsters?adminDraft.basementMonsters[row.dataset.bidx|0]:null;
