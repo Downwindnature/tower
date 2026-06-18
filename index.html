@@ -2114,22 +2114,12 @@ function genFloorRaw(f){
   //     route) and both staircases scattered across the map — no more fixed top-left/bottom-right corners (問題2/7/9) ===
   function bfsDistMap(fx,fy){ const D=[]; for(let i=0;i<GRID;i++)D.push(new Array(GRID).fill(-1)); D[fy][fx]=0; const q=[[fx,fy]]; let qi=0; const dd=[[0,-1],[1,0],[0,1],[-1,0]];
     while(qi<q.length){ const c=q[qi++]; for(let i=0;i<4;i++){ const nx=c[0]+dd[i][0], ny=c[1]+dd[i][1]; if(nx<0||ny<0||nx>=GRID||ny>=GRID||wall[ny][nx]||D[ny][nx]>=0) continue; D[ny][nx]=D[c[1]][c[0]]+1; q.push([nx,ny]); } } return D; }
-  let start, stairs;
-  if(_realFloor===1){
-    start={x:5,y:9}; stairs={x:5,y:1};   // floor 1 keeps its calm symmetric room: spawn bottom-centre, exit top-centre
-  } else {
-    const pool=floors.filter(function(c){ return c.x>=1&&c.y>=1&&c.x<GRID-1&&c.y<GRID-1; }); const cand=pool.length?pool:floors;
-    let best=null;
-    for(let tryI=0;tryI<14;tryI++){ const st=pick(cand); const D=bfsDistMap(st.x,st.y);
-      let maxD=0; for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++) if(D[y][x]>maxD) maxD=D[y][x];
-      const thresh=Math.max(15, Math.floor(maxD*0.72));
-      const far=floors.filter(function(c){ return D[c.y][c.x]>=thresh && !(c.x===st.x&&c.y===st.y); });
-      if(!far.length) continue; const ex=pick(far);
-      if(!best || D[ex.y][ex.x]>best.d) best={st:st,ex:ex,d:D[ex.y][ex.x]};
-    }
-    if(!best){ const st=pick(cand); const D=bfsDistMap(st.x,st.y); let ex=st,md=0; for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++) if(D[y][x]>md){md=D[y][x];ex={x:x,y:y};} best={st:st,ex:ex,d:md}; }
-    start=best.st; stairs=best.ex;
-  }
+  /* Up & down staircases come from stairPos(): two floors sharing a boundary resolve to the SAME cell,
+     so climbing or descending lands on the exact same (x,y) instead of jumping. The cells are even
+     maze-nodes (always carved open) at opposite corners, so the route still stays long & winding.
+     This also matches the boss floors, which already arrive via stairPos(). */
+  let stairs = stairPos(_realFloor);              // up-stairs (to the floor above)
+  let start  = stairPos(downFloor(_realFloor));   // down-stairs / spawn — same cell as the floor below's up-stairs
   wall[start.y][start.x]=false; wall[stairs.y][stairs.x]=false;
   floors=openCells();   // entrance/exit sit in the maze corridors so they can still be walled-off / guarded
 
@@ -3046,21 +3036,24 @@ function install2FGate(d){
           if(reach[y]&&reach[y][x]){ canBreak=true; break; }
         }
       }
-      let strandsLoot=false;                                                 // the seal may isolate ONLY the stairs — never a monster or treasure
-      for(let i=0;i<stranded.length;i++){ const c=stranded[i];
-        if(c.x===S.x&&c.y===S.y) continue;                                   // the stairs cell itself is the whole point
-        const e=d.ent[c.y][c.x];
-        if(e&&(e.kind==='monster'||e.kind==='item'||e.kind==='bigBody')){ strandsLoot=true; break; }
-      }
-      if(canBreak && !strandsLoot && stranded.length<=6){ sealed=true;
-        const _moved=[];                                                     // move any monster/item off the cells we just walled onto a free reachable path cell
-        for(let i=0;i<nbrs.length;i++){ const c=nbrs[i]; if(d.ent[c.y][c.x]){ _moved.push(d.ent[c.y][c.x]); d.ent[c.y][c.x]=null; } }
-        if(_moved.length){ const _free=[];
-          for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){ if(d.wall[y][x]||d.ent[y][x]) continue; if(x===S.x&&y===S.y) continue; if(x===d.start.x&&y===d.start.y) continue; if(reach[y]&&reach[y][x]) _free.push({x:x,y:y}); }
-          for(let m=0;m<_moved.length && _free.length;m++){ const fc=_free.shift(); d.ent[fc.y][fc.x]=_moved[m]; }
+      if(canBreak){ sealed=true;
+        /* approach B — 2F's portal tutorial must fire reliably, so we seal whenever it's breakable. Move every monster/item the seal would BURY (the walled neighbours) or STRAND (the pocket behind it) to the NEAREST reachable open cell: nothing is lost or cut off, and the loot stays close by. */
+        const _moved=[];
+        for(let i=0;i<nbrs.length;i++){ const c=nbrs[i]; const e=d.ent[c.y][c.x]; if(e){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }
+        for(let i=0;i<stranded.length;i++){ const c=stranded[i]; if(c.x===S.x&&c.y===S.y) continue; const e=d.ent[c.y][c.x]; if(e&&(e.kind==='monster'||e.kind==='item')){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }
+        for(let m=0;m<_moved.length;m++){ const it=_moved[m]; let best=null,bdd=1e9;
+          for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
+            if(d.wall[y][x]||d.ent[y][x]) continue;
+            if(x===S.x&&y===S.y) continue;
+            if(x===d.start.x&&y===d.start.y) continue;
+            if(!(reach[y]&&reach[y][x])) continue;
+            const dd=Math.abs(x-it.x)+Math.abs(y-it.y);
+            if(dd<bdd){ bdd=dd; best={x:x,y:y}; }
+          }
+          if(best){ d.ent[best.y][best.x]=it.e; }
         }
       }
-      else { for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=false; } }   // would block loot or strand too much -> leave the stairs open
+      else { for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=false; } }   // can't break it (would be unwinnable) -> leave the stairs open
     }
     /* seat the old man as a SHOP-LIKE COUNTER: an empty wall cell with a reachable open front, kept off the sealed stairs' edge; placed at the nearest wall to the up-stairs (to 3F) — a corner counter on the way up */
     const reachF=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
@@ -6336,7 +6329,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·10 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·11 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6344,7 +6337,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·10 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·11 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
