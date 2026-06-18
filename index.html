@@ -573,7 +573,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .manualModal{display:flex;flex-direction:column;overflow:hidden;}
 .manualModal>h2,.manualModal>#manualDesc,.manualModal>.closeRow{flex:none;}
 .manualModal>#manualBody{flex:1 1 auto;overflow-y:auto;min-height:0;}
-.btn{padding:10px 18px;border-radius:9px;font-weight:700;font-size:14px;
+.btn{position:relative;padding:10px 18px;border-radius:9px;font-weight:700;font-size:14px;
   background:linear-gradient(180deg,var(--stone-l),var(--stone));border:1px solid var(--line);box-shadow:0 3px 0 var(--stone-d);transition:transform .07s,box-shadow .07s;}
 .btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--stone-d);}
 .btn.gold{background:linear-gradient(180deg,#f6d488,var(--gold) 60%,var(--gold-d));color:#2a1c06;box-shadow:0 3px 0 #6b4914;}
@@ -2843,7 +2843,7 @@ function renderMap(){
         }else if(e.kind==='barrier'){
           cell.classList.remove('floor'); cell.classList.add('barrier');   // 冰封障礙：用任意門開路
         }else if(e.kind==='npc'){
-          cell.appendChild(glyph(SHOP_GLYPH[e.shop]||'👴'));   // 神秘老頭（可通行）
+          cell.classList.remove('wall'); cell.classList.remove('brick'); cell.classList.add('floor'); cell.classList.add('shopTile'); cell.appendChild(glyph(SHOP_GLYPH[e.shop]||'👴'));   // portal old man (impassable counter)
         }else if(e.kind==='shopwall'){
           cell.classList.remove('wall'); cell.classList.add('floor'); cell.classList.add('shopwall');   // lit storefront flank (no dim 24H glyph, no wall look)
         }
@@ -2861,7 +2861,7 @@ function renderMap(){
       }
       if(state.portalAim && (Math.abs(x-state.px)+Math.abs(y-state.py))===1){
         cell.classList.add('portalAimCell');
-        const _pe=d.ent[y][x]; if((_pe&&_pe.kind==='barrier')||d.wall[y][x]) cell.classList.add('portalAimOk');
+        const _pe=d.ent[y][x]; if((_pe&&_pe.kind==='barrier')||(d.wall[y][x]&&_isKeyWall(d,x,y))) cell.classList.add('portalAimOk');
       }
       if(state.portalTarget && state.portalTarget.x===x && state.portalTarget.y===y) cell.classList.add('portalAimOk');
       if(x===state.px&&y===state.py){
@@ -2913,7 +2913,37 @@ function togglePortalAim(){
   if(!portalUsableFloor(d.f)){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalFloor')); }catch(e){} return; }
   if((pl.portals||0)<=0){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalNone')); }catch(e){} return; }
   state.portalAim=!state.portalAim; _syncPortalBtn();
-  try{ toast(state.portalAim? t('msg.portalAim') : t('msg.portalCancel')); }catch(e){}
+  try{ toast(state.portalAim ? ((pl.portals||0)===1 ? (t('msg.portalAim')+'  '+t('msg.portalLow')) : t('msg.portalAim')) : t('msg.portalCancel')); }catch(e){}
+}
+function _portalFree(d){
+  /* cells the player can WALK to right now: keys are fine for doors, but monsters & barriers block the way */
+  const seen=[]; for(let y=0;y<GRID;y++){ const r=[]; for(let x=0;x<GRID;x++) r.push(false); seen.push(r); }
+  const sx=state.px, sy=state.py; if(sx==null||sy==null) return seen;
+  const q=[{x:sx,y:sy}]; seen[sy][sx]=true;
+  const D=[[0,-1],[1,0],[0,1],[-1,0]];
+  while(q.length){ const c=q.shift();
+    for(let i=0;i<D.length;i++){ const x=c.x+D[i][0], y=c.y+D[i][1];
+      if(x<0||y<0||x>=GRID||y>=GRID||seen[y][x]) continue;
+      if(d.wall[y][x]) continue;
+      const e=d.ent[y][x];
+      if(e&&(e.kind==='barrier'||e.kind==='monster'||e.kind==='bigBody')) continue;
+      seen[y][x]=true; q.push({x:x,y:y});
+    }
+  }
+  return seen;
+}
+function _isKeyWall(d, wx, wy){
+  /* a wall is "key" only if breaking it reaches cells you otherwise can't get to (past a monster/barrier or a sealed pocket) */
+  if(wx<0||wy<0||wx>=GRID||wy>=GRID) return false;
+  const wasWall=d.wall[wy][wx], wasEnt=d.ent[wy][wx];
+  const isBar=!!(wasEnt&&wasEnt.kind==='barrier');
+  if(!wasWall && !isBar) return false;
+  const before=_portalFree(d);
+  d.wall[wy][wx]=false; if(isBar) d.ent[wy][wx]=null;          // hypothetically open it
+  const after=_portalFree(d);
+  d.wall[wy][wx]=wasWall; d.ent[wy][wx]=wasEnt;                // restore
+  for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ if(after[y][x] && !before[y][x] && !(x===wx&&y===wy)) return true; }
+  return false;
 }
 function usePortalDir(dx,dy){
   const pl=state.player, d=curFloor();
@@ -2922,8 +2952,9 @@ function usePortalDir(dx,dy){
   if(!portalUsableFloor(d.f)){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalFloor')); }catch(e){} return; }
   if(nx<0||ny<0||nx>=GRID||ny>=GRID){ state.portalAim=false; _syncPortalBtn(); try{ renderMap(); }catch(e){} try{ toast(t('msg.portalNeedWall')); }catch(e){} return; }
   const en=d.ent[ny][nx];
-  const conv=(en&&en.kind==='barrier') || !!d.wall[ny][nx];
-  if(!conv){ state.portalAim=false; _syncPortalBtn(); try{ renderMap(); }catch(e){} try{ toast(t('msg.portalNeedWall')); }catch(e){} return; }
+  const isWB=(en&&en.kind==='barrier') || !!d.wall[ny][nx];
+  const conv=(en&&en.kind==='barrier') || (!!d.wall[ny][nx] && _isKeyWall(d,nx,ny));
+  if(!conv){ state.portalAim=false; _syncPortalBtn(); try{ renderMap(); }catch(e){} try{ toast(t(isWB?'msg.portalNotKey':'msg.portalNeedWall')); }catch(e){} return; }
   if((pl.portals||0)<=0){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalNone')); }catch(e){} return; }
   state.portalAim=false; _syncPortalBtn();
   state.portalTarget={x:nx,y:ny};
@@ -2936,12 +2967,12 @@ function doPortalConvert(){
   if(!pl||!d||!tg){ try{ renderMap(); }catch(e){} return; }
   if((pl.portals||0)<=0){ try{ toast(t('msg.portalNone')); }catch(e){} try{ renderMap(); }catch(e){} return; }
   const en=d.ent[tg.y][tg.x];
-  const conv=(en&&en.kind==='barrier') || !!d.wall[tg.y][tg.x];
-  if(!conv){ try{ toast(t('msg.portalNeedWall')); }catch(e){} try{ renderMap(); }catch(e){} return; }
+  const conv=(en&&en.kind==='barrier') || (!!d.wall[tg.y][tg.x] && _isKeyWall(d,tg.x,tg.y));
+  if(!conv){ const isWB=(en&&en.kind==='barrier')||!!d.wall[tg.y][tg.x]; try{ toast(t(isWB?'msg.portalNotKey':'msg.portalNeedWall')); }catch(e){} try{ renderMap(); }catch(e){} return; }
   pl.portals--;
   d.wall[tg.y][tg.x]=false; d.ent[tg.y][tg.x]={kind:'door',color:'y'};
   try{ sfx('door'); }catch(e){}
-  try{ toast(t('msg.portalMade')); }catch(e){}
+  try{ toast(t('msg.portalMade') + ((pl.portals||0)===1 ? ('  '+t('msg.portalLow')) : '')); }catch(e){}
   try{ renderMap(); }catch(e){} try{ renderStats(); }catch(e){}
 }
 /* ---- generic old-man / portal dialog (reused by the convert-confirm and the first-time story) ---- */
@@ -3001,7 +3032,7 @@ function install2FGate(d){
     }
     let sealed=false;
     if(nbrs.length){
-      for(let i=0;i<nbrs.length;i++){ d.ent[nbrs[i].y][nbrs[i].x]={kind:'barrier'}; }
+      for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=true; }   // seal the stairs with PLAIN walls (was ice barriers)
       const reach=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
       let stranded=0;
       for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ if(!d.wall[y][x] && !(reach[y]&&reach[y][x])) stranded++; }
@@ -3015,16 +3046,33 @@ function install2FGate(d){
         }
       }
       if(canBreak && (stranded-nbrs.length)<=6){ sealed=true; }
-      else { for(let i=0;i<nbrs.length;i++){ d.ent[nbrs[i].y][nbrs[i].x]=null; } }
+      else { for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=false; } }
     }
     const reachF=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
     let oc=null,bd=1e9;
-    for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
-      if(d.wall[y][x]||d.ent[y][x]) continue;
-      if(!(reachF[y]&&reachF[y][x])) continue;
-      if(x===d.start.x&&y===d.start.y) continue;
+    /* seat the old man like a SHOP COUNTER: on a wall cell with a reachable open FRONT to bump from — beside the path, never on it */
+    for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
+      if(!d.wall[y][x]||d.ent[y][x]) continue;                       // an empty WALL cell
+      let hasFront=false;
+      for(let k=0;k<dirs.length;k++){ const fx=x+dirs[k][0], fy=y+dirs[k][1];
+        if(fx<0||fy<0||fx>=GRID||fy>=GRID) continue;
+        if(d.wall[fy][fx]||d.ent[fy][fx]) continue;                  // open, empty front cell
+        if(!(reachF[fy]&&reachF[fy][fx])) continue;                  // front must be reachable
+        if(fx===d.start.x&&fy===d.start.y) continue;
+        hasFront=true; break;
+      }
+      if(!hasFront) continue;
       const dist=Math.abs(x-S.x)+Math.abs(y-S.y);
       if(dist<bd){ bd=dist; oc={x:x,y:y}; }
+    }
+    if(!oc){                                                          // fallback (degenerate maze with no wall pocket): closest reachable open cell
+      for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
+        if(d.wall[y][x]||d.ent[y][x]) continue;
+        if(!(reachF[y]&&reachF[y][x])) continue;
+        if(x===d.start.x&&y===d.start.y) continue;
+        const dist=Math.abs(x-S.x)+Math.abs(y-S.y);
+        if(dist<bd){ bd=dist; oc={x:x,y:y}; }
+      }
     }
     if(oc){ d.ent[oc.y][oc.x]={kind:'npc', shop:'portal'}; d.portalGate=sealed; }
   }catch(e){}
@@ -3038,6 +3086,7 @@ function tryMove(dx,dy){
   if(nx<0||ny<0||nx>=GRID||ny>=GRID) return;
   const eHit=d.ent[ny][nx];
   if(eHit && eHit.kind==='shop'){ if(state.target){ state.target=null; renderMap(); } openShop(eHit); return; }   // impassable counter: bump to trade
+  if(eHit && eHit.kind==='npc'){ if(state.target){ state.target=null; renderMap(); } try{ openOldMan(eHit); }catch(_e){} return; }   // 2F 老頭：不可通過的固體，撞上去互動
   if(d.wall[ny][nx]){ if(state.target){state.target=null; renderMap();} return; }
   const e=d.ent[ny][nx];
   if(e&&e.kind==='barrier'){ if(state.target){state.target=null; renderMap();} try{ toast(t('msg.barrierBlock')); }catch(_e){} return; }
@@ -3057,7 +3106,7 @@ function tryMove(dx,dy){
   }
   state.px=nx; state.py=ny; state.target=null; dismissTip();
   const cell=d.ent[ny][nx];
-  if(cell&&cell.kind==='npc'){ try{ openOldMan(cell); }catch(_e){} }
+  /* portal old man is an impassable solid — handled on bump (above), never walked onto */
   if(cell&&cell.kind==='item'){ const _bk=!!(ITEMS[cell.item]&&ITEMS[cell.item].book); pickUp(cell.item); d.ent[ny][nx]=null; mpClear(state.floor,nx,ny,'item'); try{ sfx(_bk?'levelup':'pickup'); }catch(e){} try{ checkAchievements(); }catch(e){} }
   if(d.lava && d.lava[ny][nx]){ const plv=state.player;
     if(plv.icePendant){ d.lava[ny][nx]=false; toast(t('msg.iceMelt')); renderMap(); }
@@ -5746,6 +5795,17 @@ const I18N_PORTAL = {
 (function mergePortal(){ for(const L in I18N_PORTAL){ if(!I18N[L]) continue; const S=I18N_PORTAL[L];
   for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 
+/* ---- 任意門：關鍵牆限制 + 低庫存提示 ---- */
+const I18N_PORTAL3 = {
+'zh-Hant':{ msg:{ portalNotKey:'這面普通的牆打不通；任意門只能用在被怪物或屏障阻隔、能通往新區域的「關鍵牆」。', portalLow:'只剩 1 個任意門了，記得補充。' } },
+'zh-Hans':{ msg:{ portalNotKey:'这面普通的墙打不通；任意门只能用在被怪物或屏障阻隔、能通往新区域的「关键墙」。', portalLow:'只剩 1 个任意门了，记得补充。' } },
+'en':{ msg:{ portalNotKey:'This ordinary wall leads nowhere new — portals only work on key walls that open a path blocked by a monster or barrier.', portalLow:'Only 1 portal left — restock soon.' } },
+'ja':{ msg:{ portalNotKey:'この普通の壁は抜けても意味がない。任意の扉は、敵や障壁で塞がれた先へ通じる「鍵となる壁」にのみ使える。', portalLow:'任意の扉が残り1つ。補充を忘れずに。' } },
+'ko':{ msg:{ portalNotKey:'이 평범한 벽은 뚫어도 새 길이 없다. 임의의 문은 몬스터나 장벽에 막힌 곳으로 통하는 핵심 벽에만 쓸 수 있다.', portalLow:'임의의 문이 1개 남았다 — 보충하세요.' } }
+};
+(function mergePortal3(){ for(const L in I18N_PORTAL3){ if(!I18N[L]) continue; const S=I18N_PORTAL3[L];
+  for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
 /* ---- 任意門 UX 文字（確認視窗 / 老頭劇情）---- */
 const I18N_PORTAL2 = {
 'zh-Hant':{ ui:{confirm:'確認', exit:'退出'},
@@ -6253,7 +6313,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·5 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·7 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6261,7 +6321,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·5 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·7 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
