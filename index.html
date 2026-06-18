@@ -915,6 +915,9 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 @keyframes dmgFloatR{0%{opacity:0;transform:translate(-8px,4px) scale(.7);}22%{opacity:1;}100%{opacity:0;transform:translate(2px,-20px) scale(1.06);}}
 .portrait .dmgnum.miss{color:var(--txt-dim);font-size:15px;}
 .portrait .dmgnum.crit{color:#ffd86b;font-size:25px;text-shadow:0 0 10px rgba(255,180,60,.85),0 2px 6px rgba(0,0,0,.9);}
+.portrait .dmgnum.zero{color:#a8c4dc;font-size:16px;opacity:.95;}
+.cpRow{display:flex;flex-direction:column;gap:3px;color:var(--txt-dim);font-size:12px}
+.cpInp{width:100%;box-sizing:border-box;padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:var(--txt);font-family:var(--mono);font-size:13px}
 /* combat numeric stat rows (no bars) */
 .cbNums{display:flex;flex-direction:column;gap:4px;margin:8px 0 6px;width:100%;}
 .cbRow{display:flex;align-items:center;justify-content:space-between;padding:4px 9px;border-radius:7px;background:rgba(255,255,255,.04);}
@@ -1247,9 +1250,12 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 <!-- ===== Cheat / Admin-mode overlay (Ctrl+Alt+Shift+T, in-game only) ===== -->
 <div class="overlay" id="cheatModal"><div class="modal">
   <h2><span class="ic">🔑</span><span id="cheatTitle">請輸入密碼</span></h2>
+  <div id="cheatPwSection">
   <input id="cheatPass" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="輸入密碼" style="width:100%;box-sizing:border-box;background:#0d0b14;border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:10px 12px;font-size:15px;margin:4px 0 6px"/>
   <div id="cheatErr" style="display:none;color:#ff8aa0;font-size:13px;margin:0 2px 8px"></div>
   <div class="closeRow"><button class="btn" id="cheatCancel" data-close>取消</button><button class="btn gold" id="cheatOk">確定</button></div>
+  </div>
+  <div id="cheatParams" style="display:none"><div style="font-size:13px;color:var(--gold);margin:2px 2px 10px">手動調整數值（管理員）</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 12px"><label class="cpRow">生命<input class="cpInp" data-cp="hp" type="number" inputmode="numeric"></label><label class="cpRow">攻擊<input class="cpInp" data-cp="atk" type="number" inputmode="numeric"></label><label class="cpRow">防禦<input class="cpInp" data-cp="def" type="number" inputmode="numeric"></label><label class="cpRow">金錢<input class="cpInp" data-cp="gold" type="number" inputmode="numeric"></label><label class="cpRow">等級<input class="cpInp" data-cp="lv" type="number" inputmode="numeric"></label><label class="cpRow">經驗<input class="cpInp" data-cp="exp" type="number" inputmode="numeric"></label><label class="cpRow">攻擊次數<input class="cpInp" data-cp="atkc" type="number" inputmode="numeric"></label><label class="cpRow">體力<input class="cpInp" data-cp="reserve" type="number" inputmode="numeric"></label><label class="cpRow">黃鑰<input class="cpInp" data-cp="ky" type="number" inputmode="numeric"></label><label class="cpRow">藍鑰<input class="cpInp" data-cp="kb" type="number" inputmode="numeric"></label><label class="cpRow">紅鑰<input class="cpInp" data-cp="kr" type="number" inputmode="numeric"></label><label class="cpRow">白鑰<input class="cpInp" data-cp="kw" type="number" inputmode="numeric"></label><label class="cpRow">紫鑰<input class="cpInp" data-cp="kp" type="number" inputmode="numeric"></label></div><div class="closeRow" style="margin-top:12px"><button class="btn" id="cheatParamsClose" data-close>取消</button><button class="btn gold" id="cheatApplyBtn">套用數值</button></div></div>
 </div></div>
 
 <!-- ===== End overlay ===== -->
@@ -3428,7 +3434,7 @@ function renderCombat(){
   if(pl.status==='poison') ms.innerHTML='<span class="cbStatusChip poison">'+t('status.poison')+'</span>';
   else if(pl.status==='weak') ms.innerHTML='<span class="cbStatusChip weak">'+t('status.weak')+' ×'+pl.weakStacks+'</span>';
   const fs=byId('foeStatus'); fs.innerHTML='';
-  if(foe.ab) fs.innerHTML+='<span class="tagAb '+foe.ab+'">'+t('ab.'+foe.ab)+'</span>';
+  abList(foe).forEach(function(_a){ fs.innerHTML+='<span class="tagAb '+_a+'">'+t('ab.'+_a)+'</span>'; });
   if(foe.drains) fs.innerHTML+='<span class="tagAb drain">'+t('ab.drain')+'</span>';
   byId('meName').textContent=t('cb.hero');
   byId('foeName').textContent=monName(foe);
@@ -3448,6 +3454,11 @@ function floatDmg(which,text,cls){
   const s=document.createElement('span'); s.className='dmgnum '+side+(cls?(' '+cls):''); s.textContent=text;
   host.appendChild(s);
   setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },800);
+}
+function zeroDmgFx(side){
+  try{ floatDmg(side, '0', 'zero'); }catch(e){}
+  try{ playAttackFx(side, 'punch', false, null, true); }catch(e){}
+  try{ sfxPlayPreset('thud'); }catch(e){}
 }
 function playerNormal(){ playerAct('normal'); }
 
@@ -3474,7 +3485,7 @@ function playerAct(action){
   const _shHalf=!!c.shieldHalf, _shRefl=!!c.shieldReflect; c.shieldHalf=false; c.shieldReflect=false;   /* 鏡膜盾 / 反射盾 apply to this attack */
   for(let i=0;i<pl.atkc;i++){
     if(chance(hitChance(c.meStam))){
-      let dmg=Math.round(dmgUp(aAtk,foe.def,pl.thrA)*mult); if(foe.ab==='solid') dmg=Math.ceil(dmg/2); if(_shHalf) dmg=Math.ceil(dmg/2); if(dmg<0)dmg=0;
+      let dmg=Math.round(dmgUp(aAtk,foe.def,pl.thrA)*mult); if(hasAb(foe,'solid')) dmg=Math.ceil(dmg/2); if(_shHalf) dmg=Math.ceil(dmg/2); if(dmg<0)dmg=0;
       if(nonLethal && foe.hp-dmg<1){ dmg=Math.max(0,foe.hp-1); }
       foe.hp-=dmg; dealt+=dmg; anyHit=true;
       pl.en=clamp(pl.en+clamp(Math.round(dmg*0.08)+2,2,13),0,100);      /* player charges a bit when landing a hit */
@@ -3483,9 +3494,9 @@ function playerAct(action){
   }
   if(skill && anyHit) applyAtkSkillEffect(skill, dealt, crit);
   renderCombat();
-  if(anyHit){ const _pfx=(skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); playAttackFx('foe', _pfx, crit, (skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); floatDmg('foe','-'+dealt, crit?'crit':null); }   // crit uses the dedicated crit fx if set, else the normal fx (scaled)
+  if(anyHit){ if(dealt===0){ zeroDmgFx('foe'); } else { const _pfx=(skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); playAttackFx('foe', _pfx, crit, (skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); floatDmg('foe','-'+dealt, crit?'crit':null); } }   // crit uses the dedicated crit fx if set, else the normal fx (scaled)
   else { floatDmg('foe','miss!','miss'); }
-  if(_shRefl && dealt>0){ const refl=Math.max(1,Math.round(dealt*0.25)); pl.hp-=refl; floatDmg('me','-'+refl,'crit'); log('foe',fmt(t('msg.msReflect'),{n:refl})); renderCombat(); if(pl.hp<=0){ pl.hp=0; renderCombat(); setTimeout(combatLose,240); return; } }
+  if(_shRefl && dealt>0){ const refl=Math.max(1,Math.round(dealt*0.25)); pl.hp-=refl; floatDmg('me','-'+refl,'crit'); log('foe',fmt(t('msg.msReflect'),{n:refl})); renderCombat(); if(pl.hp<=0){ if(_godClamp()){ renderCombat(); } else { pl.hp=0; renderCombat(); setTimeout(combatLose,240); return; } } }
   if(foe.hp<=0){ setTimeout(combatWin, 240); return; }
   setTimeout(foeTurn, 220);   // quick exchange — no waiting on the animation
 }
@@ -3534,7 +3545,7 @@ function foeTurn(){
       if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); }   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
       else {
         const myDef = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);   // 神盾 buff while charges remain; 幻骨 lowers DEF
-        dmg=dmgDown(foe.atk,(foe.ab==='pierce'?Math.floor(myDef*0.5):myDef),pl.thrD); if(dmg<0)dmg=0;
+        dmg=dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(myDef*0.5):myDef),pl.thrD); if(dmg<0)dmg=0;
         if(foeCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2));
         if(c.halveNext){ dmg=Math.ceil(dmg/2); }
       }
@@ -3544,7 +3555,7 @@ function foeTurn(){
       if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       pl.hp-=dmg; taken+=dmg; anyHit=true; hits++;
-      if(foe.ab==='vampire'&&dmg>0){ foe.hp=Math.min(foe.maxhp,foe.hp+Math.round(dmg*0.3)); }
+      if(hasAb(foe,'vampire')&&dmg>0){ foe.hp=Math.min(foe.maxhp,foe.hp+Math.round(dmg*0.3)); }
       if(foe.drains){ c.meStam=clamp(c.meStam-STAM_DRAIN,0,100); }
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
       pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100);   /* player also charges when taking a hit */
@@ -3559,24 +3570,24 @@ function foeTurn(){
   if(def && def.id==='healShield'){ const healed=Math.floor((beforeTotal-taken)*0.6); if(healed>0){ pl.hp+=healed; log('me',fmt(t('msg.healShield'),{n:healed})); } }
   if(def && def.id==='counterdun'){
     let counter=0;
-    if(taken>0){ let myHit=dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA); if(foe.ab==='solid') myHit=Math.ceil(myHit/2); counter=myHit+Math.floor(taken/2.6); }
+    if(taken>0){ let myHit=dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA); if(hasAb(foe,'solid')) myHit=Math.ceil(myHit/2); counter=myHit+Math.floor(taken/2.6); }
     if(anyHit && foe.ability==='weak'){ foe.atk=Math.max(1,foe.atk-3); foe.def=Math.max(0,foe.def-3); log('me',t('msg.reflWeak')); }
     else if(anyHit && foe.ability==='poison'){ counter+=pl.lv; log('me',fmt(t('msg.reflPoison'),{n:pl.lv})); }
     if(counter>0){
-      if(foe.ab==='vampire'){ counter=Math.max(0, foe.hp>97 ? Math.min(counter, foe.hp-97) : 0); }   // counter can only push a vampire down to 97 HP
+      if(hasAb(foe,'vampire')){ counter=Math.max(0, foe.hp>97 ? Math.min(counter, foe.hp-97) : 0); }   // counter can only push a vampire down to 97 HP
       if(counter>0){ foe.hp-=counter; floatDmg('foe','-'+counter,'crit'); log('me',fmt(t('msg.counter'),{n:counter})); }
     }
   }
-  if(anyHit){ floatDmg('me','-'+taken, foeCrit?'crit':null); }
+  if(anyHit){ if(taken===0){ zeroDmgFx('me'); } else { floatDmg('me','-'+taken, foeCrit?'crit':null); } }
   else { floatDmg('me','miss!','miss'); }
   if(!(def && def.id==='counterdun')){   // 反擊盾 reflects ailments instead of suffering them
     if(anyHit && foe.ability && pl.status==='normal'){ applyAilmentFromFoe(foe); }
     else if(anyHit && foe.ability==='weak' && pl.status==='weak'){ if(chance(0.5)){ pl.weakStacks++; log('foe',fmt(t('msg.applyWeak'),{n:pl.weakStacks})); } }
   }
   c.defArmed=null;   // single-use defence consumed
-  if(anyHit){ const _natFx=(c.foe&&c.foe.atkFx)?c.foe.atkFx:fxRemap('foe', c.foeFx||'punch'); const _ffx=foeCrit?((c.foe&&c.foe.critFx)?c.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=foeCrit?((c.foe&&c.foe.critSfx)?c.foe.critSfx:null):((c.foe&&c.foe.atkSfx)?c.foe.atkSfx:null); playAttackFx('me', _ffx, foeCrit, _fsnd); }   // foe animation + per-monster normal/crit fx & sound
+  if(anyHit && taken>0){ const _natFx=(c.foe&&c.foe.atkFx)?c.foe.atkFx:fxRemap('foe', c.foeFx||'punch'); const _ffx=foeCrit?((c.foe&&c.foe.critFx)?c.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=foeCrit?((c.foe&&c.foe.critSfx)?c.foe.critSfx:null):((c.foe&&c.foe.atkSfx)?c.foe.atkSfx:null); playAttackFx('me', _ffx, foeCrit, _fsnd); }   // foe animation + per-monster normal/crit fx & sound
   renderCombat();
-  if(pl.hp<=0){ pl.hp=0; renderCombat(); setTimeout(combatLose, 240); return; }
+  if(pl.hp<=0){ if(_godClamp()){ renderCombat(); } else { pl.hp=0; renderCombat(); setTimeout(combatLose, 240); return; } }
   if(foe.hp<=0){ renderCombat(); setTimeout(combatWin, 240); return; }   // a counter can finish a (non-vampire) foe
   state.busy=false; refreshCombatButtons();
   scheduleRound();   // brisk — animations overlay without adding a deliberate pause
@@ -3608,6 +3619,7 @@ function combatWin(){
   renderCombat(); showCombatEnd();
 }
 function combatLose(){
+  if(_godClamp()){ try{ renderCombat(); state.busy=false; refreshCombatButtons(); }catch(e){} return; }
   clearTimeout(combatTimer); try{ sfx('lose'); }catch(e){}
   const c=state.combat; c.foe.hp=Math.max(0,state.player.hp);
   c.done=true; c.win=false; log('sys',t('msg.lose'),true);
@@ -3790,7 +3802,7 @@ function renderManual(){
   list.forEach(function(foe,idx){
     const pred=predictDamage(foe);
     const row=document.createElement('div'); row.className='shopOpt monRow'+(idx===state.manualIdx?' sel':'');
-    const abTag=(foe.ab?('<span class="tagAb '+foe.ab+'">'+t('ab.'+foe.ab)+'</span>'):'')+(foe.drains?('<span class="tagAb drain">'+t('ab.drain')+'</span>'):'');
+    const abTag=abList(foe).map(function(_a){return '<span class="tagAb '+_a+'">'+t('ab.'+_a)+'</span>';}).join('')+(foe.drains?('<span class="tagAb drain">'+t('ab.drain')+'</span>'):'');
     row.innerHTML=
       '<div style="font-size:26px;width:40px;text-align:center">'+(foe.img?('<img src="'+foe.img+'" alt="" style="width:34px;height:34px;object-fit:contain;border-radius:5px;vertical-align:middle">'):foe.face)+'</div>'+
       '<div class="info"><div class="ttl">'+monName(foe)+' '+abTag+'</div>'+
@@ -3956,11 +3968,11 @@ function foePerHitDmg(foe, pl){ const base = foe.trueDmg ? foe.atk : Math.max(0,
 function abEffects(foe){
   const out=[];
   if(foe.trueDmg) out.push([t('ab.magic'),t('manual.effTrue')]);
-  if(foe.ab==='solid') out.push([t('ab.solid'),t('manual.effSolid')]);
-  if(foe.ab==='pierce') out.push([t('ab.pierce'),t('manual.effPierce')]);
-  if(foe.ab==='vampire') out.push([t('ab.vampire'),t('manual.effVampire')]);
-  if(foe.ab==='boss'||foe.boss) out.push([t('ab.boss'),t('manual.effBoss')]);
-  if(foe.ab==='weak'||foe.ability==='weak') out.push([t('ab.weak'),t('manual.effWeak')]);
+  if(hasAb(foe,'solid')) out.push([t('ab.solid'),t('manual.effSolid')]);
+  if(hasAb(foe,'pierce')) out.push([t('ab.pierce'),t('manual.effPierce')]);
+  if(hasAb(foe,'vampire')) out.push([t('ab.vampire'),t('manual.effVampire')]);
+  if(hasAb(foe,'boss')||foe.boss) out.push([t('ab.boss'),t('manual.effBoss')]);
+  if(hasAb(foe,'weak')||foe.ability==='weak') out.push([t('ab.weak'),t('manual.effWeak')]);
   if(foe.ability==='poison') out.push([t('ab.poison'),t('manual.effPoison')]);
   if(foe.drains) out.push([t('ab.drain'),t('manual.effDrains')]);
   if((foe.atkc||1)>1 && !(foe.atkcMax>foe.atkcMin && foe.atkcMin>0)) out.push([t('ab.multi'),fmt(t('manual.effMulti'),{n:foe.atkc})]);
@@ -4271,7 +4283,8 @@ function renderTutPage(){
 function tutNext(){ const _mS=t('tut.stepsM'); const _use=(!_isPC() && Array.isArray(_mS) && _mS.length)? _mS : (t('tut.steps')||[]); const n=_use.length; state._tutI=(state._tutI||0)+1; if(state._tutI>=n){ hide('tutorial'); } else renderTutPage(); }
 function tutBack(){ if((state._tutI||0)>0){ state._tutI--; renderTutPage(); } }
 function tutSkip(){ hide('tutorial'); }
-function defeat(){ if(state.mode==='solo') endScreen(false); else endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function _godClamp(){ if(state.cheatActive && state.player){ if(state.player.hp<1) state.player.hp=1; return true; } return false; }
+function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } if(state.mode==='solo') endScreen(false); else endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
 function endScreen(win){
   state.over=true; state.busy=false;
   state._reloEnd=function(){ endScreen(win); };
@@ -4341,15 +4354,46 @@ function inGame(){
   for(let i=0;i<block.length;i++){ const el=byId(block[i]); if(el && el.classList.contains('show')) return false; }
   return !!(state && state.player);
 }
+function fillCheatParams(){
+  const pl=state.player; if(!pl) return; const box=byId('cheatParams'); if(!box) return;
+  const set=function(k,v){ const el=box.querySelector('input[data-cp="'+k+'"]'); if(el) el.value=(v==null?0:v); };
+  set('hp',pl.hp); set('atk',pl.atk); set('def',pl.def); set('gold',pl.gold); set('lv',pl.lv); set('exp',pl.exp); set('atkc',pl.atkc); set('reserve',pl.reserve);
+  set('ky',pl.keys&&pl.keys.y); set('kb',pl.keys&&pl.keys.b); set('kr',pl.keys&&pl.keys.r); set('kw',pl.keys&&pl.keys.w); set('kp',pl.keys&&pl.keys.p);
+}
+function showCheatParams(){
+  const pw=byId('cheatPwSection'), ps=byId('cheatParams'); if(pw) pw.style.display='none'; if(ps) ps.style.display='block';
+  const ttl=byId('cheatTitle'); if(ttl) ttl.textContent='管理員設定';
+  fillCheatParams();
+}
+function applyCheatParams(){
+  const pl=state.player; if(!pl){ try{hide('cheatModal');}catch(e){} return; }
+  const box=byId('cheatParams');
+  if(box){ const inps=box.querySelectorAll('input[data-cp]'); for(let i=0;i<inps.length;i++){ const inp=inps[i]; const k=inp.getAttribute('data-cp'); const v=parseFloat(inp.value); if(isNaN(v)) continue;
+    if(k==='ky'){ if(!pl.keys)pl.keys={}; pl.keys.y=Math.max(0,Math.round(v)); }
+    else if(k==='kb'){ if(!pl.keys)pl.keys={}; pl.keys.b=Math.max(0,Math.round(v)); }
+    else if(k==='kr'){ if(!pl.keys)pl.keys={}; pl.keys.r=Math.max(0,Math.round(v)); }
+    else if(k==='kw'){ if(!pl.keys)pl.keys={}; pl.keys.w=Math.max(0,Math.round(v)); }
+    else if(k==='kp'){ if(!pl.keys)pl.keys={}; pl.keys.p=Math.max(0,Math.round(v)); }
+    else if(k==='lv'||k==='atkc'){ pl[k]=Math.max(1,Math.round(v)); }
+    else pl[k]=v;
+  } }
+  if(state.cheatSnap){ const s=state.cheatSnap; s.hp=pl.hp; s.atk=pl.atk; s.def=pl.def; if(pl.keys) s.keys={y:pl.keys.y,b:pl.keys.b,r:pl.keys.r,w:pl.keys.w,p:pl.keys.p}; s.tpScrolls=pl.tpScrolls; s.hasManual=pl.hasManual; }
+  try{ renderStats(); }catch(e){}
+  try{ toast('數值已套用'); }catch(e){}
+  try{ hide('cheatModal'); }catch(e){}
+}
 function openCheat(){
   if(!inGame()) return;
+  if(state.cheatActive){ show('cheatModal'); showCheatParams(); return; }
+  const pw=byId('cheatPwSection'), ps=byId('cheatParams'); if(pw) pw.style.display='block'; if(ps) ps.style.display='none';
+  const ttl=byId('cheatTitle'); if(ttl) ttl.textContent='請輸入密碼';
   const p=byId('cheatPass'); if(p) p.value='';
   const er=byId('cheatErr'); if(er){ er.style.display='none'; er.textContent=''; }
   show('cheatModal'); if(p && p.focus) p.focus();
 }
 function submitCheat(){
   const p=byId('cheatPass'); const val=((p?p.value:'')||'').trim().toLowerCase();
-  if(val==='call in my all ability'){ hide('cheatModal'); activateCheat(); }
+  if(val==='call in my all ability'){ activateCheat(); showCheatParams(); }
   else { const er=byId('cheatErr'); if(er){ er.textContent=t('cheat.wrong'); er.style.display='block'; } if(p){ p.value=''; if(p.focus) p.focus(); } }
 }
 function activateCheat(){
@@ -4631,6 +4675,7 @@ function bindInput(){
   { const _pn=byId('portalDlgNo'); if(_pn) _pn.addEventListener('click', _portalDlgCancel); }
   byId('btnHelp2').addEventListener('click',openHelp);
   byId('cheatOk').addEventListener('click',submitCheat);
+  { const _ca=byId('cheatApplyBtn'); if(_ca) _ca.addEventListener('click',applyCheatParams); }
   byId('cheatExit').addEventListener('click',exitCheat);
   { const _cp=byId('cheatPass'); if(_cp) _cp.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); submitCheat(); } }); }
   byId('btnNew').addEventListener('click',function(){ requestRestart(); });
@@ -5802,6 +5847,14 @@ const I18N_MONPREV = {
 'ko':{ admin:{preview:'미리보기', previewTitle:'몬스터 미리보기', previewFloors:'출현 층', previewAb:'특성／능력'} }
 };
 (function mergeMonPrev(){ for(const L in I18N_MONPREV){ if(!I18N[L]) continue; const S=I18N_MONPREV[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+const I18N_ADDMON = {
+'zh-Hant':{ admin:{addMon:'新增怪物', delMon:'刪除', delMonConfirm:'確定要刪除怪物「{n}」嗎？', newMon:'新怪物'} },
+'zh-Hans':{ admin:{addMon:'新增怪物', delMon:'删除', delMonConfirm:'确定要删除怪物「{n}」吗？', newMon:'新怪物'} },
+'en':{ admin:{addMon:'Add monster', delMon:'Delete', delMonConfirm:'Delete monster "{n}"?', newMon:'New monster'} },
+'ja':{ admin:{addMon:'魔物を追加', delMon:'削除', delMonConfirm:'魔物「{n}」を削除しますか？', newMon:'新しい魔物'} },
+'ko':{ admin:{addMon:'몬스터 추가', delMon:'삭제', delMonConfirm:'몬스터 "{n}"을(를) 삭제할까요？', newMon:'새 몬스터'} }
+};
+(function mergeAddMon(){ for(const L in I18N_ADDMON){ if(!I18N[L]) continue; const S=I18N_ADDMON[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 const I18N_SKILLSFX = {
 'zh-Hant':{ admin:{fxNone:'無', sfxSkills:'技能聲音（攻擊／防禦）', sfxAbilities:'怪物能力聲音'} },
 'zh-Hans':{ admin:{fxNone:'无', sfxSkills:'技能声音（攻击／防御）', sfxAbilities:'怪物能力声音'} },
@@ -6193,7 +6246,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0617·10 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·1 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6201,7 +6254,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0617·10 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·1 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6344,7 +6397,7 @@ function renderAdminBody(){
     const monRow=function(m,idx,isBase){
       const row=document.createElement('div'); row.className='adRowItem';
       if(isBase) row.dataset.bidx=idx; else row.dataset.idx=idx;
-      row.innerHTML='<div class="adName">'+(m.face||'')+' '+_admName(m)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span>'+_adPrev()+'</div>'+
+      row.innerHTML='<div class="adName">'+(m.face||'')+' '+_admName(m)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span>'+_adPrev()+_adDel(isBase,idx)+'</div>'+
         '<div class="adGrid">'+
         adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+adCritFx(m)+adCritSfx(m)+
         adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+
@@ -6356,9 +6409,11 @@ function renderAdminBody(){
     };
     hdr(t('admin.groundMon')+' ('+adminDraft.monsters.length+')');
     adminDraft.monsters.forEach(function(m,idx){ monRow(m,idx,false); });
+    { const _amb=document.createElement('button'); _amb.type='button'; _amb.className='btn'; _amb.setAttribute('data-addmon','s'); _amb.style.cssText='margin:8px 2px 4px;padding:5px 14px;font-size:13px'; _amb.textContent='＋ '+t('admin.addMon'); body.appendChild(_amb); }
     if(Array.isArray(adminDraft.basementMonsters)){
       hdr(t('admin.basementMon')+' ('+adminDraft.basementMonsters.length+')');
       adminDraft.basementMonsters.forEach(function(m,idx){ monRow(m,idx,true); });
+      { const _bmb=document.createElement('button'); _bmb.type='button'; _bmb.className='btn'; _bmb.setAttribute('data-addmon','b'); _bmb.style.cssText='margin:8px 2px 4px;padding:5px 14px;font-size:13px'; _bmb.textContent='＋ '+t('admin.addMon'); body.appendChild(_bmb); }
     }
     if(adminDraft.swordKing){
       hdr(t('mon.swordKing'));
@@ -6544,13 +6599,15 @@ function renderAdminBody(){
     }).catch(function(e){ loading.textContent=t('admin.dataPermErr'); loading.style.color='var(--txt-dim)'; });
   }
 }
+function hasAb(o,a){ if(!o) return false; const v=o.ab; return Array.isArray(v) ? v.indexOf(a)>=0 : v===a; }
+function abList(o){ if(!o) return []; const v=o.ab; return Array.isArray(v) ? v.slice() : (v?[v]:[]); }
 function adMonAbilities(m){
   return ''+
         '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(m.drains?'':' selected')+'>—</option><option value="1"'+(m.drains?' selected':'')+'>✓</option></select></div>'+
         '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
         '<div class="adField"><label>'+t('admin.abTrue')+'</label><select data-k="trueDmg"><option value="0"'+(m.trueDmg?'':' selected')+'>'+t('admin.abNone')+'</option><option value="1"'+(m.trueDmg?' selected':'')+'>\u2713</option></select></div>'+
         '<div class="adField"><label>'+t('admin.abStatus')+'</label><select data-k="ability"><option value=""'+(!m.ability?' selected':'')+'>'+t('admin.abNone')+'</option><option value="poison"'+(m.ability==='poison'?' selected':'')+'>'+t('ab.poison')+'</option><option value="weak"'+(m.ability==='weak'?' selected':'')+'>'+t('ab.weak')+'</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.abTag')+'</label><select data-k="ab">'+['','solid','vampire','pierce','multi','first','magic','poison','weak'].map(function(av){return '<option value="'+av+'"'+((m.ab||'')===av?' selected':'')+'>'+(av===''?t('admin.abNone'):t('ab.'+av))+'</option>';}).join('')+'</select></div>'+
+        '<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:5px 14px;padding:3px 0">'+['solid','vampire','pierce','multi','first','magic','poison','weak'].map(function(av){return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer"><input type="checkbox" data-ab="'+av+'"'+(hasAb(m,av)?' checked':'')+'>'+t('ab.'+av)+'</label>';}).join('')+'</div></div>'+
         adNum(t('admin.abCrit'),{critMult:(m.critMult!=null?m.critMult:2)},'critMult')+
         '<div class=\"adField\"><label>'+t('admin.abDeath')+'</label><select data-k=\"deathTerrain\"><option value=\"\"'+(!m.deathTerrain?' selected':'')+'>'+t('admin.abNone')+'</option><option value=\"ice\"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value=\"lava\"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select></div>'+
         adNum(t('admin.abBonusDmg'),m,'bonusDmg')+adNum(t('admin.abDrainEn'),m,'drainEn')+
@@ -6594,6 +6651,30 @@ function showMonPreview(m){
   byId('monPrevTitle').textContent=t('admin.previewTitle');
   byId('monPrev').classList.add('show');
 }
+function _adDel(isBase,idx){ return '<button type="button" data-delmon="'+(isBase?'b':'s')+idx+'" class="adDelBtn" title="'+t('admin.delMon')+'" style="margin-left:6px;padding:1px 8px;font-size:12px;border-radius:7px;border:1px solid rgba(255,120,120,.4);background:rgba(255,80,80,.12);color:#ff9a9a;cursor:pointer;vertical-align:middle">✕</button>'; }
+function addMonster(kind){
+  if(!adminDraft) return;
+  try{ collectAdminDraft(); }catch(e){}
+  const uid='mon_'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
+  if(kind==='b'){
+    if(!Array.isArray(adminDraft.basementMonsters)) adminDraft.basementMonsters=[];
+    adminDraft.basementMonsters.push({id:uid, name:t('admin.newMon'), face:'👾', hp:300, atk:60, def:20, gold:20, exp:3, atkc:1, agi:10, sMin:0, sMax:0, bMin:1, bMax:20, ab:[]});
+  } else {
+    adminDraft.monsters.push({id:uid, name:t('admin.newMon'), face:'👾', hp:100, atk:20, def:5, gold:10, exp:2, atkc:1, agi:10, sMin:1, sMax:25, bMin:0, bMax:0, ab:[]});
+  }
+  try{ renderAdminBody(); }catch(e){}
+}
+function delMonster(tok){
+  if(!adminDraft||!tok) return;
+  const kind=tok.charAt(0), idx=parseInt(tok.slice(1),10);
+  const arr = kind==='b' ? adminDraft.basementMonsters : adminDraft.monsters;
+  if(!arr||isNaN(idx)||idx<0||idx>=arr.length) return;
+  try{ collectAdminDraft(); }catch(e){}
+  const nm=_admName(arr[idx])||(arr[idx]&&arr[idx].id)||'';
+  if(typeof confirm==='function' && !confirm(fmt(t('admin.delMonConfirm'),{n:nm}))) return;
+  arr.splice(idx,1);
+  try{ renderAdminBody(); }catch(e){}
+}
 function collectAdminDraft(){
   if(!adminDraft) return;
   const rows=byId('adminBody').querySelectorAll('.adRowItem');
@@ -6620,9 +6701,10 @@ function collectAdminDraft(){
       if(k==='drains'){ target.drains = fields[j].value==='1'; }
       else if(k==='id'){ const vv=(fields[j].value||'').trim(); if(vv) target.id=vv; }
       else if(k==='face'||k==='name'){ target[k] = (fields[j].value||'').trim(); }
-      else if(k==='atkFx'||k==='atkSfx'||k==='critFx'||k==='critSfx'||k==='role'||k==='ability'||k==='ab'||k==='deathTerrain'){ target[k] = fields[j].value||''; }
+      else if(k==='atkFx'||k==='atkSfx'||k==='critFx'||k==='critSfx'||k==='role'||k==='ability'||k==='deathTerrain'){ target[k] = fields[j].value||''; }
       else { const num=parseFloat(fields[j].value); target[k]= isNaN(num)?0:num; }
     }
+    { const _abx=row.querySelectorAll('input[data-ab]'); if(_abx.length){ const _aba=[]; for(let _j=0;_j<_abx.length;_j++){ if(_abx[_j].checked) _aba.push(_abx[_j].getAttribute('data-ab')); } target.ab=_aba; } }
     const _nlf=row.querySelectorAll('[data-knl]');
     if(_nlf.length){ if(!target.nameLoc||typeof target.nameLoc!=='object') target.nameLoc={}; for(let j=0;j<_nlf.length;j++){ let _lc=_nlf[j].getAttribute('data-knl')||''; if(!_lc||_lc==='1') _lc=_admRenderLang||'zh-Hant'; const _vv=(_nlf[j].value||'').trim(); if(_vv) target.nameLoc[_lc]=_vv; else delete target.nameLoc[_lc]; } }
   }
@@ -6665,7 +6747,7 @@ function adminResetDefaults(){ if(!DEFAULT_CONFIG) return; adminDraft=JSON.parse
 
 /* ---- bind account & admin UI (called from boot) ---- */
 function bindAccountAdmin(){
-  { const _ab=byId('adminBody'); if(_ab && !_ab._prevBound){ _ab._prevBound=true; _ab.addEventListener('click',function(ev){ const b=(ev.target&&ev.target.closest)?ev.target.closest('[data-prev]'):null; if(!b) return; ev.preventDefault(); ev.stopPropagation(); const row=b.closest('.adRowItem'); if(!row) return; try{ collectAdminDraft(); }catch(e){} const mon=_adRowMon(row); if(mon) showMonPreview(mon); }); } }
+  { const _ab=byId('adminBody'); if(_ab && !_ab._prevBound){ _ab._prevBound=true; _ab.addEventListener('click',function(ev){ if(!ev.target||!ev.target.closest) return; const addB=ev.target.closest('[data-addmon]'); if(addB){ ev.preventDefault(); addMonster(addB.getAttribute('data-addmon')); return; } const delB=ev.target.closest('[data-delmon]'); if(delB){ ev.preventDefault(); delMonster(delB.getAttribute('data-delmon')); return; } const b=ev.target.closest('[data-prev]'); if(b){ ev.preventDefault(); ev.stopPropagation(); const row=b.closest('.adRowItem'); if(!row) return; try{ collectAdminDraft(); }catch(e){} const mon=_adRowMon(row); if(mon) showMonPreview(mon); return; } }); } }
   const ss=byId('ssAccount'); if(ss) ss.addEventListener('click', openAuth);
   { const _stat=byId('ssAcctStat'); if(_stat) _stat.addEventListener('click', function(){ if(typeof Account!=='undefined' && Account.user) openAuth(); }); }
   byId('authLogin').addEventListener('click', function(){ authDo('login'); });
