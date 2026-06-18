@@ -1969,7 +1969,7 @@ function scaleFoe(base,f){
   const _mf=src.minF||mf;
   let _id=src.id, _name=src.name||null, _atkc=src.atkc||1;
   return {
-    id:_id, face:src.face, name:_name, img:src.img||null, atkFx:src.atkFx||null, atkSfx:src.atkSfx||null, ability:src.ability||null, ab:src.ab||null, atkc:_atkc, agi:src.agi||0, drains:!!src.drains, trueDmg:!!src.trueDmg, master:src.master||null, critFx:src.critFx||null, critSfx:src.critSfx||null, deathTerrain:src.deathTerrain||null, bonusDmg:src.bonusDmg||0, drainEn:src.drainEn||0, noFlee:!!src.noFlee, revive:!!src.revive, atkcMin:src.atkcMin||0, atkcMax:src.atkcMax||0, statDownPct:src.statDownPct||0, statDownN:src.statDownN||0,
+    id:_id, face:src.face, name:_name, img:src.img||null, atkFx:src.atkFx||null, atkSfx:src.atkSfx||null, ability:src.ability||null, ab:src.ab||null, atkc:_atkc, agi:src.agi||0, drains:!!src.drains, trueDmg:!!src.trueDmg, master:src.master||null, critFx:src.critFx||null, critSfx:src.critSfx||null, deathTerrain:src.deathTerrain||null, bonusDmg:src.bonusDmg||0, drainEn:src.drainEn||0, drainStam:(typeof src.drainStam==='number'?src.drainStam:null), noFlee:!!src.noFlee, revive:!!src.revive, atkcMin:src.atkcMin||0, atkcMax:src.atkcMax||0, statDownPct:src.statDownPct||0, statDownN:src.statDownN||0,
     maxhp:r(src.hp*mult), hp:r(src.hp*mult), atk:(src.trueDmg?src.atk:r(src.atk*mult)), def:r(src.def*mult),
     gold:r(src.gold*mult), exp:r(src.exp*mult), thrA:6+2*_mf, thrD:4+2*_mf, boss:false
   };
@@ -1985,7 +1985,7 @@ function makeBasementBoss(){
     maxhp:BASEMENT_BOSS.hp,hp:BASEMENT_BOSS.hp,atk:BASEMENT_BOSS.atk,def:BASEMENT_BOSS.def,gold:BASEMENT_BOSS.gold,exp:BASEMENT_BOSS.exp,
     thrA:60,thrD:55,boss:true};
 }
-function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,critFx:base.critFx||null,critSfx:base.critSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,master:base.master||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
+function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,critFx:base.critFx||null,critSfx:base.critSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,drainStam:(typeof base.drainStam==='number'?base.drainStam:null),noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,master:base.master||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
 const GUARD_DRAGONS={
   red:    {id:'redDragon',  name:'紅龍', face:'🐉', hp:760,  atk:58, def:26, gold:90,  exp:4, atkc:1, agi:8, thrA:45, thrD:35, atkFx:'dragon', atkSfx:'roar'},
   poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite'}
@@ -2743,7 +2743,7 @@ const LV_GAIN={1:{hp:300,atk:3,def:3,res:30}, 3:{hp:800,atk:10,def:10,res:90}}; 
 function wingsPackage(pl,levels){
   levelUp(pl,levels);
   const g = LV_GAIN[levels] || {hp:300*levels,atk:3*levels,def:3*levels,res:30*levels};
-  pl.hp += g.hp; pl.atk += g.atk; pl.def += g.def; pl.reserve += g.res;   // EVERY stat rises (was only partial-feeling because atk/def grew slower than hp)
+  pl.hp += g.hp; pl.atk += g.atk; pl.def += g.def; pl.reserve = clamp(pl.reserve + g.res, 0, 100);   // EVERY stat rises (was only partial-feeling because atk/def grew slower than hp)
   pl.thrA += 2*levels; pl.thrD -= 2*levels;   // wing staffs are threshold treasures: more chip + earlier no-damage
 }
 
@@ -2900,7 +2900,7 @@ function renderStats(){
   byId('goldVal').textContent=pl.gold;
   byId('hpVal').textContent=pl.hp;
   byId('enVal').textContent=pl.en;
-  byId('stVal').textContent=pl.reserve;
+  pl.reserve=clamp(pl.reserve,0,100); byId('stVal').textContent=pl.reserve;
   byId('atkVal').textContent=effAtk(pl);
   byId('defVal').textContent=effDef(pl);
   byId('expVal').textContent=pl.exp;
@@ -3529,7 +3529,7 @@ function log(who,msg,crit){
   p.textContent=msg; box.appendChild(p); box.scrollTop=box.scrollHeight;
 }
 function hitChance(stam){ return clamp(0.6+0.4*(stam/100),0.05,1); }
-function recover(reserve){ return Math.floor(reserve/200); }
+function recover(reserve){ return Math.round(clamp(reserve,0,100)/50); }   // 體力固定 0-100：滿體力每回合戰鬥體力恢復 2
 function floatDmg(which,text,cls){
   const host=byId(which==='me'?'mePortrait':'foePortrait');
   const side=(which==='me')?'left':'right';   // hero on the left, foe on the right
@@ -3639,7 +3639,7 @@ function foeTurn(){
       beforeTotal+=before;
       pl.hp-=dmg; taken+=dmg; anyHit=true; hits++;
       if(hasAb(foe,'vampire')&&dmg>0){ foe.hp=Math.min(foe.maxhp,foe.hp+Math.round(dmg*0.3)); }
-      if(foe.drains){ c.meStam=clamp(c.meStam-STAM_DRAIN,0,100); }
+      if(foe.drains){ const _ds=(typeof foe.drainStam==='number'?foe.drainStam:STAM_DRAIN); c.meStam=clamp(c.meStam-_ds,0,100); }
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
       pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100);   /* player also charges when taking a hit */
       if(foe.drainEn>0){ pl.en=clamp(pl.en-foe.drainEn,0,100); }   /* 吸取能量 */
@@ -3843,7 +3843,7 @@ function doBuy(o,cost){
   if(o.kind==='cureWeak'   && pl.status!=='weak'){ toast(t('msg.noCure')); return; }
   if(o.res==='exp') pl.exp-=cost; else pl.gold-=cost; try{ sfx('buy'); }catch(e){} markFeat('shopBuy');
   if(o.kind==='pack'){ wingsPackage(pl,o.pack.l); toast(fmt(t('msg.lvUp'),{x:pl.lv})); }   // same per-level gains as the wing staffs (all of HP/ATK/DEF)
-  else if(o.kind==='st'){ pl.reserve+=o.amt; }
+  else if(o.kind==='st'){ pl.reserve=clamp(pl.reserve+o.amt,0,100); }
   else if(o.kind==='atk'){ pl.atk+=o.amt; }
   else if(o.kind==='def'){ pl.def+=o.amt; }
   else if(o.kind==='curePoison'){ pl.status='normal'; pl.poisonStep=0; }
@@ -5736,6 +5736,10 @@ const I18N_TS = {
 'ko':{ts:{start:'게임 시작',manual:'게임 설명',rank:'순위표',resume:'이어하기'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치',namePh:'닉네임 입력'}}
 };
 (function mergeTs(){ for(const L in I18N_TS){ if(!I18N[L]) continue; const o=I18N_TS[L]; for(const ns in o){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, o[ns]); } } })();
+(function mergeDrainStam(){ const S={
+ 'zh-Hant':{admin:{drainStam:'耗體量'}}, 'zh-Hans':{admin:{drainStam:'耗体量'}},
+ 'en':{admin:{drainStam:'Stamina drain'}}, 'ja':{admin:{drainStam:'スタミナ消耗'}}, 'ko':{admin:{drainStam:'스태미나 소모'}}
+}; for(const L in S){ if(!I18N[L]) continue; for(const ns in S[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[L][ns]); } } })();
 (function mergeGlyphs(){ const S={
  'zh-Hant':{admin:{glyphTitle:'地圖圖示',glyphHint:'替商店、NPC、樓梯上傳自訂圖片（留空＝用內建圖示）。改完按下方「儲存到雲端」。',gly_shop_blue:'商店(藍)',gly_shop_red:'商店(紅)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治療婆婆',gly_shop_healW:'治療婦人',gly_shop_keySell:'賣鑰匙',gly_shop_keyBuy:'買鑰匙',gly_shop_portal:'任意門老人',gly_stair_up:'上樓梯',gly_stair_down:'下樓梯'}},
  'zh-Hans':{admin:{glyphTitle:'地图图示',glyphHint:'为商店、NPC、楼梯上传自定义图片（留空＝用内建图示）。改完按下方「保存到云端」。',gly_shop_blue:'商店(蓝)',gly_shop_red:'商店(红)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治疗婆婆',gly_shop_healW:'治疗妇人',gly_shop_keySell:'卖钥匙',gly_shop_keyBuy:'买钥匙',gly_shop_portal:'任意门老人',gly_stair_up:'上楼梯',gly_stair_down:'下楼梯'}},
@@ -6380,7 +6384,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·15 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·16 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6388,7 +6392,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·15 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·16 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6756,6 +6760,7 @@ function abList(o){ if(!o) return []; const v=o.ab; return Array.isArray(v) ? v.
 function adMonAbilities(m){
   return ''+
         '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(m.drains?'':' selected')+'>—</option><option value="1"'+(m.drains?' selected':'')+'>✓</option></select></div>'+
+        '<div class="adField"><label>'+t('admin.drainStam')+'</label><input type="number" data-k="drainStam" value="'+(m.drainStam!=null?m.drainStam:STAM_DRAIN)+'"></div>'+
         '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
         '<div class="adField"><label>'+t('admin.abTrue')+'</label><select data-k="trueDmg"><option value="0"'+(m.trueDmg?'':' selected')+'>'+t('admin.abNone')+'</option><option value="1"'+(m.trueDmg?' selected':'')+'>\u2713</option></select></div>'+
         '<div class="adField"><label>'+t('admin.abStatus')+'</label><select data-k="ability"><option value=""'+(!m.ability?' selected':'')+'>'+t('admin.abNone')+'</option><option value="poison"'+(m.ability==='poison'?' selected':'')+'>'+t('ab.poison')+'</option><option value="weak"'+(m.ability==='weak'?' selected':'')+'>'+t('ab.weak')+'</option></select></div>'+
