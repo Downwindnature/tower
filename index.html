@@ -1944,7 +1944,7 @@ function scaleFoe(base,f){
   const _mf=src.minF||mf;
   let _id=src.id, _name=src.name||null, _atkc=src.atkc||1;
   return {
-    id:_id, face:src.face, name:_name, img:src.img||null, atkFx:src.atkFx||null, atkSfx:src.atkSfx||null, ability:src.ability||null, ab:src.ab||null, atkc:_atkc, agi:src.agi||0, drains:!!src.drains, trueDmg:!!src.trueDmg, master:src.master||null,
+    id:_id, face:src.face, name:_name, img:src.img||null, atkFx:src.atkFx||null, atkSfx:src.atkSfx||null, ability:src.ability||null, ab:src.ab||null, atkc:_atkc, agi:src.agi||0, drains:!!src.drains, trueDmg:!!src.trueDmg, master:src.master||null, critFx:src.critFx||null, critSfx:src.critSfx||null, deathTerrain:src.deathTerrain||null, bonusDmg:src.bonusDmg||0, drainEn:src.drainEn||0, noFlee:!!src.noFlee, revive:!!src.revive, atkcMin:src.atkcMin||0, atkcMax:src.atkcMax||0, statDownPct:src.statDownPct||0, statDownN:src.statDownN||0,
     maxhp:r(src.hp*mult), hp:r(src.hp*mult), atk:(src.trueDmg?src.atk:r(src.atk*mult)), def:r(src.def*mult),
     gold:r(src.gold*mult), exp:r(src.exp*mult), thrA:6+2*_mf, thrD:4+2*_mf, boss:false
   };
@@ -3805,7 +3805,7 @@ function renderManual(){
       '<div style="font-size:26px;width:40px;text-align:center">'+(foe.img?('<img src="'+foe.img+'" alt="" style="width:34px;height:34px;object-fit:contain;border-radius:5px;vertical-align:middle">'):foe.face)+'</div>'+
       '<div class="info"><div class="ttl">'+monName(foe)+' '+abTag+'</div>'+
       '<div class="mstats">HP <span class="num">'+foe.maxhp+'</span> · '+t('cb.atk')+' <span class="num">'+foe.atk+'</span> · '+t('cb.def')+' <span class="num">'+foe.def+'</span>'+
-      (foe.atkc>1?(' · '+t('ab.multi')+'×'+foe.atkc):'')+'</div></div>'+
+      ((foe.atkcMax>foe.atkcMin&&foe.atkcMin>0)?(' · '+t('ab.multi')+'×'+foe.atkcMin+'~'+foe.atkcMax):(foe.atkc>1?(' · '+t('ab.multi')+'×'+foe.atkc):''))+' · '+t('shop.gold')+' <span class="num">'+foe.gold+'</span> · '+t('shop.exp')+' <span class="num">'+foe.exp+'</span></div></div>'+
       '<div class="dmgpred"><div class="k">'+(pred.killable?fmt(t('manual.kill'),{n:pred.rounds}):t('manual.cantHurt'))+'</div>'+
       '<div class="v '+pred.cls+'">'+(pred.killable?('-'+pred.dmg):'—')+'</div>'+
       '<div class="k">'+t('manual.take')+'</div></div>';
@@ -4008,6 +4008,7 @@ function renderManualDetail(foe, body){
     '<div class="mdTop"><span class="mdK">'+t('manual.nameLab')+'</span><span class="mdName">'+monName(foe)+'</span><span class="mdK mdSp">'+t('manual.specialLab')+'</span><span class="mdSpecial">'+specialName+'</span></div>'+
     '<div class="efBox"><div class="efFace">'+(foe.img?('<img src="'+foe.img+'" alt="" style="width:46px;height:46px;object-fit:contain;border-radius:6px;vertical-align:middle">'):foe.face)+'</div><div class="efBody"><div class="efTitle">'+t('manual.effectLab')+'</div>'+effHtml+'</div></div>'+
     row1+row2+
+    '<div class="mdReward" style="text-align:center;margin:8px 2px 2px;color:var(--gold);font-size:13px;font-weight:600">'+t('manual.reward')+'：'+t('shop.gold')+' <b>'+foe.gold+'</b> · '+t('shop.exp')+' <b>'+foe.exp+'</b></div>'+
     '<div class="mdBottom"><button class="btn mdBack" id="mdBack">'+t('manual.back')+' <span class="qk">Alt</span></button><div class="mdNav"><button class="navBtn" id="mdPrev">\u25c0</button><span class="mdIdx">'+(idx+1)+' / '+list.length+'</span><button class="navBtn" id="mdNext">\u25b6</button></div></div>';
   body.appendChild(wrap);
   const bk=byId('mdBack'); if(bk) bk.addEventListener('click',function(){ state.manualDetail=false; renderManual(); });
@@ -6252,7 +6253,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·4 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·5 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6260,7 +6261,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·4 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·5 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
