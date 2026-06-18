@@ -3032,11 +3032,11 @@ function install2FGate(d){
     }
     let sealed=false;
     if(nbrs.length){
-      for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=true; }   // seal the stairs with PLAIN walls (was ice barriers)
+      for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=true; }   // tentatively wall the stairs' open neighbours
       const reach=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
-      let stranded=0;
-      for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ if(!d.wall[y][x] && !(reach[y]&&reach[y][x])) stranded++; }
-      let canBreak=false;
+      const stranded=[];                                                     // open cells the seal would cut off
+      for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ if(!d.wall[y][x] && !(reach[y]&&reach[y][x])) stranded.push({x:x,y:y}); }
+      let canBreak=false;                                                    // a seal wall must have a reachable open side to break from
       for(let i=0;i<nbrs.length && !canBreak;i++){ const c=nbrs[i];
         for(let j=0;j<dirs.length;j++){ const x=c.x+dirs[j][0], y=c.y+dirs[j][1];
           if(x<0||y<0||x>=GRID||y>=GRID) continue;
@@ -3045,38 +3045,52 @@ function install2FGate(d){
           if(reach[y]&&reach[y][x]){ canBreak=true; break; }
         }
       }
-      if(canBreak && (stranded-nbrs.length)<=6){ sealed=true;
-        /* the seal just turned those neighbour cells into walls — relocate any monster/item that was on them onto a free reachable path cell, so nothing gets buried in a wall */
-        const _moved=[];
+      let strandsLoot=false;                                                 // the seal may isolate ONLY the stairs — never a monster or treasure
+      for(let i=0;i<stranded.length;i++){ const c=stranded[i];
+        if(c.x===S.x&&c.y===S.y) continue;                                   // the stairs cell itself is the whole point
+        const e=d.ent[c.y][c.x];
+        if(e&&(e.kind==='monster'||e.kind==='item'||e.kind==='bigBody')){ strandsLoot=true; break; }
+      }
+      if(canBreak && !strandsLoot && stranded.length<=6){ sealed=true;
+        const _moved=[];                                                     // move any monster/item off the cells we just walled onto a free reachable path cell
         for(let i=0;i<nbrs.length;i++){ const c=nbrs[i]; if(d.ent[c.y][c.x]){ _moved.push(d.ent[c.y][c.x]); d.ent[c.y][c.x]=null; } }
         if(_moved.length){ const _free=[];
           for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){ if(d.wall[y][x]||d.ent[y][x]) continue; if(x===S.x&&y===S.y) continue; if(x===d.start.x&&y===d.start.y) continue; if(reach[y]&&reach[y][x]) _free.push({x:x,y:y}); }
           for(let m=0;m<_moved.length && _free.length;m++){ const fc=_free.shift(); d.ent[fc.y][fc.x]=_moved[m]; }
         }
       }
-      else { for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=false; } }
+      else { for(let i=0;i<nbrs.length;i++){ d.wall[nbrs[i].y][nbrs[i].x]=false; } }   // would block loot or strand too much -> leave the stairs open
     }
+    /* seat the old man as a SHOP-LIKE COUNTER: an empty wall cell with a reachable open front, kept off the sealed stairs' edge, met early on the way up */
     const reachF=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
-    let oc=null,bd=1e9;
-    /* seat the old man like a SHOP COUNTER: on a wall cell with a reachable open FRONT to bump from — beside the path, never on it */
-    for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
-      if(!d.wall[y][x]||d.ent[y][x]) continue;                       // an empty WALL cell
-      let hasFront=false;
+    const _frontOK=function(x,y){
       for(let k=0;k<dirs.length;k++){ const fx=x+dirs[k][0], fy=y+dirs[k][1];
         if(fx<0||fy<0||fx>=GRID||fy>=GRID) continue;
-        if(d.wall[fy][fx]||d.ent[fy][fx]) continue;                  // open, empty front cell
-        if(!(reachF[fy]&&reachF[fy][fx])) continue;                  // front must be reachable
+        if(d.wall[fy][fx]||d.ent[fy][fx]) continue;
+        if(!(reachF[fy]&&reachF[fy][fx])) continue;
         if(fx===d.start.x&&fy===d.start.y) continue;
-        hasFront=true; break;
+        return true;
       }
-      if(!hasFront) continue;
-      const dist=Math.abs(x-S.x)+Math.abs(y-S.y);
+      return false;
+    };
+    let oc=null,bd=1e9;
+    for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
+      if(!d.wall[y][x]||d.ent[y][x]) continue;                               // an empty WALL cell (a counter, like the shops)
+      if(Math.abs(x-S.x)+Math.abs(y-S.y)<=1) continue;                       // not crammed against the stairs
+      if(!_frontOK(x,y)) continue;
+      const dist=Math.abs(x-d.start.x)+Math.abs(y-d.start.y);
       if(dist<bd){ bd=dist; oc={x:x,y:y}; }
     }
-    if(!oc){                                                          // fallback (degenerate maze with no wall pocket): closest reachable open cell
+    if(!oc){                                                                 // relax the stairs-adjacency rule
+      for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
+        if(!d.wall[y][x]||d.ent[y][x]||!_frontOK(x,y)) continue;
+        const dist=Math.abs(x-d.start.x)+Math.abs(y-d.start.y);
+        if(dist<bd){ bd=dist; oc={x:x,y:y}; }
+      }
+    }
+    if(!oc){                                                                 // last resort for a degenerate maze: nearest reachable open cell
       for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
-        if(d.wall[y][x]||d.ent[y][x]) continue;
-        if(!(reachF[y]&&reachF[y][x])) continue;
+        if(d.wall[y][x]||d.ent[y][x]||!(reachF[y]&&reachF[y][x])) continue;
         if(x===d.start.x&&y===d.start.y) continue;
         const dist=Math.abs(x-S.x)+Math.abs(y-S.y);
         if(dist<bd){ bd=dist; oc={x:x,y:y}; }
@@ -6321,7 +6335,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·8 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·9 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6329,7 +6343,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·8 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·9 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
