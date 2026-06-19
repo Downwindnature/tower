@@ -390,8 +390,8 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .navBtn{min-width:42px;height:34px;border-radius:8px;background:var(--stone);border:1px solid var(--line);color:var(--txt);font-size:15px;cursor:pointer;}
 .navBtn:active{background:var(--stone-d);}
 .cbSwitch{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
-.cbWin{text-align:center;padding:36px 18px 30px;}
-.cbWinTtl{font-size:23px;font-weight:800;color:var(--gold);margin-bottom:16px;letter-spacing:1px;line-height:1.35;}
+.cbWin{text-align:center;padding:12px 18px 6px;}
+.cbWinTtl{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:6px;letter-spacing:1px;line-height:1.3;}
 .cbWinRew{font-size:16px;color:var(--txt);font-family:var(--mono);letter-spacing:.5px;}
 .cbSwSec{background:rgba(0,0,0,.22);border-radius:10px;padding:6px 9px;border:1px solid var(--line);}
 .cbSwSec.atk{border-left:3px solid var(--red);}
@@ -592,7 +592,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 
 /* ============ Combat ============ */
 #combat .modal{max-width:560px;}
-.cbHead{text-align:center;margin-bottom:12px;}
+.cbHead{display:none;}
 .cbHead .floorx{font-size:11px;letter-spacing:.25em;color:var(--txt-faint);text-transform:uppercase;}
 .combatants{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:14px;}
 .combatant{text-align:center;}
@@ -1133,8 +1133,8 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   <div class="cbHead"><div class="floorx" id="cbFloor"></div></div>
   <div class="combatants" id="cbCombatants">
     <div class="combatant me">
+      <div class="cname" id="meName">玩家</div>
       <div class="portrait" id="mePortrait"><span class="pg">🧝</span><span id="meDmg"></span></div>
-      <div class="cname" id="meName">勇者</div>
       <div class="cbNums">
         <div class="cbRow"><span class="k" id="cbMeHpLab">生命</span><span class="v num" id="meHpV"></span></div>
         <div class="cbRow"><span class="k" id="cbMeAtkL">攻擊</span><span class="v num" id="meAtkV"></span></div>
@@ -1146,8 +1146,8 @@ select.langsel option{color:#15151c;background:#eef0f7;}
     </div>
     <div class="cbMid"><span class="vs">⚔</span><span class="vs" id="vsTxt">VS</span></div>
     <div class="combatant foe">
-      <div class="portrait" id="foePortrait"><span class="pg" id="foeFace">👹</span><span id="foeDmg"></span></div>
       <div class="cname" id="foeName">怪物</div>
+      <div class="portrait" id="foePortrait"><span class="pg" id="foeFace">👹</span><span id="foeDmg"></span></div>
       <div class="cbNums">
         <div class="cbRow"><span class="k" id="cbFoeHpLab">生命</span><span class="v num" id="foeHpV"></span></div>
         <div class="cbRow"><span class="k" id="cbFoeAtkL">攻擊</span><span class="v num" id="foeAtkV"></span></div>
@@ -1505,7 +1505,7 @@ const I18N = {
   title:'魔塔',
   ui:{floor:'FLOOR',lv:'等級',status:'狀態',gold:'金錢',hp:'生命',en:'能量',st:'體力',atk:'攻擊',def:'防禦',atkThr:'攻擊臨界',defThr:'防禦臨界',exp:'經驗',keys:'鑰匙',aim:'瞄準',
       hint:'方向鍵 / WASD 移動 · 撞向怪物選取 · 空白鍵或瞄準鍵開戰',manual:'怪物手冊',teleport:'樓層傳送',help:'說明',newGame:'重新開始',hintE:'拿到怪物手冊！按 E 開啟（手機點「手冊」），可查看每種怪物的數值，先看清楚再決定要不要打。',hintF:'拿到傳送卷軸！按 F 使用（手機點「傳送」），可在去過的樓層之間快速移動。',hintYU:'電腦版：按 Y / U 選擇攻擊 / 防禦技能',hintAtk:'學會攻擊技能！按 Y 切換攻擊技能，戰鬥中按 Z 發動（需達到技能等級才能裝備）。',hintDef:'學會防禦技能！按 U 切換防禦技能，戰鬥中按 X 發動。'},cheat:{title:'請輸入密碼',ph:'輸入密碼',ok:'確定',cancel:'取消',wrong:'密碼錯誤',badge:'管理者模式',exit:'退出',on:'管理者模式啟動：生命 / 攻擊 / 防禦 +10000',off:'已退出管理者模式，能力值已還原',tpAny:'管理者：可直接傳送到任一樓層（含地下室）'},
-  cb:{hp:'生命',en:'能量',st:'體力',atk:'攻',def:'防',vs:'VS',attack:'普通攻擊',skill:'技能',flee:'逃跑',hero:'勇者',pause:'暫停',resume:'繼續',crit:'爆擊!',critArmed:'蓄力中',critNeed:'能量不足（需 20）',atkSkills:'攻擊技能',defSkills:'防禦技能',pickHint:'點選要裝備的技能',noneFound:'尚未習得此類技能',equipped:'已裝備 {n}',none:'—',stamShort:'體',needLv:'需要等級 {n}',needEnStam:'能量或體力不足',noAtkSkill:'未裝備攻擊技能',noDefSkill:'未裝備防禦技能',atkUse:'攻擊技',defUse:'防禦技'},
+  cb:{hp:'生命',en:'能量',st:'體力',atk:'攻',def:'防',vs:'VS',attack:'普通攻擊',skill:'技能',flee:'逃跑',hero:'玩家',pause:'暫停',resume:'繼續',crit:'爆擊!',critArmed:'蓄力中',critNeed:'能量不足（需 20）',atkSkills:'攻擊技能',defSkills:'防禦技能',pickHint:'點選要裝備的技能',noneFound:'尚未習得此類技能',equipped:'已裝備 {n}',none:'—',stamShort:'體',needLv:'需要等級 {n}',needEnStam:'能量或體力不足',noAtkSkill:'未裝備攻擊技能',noDefSkill:'未裝備防禦技能',atkUse:'攻擊技',defUse:'防禦技'},
   status:{normal:'正常',poison:'中毒',weak:'衰弱'},
   col:{y:'黃色',b:'藍色',r:'紅色',w:'白色',p:'白金'},
   ab:{poison:'中毒',weak:'衰弱',multi:'連擊',solid:'高防',boss:'BOSS',drain:'耗體',vampire:'吸血',pierce:'破甲',first:'先攻',magic:'魔法'},
@@ -1533,7 +1533,7 @@ const I18N = {
   title:'魔塔',
   ui:{floor:'FLOOR',lv:'等级',status:'状态',gold:'金币',hp:'生命',en:'能量',st:'体力',atk:'攻击',def:'防御',atkThr:'攻击临界',defThr:'防御临界',exp:'经验',keys:'钥匙',aim:'瞄准',
       hint:'方向键 / WASD 移动 · 撞向怪物选取 · 空格或瞄准键开战',manual:'怪物手册',teleport:'楼层传送',help:'说明',newGame:'重新开始',hintE:'拿到怪物手册！按 E 打开（手机点「手册」），可查看每种怪物的数值，先看清楚再决定要不要打。',hintF:'拿到传送卷轴！按 F 使用（手机点「传送」），可在去过的楼层之间快速移动。',hintYU:'电脑版：按 Y / U 选择攻击 / 防御技能',hintAtk:'学会攻击技能！按 Y 切换攻击技能，战斗中按 Z 发动（需达到技能等级才能装备）。',hintDef:'学会防御技能！按 U 切换防御技能，战斗中按 X 发动。'},cheat:{title:'请输入密码',ph:'输入密码',ok:'确定',cancel:'取消',wrong:'密码错误',badge:'管理者模式',exit:'退出',on:'管理者模式启动：生命 / 攻击 / 防御 +10000',off:'已退出管理者模式，能力值已还原',tpAny:'管理者：可直接传送到任一楼层（含地下室）'},
-  cb:{hp:'生命',en:'能量',st:'体力',atk:'攻',def:'防',vs:'VS',attack:'普通攻击',skill:'技能',flee:'逃跑',hero:'勇者',pause:'暂停',resume:'继续',crit:'爆击!',critArmed:'蓄力中',critNeed:'能量不足（需 20）',atkSkills:'攻擊技能',defSkills:'防禦技能',pickHint:'點選要裝備的技能',noneFound:'尚未習得此類技能',equipped:'已裝備 {n}',none:'—',stamShort:'體',needLv:'需要等級 {n}',needEnStam:'能量或體力不足',noAtkSkill:'未裝備攻擊技能',noDefSkill:'未裝備防禦技能',atkUse:'攻擊技',defUse:'防禦技'},
+  cb:{hp:'生命',en:'能量',st:'体力',atk:'攻',def:'防',vs:'VS',attack:'普通攻击',skill:'技能',flee:'逃跑',hero:'玩家',pause:'暂停',resume:'继续',crit:'爆击!',critArmed:'蓄力中',critNeed:'能量不足（需 20）',atkSkills:'攻擊技能',defSkills:'防禦技能',pickHint:'點選要裝備的技能',noneFound:'尚未習得此類技能',equipped:'已裝備 {n}',none:'—',stamShort:'體',needLv:'需要等級 {n}',needEnStam:'能量或體力不足',noAtkSkill:'未裝備攻擊技能',noDefSkill:'未裝備防禦技能',atkUse:'攻擊技',defUse:'防禦技'},
   status:{normal:'正常',poison:'中毒',weak:'虚弱'},
   col:{y:'黄色',b:'蓝色',r:'红色',w:'白色',p:'白金'},
   ab:{poison:'中毒',weak:'虚弱',multi:'连击',solid:'高防',boss:'BOSS',drain:'耗体',vampire:'吸血',pierce:'破甲',first:'先攻',magic:'魔法'},
@@ -1561,7 +1561,7 @@ const I18N = {
   title:'Magic Tower',
   ui:{floor:'FLOOR',lv:'Level',status:'Status',gold:'Gold',hp:'HP',en:'Energy',st:'Stamina',atk:'ATK',def:'DEF',atkThr:'Atk Edge',defThr:'Def Edge',exp:'EXP',keys:'Keys',aim:'Aim',
       hint:'Arrows / WASD to move · bump a monster to target · Space or Aim to fight',manual:'Bestiary',teleport:'Teleport',help:'Help',newGame:'New Run',hintE:'Bestiary obtained! Press E to open it (tap “Bestiary” on mobile) to check each monster\'s stats before you fight.',hintF:'Teleport scroll obtained! Press F to use it (tap “Teleport”) to warp between floors you have explored.',hintYU:'PC: press Y / U to choose your attack / defence skill',hintAtk:'Attack skill learned! Press Y to switch attack skills; press Z in combat to cast (must meet the level requirement).',hintDef:'Defence skill learned! Press U to switch defence skills; press X in combat to cast.'},cheat:{title:'Enter password',ph:'Password',ok:'OK',cancel:'Cancel',wrong:'Wrong password',badge:'ADMIN MODE',exit:'Exit',on:'Admin mode on: HP / ATK / DEF +10000',off:'Admin mode off; stats restored',tpAny:'Admin: teleport to any floor (basement included)'},
-  cb:{hp:'HP',en:'Energy',st:'Stamina',atk:'A',def:'D',vs:'VS',attack:'Attack',skill:'Skills',flee:'Flee',hero:'Hero',pause:'Pause',resume:'Resume',crit:'Crit!',critArmed:'Ready!',critNeed:'Need 20 energy',atkSkills:'Attack Skills',defSkills:'Defence Skills',pickHint:'Tap a skill to equip it',noneFound:'No skills of this type yet',equipped:'Equipped {n}',none:'—',stamShort:'ST',needLv:'Needs level {n}',needEnStam:'Not enough energy or stamina',noAtkSkill:'No attack skill equipped',noDefSkill:'No defence skill equipped',atkUse:'Atk Skill',defUse:'Def Skill'},
+  cb:{hp:'HP',en:'Energy',st:'Stamina',atk:'A',def:'D',vs:'VS',attack:'Attack',skill:'Skills',flee:'Flee',hero:'Player',pause:'Pause',resume:'Resume',crit:'Crit!',critArmed:'Ready!',critNeed:'Need 20 energy',atkSkills:'Attack Skills',defSkills:'Defence Skills',pickHint:'Tap a skill to equip it',noneFound:'No skills of this type yet',equipped:'Equipped {n}',none:'—',stamShort:'ST',needLv:'Needs level {n}',needEnStam:'Not enough energy or stamina',noAtkSkill:'No attack skill equipped',noDefSkill:'No defence skill equipped',atkUse:'Atk Skill',defUse:'Def Skill'},
   status:{normal:'Normal',poison:'Poison',weak:'Weak'},
   col:{y:'yellow',b:'blue',r:'red',w:'white',p:'platinum'},
   ab:{poison:'Poison',weak:'Weaken',multi:'Multi',solid:'Armored',boss:'BOSS',drain:'Saps',vampire:'Vampiric',pierce:'Pierce',first:'First Strike',magic:'Magic'},
@@ -1589,7 +1589,7 @@ const I18N = {
   title:'魔塔',
   ui:{floor:'FLOOR',lv:'レベル',status:'状態',gold:'金貨',hp:'HP',en:'エナジー',st:'体力',atk:'攻撃',def:'防御',atkThr:'攻撃限界',defThr:'防御限界',exp:'経験',keys:'鍵',aim:'照準',
       hint:'方向キー / WASD で移動・敵に当たると照準・スペースか照準ボタンで戦闘',manual:'モンスター図鑑',teleport:'階層転送',help:'説明',newGame:'最初から',hintE:'魔物図鑑を入手！E で開く（スマホは「図鑑」）。各モンスターの数値を確認できます。',hintF:'階層転送の巻物を入手！F で使用（スマホは「転送」）。探索済みの階へ移動できます。',hintYU:'PC版：Y / U で攻撃 / 防御スキルを選択',hintAtk:'攻撃スキルを習得！Y で攻撃スキルを切替、戦闘中は Z で発動（必要レベルが必要）。',hintDef:'防御スキルを習得！U で防御スキルを切替、戦闘中は X で発動。'},cheat:{title:'パスワードを入力',ph:'パスワード',ok:'OK',cancel:'キャンセル',wrong:'パスワードが違う',badge:'管理者モード',exit:'終了',on:'管理者モード：生命 / 攻撃 / 防御 +10000',off:'管理者モード終了。能力値を元に戻した',tpAny:'管理者：任意の階へ直接転送（地下含む）'},
-  cb:{hp:'HP',en:'エナジー',st:'体力',atk:'攻',def:'防',vs:'VS',attack:'通常攻撃',skill:'スキル',flee:'逃走',hero:'勇者',pause:'一時停止',resume:'再開',crit:'会心!',critArmed:'発動準備',critNeed:'エナジー20が必要',atkSkills:'攻撃スキル',defSkills:'防御スキル',pickHint:'装備するスキルをタップ',noneFound:'この種類のスキルはまだない',equipped:'{n} を装備',none:'—',stamShort:'体',needLv:'レベル {n} が必要',needEnStam:'エナジーか体力が不足',noAtkSkill:'攻撃スキル未装備',noDefSkill:'防御スキル未装備',atkUse:'攻撃技',defUse:'防御技'},
+  cb:{hp:'HP',en:'エナジー',st:'体力',atk:'攻',def:'防',vs:'VS',attack:'通常攻撃',skill:'スキル',flee:'逃走',hero:'プレイヤー',pause:'一時停止',resume:'再開',crit:'会心!',critArmed:'発動準備',critNeed:'エナジー20が必要',atkSkills:'攻撃スキル',defSkills:'防御スキル',pickHint:'装備するスキルをタップ',noneFound:'この種類のスキルはまだない',equipped:'{n} を装備',none:'—',stamShort:'体',needLv:'レベル {n} が必要',needEnStam:'エナジーか体力が不足',noAtkSkill:'攻撃スキル未装備',noDefSkill:'防御スキル未装備',atkUse:'攻撃技',defUse:'防御技'},
   status:{normal:'正常',poison:'毒',weak:'衰弱'},
   col:{y:'黄',b:'青',r:'赤',w:'白',p:'プラチナ'},
   ab:{poison:'毒',weak:'衰弱',multi:'連撃',solid:'高防御',boss:'BOSS',drain:'消耗',vampire:'吸血',pierce:'防御貫通',first:'先制',magic:'魔法'},
@@ -1617,7 +1617,7 @@ const I18N = {
   title:'마탑',
   ui:{floor:'FLOOR',lv:'레벨',status:'상태',gold:'금화',hp:'생명',en:'에너지',st:'체력',atk:'공격',def:'방어',atkThr:'공격 임계',defThr:'방어 임계',exp:'경험',keys:'열쇠',aim:'조준',
       hint:'방향키 / WASD 이동 · 몬스터에 부딪혀 조준 · 스페이스 또는 조준 버튼으로 전투',manual:'몬스터 도감',teleport:'층 이동',help:'도움말',newGame:'새 게임',hintE:'몬스터 도감 획득! E로 열기(모바일은 「도감」). 각 몬스터의 수치를 확인할 수 있어요.',hintF:'층 이동 두루마리 획득! F로 사용(모바일은 「이동」). 탐험한 층 사이를 이동할 수 있어요.',hintYU:'PC: Y / U로 공격 / 방어 스킬 선택',hintAtk:'공격 스킬 습득! Y로 공격 스킬 전환, 전투 중 Z로 발동(필요 레벨 충족 시).',hintDef:'방어 스킬 습득! U로 방어 스킬 전환, 전투 중 X로 발동.'},cheat:{title:'비밀번호 입력',ph:'비밀번호',ok:'확인',cancel:'취소',wrong:'비밀번호가 틀림',badge:'관리자 모드',exit:'종료',on:'관리자 모드: 생명 / 공격 / 방어 +10000',off:'관리자 모드 종료, 능력치 복원',tpAny:'관리자: 임의의 층으로 직접 이동(지하 포함)'},
-  cb:{hp:'생명',en:'에너지',st:'체력',atk:'공',def:'방',vs:'VS',attack:'일반 공격',skill:'스킬',flee:'도망',hero:'용사',pause:'일시정지',resume:'계속',crit:'치명타!',critArmed:'준비됨',critNeed:'에너지 20 필요',atkSkills:'공격 스킬',defSkills:'방어 스킬',pickHint:'장착할 스킬을 탭하세요',noneFound:'아직 이 종류의 스킬이 없음',equipped:'{n} 장착',none:'—',stamShort:'체',needLv:'레벨 {n} 필요',needEnStam:'에너지나 체력 부족',noAtkSkill:'공격 스킬 미장착',noDefSkill:'방어 스킬 미장착',atkUse:'공격기',defUse:'방어기'},
+  cb:{hp:'생명',en:'에너지',st:'체력',atk:'공',def:'방',vs:'VS',attack:'일반 공격',skill:'스킬',flee:'도망',hero:'플레이어',pause:'일시정지',resume:'계속',crit:'치명타!',critArmed:'준비됨',critNeed:'에너지 20 필요',atkSkills:'공격 스킬',defSkills:'방어 스킬',pickHint:'장착할 스킬을 탭하세요',noneFound:'아직 이 종류의 스킬이 없음',equipped:'{n} 장착',none:'—',stamShort:'체',needLv:'레벨 {n} 필요',needEnStam:'에너지나 체력 부족',noAtkSkill:'공격 스킬 미장착',noDefSkill:'방어 스킬 미장착',atkUse:'공격기',defUse:'방어기'},
   status:{normal:'정상',poison:'중독',weak:'쇠약'},
   col:{y:'노란',b:'파란',r:'빨간',w:'하얀',p:'백금'},
   ab:{poison:'중독',weak:'쇠약',multi:'연타',solid:'고방어',boss:'BOSS',drain:'체력감소',vampire:'흡혈',pierce:'방어관통',first:'선제',magic:'마법'},
@@ -3723,7 +3723,7 @@ function showCombatEnd(){
   byId('cbEndBtn').style.display='';
   { const sw=byId('cbSwitch'); if(sw){ sw.style.display='none'; sw.innerHTML=''; } }
   { const _c=state.combat, _wp=byId('cbWinPanel'), _cm=byId('cbCombatants'), _lg=byId('cbLog');
-    if(_c && _c.win && _c.reward && _wp){ _wp.innerHTML='<div class="cbWinTtl">'+fmt(t('cb.winPopT'),{name:_c.reward.name})+'</div><div class="cbWinRew">'+fmt(t('cb.winPopR'),{g:_c.reward.g,e:_c.reward.e})+'</div>'; _wp.style.display='block'; if(_cm) _cm.style.display='none'; if(_lg) _lg.style.display='none'; }
+    if(_c && _c.win && _c.reward && _wp){ _wp.innerHTML='<div class="cbWinTtl">'+fmt(t('cb.winPopT'),{name:_c.reward.name})+'</div><div class="cbWinRew">'+fmt(t('cb.winPopR'),{g:_c.reward.g,e:_c.reward.e})+'</div>'; _wp.style.display='block'; if(_lg) _lg.style.display='none'; }
     else { if(_wp) _wp.style.display='none'; } }
 }
 /* called by the Close button / Enter key after a fight ends */
@@ -6388,7 +6388,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·18 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·19 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6396,7 +6396,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·18 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·19 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
