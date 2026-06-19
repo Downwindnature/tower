@@ -948,6 +948,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .cmItem{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:8px;padding:5px 8px;}
 .cmThumb{width:34px;height:34px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.06);flex-shrink:0;}
 .cmName{flex:1;font-size:13px;color:var(--txt-dim);}
+.cmNameInp{flex:1;min-width:0;font-size:13px;color:var(--txt);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:6px;padding:4px 8px;}
 .cmItem .btn{padding:5px 10px;font-size:12px;}
 .cmPlay{min-width:40px;}
 /* ============ Responsive ============ */
@@ -3275,8 +3276,9 @@ FX_MAP.skill={}; FX_MAP.ability={};   /* per attack/defence skill (skill id) + p
 FX_MAP.skillSfx={}; FX_MAP.abilitySfx={};   /* matching custom sounds for skills / abilities */
 /* ===== custom uploaded attack media — images (GIF/PNG) for fx, short audio for sfx, kept in localStorage ===== */
 let CUSTOM_FX={}, CUSTOM_SFX={}, _customBuf={};
-function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } }
-function saveCustomMedia(){ try{ localStorage.setItem('mt_cfx', JSON.stringify(CUSTOM_FX)); }catch(e){} try{ localStorage.setItem('mt_csfx', JSON.stringify(CUSTOM_SFX)); }catch(e){} }
+let CUSTOM_FX_NAME={}, CUSTOM_SFX_NAME={};
+function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } try{ CUSTOM_FX_NAME=JSON.parse(localStorage.getItem('mt_cfxn')||'{}')||{}; }catch(e){ CUSTOM_FX_NAME={}; } try{ CUSTOM_SFX_NAME=JSON.parse(localStorage.getItem('mt_csfxn')||'{}')||{}; }catch(e){ CUSTOM_SFX_NAME={}; } }
+function saveCustomMedia(){ try{ localStorage.setItem('mt_cfx', JSON.stringify(CUSTOM_FX)); }catch(e){} try{ localStorage.setItem('mt_csfx', JSON.stringify(CUSTOM_SFX)); }catch(e){} try{ localStorage.setItem('mt_cfxn', JSON.stringify(CUSTOM_FX_NAME)); }catch(e){} try{ localStorage.setItem('mt_csfxn', JSON.stringify(CUSTOM_SFX_NAME)); }catch(e){} }
 function _nextCustomId(map,pfx){ let i=1; while(map[pfx+i]) i++; return pfx+i; }
 loadCustomMedia();
 function playCustomSfx(id){
@@ -3335,13 +3337,15 @@ function bindCustomMediaUI(){
           su=ev.target.closest('[data-sfxup]'), sd=ev.target.closest('[data-sfxdel]'), sp=ev.target.closest('[data-sfxplay]');
     if(fu){ const f=byId('admFxFile'); if(f){ f.value=''; f.click(); } return; }
     if(su){ const f=byId('admSfxFile'); if(f){ f.value=''; f.click(); } return; }
-    if(fd){ collectAdminDraft(); delete CUSTOM_FX[fd.getAttribute('data-fxdel')]; saveCustomMedia(); renderAdminBody(); return; }
-    if(sd){ collectAdminDraft(); const id=sd.getAttribute('data-sfxdel'); delete CUSTOM_SFX[id]; delete _customBuf[id]; saveCustomMedia(); renderAdminBody(); return; }
+    if(fd){ collectAdminDraft(); const _fid=fd.getAttribute('data-fxdel'); delete CUSTOM_FX[_fid]; delete CUSTOM_FX_NAME[_fid]; saveCustomMedia(); renderAdminBody(); return; }
+    if(sd){ collectAdminDraft(); const id=sd.getAttribute('data-sfxdel'); delete CUSTOM_SFX[id]; delete CUSTOM_SFX_NAME[id]; delete _customBuf[id]; saveCustomMedia(); renderAdminBody(); return; }
     if(sp){ playCustomSfx(sp.getAttribute('data-sfxplay')); return; }
     const stb=ev.target.closest('[data-sndtest]'); if(stb){ const w=stb.parentNode; const sel=w?w.querySelector('select[data-sound]'):null; sndTestPlay(stb.getAttribute('data-sndtest'), sel?sel.value:'default'); return; }
     const fpb=ev.target.closest('[data-fxprev]'); if(fpb){ const w=fpb.parentNode; const sel=w?w.querySelector('select'):null; if(sel) fxPreviewPlay(sel.value, fpb.getAttribute('data-crit')==='1'); return; }
   }); }
   if(ab){ ab.addEventListener('change', function(ev){
+    const fxn=ev.target.closest('[data-fxname]'); if(fxn){ collectAdminDraft(); CUSTOM_FX_NAME[fxn.getAttribute('data-fxname')]=(fxn.value||'').trim(); saveCustomMedia(); renderAdminBody(); return; }
+    const sfn=ev.target.closest('[data-sfxname]'); if(sfn){ collectAdminDraft(); CUSTOM_SFX_NAME[sfn.getAttribute('data-sfxname')]=(sfn.value||'').trim(); saveCustomMedia(); renderAdminBody(); return; }
     const wf=ev.target.closest('select[data-wlfloor]');
     if(wf){ collectAdminDraft(); _wlFloor=parseInt(wf.value,10)||1; renderAdminBody(); return; }
     const wm=ev.target.closest('input[data-wlmon]');
@@ -6384,7 +6388,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·16 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·17 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6392,7 +6396,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·16 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·17 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6479,8 +6483,10 @@ function setAdminTab(tab){
   buildAdminTabs();
   renderAdminBody();
 }
-function _fxCustomOpts(cur){ let o=''; for(const id in CUSTOM_FX){ o+='<option value="'+id+'"'+(id===cur?' selected':'')+'>'+t('admin.fxnCustom')+' '+id.replace('cfx','')+'</option>'; } return o; }
-function _sfxCustomOpts(cur){ let o=''; for(const id in CUSTOM_SFX){ o+='<option value="'+id+'"'+(id===cur?' selected':'')+'>'+t('admin.sndCustom')+' '+id.replace('csfx','')+'</option>'; } return o; }
+function customFxLabel(id){ const nm=CUSTOM_FX_NAME[id]; return (nm&&(''+nm).trim())?(''+nm).trim():(t('admin.fxnCustom')+' '+id.replace('cfx','')); }
+function customSfxLabel(id){ const nm=CUSTOM_SFX_NAME[id]; return (nm&&(''+nm).trim())?(''+nm).trim():(t('admin.sndCustom')+' '+id.replace('csfx','')); }
+function _fxCustomOpts(cur){ let o=''; for(const id in CUSTOM_FX){ o+='<option value="'+id+'"'+(id===cur?' selected':'')+'>'+customFxLabel(id)+'</option>'; } return o; }
+function _sfxCustomOpts(cur){ let o=''; for(const id in CUSTOM_SFX){ o+='<option value="'+id+'"'+(id===cur?' selected':'')+'>'+customSfxLabel(id)+'</option>'; } return o; }
 function _customFxManager(){
   const box=document.createElement('div'); box.className='adRowItem';
   let h='<div class="adName">\ud83d\uddbc\ufe0f '+t('admin.customFxTitle')+'</div>';
@@ -6488,7 +6494,7 @@ function _customFxManager(){
   h+='<button class="btn gold" data-fxup="1" style="margin-bottom:8px">'+t('admin.uploadFx')+'</button>';
   const ids=Object.keys(CUSTOM_FX);
   if(!ids.length){ h+='<p class="adNote">'+t('admin.noCustomFx')+'</p>'; }
-  else { h+='<div class="cmList">'; ids.forEach(function(id){ h+='<div class="cmItem"><img class="cmThumb" src="'+CUSTOM_FX[id]+'" alt=""><span class="cmName">'+t('admin.fxnCustom')+' '+id.replace('cfx','')+'</span><button class="btn btnDanger" data-fxdel="'+id+'">'+t('admin.del')+'</button></div>'; }); h+='</div>'; }
+  else { h+='<div class="cmList">'; ids.forEach(function(id){ h+='<div class="cmItem"><img class="cmThumb" src="'+CUSTOM_FX[id]+'" alt=""><input class="cmNameInp" data-fxname="'+id+'" value="'+(CUSTOM_FX_NAME[id]||'').replace(/"/g,'&quot;')+'" placeholder="'+t('admin.fxnCustom')+' '+id.replace('cfx','')+'"><button class="btn btnDanger" data-fxdel="'+id+'">'+t('admin.del')+'</button></div>'; }); h+='</div>'; }
   box.innerHTML=h; return box;
 }
 function _customSfxManager(){
@@ -6498,7 +6504,7 @@ function _customSfxManager(){
   h+='<button class="btn gold" data-sfxup="1" style="margin-bottom:8px">'+t('admin.uploadSfx')+'</button>';
   const ids=Object.keys(CUSTOM_SFX);
   if(!ids.length){ h+='<p class="adNote">'+t('admin.noCustomSfx')+'</p>'; }
-  else { h+='<div class="cmList">'; ids.forEach(function(id){ h+='<div class="cmItem"><button class="btn cmPlay" data-sfxplay="'+id+'">\u25b6</button><span class="cmName">'+t('admin.sndCustom')+' '+id.replace('csfx','')+'</span><button class="btn btnDanger" data-sfxdel="'+id+'">'+t('admin.del')+'</button></div>'; }); h+='</div>'; }
+  else { h+='<div class="cmList">'; ids.forEach(function(id){ h+='<div class="cmItem"><button class="btn cmPlay" data-sfxplay="'+id+'">\u25b6</button><input class="cmNameInp" data-sfxname="'+id+'" value="'+(CUSTOM_SFX_NAME[id]||'').replace(/"/g,'&quot;')+'" placeholder="'+t('admin.sndCustom')+' '+id.replace('csfx','')+'"><button class="btn btnDanger" data-sfxdel="'+id+'">'+t('admin.del')+'</button></div>'; }); h+='</div>'; }
   box.innerHTML=h; return box;
 }
 function adAtkFx(obj){ const cur=(obj&&obj.atkFx)||''; let o='<div class="adField"><label>'+t('admin.atkFx')+'</label><select data-k="atkFx"><option value="">'+t('admin.fxDefault')+'</option>'; FX_PRESETS.forEach(function(pp){ o+='<option value="'+pp+'"'+(pp===cur?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select></div>'; }
@@ -6701,7 +6707,7 @@ function renderAdminBody(){
       Object.keys(adminDraft.items).forEach(function(key){
         const it=adminDraft.items[key];
         const row=document.createElement('div'); row.className='adRowItem'; row.dataset.item=key;
-        row.innerHTML='<div class="adName">'+(it.face||'')+' '+_locDisplay(it,'item',key)+' <span style="color:var(--txt-faint);font-weight:400">('+key+')</span></div><div class="adGrid">'+
+        row.innerHTML='<div class="adName">'+(it.img?('<img class="adWlImg" src="'+it.img+'" alt="">'):(it.face||''))+' '+_locDisplay(it,'item',key)+' <span style="color:var(--txt-faint);font-weight:400">('+key+')</span></div><div class="adGrid">'+
           adText(t('admin.icon'),it,'face')+adNameLoc(it,'item',key)+adImg(it,'it_'+key)+'</div>';
         body.appendChild(row);
       });
