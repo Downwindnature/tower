@@ -3695,7 +3695,7 @@ function _foeShowHits(seq, foeCrit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('me','miss!','miss'); }
     else if(h){
-      pl.hp-=h.d; floatDmg('me','-'+h.d, foeCrit?'crit':null);
+      state.player.hp-=h.d; floatDmg('me','-'+h.d, foeCrit?'crit':null);
       if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=foeCrit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=foeCrit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, foeCrit, _fsnd); }catch(_e){} }
     }
     try{ renderCombat(); }catch(_e){}
@@ -3713,7 +3713,7 @@ function _meShowHits(seq, skill, crit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('foe','miss!','miss'); }
     else if(h){
-      foe.hp-=h.d; if(h.d===0){ zeroDmgFx('foe'); }
+      c2.foe.hp-=h.d; if(h.d===0){ zeroDmgFx('foe'); }
       else { const _pfx=(skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); try{ playAttackFx('foe', _pfx, crit, (skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); }catch(_e){} floatDmg('foe','-'+h.d, crit?'crit':null); }
     }
     try{ renderCombat(); }catch(_e){}
@@ -6430,7 +6430,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·21 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·22 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6438,7 +6438,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·21 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·22 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
