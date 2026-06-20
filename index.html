@@ -1875,16 +1875,16 @@ const ITEM_GAIN_DEF={
 const ITEM_GAIN_ORDER=['potR','potB','gemR','ironSword','silverSword','knightSword','holySword','divineSword','gemB','ironShield','silverShield','knightShield','holyShield','divineShield','bigGold','feather'];
 let ITEM_GAIN={}; (function(){ for(const k in ITEM_GAIN_DEF) ITEM_GAIN[k]=ITEM_GAIN_DEF[k].v; })();
 function itemGainN(id){ const v=ITEM_GAIN[id]; return (typeof v==='number'&&!isNaN(v))?v:(ITEM_GAIN_DEF[id]?ITEM_GAIN_DEF[id].v:0); }
-const SHOP_GLYPH={blue:'🏪',red:'🏬',old:'🧓',older:'👴',healP:'👵',healW:'🤶',keySell:'🔑',keyBuy:'💰',portal:'👴'};
+const SHOP_GLYPH={blue:'🏪',red:'🏬',old:'🧓',older:'👴',healP:'👵',healW:'🤶',keySell:'🔑',keyBuy:'💰',portal:'👴',hint:'🧙'};
 /* ===== Custom map-glyph images (admin-uploadable, cloud-synced). img=null -> use built-in emoji/CSS. ===== */
 let GLYPH_CFG={
   shop_blue:{face:'🏪',img:null}, shop_red:{face:'🏬',img:null},
   shop_old:{face:'🧓',img:null}, shop_older:{face:'👴',img:null},
   shop_healP:{face:'👵',img:null}, shop_healW:{face:'🤶',img:null},
-  shop_keySell:{face:'🔑',img:null}, shop_keyBuy:{face:'💰',img:null}, shop_portal:{face:'👴',img:null},
+  shop_keySell:{face:'🔑',img:null}, shop_keyBuy:{face:'💰',img:null}, shop_portal:{face:'👴',img:null}, shop_hint:{face:'🧙',img:null},
   stair_up:{face:'🪜',img:null}, stair_down:{face:'🪜',img:null}, lava:{face:'',img:null}
 };
-const GLYPH_ORDER=['shop_blue','shop_red','shop_old','shop_older','shop_healP','shop_healW','shop_keySell','shop_keyBuy','shop_portal','stair_up','stair_down','lava'];
+const GLYPH_ORDER=['shop_blue','shop_red','shop_old','shop_older','shop_healP','shop_healW','shop_keySell','shop_keyBuy','shop_portal','shop_hint','stair_up','stair_down','lava'];
 function glyphImg(key){ const g=GLYPH_CFG[key]; return (g&&g.img)?g.img:null; }
 function _glyphImgEl(src){ const im=document.createElement('img'); im.className='entImgGlyph'; im.src=src; im.alt=''; return im; }
 const KEY_OF={y:'keyY',b:'keyB',r:'keyR',w:'keyW',p:'keyP'};
@@ -2066,7 +2066,7 @@ function bfsReach(wall,from,block){
 function weightedMonster(pool,f){
   if(!pool.length) return MONSTERS[0];
   const arr=[];
-  pool.forEach(function(m,idx){ const w=1+Math.max(0, idx-Math.max(0,8-f)); for(let i=0;i<w;i++) arr.push(m); });
+  pool.forEach(function(m){ var w=(m.spawnW!=null)?Math.max(0,Math.round(m.spawnW)):1; for(var i=0;i<w;i++) arr.push(m); });   /* 各怪生成機率：後台 spawnW 權重，預設 1（均等），設 0 則不生成 */
   return pick(arr.length?arr:pool);
 }
 function _rolePick(pool, want){
@@ -2248,9 +2248,7 @@ function genFloorRaw(f){
         const foe=foeFn(); foe.big=true; foe.dropItem=treasureItem;
         data.ent[cy][cx]={kind:'monster',foe:foe};
         for(let yy=cy-1;yy<=cy+1;yy++) for(let xx=cx-1;xx<=cx+1;xx++){ if(xx===cx && yy===cy) continue; data.ent[yy][xx]={kind:'bigBody',ax:cx,ay:cy}; }
-        const kc=[];                                          // matching key on a reachable cell (vault always openable)
-        for(let y=0;y<=GRID-1;y++) for(let x=0;x<=GRID-1;x++){ if(wall[y][x]||data.ent[y][x]) continue; if(!seen[y][x]) continue; if((x===start.x&&y===start.y)||(x===stairs.x&&y===stairs.y)) continue; if(nearSpawn(data,{x:x,y:y})) continue; kc.push([x,y]); }
-        if(kc.length){ const kk=kc[Math.floor(RAND()*kc.length)]; data.ent[kk[1]][kk[0]]={kind:'item',item:KEY_OF[doorColor]}; }
+        /* 寶庫鑰匙改放在較早的其他樓層（state.vaultKeys / _placeVaultKey），不再與門同層 */
         return true;
       }
     }
@@ -2469,8 +2467,9 @@ function genFloorRaw(f){
     // GUARANTEE: the counter ends up walled on 3 sides with ONE reachable open front. Prefer a natural wall pocket;
     // if none exists, carve one by sealing the counter's extra open sides into shop-walls — but ONLY if the maze stays connected.
     var inB=function(x,y){ return x>=0&&y>=0&&x<GRID&&y<GRID; };
+    var nearBig=function(x,y){ for(var _dy=-1;_dy<=1;_dy++)for(var _dx=-1;_dx<=1;_dx++){ var ax=x+_dx,ay=y+_dy; if(ax>=0&&ay>=0&&ax<GRID&&ay<GRID){ var e=data.ent[ay][ax]; if(e&&(e.kind==='bigBody'||(e.kind==='monster'&&e.foe&&e.foe.big))) return true; } } return false; };
     var openFree=function(x,y){ return inB(x,y)&&!wall[y][x]&&!(data.ent[y][x]&&(data.ent[y][x].kind==='shop'||data.ent[y][x].kind==='shopwall')); };
-    var wallFree=function(x,y){ return x>=1&&y>=1&&x<GRID-1&&y<GRID-1&&wall[y][x]&&!data.ent[y][x]; };
+    var wallFree=function(x,y){ return x>=1&&y>=1&&x<GRID-1&&y<GRID-1&&wall[y][x]&&!data.ent[y][x]&&!nearBig(x,y); };
     var DIRS=[[0,1],[0,-1],[1,0],[-1,0]];
     var reach=bfsReach(wall,{x:start.x,y:start.y},null);
     var frontReach=function(x,y){ return !!(reach[y]&&reach[y][x]); };
@@ -2567,7 +2566,12 @@ function genFloorRaw(f){
   if(_realFloor===-7)  { if(placeShop('keyBuy', 1)) placeKeyGate('keyBuy');  }   // 收鑰匙的老人（地下 B7，強怪把守）
   // 解毒 / 解衰弱老人（治療服務）仍可在其他地下樓層出現、可重複，並在前方安排守衛
   if(_realFloor<0 && _realFloor!==-6 && _realFloor!==-11 && chance(MAPCFG.shopChance*0.5)){
-    if(placeShop((RAND()<0.5)?'healP':'healW', 1)) placeHealerGuard();
+    state.healPlaced=state.healPlaced||{};
+    let _hs=null;
+    if(!state.healPlaced.healP && !state.healPlaced.healW) _hs=(RAND()<0.5)?'healP':'healW';
+    else if(!state.healPlaced.healP) _hs='healP';
+    else if(!state.healPlaced.healW) _hs='healW';
+    if(_hs && placeShop(_hs, 1)){ state.healPlaced[_hs]=true; placeHealerGuard(); }
   }
   // ---- guard the staircase the player heads toward, so leaving the floor takes a fight (never on 1F) ----
   function placeStairGuard(){
@@ -4531,16 +4535,39 @@ function _genFindSecretWall(d){
   return top[Math.floor(RAND()*top.length)];
 }
 function _genPlaceHintOldMan(d){
-  const reach=reachAvoidBarriers(d, {x:d.start.x, y:d.start.y}), D=[[0,-1],[1,0],[0,1],[-1,0]], ends=[];
+  const D=[[0,-1],[1,0],[0,1],[-1,0]];
+  const reach=reachAvoidBarriers(d, {x:d.start.x, y:d.start.y});
+  const cells=[];
   for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
     if(d.wall[y][x] || d.ent[y][x]) continue;
     if(!(reach[y]&&reach[y][x])) continue;
     if((x===d.start.x&&y===d.start.y)||(x===d.stairs.x&&y===d.stairs.y)) continue;
     let open=0; for(let i=0;i<D.length;i++){ const ax=x+D[i][0],ay=y+D[i][1]; if(ax>=0&&ay>=0&&ax<GRID&&ay<GRID&&!d.wall[ay][ax]) open++; }
-    if(open===1) ends.push({x:x,y:y});                 /* dead-end: blocking it severs nothing */
+    cells.push({x:x,y:y,open:open});
   }
-  if(!ends.length) return false;
-  const c=ends[Math.floor(RAND()*ends.length)]; d.ent[c.y][c.x]={kind:'npc', shop:'hint'}; return true;
+  if(!cells.length) return false;
+  const ends=cells.filter(function(c){return c.open===1;});       /* dead-ends: a wall nook, always safe to block */
+  if(ends.length){ const c=ends[Math.floor(RAND()*ends.length)]; d.ent[c.y][c.x]={kind:'npc', shop:'hint'}; return true; }
+  cells.sort(function(a,b){return a.open-b.open;});                /* fallback for loop-only floors: the most corner-like cell that stays connected */
+  for(let k=0;k<cells.length;k++){ const c=cells[k];
+    d.wall[c.y][c.x]=true;
+    const r2=reachAvoidBarriers(d, {x:d.start.x, y:d.start.y}); let cut=false;
+    for(let yy=0;yy<GRID && !cut;yy++)for(let xx=0;xx<GRID;xx++){ if(!d.wall[yy][xx] && (reach[yy]&&reach[yy][xx]) && !(r2[yy]&&r2[yy][xx])){ cut=true; break; } }
+    d.wall[c.y][c.x]=false;
+    if(!cut){ d.ent[c.y][c.x]={kind:'npc', shop:'hint'}; return true; }
+  }
+  return false;
+}
+function _placeVaultKey(d,item){
+  const reach=reachAvoidBarriers(d, {x:d.start.x, y:d.start.y}); const cands=[];
+  for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
+    if(d.wall[y][x] || d.ent[y][x]) continue;
+    if(!(reach[y]&&reach[y][x])) continue;
+    if((x===d.start.x&&y===d.start.y)||(x===d.stairs.x&&y===d.stairs.y)) continue;
+    cands.push({x:x,y:y});
+  }
+  if(!cands.length) return false;
+  const c=cands[Math.floor(RAND()*cands.length)]; d.ent[c.y][c.x]={kind:'item',item:item}; return true;
 }
 function _showSecretHint(){
   const tag=floorTag(state.secretFloor);
@@ -4569,6 +4596,7 @@ function genFloor(f){
     d.f=f;                              /* keep the real floor identity (negative = basement) */
     if(f===state.secretFloor && state.secretWall==null){ const _w=_genFindSecretWall(d); if(_w) state.secretWall={floor:f, x:_w.x, y:_w.y}; }
     if(f===state.hintFloor){ try{ _genPlaceHintOldMan(d); }catch(_e){} }
+    if(state.vaultKeys){ for(var _vi=0;_vi<state.vaultKeys.length;_vi++){ if(state.vaultKeys[_vi].f===f){ try{ _placeVaultKey(d, state.vaultKeys[_vi].item); }catch(_e){} } } }
     if(f===2 && state.mode==='solo'){ try{ install2FGate(d); }catch(_e){} }   /* 任意門劇情關卡：封住 2F→3F，放老頭 */
     return d;
   } finally{ RAND=prev; }
@@ -4752,6 +4780,11 @@ function newGame(opts){
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null;
   state.secretFloor=3+(hashSeed(state.seed,777)%(FLOORS-3)); state.secretWall=null; state.secretReturn=null;   /* hidden 密室: one surface floor 3..FLOORS-1 hides the entry wall */
   state.hintFloor=2+(hashSeed(state.seed,555)%(FLOORS-2)); if(state.hintFloor===state.secretFloor) state.hintFloor=(state.hintFloor>2?state.hintFloor-1:state.hintFloor+1);   /* the hint old man lives on a different surface floor */
+  state.healPlaced={};
+  { var _kf1=10+(hashSeed(state.seed,901)%7);                                  /* 18F 白門寶庫的白鑰匙 -> 放在 10~16F */
+    var _kf2=-(1+(hashSeed(state.seed,902)%11));                               /* B12 白門寶庫的白鑰匙 -> 放在 B1~B11 */
+    var _kf3=-(1+(hashSeed(state.seed,903)%14)); if(_kf3===_kf2) _kf3=(_kf2>-14?_kf2-1:_kf2+1);   /* B15 白金門寶庫的白金鑰匙 -> 放在 B1~B14，避開 _kf2 */
+    state.vaultKeys=[{f:_kf1,item:'keyW'},{f:_kf2,item:'keyW'},{f:_kf3,item:'keyP'}]; }
   state.busy=false; state.kills=0; state.over=false; state.finished=false;
   state.basementUnlocked=false; state.startTime=Date.now(); state.hintsSeen={};
   state.cheatActive=false; state.cheatSnap=null;
@@ -4783,7 +4816,7 @@ function bindInput(){
     if(e.code==='KeyO' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inLobby()) openAdminEntry(); return; }   /* hidden admin entry — lobby only */
     if(e.code==='KeyT' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inGame() && !byId('combat').classList.contains('show')) openCheat(); return; }   /* hidden god-mode cheat — in-game only, never mid-combat */
     { const _t=e.target; if(_t && (_t.tagName==='INPUT' || _t.tagName==='TEXTAREA' || _t.tagName==='SELECT' || _t.isContentEditable)) return; }   /* typing in a field -> never hijack the key */
-    if(e.key==='Escape'){ e.preventDefault(); toggleSettingsMenu(); return; }   /* Esc summons the settings menu on the top-most layer */
+    if(e.key==='Escape'){ if(inLobby()) return; e.preventDefault(); toggleSettingsMenu(); return; }   /* Esc 叫出設定 — 但主畫面（startScreen）不觸發 */
     if(state._cineActive){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(typeof _cineProceed==='function') _cineProceed(); } return; }
     if(byId('combat').classList.contains('show')){
       if(e.key===' '||e.key==='Enter'){
@@ -5780,15 +5813,15 @@ const ADMIN_EMAILS = [
 /* ---- extra i18n (accounts + admin), merged into all 5 languages ---- */
 const I18N_ADMIN = {
 'zh-Hant':{acct:{title:'登入帳號',desc:'登入後即可把遊戲進度儲存到雲端。',emailLab:'電子郵件',passLab:'密碼',login:'登入',register:'註冊',logout:'登出',save:'立即儲存進度',load:'載入雲端進度',whoLab:'目前登入',adminBtn:'進入後台',adminLoginTitle:'管理員登入',cancel:'取消',adminOk:'管理員已登入',voiceRetry:'請重新操作一次',accountLab:'登入 / 帳號',close:'關閉',guestOnly:'未設定雲端，僅能本機遊玩',noFirebase:'尚未設定 Firebase，無法登入',needBoth:'請輸入電子郵件與密碼',working:'處理中…',ok:'成功！',fail:'失敗，請重試',loaded:'已載入雲端進度',noSave:'雲端沒有存檔',notAdmin:'你不是管理員',saved:'進度已儲存',adminHere:'你已經在管理員後台了'},
-  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值。出現樓層分「地上」「地下」兩段，各填最低~最高層；該段填 0＝不在那裡生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗體',role:'生成角色',role_any:'一般（預設）',role_wander:'只遊蕩',role_block:'擋路守衛',role_treasure:'守護寶物',abTrue:'真實傷害',abStatus:'異常狀態',abTag:'特性標籤',abCrit:'爆擊倍率',abNone:'無',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值',monDensity:'每層怪物數量',monDensityHint:'調整每層的遊蕩怪物數量（守衛怪物不受影響，地圖仍可破關）。',monWhitelist:'每層怪物白名單',monWhitelistHint:'先選一層樓，再勾選要在那層出現的怪物。不勾任何＝該層用預設（依各怪的樓層範圍）；勾選後該層只生成勾選的怪物。',wlFloorPick:'選擇樓層',wlActive:'白名單啟用',wlDefault:'預設（未限制）',trDensity:'每層寶物數量',trDensityHint:'調整每層散落的拾取物（藥水）數量。武器、技能書、寶石、金幣等關鍵寶物仍依固定規則擺放、不受影響。',surfaceFloors:'地上樓層',basementFloors:'地下樓層',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
+  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值。出現樓層分「地上」「地下」兩段，各填最低~最高層；該段填 0＝不在那裡生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',spawnW:'生成機率',drains:'耗體',role:'生成角色',role_any:'一般（預設）',role_wander:'只遊蕩',role_block:'擋路守衛',role_treasure:'守護寶物',abTrue:'真實傷害',abStatus:'異常狀態',abTag:'特性標籤',abCrit:'爆擊倍率',abNone:'無',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值',monDensity:'每層怪物數量',monDensityHint:'調整每層的遊蕩怪物數量（守衛怪物不受影響，地圖仍可破關）。',monWhitelist:'每層怪物白名單',monWhitelistHint:'先選一層樓，再勾選要在那層出現的怪物。不勾任何＝該層用預設（依各怪的樓層範圍）；勾選後該層只生成勾選的怪物。',wlFloorPick:'選擇樓層',wlActive:'白名單啟用',wlDefault:'預設（未限制）',trDensity:'每層寶物數量',trDensityHint:'調整每層散落的拾取物（藥水）數量。武器、技能書、寶石、金幣等關鍵寶物仍依固定規則擺放、不受影響。',surfaceFloors:'地上樓層',basementFloors:'地下樓層',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'zh-Hans':{acct:{title:'登录账号',desc:'登录后即可把游戏进度保存到云端。',emailLab:'电子邮件',passLab:'密码',login:'登录',register:'注册',logout:'登出',save:'立即保存进度',load:'载入云端进度',whoLab:'当前登录',adminBtn:'进入后台',adminLoginTitle:'管理员登录',cancel:'取消',adminOk:'管理员已登录',voiceRetry:'请重新操作一次',accountLab:'登录 / 账号',close:'关闭',guestOnly:'未配置云端，仅能本机游玩',noFirebase:'尚未配置 Firebase，无法登录',needBoth:'请输入电子邮件与密码',working:'处理中…',ok:'成功！',fail:'失败，请重试',loaded:'已载入云端进度',noSave:'云端没有存档',notAdmin:'你不是管理员',saved:'进度已保存',adminHere:'你已经在管理员后台了'},
-  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值。出现楼层分「地上」「地下」两段，各填最低~最高层；该段填 0＝不在那里生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',drains:'耗体',role:'生成角色',role_any:'一般（默认）',role_wander:'只游荡',role_block:'挡路守卫',role_treasure:'守护宝物',abTrue:'真实伤害',abStatus:'异常状态',abTag:'特性标签',abCrit:'爆击倍率',abNone:'无',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值',monDensity:'每层怪物数量',monDensityHint:'调整每层的游荡怪物数量（守卫怪物不受影响，地图仍可通关）。',monWhitelist:'每层怪物白名单',monWhitelistHint:'先选一层楼，再勾选要在那层出现的怪物。不勾任何＝该层用默认（依各怪的楼层范围）；勾选后该层只生成勾选的怪物。',wlFloorPick:'选择楼层',wlActive:'白名单启用',wlDefault:'默认（未限制）',trDensity:'每层宝物数量',trDensityHint:'调整每层散落的拾取物（药水）数量。武器、技能书、宝石、金币等关键宝物仍依固定规则摆放、不受影响。',surfaceFloors:'地上楼层',basementFloors:'地下楼层',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
+  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值。出现楼层分「地上」「地下」两段，各填最低~最高层；该段填 0＝不在那里生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',spawnW:'生成機率',drains:'耗体',role:'生成角色',role_any:'一般（默认）',role_wander:'只游荡',role_block:'挡路守卫',role_treasure:'守护宝物',abTrue:'真实伤害',abStatus:'异常状态',abTag:'特性标签',abCrit:'爆击倍率',abNone:'无',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值',monDensity:'每层怪物数量',monDensityHint:'调整每层的游荡怪物数量（守卫怪物不受影响，地图仍可通关）。',monWhitelist:'每层怪物白名单',monWhitelistHint:'先选一层楼，再勾选要在那层出现的怪物。不勾任何＝该层用默认（依各怪的楼层范围）；勾选后该层只生成勾选的怪物。',wlFloorPick:'选择楼层',wlActive:'白名单启用',wlDefault:'默认（未限制）',trDensity:'每层宝物数量',trDensityHint:'调整每层散落的拾取物（药水）数量。武器、技能书、宝石、金币等关键宝物仍依固定规则摆放、不受影响。',surfaceFloors:'地上楼层',basementFloors:'地下楼层',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'en':{acct:{title:'Sign in',desc:'Sign in to save your progress to the cloud.',emailLab:'Email',passLab:'Password',login:'Log in',register:'Register',logout:'Log out',save:'Save progress now',load:'Load cloud save',whoLab:'Signed in',adminBtn:'Open admin',adminLoginTitle:'Admin sign-in',cancel:'Cancel',adminOk:'Admin signed in',voiceRetry:'Please try again',accountLab:'Sign in / Account',close:'Close',guestOnly:'Cloud not set up — local play only',noFirebase:'Firebase not configured — cannot sign in',needBoth:'Enter email and password',working:'Working…',ok:'Success!',fail:'Failed, try again',loaded:'Cloud save loaded',noSave:'No cloud save found',notAdmin:'You are not an admin',saved:'Progress saved',adminHere:'You are already in the admin console'},
-  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster. Spawn floors split into Surface and Basement ranges (min-max each); set a range to 0 to skip that area.',surfMin:'Surf min',surfMax:'Surf max',baseMin:'Base min',baseMax:'Base max',drains:'Saps',role:'Spawn role',role_any:'Any (default)',role_wander:'Wander only',role_block:'Path blocker',role_treasure:'Treasure guard',abTrue:'True dmg',abStatus:'Ailment',abTag:'Trait',abCrit:'Crit \u00d7',abNone:'None',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults',monDensity:'Monsters per floor',monDensityHint:'Tune the wandering-monster count per floor (guards are unaffected, so floors stay solvable).',monWhitelist:'Per-floor monster whitelist',monWhitelistHint:'Pick a floor, then check the monsters allowed there. None checked = that floor uses defaults (per-monster ranges); checked = only those monsters spawn on that floor.',wlFloorPick:'Pick floor',wlActive:'Whitelist active',wlDefault:'Default (no limit)',trDensity:'Treasure per floor',trDensityHint:'Tune the loose pickups (potions) scattered per floor. Key treasures (weapons, skill books, gems, gold) keep their fixed placement and are unaffected.',surfaceFloors:'Surface floors',basementFloors:'Basement floors',densVeryFew:'Very few',densFew:'Few',densNormal:'Normal',densMany:'Many',densVeryMany:'Very many'}},
+  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster. Spawn floors split into Surface and Basement ranges (min-max each); set a range to 0 to skip that area.',surfMin:'Surf min',surfMax:'Surf max',baseMin:'Base min',baseMax:'Base max',spawnW:'Spawn Wt',drains:'Saps',role:'Spawn role',role_any:'Any (default)',role_wander:'Wander only',role_block:'Path blocker',role_treasure:'Treasure guard',abTrue:'True dmg',abStatus:'Ailment',abTag:'Trait',abCrit:'Crit \u00d7',abNone:'None',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults',monDensity:'Monsters per floor',monDensityHint:'Tune the wandering-monster count per floor (guards are unaffected, so floors stay solvable).',monWhitelist:'Per-floor monster whitelist',monWhitelistHint:'Pick a floor, then check the monsters allowed there. None checked = that floor uses defaults (per-monster ranges); checked = only those monsters spawn on that floor.',wlFloorPick:'Pick floor',wlActive:'Whitelist active',wlDefault:'Default (no limit)',trDensity:'Treasure per floor',trDensityHint:'Tune the loose pickups (potions) scattered per floor. Key treasures (weapons, skill books, gems, gold) keep their fixed placement and are unaffected.',surfaceFloors:'Surface floors',basementFloors:'Basement floors',densVeryFew:'Very few',densFew:'Few',densNormal:'Normal',densMany:'Many',densVeryMany:'Very many'}},
 'ja':{acct:{title:'ログイン',desc:'ログインすると進行状況をクラウドに保存できます。',emailLab:'メール',passLab:'パスワード',login:'ログイン',register:'登録',logout:'ログアウト',save:'今すぐ保存',load:'クラウドから読込',whoLab:'ログイン中',adminBtn:'管理画面へ',adminLoginTitle:'管理者ログイン',cancel:'キャンセル',adminOk:'管理者としてログイン',voiceRetry:'もう一度操作してください',accountLab:'ログイン / アカウント',close:'閉じる',guestOnly:'クラウド未設定 — ローカルのみ',noFirebase:'Firebase 未設定のためログイン不可',needBoth:'メールとパスワードを入力',working:'処理中…',ok:'成功！',fail:'失敗、再試行',loaded:'クラウドから読み込みました',noSave:'クラウドにデータなし',notAdmin:'管理者ではありません',saved:'保存しました',adminHere:'すでに管理画面にいます'},
-  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値を調整。出現階は「地上」「地下」の2レンジ（各 最小~最大）。0 にするとその領域に出現しません。',surfMin:'地上 最小',surfMax:'地上 最大',baseMin:'地下 最小',baseMax:'地下 最大',drains:'消耗',role:'生成の役割',role_any:'通常（既定）',role_wander:'徘徊のみ',role_block:'道塞ぎ',role_treasure:'宝の守護',abTrue:'防御無視',abStatus:'状態異常',abTag:'特性',abCrit:'会心倍率',abNone:'なし',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました',monDensity:'階ごとのモンスター数',monDensityHint:'各階の徘徊モンスター数を調整（ガード役は影響なし、攻略可能性は維持）。',monWhitelist:'階ごとのモンスター許可リスト',monWhitelistHint:'階を選び、その階に出すモンスターにチェック。未チェック＝既定（各モンスターの出現階）。チェックした場合、その階はチェックしたモンスターのみ出現。',wlFloorPick:'階を選択',wlActive:'許可リスト有効',wlDefault:'既定（制限なし）',trDensity:'階ごとのアイテム数',trDensityHint:'各階に散らばる拾得アイテム（ポーション）の数を調整。武器・スキル書・宝石・ゴールドなどの重要アイテムは固定配置で影響を受けません。',surfaceFloors:'地上階',basementFloors:'地下階',densVeryFew:'とても少ない',densFew:'少ない',densNormal:'普通',densMany:'多い',densVeryMany:'とても多い'}},
+  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値を調整。出現階は「地上」「地下」の2レンジ（各 最小~最大）。0 にするとその領域に出現しません。',surfMin:'地上 最小',surfMax:'地上 最大',baseMin:'地下 最小',baseMax:'地下 最大',spawnW:'出現重み',drains:'消耗',role:'生成の役割',role_any:'通常（既定）',role_wander:'徘徊のみ',role_block:'道塞ぎ',role_treasure:'宝の守護',abTrue:'防御無視',abStatus:'状態異常',abTag:'特性',abCrit:'会心倍率',abNone:'なし',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました',monDensity:'階ごとのモンスター数',monDensityHint:'各階の徘徊モンスター数を調整（ガード役は影響なし、攻略可能性は維持）。',monWhitelist:'階ごとのモンスター許可リスト',monWhitelistHint:'階を選び、その階に出すモンスターにチェック。未チェック＝既定（各モンスターの出現階）。チェックした場合、その階はチェックしたモンスターのみ出現。',wlFloorPick:'階を選択',wlActive:'許可リスト有効',wlDefault:'既定（制限なし）',trDensity:'階ごとのアイテム数',trDensityHint:'各階に散らばる拾得アイテム（ポーション）の数を調整。武器・スキル書・宝石・ゴールドなどの重要アイテムは固定配置で影響を受けません。',surfaceFloors:'地上階',basementFloors:'地下階',densVeryFew:'とても少ない',densFew:'少ない',densNormal:'普通',densMany:'多い',densVeryMany:'とても多い'}},
 'ko':{acct:{title:'로그인',desc:'로그인하면 진행 상황을 클라우드에 저장할 수 있습니다.',emailLab:'이메일',passLab:'비밀번호',login:'로그인',register:'가입',logout:'로그아웃',save:'지금 저장',load:'클라우드 불러오기',whoLab:'로그인됨',adminBtn:'관리자 페이지',adminLoginTitle:'관리자 로그인',cancel:'취소',adminOk:'관리자 로그인됨',voiceRetry:'다시 시도해 주세요',accountLab:'로그인 / 계정',close:'닫기',guestOnly:'클라우드 미설정 — 로컬만 가능',noFirebase:'Firebase 미설정 — 로그인 불가',needBoth:'이메일과 비밀번호를 입력',working:'처리 중…',ok:'성공!',fail:'실패, 다시 시도',loaded:'클라우드 저장을 불러왔습니다',noSave:'클라우드 저장 없음',notAdmin:'관리자가 아닙니다',saved:'진행 저장됨',adminHere:'이미 관리자 콘솔에 있습니다'},
-  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치 조정. 출현 층은 지상/지하 두 범위(각 최소~최대); 0으로 두면 해당 영역에 출현하지 않음.',surfMin:'지상 최소',surfMax:'지상 최대',baseMin:'지하 최소',baseMax:'지하 최대',drains:'소모',role:'생성 역할',role_any:'일반(기본)',role_wander:'배회만',role_block:'길막이',role_treasure:'보물 수호',abTrue:'방어 무시',abStatus:'상태이상',abTag:'특성',abCrit:'치명 배율',abNone:'없음',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원',monDensity:'층별 몬스터 수',monDensityHint:'각 층의 배회 몬스터 수를 조정(가드 몬스터는 영향 없음, 클리어 가능 유지).',monWhitelist:'층별 몬스터 화이트리스트',monWhitelistHint:'층을 선택한 뒤 그 층에 나올 몬스터를 체크. 미체크＝기본값(각 몬스터 범위); 체크 시 그 층은 체크한 몬스터만 출현.',wlFloorPick:'층 선택',wlActive:'화이트리스트 적용',wlDefault:'기본값(제한 없음)',trDensity:'층별 아이템 수',trDensityHint:'각 층에 흩어진 습득물(물약) 수를 조정. 무기·스킬북·보석·골드 등 핵심 보물은 고정 배치로 영향받지 않음.',surfaceFloors:'지상층',basementFloors:'지하층',densVeryFew:'아주 적음',densFew:'적음',densNormal:'보통',densMany:'많음',densVeryMany:'아주 많음'}}
+  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치 조정. 출현 층은 지상/지하 두 범위(각 최소~최대); 0으로 두면 해당 영역에 출현하지 않음.',surfMin:'지상 최소',surfMax:'지상 최대',baseMin:'지하 최소',baseMax:'지하 최대',spawnW:'생성 확률',drains:'소모',role:'생성 역할',role_any:'일반(기본)',role_wander:'배회만',role_block:'길막이',role_treasure:'보물 수호',abTrue:'방어 무시',abStatus:'상태이상',abTag:'특성',abCrit:'치명 배율',abNone:'없음',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원',monDensity:'층별 몬스터 수',monDensityHint:'각 층의 배회 몬스터 수를 조정(가드 몬스터는 영향 없음, 클리어 가능 유지).',monWhitelist:'층별 몬스터 화이트리스트',monWhitelistHint:'층을 선택한 뒤 그 층에 나올 몬스터를 체크. 미체크＝기본값(각 몬스터 범위); 체크 시 그 층은 체크한 몬스터만 출현.',wlFloorPick:'층 선택',wlActive:'화이트리스트 적용',wlDefault:'기본값(제한 없음)',trDensity:'층별 아이템 수',trDensityHint:'각 층에 흩어진 습득물(물약) 수를 조정. 무기·스킬북·보석·골드 등 핵심 보물은 고정 배치로 영향받지 않음.',surfaceFloors:'지상층',basementFloors:'지하층',densVeryFew:'아주 적음',densFew:'적음',densNormal:'보통',densMany:'많음',densVeryMany:'아주 많음'}}
 };
 (function mergeAdminI18n(){ for(const L in I18N_ADMIN){ if(!I18N[L]) continue; for(const ns in I18N_ADMIN[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, I18N_ADMIN[L][ns]); } } })();
 
@@ -6089,15 +6122,15 @@ const I18N_DEATHT = {
 
 /* ---- Batch-2 怪物能力 i18n（admin 標籤 + 戰鬥訊息） ---- */
 const I18N_AB2 = {
-'zh-Hant':{ admin:{abBonusDmg:'加成傷害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'復活一次', abAtkc:'連擊次數', abAtkcMin:'連擊min', abAtkcMax:'連擊max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
+'zh-Hant':{ admin:{abBonusDmg:'加成傷害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'復活一次', abAtkc:'連擊次數', abAtkcMin:'連擊min', abAtkcMax:'連擊max', abStatDownP:'削攻防%', abStatDownN:'削攻防+',abStatDown:'削攻防'},
   msg:{ revive:'怪物復活了！', cantFlee:'無法從這個敵人身邊逃跑！', statDown:'你的攻擊與防禦被削弱了！' } },
-'zh-Hans':{ admin:{abBonusDmg:'加成伤害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'复活一次', abAtkc:'连击次数', abAtkcMin:'连击min', abAtkcMax:'连击max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
+'zh-Hans':{ admin:{abBonusDmg:'加成伤害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'复活一次', abAtkc:'连击次数', abAtkcMin:'连击min', abAtkcMax:'连击max', abStatDownP:'削攻防%', abStatDownN:'削攻防+',abStatDown:'削攻防'},
   msg:{ revive:'怪物复活了！', cantFlee:'无法从这个敌人身边逃跑！', statDown:'你的攻击与防御被削弱了！' } },
-'en':{ admin:{abBonusDmg:'Bonus dmg', abDrainEn:'Drain EN', abNoFlee:'No flee', abRevive:'Revive 1x', abAtkc:'Hit count', abAtkcMin:'Hits min', abAtkcMax:'Hits max', abStatDownP:'Weaken%', abStatDownN:'Weaken+'},
+'en':{ admin:{abBonusDmg:'Bonus dmg', abDrainEn:'Drain EN', abNoFlee:'No flee', abRevive:'Revive 1x', abAtkc:'Hit count', abAtkcMin:'Hits min', abAtkcMax:'Hits max', abStatDownP:'Weaken%', abStatDownN:'Weaken+',abStatDown:'Weaken'},
   msg:{ revive:'The monster revived!', cantFlee:"You can't flee from this enemy!", statDown:'Your attack and defense were weakened!' } },
-'ja':{ admin:{abBonusDmg:'追加ダメ', abDrainEn:'気力吸収', abNoFlee:'逃走不可', abRevive:'一度復活', abAtkc:'連撃回数', abAtkcMin:'連撃min', abAtkcMax:'連撃max', abStatDownP:'弱体%', abStatDownN:'弱体+'},
+'ja':{ admin:{abBonusDmg:'追加ダメ', abDrainEn:'気力吸収', abNoFlee:'逃走不可', abRevive:'一度復活', abAtkc:'連撃回数', abAtkcMin:'連撃min', abAtkcMax:'連撃max', abStatDownP:'弱体%', abStatDownN:'弱体+',abStatDown:'弱体'},
   msg:{ revive:'魔物が復活した！', cantFlee:'この敵からは逃げられない！', statDown:'攻撃力と防御力が弱体化した！' } },
-'ko':{ admin:{abBonusDmg:'추가뎀', abDrainEn:'기력흡수', abNoFlee:'도주불가', abRevive:'1회부활', abAtkc:'연타 횟수', abAtkcMin:'연타min', abAtkcMax:'연타max', abStatDownP:'약화%', abStatDownN:'약화+'},
+'ko':{ admin:{abBonusDmg:'추가뎀', abDrainEn:'기력흡수', abNoFlee:'도주불가', abRevive:'1회부활', abAtkc:'연타 횟수', abAtkcMin:'연타min', abAtkcMax:'연타max', abStatDownP:'약화%', abStatDownN:'약화+',abStatDown:'약화'},
   msg:{ revive:'몬스터가 부활했다!', cantFlee:'이 적에게서 도망칠 수 없다!', statDown:'공격력과 방어력이 약화되었다!' } }
 };
 (function mergeAB2(){ for(const L in I18N_AB2){ if(!I18N[L]) continue; const S=I18N_AB2[L];
@@ -6381,7 +6414,7 @@ function applyConfig(cfg){
 let saveTimer=null;
 function serializeRun(){
   return { player:state.player, floor:state.floor, maxFloor:state.maxFloor, minFloor:state.minFloor, seed:state.seed,
-           kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, secretReturn:(state.secretReturn||null), secretFloor:(state.secretFloor==null?null:state.secretFloor), secretWall:(state.secretWall||null), hintFloor:(state.hintFloor==null?null:state.hintFloor), basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
+           kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, secretReturn:(state.secretReturn||null), secretFloor:(state.secretFloor==null?null:state.secretFloor), secretWall:(state.secretWall||null), hintFloor:(state.hintFloor==null?null:state.hintFloor), healPlaced:(state.healPlaced||null), vaultKeys:(state.vaultKeys||null), basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
 }
 function _fbSafe(o){ try{ return JSON.parse(JSON.stringify(o===undefined?null:o)); }catch(e){ return o; } }   /* Realtime DB rejects undefined/NaN/Infinity; round-trip sanitises */
 function cloudSave(now){
@@ -6417,6 +6450,8 @@ function restoreRun(s){
   state.secretReturn=s.secretReturn||null;
   state.secretFloor=(s.secretFloor==null?state.secretFloor:s.secretFloor); state.secretWall=s.secretWall||null;
   if(s.hintFloor!==undefined) state.hintFloor=s.hintFloor;
+  state.healPlaced=s.healPlaced||{};
+  if(s.vaultKeys!==undefined) state.vaultKeys=s.vaultKeys;
   state.floor=s.floor||1;
   if(!state.floors[state.floor]) ensureFloor(state.floor);
   const d=curFloor();
@@ -6565,7 +6600,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·39 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·43 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6573,7 +6608,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·39 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·43 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6731,8 +6766,8 @@ function renderAdminBody(){
         '<div class="adGrid">'+
         adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+adCritFx(m)+adCritSfx(m)+
         adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+
-        adNum(t('end.gold'),m,'gold')+adNum(t('ui.exp'),m,'exp')+adNum('atkc',m,'atkc')+
-        adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+
+        adNum(t('end.gold'),m,'gold')+adNum(t('ui.exp'),m,'exp')+
+        adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+adNum(t('admin.spawnW'),{spawnW:(m.spawnW!=null?m.spawnW:1)},'spawnW')+
         adMonAbilities(m)+
         '</div>';
       body.appendChild(row);
@@ -6758,7 +6793,7 @@ function renderAdminBody(){
         '<div class="adGrid">'+
         adText(t('admin.icon'),sk,'face')+adNameLoc(sk)+adText(t('admin.mid'),sk,'id','',24)+adImg(sk,'sk')+adAtkFx(sk)+adAtkSfx(sk)+adCritFx(sk)+adCritSfx(sk)+
         adNum('HP',sk,'hp')+adNum(t('ui.atk'),sk,'atk')+adNum(t('ui.def'),sk,'def')+
-        adNum(t('end.gold'),sk,'gold')+adNum(t('ui.exp'),sk,'exp')+adNum('atkc',sk,'atkc')+
+        adNum(t('end.gold'),sk,'gold')+adNum(t('ui.exp'),sk,'exp')+
         adNum(t('admin.baseMin'),sk,'bMin')+adNum(t('admin.baseMax'),sk,'bMax')+
         adMonAbilities(sk)+
         '</div>';
@@ -6773,7 +6808,7 @@ function renderAdminBody(){
       row.innerHTML='<div class="adName">'+(b.face||'🐉')+' '+_admName(b)+' <span style="color:var(--txt-faint);font-weight:400">('+b.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
         adText(t('admin.icon'),b,'face')+adNameLoc(b)+adText(t('admin.mid'),b,'id','',24)+adImg(b,(isBase?'bboss':'boss'))+adAtkFx(b)+adAtkSfx(b)+adCritFx(b)+adCritSfx(b)+
         adNum('HP',b,'hp')+adNum(t('ui.atk'),b,'atk')+adNum(t('ui.def'),b,'def')+
-        adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adNum('atkc',b,'atkc')+adFixedFloor(b)+adMonAbilities(b)+'</div>';
+        adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adFixedFloor(b)+adMonAbilities(b)+'</div>';
       body.appendChild(row);
     };
     hdr(t('admin.topBoss')); bossRow(adminDraft.boss,false);
@@ -6785,7 +6820,7 @@ function renderAdminBody(){
         row.innerHTML='<div class="adName">'+(g.face||'🐉')+' '+_admName(g)+' <span style="color:var(--txt-faint);font-weight:400">('+g.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
           adText(t('admin.icon'),g,'face')+adNameLoc(g)+adText(t('admin.mid'),g,'id','',24)+adImg(g,'g'+gi)+adAtkFx(g)+adAtkSfx(g)+adCritFx(g)+adCritSfx(g)+
           adNum('HP',g,'hp')+adNum(t('ui.atk'),g,'atk')+adNum(t('ui.def'),g,'def')+
-          adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adNum('atkc',g,'atkc')+adFixedFloor(g)+adMonAbilities(g)+'</div>';
+          adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adFixedFloor(g)+adMonAbilities(g)+'</div>';
         body.appendChild(row);
       });
     }
@@ -6946,22 +6981,46 @@ function renderAdminBody(){
 }
 function hasAb(o,a){ if(!o) return false; const v=o.ab; return Array.isArray(v) ? v.indexOf(a)>=0 : v===a; }
 function abList(o){ if(!o) return []; const v=o.ab; return Array.isArray(v) ? v.slice() : (v?[v]:[]); }
+function _abChip(o){
+  var s='<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap"><input type="checkbox" '+o.cb+(o.on?' checked':'')+'>'+o.label;
+  if(o.set!=null){ s+='<span data-abset="'+o.key+'" style="display:'+(o.on?'inline-flex':'none')+';align-items:center;gap:3px;margin-left:1px">'+o.set+'</span>'; }
+  return s+'</label>';
+}
+function _abToggle(cb){
+  var key=cb.getAttribute('data-abtog'); var row=cb.closest('.adRowItem')||document;
+  var box=row.querySelector('[data-abset="'+key+'"]'); if(!box) return;
+  box.style.display = cb.checked ? 'inline-flex' : 'none';
+  var inps=box.querySelectorAll('[data-k]');
+  for(var i=0;i<inps.length;i++){ var inp=inps[i], off=inp.getAttribute('data-off'), on=inp.getAttribute('data-on');
+    if(cb.checked){ if(inp.value===''||inp.value===off) inp.value=on; } else { inp.value=off; }
+  }
+}
+function _abStatusToggle(cb){
+  if(!cb.checked) return; var row=cb.closest('.adRowItem')||document;
+  var all=row.querySelectorAll('input[data-abstatus]'); for(var i=0;i<all.length;i++){ if(all[i]!==cb) all[i].checked=false; }
+}
+function _abNum(key,on,off,val,step){ return '<input type="number" data-k="'+key+'" data-on="'+on+'" data-off="'+off+'"'+(step?' step="'+step+'"':'')+' value="'+val+'" style="width:58px;padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:13px">'; }
 function adMonAbilities(m){
-  return ''+
-        '<div class="adField"><label>'+t('admin.drains')+'</label><select data-k="drains"><option value="0"'+(m.drains?'':' selected')+'>—</option><option value="1"'+(m.drains?' selected':'')+'>✓</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.drainStam')+'</label><input type="number" data-k="drainStam" value="'+(m.drainStam!=null?m.drainStam:STAM_DRAIN)+'"></div>'+
-        '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
-        '<div class="adField"><label>'+t('admin.abTrue')+'</label><select data-k="trueDmg"><option value="0"'+(m.trueDmg?'':' selected')+'>'+t('admin.abNone')+'</option><option value="1"'+(m.trueDmg?' selected':'')+'>\u2713</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.abStatus')+'</label><select data-k="ability"><option value=""'+(!m.ability?' selected':'')+'>'+t('admin.abNone')+'</option><option value="poison"'+(m.ability==='poison'?' selected':'')+'>'+t('ab.poison')+'</option><option value="weak"'+(m.ability==='weak'?' selected':'')+'>'+t('ab.weak')+'</option></select></div>'+
-        '<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:5px 14px;padding:3px 0">'+['solid','vampire','pierce','first','magic','poison','weak'].map(function(av){return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer"><input type="checkbox" data-ab="'+av+'"'+(hasAb(m,av)?' checked':'')+'>'+t('ab.'+av)+'</label>';}).join('')+'</div></div>'+
-        adNum(t('admin.abCrit'),{critMult:(m.critMult!=null?m.critMult:2)},'critMult')+
-        '<div class=\"adField\"><label>'+t('admin.abDeath')+'</label><select data-k=\"deathTerrain\"><option value=\"\"'+(!m.deathTerrain?' selected':'')+'>'+t('admin.abNone')+'</option><option value=\"ice\"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value=\"lava\"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select></div>'+
-        adNum(t('admin.abBonusDmg'),m,'bonusDmg')+adNum(t('admin.abDrainEn'),m,'drainEn')+
-        adNum(t('admin.abAtkc'),{atkc:(m.atkc>0?m.atkc:1)},'atkc')+
-        adNum(t('admin.abStatDownP'),m,'statDownPct')+adNum(t('admin.abStatDownN'),m,'statDownN')+
-        '<div class="adField"><label>'+t('admin.abNoFlee')+'</label><select data-k="noFlee"><option value="0"'+(!m.noFlee?' selected':'')+'>—</option><option value="1"'+(m.noFlee?' selected':'')+'>✓</option></select></div>'+
-        '<div class="adField"><label>'+t('admin.abRevive')+'</label><select data-k="revive"><option value="0"'+(!m.revive?' selected':'')+'>—</option><option value="1"'+(m.revive?' selected':'')+'>✓</option></select></div>'+
-  '';
+  var h='<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
+  h+='<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:9px 15px;padding:3px 0;align-items:center">';
+  ['solid','vampire','pierce','first','magic'].forEach(function(av){ h+=_abChip({cb:'data-ab="'+av+'"', label:t('ab.'+av), on:hasAb(m,av)}); });
+  h+=_abChip({cb:'data-kbool="drains"', label:t('admin.drains'), on:!!m.drains});
+  h+=_abChip({cb:'data-kbool="trueDmg"', label:t('admin.abTrue'), on:!!m.trueDmg});
+  h+=_abChip({cb:'data-kbool="noFlee"', label:t('admin.abNoFlee'), on:!!m.noFlee});
+  h+=_abChip({cb:'data-kbool="revive"', label:t('admin.abRevive'), on:!!m.revive});
+  h+=_abChip({cb:'data-abstatus="poison" onchange="_abStatusToggle(this)"', label:t('ab.poison'), on:(m.ability==='poison'||hasAb(m,'poison'))});
+  h+=_abChip({cb:'data-abstatus="weak" onchange="_abStatusToggle(this)"', label:t('ab.weak'), on:(m.ability==='weak'||hasAb(m,'weak'))});
+  h+=_abChip({key:'atkc', cb:'data-abtog="atkc" onchange="_abToggle(this)"', label:t('admin.abAtkc'), on:(m.atkc||1)>1, set:_abNum('atkc',2,1,(m.atkc>0?m.atkc:1))});
+  h+=_abChip({key:'critMult', cb:'data-abtog="critMult" onchange="_abToggle(this)"', label:t('admin.abCrit'), on:(m.critMult!=null&&m.critMult>1), set:_abNum('critMult',2,1,(m.critMult!=null?m.critMult:1),'0.1')});
+  h+=_abChip({key:'bonusDmg', cb:'data-abtog="bonusDmg" onchange="_abToggle(this)"', label:t('admin.abBonusDmg'), on:(m.bonusDmg||0)>0, set:_abNum('bonusDmg',10,0,(m.bonusDmg||0))});
+  h+=_abChip({key:'drainEn', cb:'data-abtog="drainEn" onchange="_abToggle(this)"', label:t('admin.abDrainEn'), on:(m.drainEn||0)>0, set:_abNum('drainEn',10,0,(m.drainEn||0))});
+  h+=_abChip({key:'drainStam', cb:'data-abtog="drainStam" onchange="_abToggle(this)"', label:t('admin.drainStam'), on:(m.drainStam||0)>0, set:_abNum('drainStam',STAM_DRAIN,0,(m.drainStam!=null?m.drainStam:0))});
+  var sdOn=((m.statDownPct||0)>0||(m.statDownN||0)>0);
+  h+=_abChip({key:'statDown', cb:'data-abtog="statDown" onchange="_abToggle(this)"', label:t('admin.abStatDown'), on:sdOn, set:_abNum('statDownPct',10,0,(m.statDownPct||0))+'<span style="opacity:.6">%</span>'+_abNum('statDownN',5,0,(m.statDownN||0))+'<span style="opacity:.6">+</span>'});
+  var dtSel='<select data-k="deathTerrain" data-on="ice" data-off="" style="padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:13px"><option value=""'+(!m.deathTerrain?' selected':'')+'>\u2014</option><option value="ice"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value="lava"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select>';
+  h+=_abChip({key:'deathTerrain', cb:'data-abtog="deathTerrain" onchange="_abToggle(this)"', label:t('admin.abDeath'), on:!!m.deathTerrain, set:dtSel});
+  h+='</div></div>';
+  return h;
 }
 function _adPrev(){ return '<button type="button" data-prev class="adPrevBtn" style="margin-left:8px;padding:1px 9px;font-size:12px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);cursor:pointer;vertical-align:middle">👁 '+t('admin.preview')+'</button>'; }
 function _adRowMon(row){
@@ -7064,6 +7123,8 @@ function collectAdminDraft(){
       else { const num=parseFloat(fields[j].value); target[k]= isNaN(num)?0:num; }
     }
     { const _abx=row.querySelectorAll('input[data-ab]'); if(_abx.length){ const _aba=[]; for(let _j=0;_j<_abx.length;_j++){ if(_abx[_j].checked) _aba.push(_abx[_j].getAttribute('data-ab')); } target.ab=_aba; } }
+    { const _kb=row.querySelectorAll('input[data-kbool]'); for(let _j=0;_j<_kb.length;_j++){ const _kk=_kb[_j].getAttribute('data-kbool'); if(_kk==='drains') target.drains=_kb[_j].checked; else target[_kk]=_kb[_j].checked?1:0; } }
+    { const _ps=row.querySelector('input[data-abstatus="poison"]'), _ws=row.querySelector('input[data-abstatus="weak"]'); if(_ps||_ws) target.ability=(_ps&&_ps.checked)?'poison':((_ws&&_ws.checked)?'weak':''); }
     const _nlf=row.querySelectorAll('[data-knl]');
     if(_nlf.length){ if(!target.nameLoc||typeof target.nameLoc!=='object') target.nameLoc={}; for(let j=0;j<_nlf.length;j++){ let _lc=_nlf[j].getAttribute('data-knl')||''; if(!_lc||_lc==='1') _lc=_admRenderLang||'zh-Hant'; const _vv=(_nlf[j].value||'').trim(); if(_vv) target.nameLoc[_lc]=_vv; else delete target.nameLoc[_lc]; } }
   }
