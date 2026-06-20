@@ -162,6 +162,12 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .tile.lava{background:radial-gradient(circle at 50% 42%,#ff5a2a 0%,#c41a00 58%,#7a0e00 100%);box-shadow:inset 0 0 11px rgba(255,90,30,.55),inset 0 0 2px rgba(0,0,0,.5);animation:lavaFlash 1.2s ease-in-out infinite;}
 .tile.lava.lavaCustom{background-size:cover;background-position:center;background-repeat:no-repeat;animation:none;box-shadow:inset 0 0 2px rgba(0,0,0,.45);}
 @keyframes lavaFlash{0%,100%{filter:brightness(.9) saturate(1.2);}50%{filter:brightness(1.85) saturate(.5);}}
+.mcircle{position:absolute;inset:7%;z-index:2;pointer-events:none;animation:mcirclePulse 1.8s ease-in-out infinite;filter:drop-shadow(0 0 3px #c64bff);}
+.mcircle.secretExit{filter:drop-shadow(0 0 3px #46d6ff);}
+.mcircle svg{width:100%;height:100%;overflow:visible;display:block;}
+.mcircle svg circle,.mcircle svg path{fill:none;stroke:#c64bff;stroke-width:2;stroke-linejoin:round;}
+.mcircle.secretExit svg circle,.mcircle.secretExit svg path{stroke:#46d6ff;}
+@keyframes mcirclePulse{0%,100%{opacity:.5;transform:scale(.9) rotate(0deg);}50%{opacity:1;transform:scale(1.06) rotate(180deg);}}
 @keyframes lavaCracks{0%{filter:brightness(.82) saturate(1.25);box-shadow:inset 0 0 8px rgba(255,50,0,.45),inset 0 0 2px rgba(0,0,0,.55);}100%{filter:brightness(1.34) saturate(1.45);box-shadow:inset 0 0 16px rgba(255,95,12,.8),inset 0 0 2px rgba(0,0,0,.5);}}
 .tile.barrier{background:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAeAB4AAD/4QLoRXhpZgAATU0AKgAAAAgABAE7AAIAAAAKAAABSodpAAQAAAABAAABVJydAAEAAAAUAAACzOocAAcAAAEMAAAAPgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAd2VpdGFpLTAzAAAFkAMAAgAAABQAAAKikAQAAgAAABQAAAK2kpEAAgAAAAMwNQAAkpIAAgAAAAMwNQAA6hwABwAAAQwAAAGWAAAAABzqAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyMDI2OjA2OjE3IDE1OjIwOjUyADIwMjY6MDY6MTcgMTU6MjA6NTIAAAB3AGUAaQB0AGEAaQAtADAAMwAAAP/hBBxodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIi8+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPjx4bXA6Q3JlYXRlRGF0ZT4yMDI2LTA2LTE3VDE1OjIwOjUyLjA0NTwveG1wOkNyZWF0ZURhdGU+PC9yZGY6RGVzY3JpcHRpb24+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iPjxkYzpjcmVhdG9yPjxyZGY6U2VxIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+PHJkZjpsaT53ZWl0YWktMDM8L3JkZjpsaT48L3JkZjpTZXE+DQoJCQk8L2RjOmNyZWF0b3I+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/eHBhY2tldCBlbmQ9J3cnPz7/2wBDAAcFBQYFBAcGBQYIBwcIChELCgkJChUPEAwRGBUaGRgVGBcbHichGx0lHRcYIi4iJSgpKywrGiAvMy8qMicqKyr/2wBDAQcICAoJChQLCxQqHBgcKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKir/wAARCAA2ADQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDjtOtZrm+eCBGfIxwM12uk/Di4u7YT3BeE9hjFS/Ciyi/tKe9uhkRrnBFbeqajqWq6w8GmNIED4+XoK9XD0YuOp4uJxE1Pli9TMHwvVm4mYnvgU6L4YC3bdFIyD3rvooI9E0pGv3PnAZZ81kHXLXUJ3NuHl28JGp5z2NX7JP4Uckq9RPWRyF18LWRXdJXLHnbjrXG6rodzpjqLiGRFJwMjAr2+2uI9Ptybt/Nu5PupnJWsjx5ZNd+EHuLpAssfKcc1nKndWaOijiJKWsrnizfIxAGaKRI225bgn1ory3ue8noeofDF1vLG82/KSpBNegadY2nh20ku7l1LuM5rz74RyLax35K5EeTitHW9ROs6gI5rz7HErY2e1etSpynGy2PncTONOpzLcy/FXii81PV/7PhjzGwDA+1T+HZU0FxcognuZBgR+la+paJp5liayuUefylAAHJ461s+F/CiRsbu9G9yflBFdsq1ONPlOPkdSrpuSaN4bknvBquoSfvXO4J2FHxCYR+F7hhg4HSuolkjRTGkiq6jpnoK4rxfsfwvduZxMJOPpXmxqSnK72PTdONOCjHdnhT3Cztv2Y7UVCYGLtjgBscUV573PYWx6R8Ksuuoxty7rwB3q9qWhzTagSkRI3fMf6Vw3g7Xn0G9e8Gdq8GvSbXxzYTqLiOPdvOGNezharUfdPncdRkqup0/hzQBBGk9zhiB8oI6Vs32px2EJCKWfBwF7VyTfESCGMKIdtZlz4mt9TjbLOC3LFeKUqVSc7yKjXhTp2prUrp4hkn1mdFdmZgVJ9DUmrK8Pw5n88kSZ4zWaLzSrSYSMJM5ycHrWZ4y8ZxappiWNshjjXOB6/Wt6/LCCsjmw3PUqann3nOjMNx654op8SIykuxBzRXzjcrn16SsSxHyZXj6qRyKkmma1hKRkgtzwelFFbXa2MbJ7jre4uJflaUk46k1P5ktmu9ZXJPvRRR7Sfcfs49hjO8pDPI53DpmmTWCeZ8xJyOOelFFTOpJrVj5IroU3DRuVznFFFFQUf/Z) center/cover no-repeat,linear-gradient(135deg,#cfeeff,#6fc2ee 55%,#2f86c4);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),inset 0 -3px 6px rgba(0,45,90,.45),0 0 0 1px #1c5f8c,0 0 7px rgba(120,200,255,.4);}
 .tile.portalAimCell{box-shadow:inset 0 0 0 2px rgba(244,207,58,.8),inset 0 0 0 100px rgba(244,207,58,.16);z-index:2;}
@@ -1517,7 +1523,7 @@ const I18N = {
   status:{normal:'正常',poison:'中毒',weak:'衰弱'},
   col:{y:'黃色',b:'藍色',r:'紅色',w:'白色',p:'白金'},
   ab:{poison:'中毒',weak:'衰弱',multi:'連擊',solid:'高防',boss:'BOSS',drain:'耗體',vampire:'吸血',pierce:'破甲',first:'先攻',magic:'魔法'},
-  item:{potR:'紅色藥水',potB:'藍色藥水',vialR:'紅色水瓶',vialG:'綠色水瓶',gemR:'紅寶石',gemB:'藍寶石',bigGold:'大金幣',staff1:'翅膀拐杖',staff3:'閃光翅膀拐杖',jug:'十字水壺',feather:'白色羽毛',tpScroll:'傳送卷軸',bestiary:'怪物手冊',ironSword:'鐵劍',silverSword:'銀劍',knightSword:'騎士劍',holySword:'聖劍',divineSword:'神聖劍',ironShield:'鐵盾',silverShield:'銀盾',knightShield:'騎士盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黃鑰匙',keyB:'藍鑰匙',keyR:'紅鑰匙',keyW:'白鑰匙',keyP:'白金鑰匙',icePendant:'冰凍吊墜'},
+  item:{potR:'紅色藥水',potB:'藍色藥水',vialR:'紅色水瓶',vialG:'綠色水瓶',gemR:'紅寶石',gemB:'藍寶石',bigGold:'大金幣',staff1:'翅膀拐杖',staff3:'閃光翅膀拐杖',jug:'十字聖水',feather:'白色羽毛',tpScroll:'傳送卷軸',bestiary:'怪物手冊',ironSword:'鐵劍',silverSword:'銀劍',knightSword:'騎士劍',holySword:'聖劍',divineSword:'神聖劍',ironShield:'鐵盾',silverShield:'銀盾',knightShield:'騎士盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黃鑰匙',keyB:'藍鑰匙',keyR:'紅鑰匙',keyW:'白鑰匙',keyP:'白金鑰匙',icePendant:'冰凍吊墜'},
   mon:{slimeG:'綠史萊姆',slimeR:'紅史萊姆',slimeMan:'史萊姆人',bat:'闇影蝙蝠',bigBat:'巨型蝙蝠',skeleton:'骷髏人',skSoldier:'骷髏士兵',skWarrior:'骷髏戰士',skCaptain:'骷髏隊長',spiritSkel:'靈骷髏',orc:'獸人戰士',highOrc:'高級獸人',mage:'黑暗法師',archmage:'大法師',lich:'巫妖',zombie:'吸血殭屍',chaosMage:'混沌術士',mummy:'木乃伊',guard:'魔塔守衛',goldGuard:'黃金守衛',bronzeGuard:'青銅衛兵',golem:'石巨人',evilStone:'鬼邪石',knight:'骷髏騎士',darkKnight:'黑暗騎士',swordsman:'雙手劍兵',swordKing:'劍王',mimic:'偽裝寶箱',behemoth:'巨獸',poisonDragon:'毒龍',dragon:'魔塔巨龍',shadowFiend:'暗影魔',hellhound:'煉獄獵犬',voidMage:'虛空法師',boneWyrm:'骸骨毒蛇',fleshGolem:'血肉魔像',wraithLord:'怨靈領主',doomKnight:'厄災騎士',abyssTitan:'深淵泰坦',abyssLord:'深淵魔王',seerMage:'占卜法師',sorcerer:'咒術師',warlock:'黑術師',abyssMage:'深淵法師',doomMage:'末日法師',thunderMage:'雷術士',flameMage:'炎術師',chaosSorcerer:'渾沌術士',necroArchmage:'死靈大法師',goldenDragon:'黃金龍',flameZombie:'烈焰喪屍',bloodSwordsman:'血劍士',royalSwordsman:'皇室劍士',tentacleHorror:'觸手魔物',swordMaster:'魔劍之凱撒',shieldMaster:'靈盾之柏奇',redDragon:'紅龍',venomDragon:'毒龍',overlordGordon:'魔界之王·古頓'},
   skill:{crimson:{n:'赤紅斬',d:'消耗 30 能量，本回合攻擊傷害翻倍。'},pierce:{n:'破甲擊',d:'消耗 35 能量，本回合無視敵方防禦。'},shield:{n:'結晶盾',d:'消耗 25 能量，體力 +40，並使下次受到的傷害減半（本回合不攻擊）。'},breath:{n:'深呼吸',d:'不消耗能量，能量 +30、體力 +30（本回合不攻擊）。'}},
   shop:{blue:{n:'藍色次級商店',d:'以金幣兌換能力。'},red:{n:'紅色高級商店',d:'以金幣兌換更強能力。'},old:{n:'藍衣老人',d:'以經驗值兌換能力。'},older:{n:'年邁藍衣老人',d:'以經驗值兌換大量能力。'},healer:{n:'白衣治療老人',d:'以金幣解除中毒或衰弱，前方有怪物把守，需擊退才能靠近。'},healP:{n:'解毒老人',d:'地下專屬。以金幣解除中毒，前方有怪物把守，需擊退才能靠近。'},healW:{n:'解衰弱老人',d:'地下專屬。以金幣解除衰弱，前方有怪物把守，需擊退才能靠近。'},
@@ -1545,7 +1551,7 @@ const I18N = {
   status:{normal:'正常',poison:'中毒',weak:'虚弱'},
   col:{y:'黄色',b:'蓝色',r:'红色',w:'白色',p:'白金'},
   ab:{poison:'中毒',weak:'虚弱',multi:'连击',solid:'高防',boss:'BOSS',drain:'耗体',vampire:'吸血',pierce:'破甲',first:'先攻',magic:'魔法'},
-  item:{potR:'红色药水',potB:'蓝色药水',vialR:'红色水瓶',vialG:'绿色水瓶',gemR:'红宝石',gemB:'蓝宝石',bigGold:'大金币',staff1:'翅膀拐杖',staff3:'闪光翅膀拐杖',jug:'十字水壶',feather:'白色羽毛',tpScroll:'传送卷轴',bestiary:'怪物手册',ironSword:'铁剑',silverSword:'银剑',knightSword:'骑士剑',holySword:'圣剑',divineSword:'神圣剑',ironShield:'铁盾',silverShield:'银盾',knightShield:'骑士盾',holyShield:'圣盾',divineShield:'神圣盾',keyY:'黄钥匙',keyB:'蓝钥匙',keyR:'红钥匙',keyW:'白钥匙',keyP:'白金钥匙',icePendant:'冰冻吊坠'},
+  item:{potR:'红色药水',potB:'蓝色药水',vialR:'红色水瓶',vialG:'绿色水瓶',gemR:'红宝石',gemB:'蓝宝石',bigGold:'大金币',staff1:'翅膀拐杖',staff3:'闪光翅膀拐杖',jug:'十字圣水',feather:'白色羽毛',tpScroll:'传送卷轴',bestiary:'怪物手册',ironSword:'铁剑',silverSword:'银剑',knightSword:'骑士剑',holySword:'圣剑',divineSword:'神圣剑',ironShield:'铁盾',silverShield:'银盾',knightShield:'骑士盾',holyShield:'圣盾',divineShield:'神圣盾',keyY:'黄钥匙',keyB:'蓝钥匙',keyR:'红钥匙',keyW:'白钥匙',keyP:'白金钥匙',icePendant:'冰冻吊坠'},
   mon:{slimeG:'绿史莱姆',slimeR:'红史莱姆',slimeMan:'史莱姆人',bat:'暗影蝙蝠',bigBat:'巨型蝙蝠',skeleton:'骷髅人',skSoldier:'骷髅士兵',skWarrior:'骷髅战士',skCaptain:'骷髅队长',spiritSkel:'灵骷髅',orc:'兽人战士',highOrc:'高级兽人',mage:'黑暗法师',archmage:'大法师',lich:'巫妖',zombie:'吸血僵尸',chaosMage:'混沌术士',mummy:'木乃伊',guard:'魔塔守卫',goldGuard:'黄金守卫',bronzeGuard:'青铜卫兵',golem:'石巨人',evilStone:'鬼邪石',knight:'骷髅骑士',darkKnight:'黑暗骑士',swordsman:'双手剑兵',swordKing:'剑王',mimic:'伪装宝箱',behemoth:'巨兽',poisonDragon:'毒龙',dragon:'魔塔巨龙',shadowFiend:'暗影魔',hellhound:'炼狱猎犬',voidMage:'虚空法师',boneWyrm:'骸骨毒蛇',fleshGolem:'血肉魔像',wraithLord:'怨灵领主',doomKnight:'厄灾骑士',abyssTitan:'深渊泰坦',abyssLord:'深渊魔王',seerMage:'占卜法师',sorcerer:'咒术师',warlock:'黑术师',abyssMage:'深渊法师',doomMage:'末日法师',thunderMage:'雷术士',flameMage:'炎术师',chaosSorcerer:'浑沌术士',necroArchmage:'死灵大法师',goldenDragon:'黄金龙',flameZombie:'烈焰丧尸',bloodSwordsman:'血剑士',royalSwordsman:'皇室剑士',tentacleHorror:'触手魔物',swordMaster:'魔剑之凯撒',shieldMaster:'灵盾之柏奇',redDragon:'红龙',venomDragon:'毒龙',overlordGordon:'魔界之王·古顿'},
   skill:{crimson:{n:'赤红斩',d:'消耗 30 能量，本回合攻击伤害翻倍。'},pierce:{n:'破甲击',d:'消耗 35 能量，本回合无视敌方防御。'},shield:{n:'结晶盾',d:'消耗 25 能量，体力 +40，并使下次受到的伤害减半（本回合不攻击）。'},breath:{n:'深呼吸',d:'不消耗能量，能量 +30、体力 +30（本回合不攻击）。'}},
   shop:{blue:{n:'蓝色次级商店',d:'以金币兑换能力。'},red:{n:'红色高级商店',d:'以金币兑换更强能力。'},old:{n:'蓝衣老人',d:'以经验值兑换能力。'},older:{n:'年迈蓝衣老人',d:'以经验值兑换大量能力。'},healer:{n:'白衣治疗老人',d:'以金币解除中毒或虚弱，前方有怪物把守，需击退才能靠近。'},healP:{n:'解毒老人',d:'地下专属。以金币解除中毒，前方有怪物把守，需击退才能靠近。'},healW:{n:'解虚弱老人',d:'地下专属。以金币解除虚弱，前方有怪物把守，需击退才能靠近。'},
@@ -1573,7 +1579,7 @@ const I18N = {
   status:{normal:'Normal',poison:'Poison',weak:'Weak'},
   col:{y:'yellow',b:'blue',r:'red',w:'white',p:'platinum'},
   ab:{poison:'Poison',weak:'Weaken',multi:'Multi',solid:'Armored',boss:'BOSS',drain:'Saps',vampire:'Vampiric',pierce:'Pierce',first:'First Strike',magic:'Magic'},
-  item:{potR:'Red Potion',potB:'Blue Potion',vialR:'Red Vial',vialG:'Green Vial',gemR:'Ruby',gemB:'Sapphire',bigGold:'Big Coin',staff1:'Winged Staff',staff3:'Flashing Staff',jug:'Cross Flask',feather:'White Feather',tpScroll:'Teleport Scroll',bestiary:'Bestiary',ironSword:'Iron Sword',silverSword:'Silver Sword',knightSword:'Knight Sword',holySword:'Holy Sword',divineSword:'Divine Sword',ironShield:'Iron Shield',silverShield:'Silver Shield',knightShield:'Knight Shield',holyShield:'Holy Shield',divineShield:'Divine Shield',keyY:'Yellow Key',keyB:'Blue Key',keyR:'Red Key',keyW:'White Key',keyP:'Platinum Key',icePendant:'Ice Pendant'},
+  item:{potR:'Red Potion',potB:'Blue Potion',vialR:'Red Vial',vialG:'Green Vial',gemR:'Ruby',gemB:'Sapphire',bigGold:'Big Coin',staff1:'Winged Staff',staff3:'Flashing Staff',jug:'Holy Water',feather:'White Feather',tpScroll:'Teleport Scroll',bestiary:'Bestiary',ironSword:'Iron Sword',silverSword:'Silver Sword',knightSword:'Knight Sword',holySword:'Holy Sword',divineSword:'Divine Sword',ironShield:'Iron Shield',silverShield:'Silver Shield',knightShield:'Knight Shield',holyShield:'Holy Shield',divineShield:'Divine Shield',keyY:'Yellow Key',keyB:'Blue Key',keyR:'Red Key',keyW:'White Key',keyP:'Platinum Key',icePendant:'Ice Pendant'},
   mon:{slimeG:'Green Slime',slimeR:'Red Slime',slimeMan:'Slime Man',bat:'Shadow Bat',bigBat:'Giant Bat',skeleton:'Skeleton',skSoldier:'Skeleton Soldier',skWarrior:'Skeleton Warrior',skCaptain:'Skeleton Captain',spiritSkel:'Spirit Skeleton',orc:'Orc Warrior',highOrc:'Elite Orc',mage:'Dark Mage',archmage:'Archmage',lich:'Lich',zombie:'Vampire Zombie',chaosMage:'Chaos Sorcerer',mummy:'Mummy',guard:'Tower Guardian',goldGuard:'Golden Guardian',bronzeGuard:'Bronze Guard',golem:'Stone Golem',evilStone:'Evil Stone',knight:'Skeleton Knight',darkKnight:'Dark Knight',swordsman:'Greatsword Soldier',swordKing:'Sword King',mimic:'Mimic',behemoth:'Behemoth',poisonDragon:'Poison Dragon',dragon:'Tower Dragon',shadowFiend:'Shadow Fiend',hellhound:'Hellhound',voidMage:'Void Mage',boneWyrm:'Bone Wyrm',fleshGolem:'Flesh Golem',wraithLord:'Wraith Lord',doomKnight:'Doom Knight',abyssTitan:'Abyss Titan',abyssLord:'Abyss Lord',seerMage:'Seer Mage',sorcerer:'Sorcerer',warlock:'Warlock',abyssMage:'Abyss Mage',doomMage:'Doom Mage',thunderMage:'Thunder Mage',flameMage:'Flame Mage',chaosSorcerer:'Chaos Sorcerer',necroArchmage:'Necro Archmage',goldenDragon:'Golden Dragon',flameZombie:'Flame Zombie',bloodSwordsman:'Blood Swordsman',royalSwordsman:'Royal Swordsman',tentacleHorror:'Tentacle Horror',swordMaster:'Caesar the Sword Master',shieldMaster:'Berchi the Shield Master',redDragon:'Red Dragon',venomDragon:'Venom Dragon',overlordGordon:'Gordon, Overlord of the Abyss'},
   skill:{crimson:{n:'Crimson Slash',d:'Costs 30 energy. Doubles your attack damage this round.'},pierce:{n:'Armor Pierce',d:'Costs 35 energy. Ignores the foe defense this round.'},shield:{n:'Crystal Shield',d:'Costs 25 energy. +40 stamina and halves the next damage you take (you skip attacking).'},breath:{n:'Deep Breath',d:'No energy cost. +30 energy and +30 stamina (you skip attacking).'}},
   shop:{blue:{n:'Lesser Blue Shop',d:'Trade gold for power.'},red:{n:'Grand Red Shop',d:'Trade gold for greater power.'},old:{n:'Old Man in Blue',d:'Trade EXP for power.'},older:{n:'Ancient Man in Blue',d:'Trade EXP for great power.'},healer:{n:'Healer in White',d:'Spend gold to cure poison or weaken; a monster guards the way — defeat it to approach.'},healP:{n:'Antidote Elder',d:'Basement only. Spend gold to cure poison; a monster guards the way.'},healW:{n:'Restoration Elder',d:'Basement only. Spend gold to cure weaken; a monster guards the way.'},
@@ -1601,7 +1607,7 @@ const I18N = {
   status:{normal:'正常',poison:'毒',weak:'衰弱'},
   col:{y:'黄',b:'青',r:'赤',w:'白',p:'プラチナ'},
   ab:{poison:'毒',weak:'衰弱',multi:'連撃',solid:'高防御',boss:'BOSS',drain:'消耗',vampire:'吸血',pierce:'防御貫通',first:'先制',magic:'魔法'},
-  item:{potR:'赤いポーション',potB:'青いポーション',vialR:'赤い小瓶',vialG:'緑の小瓶',gemR:'ルビー',gemB:'サファイア',bigGold:'大金貨',staff1:'翼の杖',staff3:'輝く翼の杖',jug:'十字の水筒',feather:'白い羽根',tpScroll:'転送の巻物',bestiary:'魔物図鑑',ironSword:'鉄の剣',silverSword:'銀の剣',knightSword:'騎士の剣',holySword:'聖剣',divineSword:'神聖剣',ironShield:'鉄の盾',silverShield:'銀の盾',knightShield:'騎士の盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黄の鍵',keyB:'青の鍵',keyR:'赤の鍵',keyW:'白の鍵',keyP:'プラチナの鍵',icePendant:'氷結のペンダント'},
+  item:{potR:'赤いポーション',potB:'青いポーション',vialR:'赤い小瓶',vialG:'緑の小瓶',gemR:'ルビー',gemB:'サファイア',bigGold:'大金貨',staff1:'翼の杖',staff3:'輝く翼の杖',jug:'十字の聖水',feather:'白い羽根',tpScroll:'転送の巻物',bestiary:'魔物図鑑',ironSword:'鉄の剣',silverSword:'銀の剣',knightSword:'騎士の剣',holySword:'聖剣',divineSword:'神聖剣',ironShield:'鉄の盾',silverShield:'銀の盾',knightShield:'騎士の盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黄の鍵',keyB:'青の鍵',keyR:'赤の鍵',keyW:'白の鍵',keyP:'プラチナの鍵',icePendant:'氷結のペンダント'},
   mon:{slimeG:'緑スライム',slimeR:'赤スライム',slimeMan:'スライム人間',bat:'影コウモリ',bigBat:'大コウモリ',skeleton:'スケルトン',skSoldier:'スケルトン兵',skWarrior:'スケルトン戦士',skCaptain:'スケルトン隊長',spiritSkel:'霊スケルトン',orc:'オーク戦士',highOrc:'上級オーク',mage:'闇の魔導士',archmage:'大魔導士',lich:'リッチ',zombie:'吸血ゾンビ',chaosMage:'混沌術士',mummy:'ミイラ',guard:'塔の守護者',goldGuard:'黄金の守護者',bronzeGuard:'青銅兵',golem:'ストーンゴーレム',evilStone:'鬼邪石',knight:'スケルトン騎士',darkKnight:'ダークナイト',swordsman:'両手剣兵',swordKing:'剣王',mimic:'ミミック',behemoth:'ベヒーモス',poisonDragon:'毒龍',dragon:'塔のドラゴン',shadowFiend:'影の魔物',hellhound:'地獄の猟犬',voidMage:'虚空の魔導士',boneWyrm:'骸骨の毒蛇',fleshGolem:'血肉のゴーレム',wraithLord:'怨霊の王',doomKnight:'厄災の騎士',abyssTitan:'深淵のタイタン',abyssLord:'深淵の魔王',seerMage:'占術師',sorcerer:'呪術師',warlock:'黒魔術師',abyssMage:'深淵の魔導士',doomMage:'終焉の魔導士',thunderMage:'雷術士',flameMage:'炎術師',chaosSorcerer:'渾沌術士',necroArchmage:'死霊大魔導士',goldenDragon:'黄金龍',flameZombie:'烈火ゾンビ',bloodSwordsman:'血の剣士',royalSwordsman:'王室の剣士',tentacleHorror:'触手の魔物',swordMaster:'魔剣のカエサル',shieldMaster:'霊盾のベルキ',redDragon:'赤龍',venomDragon:'毒龍',overlordGordon:'魔界の王・ゴードン'},
   skill:{crimson:{n:'赤紅斬',d:'エナジー30消費。このラウンドの攻撃ダメージが2倍。'},pierce:{n:'破甲撃',d:'エナジー35消費。このラウンドは敵の防御を無視。'},shield:{n:'結晶盾',d:'エナジー25消費。体力+40、次に受けるダメージを半減（この回は攻撃しない）。'},breath:{n:'深呼吸',d:'エナジー消費なし。エナジー+30・体力+30（この回は攻撃しない）。'}},
   shop:{blue:{n:'青の下級商店',d:'金貨で能力と交換。'},red:{n:'赤の上級商店',d:'金貨でより強い能力と交換。'},old:{n:'青衣の老人',d:'経験値で能力と交換。'},older:{n:'年老いた青衣の老人',d:'経験値で大きな能力と交換。'},healer:{n:'白衣の治療老人',d:'金貨で毒や衰弱を治す。前を魔物が守っており、倒さないと近づけない。'},healP:{n:'解毒の老人',d:'地下専用。金貨で毒を治す。前を魔物が守っており、倒さないと近づけない。'},healW:{n:'衰弱回復の老人',d:'地下専用。金貨で衰弱を治す。前を魔物が守っており、倒さないと近づけない。'},
@@ -1629,7 +1635,7 @@ const I18N = {
   status:{normal:'정상',poison:'중독',weak:'쇠약'},
   col:{y:'노란',b:'파란',r:'빨간',w:'하얀',p:'백금'},
   ab:{poison:'중독',weak:'쇠약',multi:'연타',solid:'고방어',boss:'BOSS',drain:'체력감소',vampire:'흡혈',pierce:'방어관통',first:'선제',magic:'마법'},
-  item:{potR:'빨간 물약',potB:'파란 물약',vialR:'빨간 병',vialG:'초록 병',gemR:'루비',gemB:'사파이어',bigGold:'큰 금화',staff1:'날개 지팡이',staff3:'빛나는 날개 지팡이',jug:'십자 물통',feather:'하얀 깃털',tpScroll:'전송 두루마리',bestiary:'몬스터 도감',ironSword:'철검',silverSword:'은검',knightSword:'기사검',holySword:'성검',divineSword:'신성검',ironShield:'철방패',silverShield:'은방패',knightShield:'기사방패',holyShield:'성방패',divineShield:'신성방패',keyY:'노란 열쇠',keyB:'파란 열쇠',keyR:'빨간 열쇠',keyW:'하얀 열쇠',keyP:'백금 열쇠',icePendant:'빙결 펜던트'},
+  item:{potR:'빨간 물약',potB:'파란 물약',vialR:'빨간 병',vialG:'초록 병',gemR:'루비',gemB:'사파이어',bigGold:'큰 금화',staff1:'날개 지팡이',staff3:'빛나는 날개 지팡이',jug:'십자 성수',feather:'하얀 깃털',tpScroll:'전송 두루마리',bestiary:'몬스터 도감',ironSword:'철검',silverSword:'은검',knightSword:'기사검',holySword:'성검',divineSword:'신성검',ironShield:'철방패',silverShield:'은방패',knightShield:'기사방패',holyShield:'성방패',divineShield:'신성방패',keyY:'노란 열쇠',keyB:'파란 열쇠',keyR:'빨간 열쇠',keyW:'하얀 열쇠',keyP:'백금 열쇠',icePendant:'빙결 펜던트'},
   mon:{slimeG:'초록 슬라임',slimeR:'빨간 슬라임',slimeMan:'슬라임 인간',bat:'그림자 박쥐',bigBat:'큰 박쥐',skeleton:'해골',skSoldier:'해골 병사',skWarrior:'해골 전사',skCaptain:'해골 대장',spiritSkel:'영혼 해골',orc:'오크 전사',highOrc:'상급 오크',mage:'어둠의 마법사',archmage:'대마법사',lich:'리치',zombie:'흡혈 좀비',chaosMage:'혼돈 술사',mummy:'미라',guard:'마탑 수호자',goldGuard:'황금 수호자',bronzeGuard:'청동 병사',golem:'돌 골렘',evilStone:'귀사석',knight:'해골 기사',darkKnight:'다크 나이트',swordsman:'양손검 병사',swordKing:'검왕',mimic:'미믹',behemoth:'베히모스',poisonDragon:'독룡',dragon:'마탑 드래곤',shadowFiend:'그림자 마물',hellhound:'지옥의 사냥개',voidMage:'공허의 마법사',boneWyrm:'해골 독사',fleshGolem:'살점 골렘',wraithLord:'원혼 군주',doomKnight:'재앙의 기사',abyssTitan:'심연의 타이탄',abyssLord:'심연의 마왕',seerMage:'점술 마법사',sorcerer:'주술사',warlock:'흑마법사',abyssMage:'심연의 마법사',doomMage:'종말의 마법사',thunderMage:'뇌술사',flameMage:'염술사',chaosSorcerer:'혼돈술사',necroArchmage:'사령 대마법사',goldenDragon:'황금룡',flameZombie:'화염 좀비',bloodSwordsman:'피의 검사',royalSwordsman:'왕실 검사',tentacleHorror:'촉수 마물',swordMaster:'마검의 카이사르',shieldMaster:'영혼방패의 베르키',redDragon:'붉은 용',venomDragon:'독룡',overlordGordon:'마계의 왕·고든'},
   skill:{crimson:{n:'적홍참',d:'에너지 30 소모. 이번 라운드 공격 피해 2배.'},pierce:{n:'파갑격',d:'에너지 35 소모. 이번 라운드 적 방어 무시.'},shield:{n:'결정 방패',d:'에너지 25 소모. 체력 +40, 다음 받는 피해 절반(이번엔 공격하지 않음).'},breath:{n:'심호흡',d:'에너지 소모 없음. 에너지 +30, 체력 +30(이번엔 공격하지 않음).'}},
   shop:{blue:{n:'파란 하급 상점',d:'금화로 능력 교환.'},red:{n:'빨간 고급 상점',d:'금화로 더 강한 능력 교환.'},old:{n:'파란 옷 노인',d:'경험치로 능력 교환.'},older:{n:'늙은 파란 옷 노인',d:'경험치로 큰 능력 교환.'},healer:{n:'흰옷 치료 노인',d:'금화로 중독·쇠약 해제. 앞을 몬스터가 지키고 있어 물리쳐야 다가갈 수 있다.'},healP:{n:'해독 노인',d:'지하 전용. 금화로 중독 해제. 앞을 몬스터가 지키고 있어 물리쳐야 한다.'},healW:{n:'쇠약 회복 노인',d:'지하 전용. 금화로 쇠약 해제. 앞을 몬스터가 지키고 있어 물리쳐야 한다.'},
@@ -1654,18 +1660,19 @@ const I18N = {
 /* ============================== Config ============================== */
 let FLOORS=25, GRID=11;          /* top floor (boss) = 25 */
 const BASEMENT=20;               /* deepest basement = B20 (floor -20) */
+const SECRET_FLOOR=900;   /* sentinel floor id for the hidden 密室 (cross-holy-water vault) */
 let _realFloor=1;                /* real (possibly negative) floor of the level currently being generated */
 let FLOOR_CFG={};                /* per-floor wandering-monster density multiplier, keyed by real floor (admin Map tab). absent = 1x */
 let FLOOR_WL={};                 /* per-floor monster whitelist (array of ids), keyed by real floor; when set, overrides the range-based roster for that floor */
 let _wlFloor=1;                  /* floor currently being edited in the whitelist picker */
 let FLOOR_TR={};                 /* per-floor loose-pickup (treasure) density multiplier, keyed by real floor (admin Map tab). absent = 1x */
-function hasUp(f){ return f<FLOORS; }
-function hasDown(f){ return f>-BASEMENT; }
+function hasUp(f){ return f<FLOORS && f!==SECRET_FLOOR; }
+function hasDown(f){ return f>-BASEMENT && f!==SECRET_FLOOR; }
 function bossSealed(d){ if(!d||!d.boss||state.cheatActive) return false; for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ const e=d.ent[y]&&d.ent[y][x]; if(e&&e.isBoss) return true; } return false; }   /* boss floor with its boss still present -> no exit (until defeated); admin bypasses */
 function upFloor(f){ const n=f+1; return n===0?1:n; }     /* skip the non-existent 0F */
 function downFloor(f){ const n=f-1; return n===0?-1:n; }
 function effFloor(f){ return f>0 ? f : clamp(19+(-f),20,FLOORS-1); }  /* basements draw from the toughest floor-20+ roster (B1->20 ... B5+->24) */
-function floorTag(f){ return f>0 ? String(f) : ('B'+(-f)); }
+function floorTag(f){ if(f===SECRET_FLOOR) return ({'zh-Hant':'密室','zh-Hans':'密室','en':'Secret','ja':'隠し部屋','ko':'비밀의 방'})[state.lang]||'密室'; return f>0 ? String(f) : ('B'+(-f)); }
 function floorTitle(f){ var L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(typeof f!=='number'||!f) f=1;
   if(L==='en') return f>0 ? ('Floor '+f) : ('Floor B'+(-f));
   if(L==='ja') return f>0 ? (f+' 階') : ('地下 '+(-f)+' 階');
@@ -1768,7 +1775,7 @@ const MONSTERS=[
   {id:'slimeR',  face:'🟥', hp:80,   atk:28,  def:5,   gold:2,  exp:1,  atkc:1, agi:6,  minF:1,  maxF:6},
   /* 蝙蝠系 */
   {id:'bat',     face:'🦇', hp:60,   atk:22,  def:4,   gold:3,  exp:1,  atkc:1, agi:14, minF:3,  maxF:8},
-  {id:'bigBat',  face:'🦇', hp:170,  atk:50,  def:12,  gold:6,  exp:1,  atkc:2, agi:18, minF:9,  maxF:16, ab:'multi'},
+  {id:'bigBat',  face:'🦇', hp:170,  atk:50,  def:12,  gold:6,  exp:1,  atkc:2, agi:18, minF:9,  maxF:16, ab:null},
   /* 骷髏系 */
   {id:'skeleton',face:'💀', hp:120,  atk:40,  def:0,  gold:5,  exp:1,  atkc:1, agi:8,  minF:3,  maxF:9},
   {id:'skSoldier',face:'🗡️',hp:200,  atk:48,  def:5,  gold:8,  exp:2,  atkc:1, agi:9,  minF:5,  maxF:13},
@@ -1821,7 +1828,7 @@ const BOSS={id:'dragon', face:'🐉', hp:4000, atk:240, def:119, gold:100, exp:1
 // ===== Basement-exclusive bestiary (B10+): a completely different, far stronger breed =====
 const BASEMENT_MONSTERS=[
   {id:'shadowFiend', face:'👤', hp:2050,  atk:330, def:275, gold:130, exp:8, atkc:1, agi:14, minF:22, maxF:99, ability:'weak', ab:'weak', drains:true},
-  {id:'hellhound',   face:'🐺', hp:2200,  atk:380, def:330, gold:150, exp:8, atkc:2, agi:18, minF:22, maxF:99, ab:'multi'},
+  {id:'hellhound',   face:'🐺', hp:2200,  atk:380, def:330, gold:150, exp:8, atkc:2, agi:18, minF:22, maxF:99, ab:null},
   {id:'voidMage',    face:'🌑', hp:1450,  atk:90, def:250, gold:170, exp:9, atkc:1, agi:15, minF:22, maxF:99, trueDmg:true, ability:'poison', ab:'magic'},
   {id:'abyssMage',   face:'🌌', hp:1600,  atk:180, def:360, gold:185, exp:9, atkc:1, agi:16, minF:22, maxF:99, trueDmg:true, ability:'weak',   ab:'magic'},
   {id:'doomMage',    face:'☄️', hp:2000,  atk:360, def:400, gold:210, exp:10, atkc:1, agi:14, minF:22, maxF:99, trueDmg:true, ability:'poison', ab:'magic'},
@@ -1835,11 +1842,11 @@ const BASEMENT_MONSTERS=[
   {id:'chaosSorcerer',name:'渾沌術士',   face:'🌀', hp:1700, atk:130, def:340, gold:210, exp:10, atkc:1, agi:16, minF:22, maxF:99, trueDmg:true, ab:'magic',   atkFx:'chaos',    atkSfx:'zap'},
   {id:'necroArchmage',name:'死靈大法師', face:'💀', hp:1850, atk:160, def:360, gold:230, exp:10, atkc:1, agi:14, minF:22, maxF:99, trueDmg:true, ability:'weak', ab:'magic', atkFx:'archmage', atkSfx:'roar'},
   {id:'poisonDragon', name:'毒龍',       face:'🐲', hp:2500, atk:340, def:300, gold:240, exp:11, atkc:1, agi:10, minF:22, maxF:99, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite'},
-  {id:'goldenDragon', name:'黃金龍',     face:'🐉', hp:3000, atk:380, def:340, gold:600, exp:12, atkc:1, agi:11, minF:22, maxF:99, ab:'multi',   atkFx:'dragon',   atkSfx:'roar'},
+  {id:'goldenDragon', name:'黃金龍',     face:'🐉', hp:3000, atk:380, def:340, gold:600, exp:12, atkc:2, agi:11, minF:22, maxF:99, ab:null,   atkFx:'dragon',   atkSfx:'roar'},
   {id:'flameZombie',  name:'烈焰喪屍',   face:'🧟', hp:2200, atk:320, def:280, gold:200, exp:10, atkc:1, agi:7,  minF:22, maxF:99, ability:'weak', ab:'weak', atkFx:'fire', atkSfx:'thud'},
   {id:'bloodSwordsman',name:'血劍士',    face:'🗡️', hp:2400, atk:360, def:310, gold:230, exp:11, atkc:1, agi:15, minF:22, maxF:99, ab:'vampire', atkFx:'spell',    atkSfx:'slash'},
   {id:'royalSwordsman',name:'皇室劍士',  face:'⚔️', hp:2300, atk:410, def:350, gold:220, exp:11, atkc:1, agi:14, minF:22, maxF:99, ab:'pierce',  atkFx:'nova',     atkSfx:'slash'},
-  {id:'tentacleHorror',name:'觸手魔物',  face:'🦑', hp:2600, atk:95,  def:330, gold:250, exp:11, atkc:6, agi:12, minF:22, maxF:99, ab:'multi',   atkFx:'acid',     atkSfx:'bite'},
+  {id:'tentacleHorror',name:'觸手魔物',  face:'🦑', hp:2600, atk:95,  def:330, gold:250, exp:11, atkc:6, agi:12, minF:22, maxF:99, ab:null,   atkFx:'acid',     atkSfx:'bite'},
   {id:'swordMaster',  name:'魔劍之凱撒', face:'🦹', hp:3500, atk:520, def:400, gold:400, exp:14, atkc:2, agi:18, minF:22, maxF:99, b20:true, master:'sword', atkFx:'demon',    atkSfx:'roar'},
   {id:'shieldMaster', name:'靈盾之柏奇', face:'🛡️', hp:3500, atk:300, def:600, gold:400, exp:14, atkc:1, agi:6,  minF:22, maxF:99, b20:true, master:'shield', atkFx:'archmage', atkSfx:'boom'},
 ];
@@ -1948,7 +1955,7 @@ let state={
   target:null, combat:null, busy:false, kills:0, tile:36,
   hpRef:800, stRef:100, tipSeen:false, over:false, cheatActive:false, cheatSnap:null,
   px:0, py:0, curShop:null,
-  seed:0, mode:'solo', worldId:null, isHost:false, others:{}, cleared:{}, mpReady:false, finished:false, basementUnlocked:false, portalAim:false
+  seed:0, mode:'solo', worldId:null, isHost:false, others:{}, cleared:{}, mpReady:false, finished:false, basementUnlocked:false, portalAim:false, secretFloor:null, secretWall:null, secretReturn:null
 };
 
 function freshPlayer(){
@@ -1984,20 +1991,20 @@ function scaleFoe(base,f){
   };
 }
 function makeBoss(){
-  return {id:BOSS.id,face:BOSS.face,name:BOSS.name||null,img:BOSS.img||null,atkFx:BOSS.atkFx||null,atkSfx:BOSS.atkSfx||null,ability:BOSS.ability,ab:BOSS.ab,atkc:BOSS.atkc,agi:BOSS.agi||0,drains:!!BOSS.drains,
+  return {id:BOSS.id,face:BOSS.face,name:BOSS.name||null,img:BOSS.img||null,atkFx:BOSS.atkFx||null,atkSfx:BOSS.atkSfx||null,ability:BOSS.ability,ab:BOSS.ab,atkc:BOSS.atkc,agi:BOSS.agi||0,drains:!!BOSS.drains, trueDmg:!!BOSS.trueDmg, master:BOSS.master||null, critFx:BOSS.critFx||null, critSfx:BOSS.critSfx||null, deathTerrain:BOSS.deathTerrain||null, bonusDmg:BOSS.bonusDmg||0, drainEn:BOSS.drainEn||0, drainStam:(typeof BOSS.drainStam==='number'?BOSS.drainStam:null), noFlee:!!BOSS.noFlee, revive:!!BOSS.revive, statDownPct:BOSS.statDownPct||0, statDownN:BOSS.statDownN||0,
     maxhp:BOSS.hp,hp:BOSS.hp,atk:BOSS.atk,def:BOSS.def,gold:BOSS.gold,exp:BOSS.exp,
     thrA:40,thrD:30,boss:true};
 }
 const BASEMENT_BOSS={id:'overlordGordon', name:'魔界之王·古頓', face:'👹', hp:20000, atk:500, def:1100, gold:600, exp:600, atkc:4, agi:24, ab:'boss', atkFx:'demon', atkSfx:'boom'};
 function makeBasementBoss(){
-  return {id:BASEMENT_BOSS.id,face:BASEMENT_BOSS.face,name:BASEMENT_BOSS.name||null,img:BASEMENT_BOSS.img||null,atkFx:BASEMENT_BOSS.atkFx||null,atkSfx:BASEMENT_BOSS.atkSfx||null,ability:BASEMENT_BOSS.ability,ab:BASEMENT_BOSS.ab,atkc:BASEMENT_BOSS.atkc,agi:BASEMENT_BOSS.agi||0,drains:!!BASEMENT_BOSS.drains,trueDmg:!!BASEMENT_BOSS.trueDmg,master:BASEMENT_BOSS.master||null,
+  return {id:BASEMENT_BOSS.id,face:BASEMENT_BOSS.face,name:BASEMENT_BOSS.name||null,img:BASEMENT_BOSS.img||null,atkFx:BASEMENT_BOSS.atkFx||null,atkSfx:BASEMENT_BOSS.atkSfx||null,ability:BASEMENT_BOSS.ability,ab:BASEMENT_BOSS.ab,atkc:BASEMENT_BOSS.atkc,agi:BASEMENT_BOSS.agi||0,drains:!!BASEMENT_BOSS.drains,trueDmg:!!BASEMENT_BOSS.trueDmg,master:BASEMENT_BOSS.master||null, critFx:BASEMENT_BOSS.critFx||null, critSfx:BASEMENT_BOSS.critSfx||null, deathTerrain:BASEMENT_BOSS.deathTerrain||null, bonusDmg:BASEMENT_BOSS.bonusDmg||0, drainEn:BASEMENT_BOSS.drainEn||0, drainStam:(typeof BASEMENT_BOSS.drainStam==='number'?BASEMENT_BOSS.drainStam:null), noFlee:!!BASEMENT_BOSS.noFlee, revive:!!BASEMENT_BOSS.revive, statDownPct:BASEMENT_BOSS.statDownPct||0, statDownN:BASEMENT_BOSS.statDownN||0,
     maxhp:BASEMENT_BOSS.hp,hp:BASEMENT_BOSS.hp,atk:BASEMENT_BOSS.atk,def:BASEMENT_BOSS.def,gold:BASEMENT_BOSS.gold,exp:BASEMENT_BOSS.exp,
     thrA:60,thrD:55,boss:true};
 }
-function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,critFx:base.critFx||null,critSfx:base.critSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,drainStam:(typeof base.drainStam==='number'?base.drainStam:null),noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,master:base.master||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
+function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,critFx:base.critFx||null,critSfx:base.critSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,drainStam:(typeof base.drainStam==='number'?base.drainStam:null),noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,master:base.master||null,dropItem2:base.dropItem2||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
 const GUARD_DRAGONS={
   red:    {id:'redDragon',  name:'紅龍', face:'🐉', hp:760,  atk:58, def:26, gold:90,  exp:4, atkc:1, agi:8, thrA:45, thrD:35, atkFx:'dragon', atkSfx:'roar'},
-  poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite'}
+  poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite', dropItem2:'jug'}
 };
 const ABYSS_GUARD={id:'abyssLord', name:'深淵魔王', face:'😈', hp:16000, atk:1000, def:1000, gold:480, exp:400, atkc:2, agi:22, thrA:55, thrD:50, ability:'poison', ab:'boss', drains:true, atkFx:'demon', atkSfx:'boom'};
 const SWORD_KING={id:'swordKing', face:'🤺', hp:630, atk:175, def:55, gold:44, exp:4, atkc:4, agi:16, minF:15, maxF:24, ab:'pierce', atkFx:null, atkSfx:null};   /* 劍王：地下的獨立怪物（與雙手劍兵分開，各自設定）。地下生成時 scaleFoe 依深度縮放 */
@@ -2437,7 +2444,7 @@ function genFloorRaw(f){
   if(_realFloor===4) placeBlocked('gemB', false, ['y','b']);            // 前期防禦寶石（4F）
   if(_realFloor===6) placeBlocked('gemR', false, ['y','b']);            // 前期攻擊寶石（6F）
   if(f>=8 && f%6===4) placeBlocked('feather', true, ['y','b']);         // exp feather: f%6 bucket, occasional
-  if(_realFloor===13 || _realFloor===-13) placeBlocked('jug', true, ['p']);   // holy water: only 1-2 per WHOLE game, hardest gate (strong guard or platinum door)
+  /* 十字聖水 no longer scatters on 13F/B13 — it now lives ONLY inside the 密室 and drops from the basement 毒龍 */
   if(_realFloor===-16) placeBlocked('bk_zhuanti', true, ['w']);   // 轉體 (atk lv79) — 深淵深處（冰凍吊墜已改由深淵魔王掉落）
 
   // items
@@ -2718,7 +2725,7 @@ function genBossFloorRaw(f){
   data.ent[5][cx]={kind:'monster',foe:gFoe()};
   data.ent[7][cx]={kind:'monster',foe:gFoe()};
   // supply: a heal between fights, and recovery tucked in the boss-chamber corners
-  const supply=[[cx,4,'potB'],[cx,6,'potB'],[cx-1,8,'jug'],[cx+1,8,'vialG'],[cx-1,9,'gemR'],[cx+1,9,'gemB']];
+  const supply=[[cx,4,'potB'],[cx,6,'potB'],[cx-1,8,'potB'],[cx+1,8,'vialG'],[cx-1,9,'gemR'],[cx+1,9,'gemB']];
   for(let i=0;i<supply.length;i++){ const x=supply[i][0],y=supply[i][1],it=supply[i][2];
     if(x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x]&&!data.ent[y][x]&&!(x===start.x&&y===start.y)) data.ent[y][x]={kind:'item',item:it}; }
   return data;
@@ -2740,7 +2747,7 @@ function genBasementBossFloorRaw(f){
   data.ent[7][cx]={kind:'monster',foe:gFoe()};
   data.ent[5][cx]={kind:'monster',foe:masterFoe('swordMaster')};                     // 魔劍之凱撒
   data.ent[3][cx]={kind:'monster',foe:masterFoe('shieldMaster')};                    // 靈盾之柏奇
-  const supply=[[cx,6,'potB'],[cx,4,'potB'],[cx-1,2,'jug'],[cx+1,2,'jug'],[cx-1,1,'gemR'],[cx+1,1,'gemB']];
+  const supply=[[cx,6,'potB'],[cx,4,'potB'],[cx-1,2,'potB'],[cx+1,2,'potB'],[cx-1,1,'gemR'],[cx+1,1,'gemB']];
   for(let i=0;i<supply.length;i++){ const x=supply[i][0],y=supply[i][1],it=supply[i][2];
     if(x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x]&&!data.ent[y][x]&&!(x===arrive.x&&y===arrive.y)) data.ent[y][x]={kind:'item',item:it}; }
   return data;
@@ -2840,9 +2847,9 @@ function renderMap(){
           if(e.foe.big) cell.classList.add('bigAnchor');
           if(e.foe.img){ const im=document.createElement('img'); im.className='entImgMon'+(e.foe.big?' big3':''); im.src=e.foe.img; im.alt=''; cell.appendChild(im); }
           else { const gl=glyph(e.foe.face); if(e.foe.big) gl.classList.add('big3'); cell.appendChild(gl); }
-          if(state.target&&state.target.x===x&&state.target.y===y) cell.classList.add('targeted');
+          if(state.target&&state.target.x===x&&state.target.y===y){ cell.classList.add('targeted'); cell.style.animationDelay='-'+((Date.now()-_lavaClock)%1000)+'ms'; }
         }else if(e.kind==='bigBody'){
-          if(state.target&&state.target.x===x&&state.target.y===y) cell.classList.add('targeted');
+          if(state.target&&state.target.x===x&&state.target.y===y){ cell.classList.add('targeted'); cell.style.animationDelay='-'+((Date.now()-_lavaClock)%1000)+'ms'; }
         }else if(e.kind==='item'){
           if(ITEMS[e.item]&&ITEMS[e.item].img){
             const im=document.createElement('img'); im.className='entImgItem'; im.src=ITEMS[e.item].img; im.alt=''; cell.appendChild(im);
@@ -2858,11 +2865,13 @@ function renderMap(){
             else cell.appendChild(bookEl(ITEMS[e.item].book));   // CSS skill-book (red = attack, blue = defence)
           }else{
             const gl=glyph(ITEMS[e.item].face);
-            if(ITEMS[e.item].flash) gl.classList.add('flashStaff');
+            if(ITEMS[e.item].flash){ gl.classList.add('flashStaff'); gl.style.animationDelay='-'+((Date.now()-_lavaClock)%1100)+'ms'; }
             cell.appendChild(gl);
           }
         }else if(e.kind==='door'){
           const dr=document.createElement('div'); dr.className='door '+e.color; cell.appendChild(dr);
+        }else if(e.kind==='mcircle'||e.kind==='secretExit'){
+          const mc=document.createElement('div'); mc.className='mcircle'+(e.kind==='secretExit'?' secretExit':''); mc.innerHTML="<svg viewBox='0 0 40 40'><circle cx='20' cy='20' r='17'/><path d='M20 3L30 33.8L3.8 14.8L36.2 14.8L10 33.8Z'/></svg>"; mc.style.animationDelay='-'+((Date.now()-_lavaClock)%1800)+'ms'; cell.appendChild(mc);
         }else if(e.kind==='shop'){
           cell.classList.remove('wall'); cell.classList.add('floor'); cell.classList.add('shopTile'); cell.classList.add('shop-'+e.shop); { const _gs=glyphImg('shop_'+e.shop); cell.appendChild(_gs?_glyphImgEl(_gs):glyph(SHOP_GLYPH[e.shop])); }
         }else if(e.kind==='barrier'){
@@ -3026,6 +3035,7 @@ function openPortalStory(){
 }
 function openOldMan(cell){
   const pl=state.player; if(!pl) return;
+  if(cell && cell.shop==='hint'){ _showSecretHint(); return; }
   if(!pl.portalGot){ openPortalStory(); }
   else { openShop(cell); }
 }
@@ -3168,6 +3178,9 @@ function tryMove(dx,dy){
       state.player.keys[col]--; d.ent[ny][nx]=null; try{ sfx('door'); }catch(e){}
       toast(fmt(t('msg.useKey'),{c:colName(col)})); renderStats();
       mpClear(state.floor,nx,ny,'door');
+      if(state.secretWall && state.floor===state.secretWall.floor && nx===state.secretWall.x && ny===state.secretWall.y){
+        d.ent[ny][nx]={kind:'mcircle'}; try{ renderAll(); }catch(_e){} try{ toast(({'zh-Hant':'牆後浮現發光的法陣…','zh-Hans':'墙后浮现发光的法阵…','en':'A glowing circle appears…','ja':'光る魔法陣が現れた…','ko':'빛나는 마법진이 나타났다…'})[state.lang]||'…'); }catch(_e){} return;
+      }
     }else{ toast(fmt(t('msg.needKey'),{c:colName(col)})); return; }
   }
   state.px=nx; state.py=ny; state.target=null;
@@ -3186,10 +3199,33 @@ function tryMove(dx,dy){
   const lockedHere = state.noStairTrigger && nx===state.noStairTrigger.x && ny===state.noStairTrigger.y;
   if(!lockedHere) state.noStairTrigger=null;
   if(!lockedHere){
+    if(cell&&cell.kind==='secretExit'){ exitSecret(); return; }
+    if(cell&&cell.kind==='mcircle'){ enterSecret(d.f, nx, ny); return; }
     const _sealed=bossSealed(d);   // boss floor: no leaving until the boss is beaten (admin bypasses)
     if(hasDown(d.f) && nx===d.start.x && ny===d.start.y && !(downFloor(d.f)<0 && !state.basementUnlocked) && !_sealed){ descend(); return; }   // sealed basement: don't descend; step onto the tile like ordinary floor
     if(hasUp(d.f) && nx===d.stairs.x && ny===d.stairs.y && !_sealed){ ascend(); return; }
   }
+  renderAll(); mpPresence();
+}
+function enterSecret(fromF, fromX, fromY){
+  state.secretReturn={floor:fromF, px:fromX, py:fromY};   /* remember the magic-circle spot to return to */
+  state.floor=SECRET_FLOOR; ensureFloor(SECRET_FLOOR);
+  const d=curFloor(); d.explored=true;
+  state.px=d.start.x; state.py=d.start.y;
+  state.noStairTrigger={x:d.start.x, y:d.start.y};        /* don't fire the exit tile on arrival */
+  state.target=null; poisonReset();
+  try{ sfx('stairs'); }catch(e){}
+  renderAll(); mpPresence();
+}
+function exitSecret(){
+  const r=state.secretReturn; if(!r) return;
+  state.secretReturn=null;
+  state.floor=r.floor; ensureFloor(r.floor);
+  const d=curFloor(); d.explored=true;
+  state.px=r.px; state.py=r.py;                           /* back onto the magic circle */
+  state.noStairTrigger={x:r.px, y:r.py};                  /* don't re-enter immediately on arrival */
+  state.target=null; poisonReset();
+  try{ sfx('stairs'); }catch(e){}
   renderAll(); mpPresence();
 }
 function ascend(){
@@ -3543,8 +3579,7 @@ function renderCombat(){
   byId('meAtkV').textContent=effAtk(pl)+(c.atkBuff||0); byId('foeAtkV').textContent=foe.atk;
   byId('meDefV').textContent=Math.max(0,effDef(pl)-((state.combat&&state.combat.defDebuff)||0)); byId('foeDefV').textContent=foe.def;
   const ms=byId('meStatus'); ms.innerHTML='';
-  if(pl.status==='poison') ms.innerHTML='<span class="cbStatusChip poison">'+t('status.poison')+'</span>';
-  else if(pl.status==='weak') ms.innerHTML='<span class="cbStatusChip weak">'+t('status.weak')+' ×'+pl.weakStacks+'</span>';
+  /* player ailment chip (中毒/衰弱) hidden during combat — numbers only; status still shown in the main panel */
   const fs=byId('foeStatus'); fs.innerHTML='';
   /* foe ability tags (高防/連擊…) hidden during combat — show numbers only */
   byId('meName').textContent=t('cb.hero');
@@ -3654,7 +3689,6 @@ function foeTurn(){
   let taken=0, anyHit=false, beforeTotal=0, hits=0;
   const foeCrit = c.foeEn>=100; let _critUsed=false;
   let _nHits=foe.atkc||1;
-  if(hasAb(foe,'multi')&&_nHits<2) _nHits=2;   /* 連擊標籤保證至少 2 段攻擊 */
   const _seq=[];
   for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
@@ -3763,7 +3797,7 @@ function combatWin(){
   if(c && foe && foe.revive && !c.revived){ c.revived=true; foe.hp=Math.max(1,Math.round((foe.maxhp||foe.hp||1)*0.5)); try{ log('foe',t('msg.revive')); }catch(e){} try{ playEventFx('foe','ability','revive'); }catch(e){} state.busy=false; try{ renderCombat(); }catch(e){} try{ refreshCombatButtons(); }catch(e){} return; }   /* 死亡復活一次 */
   log('sys',fmt(t('msg.win'),{name:monName(foe)}),true);
   const d=curFloor(); d.ent[c.y][c.x]=null;
-  if(foe.big){ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ if(dx===0&&dy===0)continue; const bx=c.x+dx,by=c.y+dy; if(bx>=0&&by>=0&&bx<GRID&&by<GRID){ const be=d.ent[by][bx]; if(be&&be.kind==='bigBody'&&be.ax===c.x&&be.ay===c.y) d.ent[by][bx]=null; } } if(foe.dropItem) d.ent[c.y][c.x]={kind:'item',item:foe.dropItem}; }
+  if(foe.big){ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ if(dx===0&&dy===0)continue; const bx=c.x+dx,by=c.y+dy; if(bx>=0&&by>=0&&bx<GRID&&by<GRID){ const be=d.ent[by][bx]; if(be&&be.kind==='bigBody'&&be.ax===c.x&&be.ay===c.y) d.ent[by][bx]=null; } } if(foe.dropItem) d.ent[c.y][c.x]={kind:'item',item:foe.dropItem}; if(foe.dropItem2){ const _dd=[[0,-1],[1,0],[0,1],[-1,0]]; for(let _i=0;_i<_dd.length;_i++){ const _ax=c.x+_dd[_i][0],_ay=c.y+_dd[_i][1]; if(_ax>=0&&_ay>=0&&_ax<GRID&&_ay<GRID&&!d.wall[_ay][_ax]&&!d.ent[_ay][_ax]){ d.ent[_ay][_ax]={kind:'item',item:foe.dropItem2}; break; } } } }
   if(foe.deathTerrain==='ice'){ d.ent[c.y][c.x]={kind:'barrier'}; try{ log('sys',t('msg.leftIce')); }catch(_e){} }
   else if(foe.deathTerrain==='lava'){ if(!d.lava){ d.lava=[]; for(let _y=0;_y<GRID;_y++){ const _r=[]; for(let _x=0;_x<GRID;_x++) _r.push(false); d.lava.push(_r); } } d.lava[c.y][c.x]=true; try{ log('sys',t('msg.leftLava')); }catch(_e){} }
   pl.gold+=foe.gold; pl.exp+=foe.exp; state.kills++;
@@ -4469,14 +4503,72 @@ function endScreen(win){
 }
 
 /* ============================== Floor cache & overlays ============================== */
+function _genFindSecretWall(d){
+  function flood(){
+    const seen=[]; for(let y=0;y<GRID;y++){ const r=[]; for(let x=0;x<GRID;x++) r.push(false); seen.push(r); }
+    const q=[{x:d.start.x,y:d.start.y}]; seen[d.start.y][d.start.x]=true; const D=[[0,-1],[1,0],[0,1],[-1,0]];
+    while(q.length){ const c=q.shift();
+      for(let i=0;i<D.length;i++){ const x=c.x+D[i][0], y=c.y+D[i][1];
+        if(x<0||y<0||x>=GRID||y>=GRID||seen[y][x]) continue;
+        if(d.wall[y][x]) continue; const e=d.ent[y][x]; if(e&&(e.kind==='barrier'||e.kind==='bigBody')) continue;
+        seen[y][x]=true; q.push({x:x,y:y}); } }
+    return seen;
+  }
+  const before=flood(), cands=[], D=[[0,-1],[1,0],[0,1],[-1,0]];
+  for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
+    if(!d.wall[y][x] || d.ent[y][x]) continue;                       /* bare wall only */
+    let adj=false; for(let i=0;i<D.length;i++){ const ax=x+D[i][0], ay=y+D[i][1]; if(ax>=0&&ay>=0&&ax<GRID&&ay<GRID&&before[ay][ax]){ adj=true; break; } }
+    if(!adj) continue;                                               /* must touch the reachable area */
+    d.wall[y][x]=false; const after=flood(); d.wall[y][x]=true;
+    let nw=0, item=false;
+    for(let yy=0;yy<GRID;yy++)for(let xx=0;xx<GRID;xx++){ if(after[yy][xx]&&!before[yy][xx]&&!(xx===x&&yy===y)){ nw++; const e=d.ent[yy][xx]; if(e&&e.kind==='item') item=true; } }
+    if(nw>0) cands.push({x:x,y:y,nw:nw,item:item});
+  }
+  if(!cands.length) return null;
+  const clean=cands.filter(function(c){return !c.item;}); const pool=clean.length?clean:cands;
+  pool.sort(function(a,b){return a.nw-b.nw;});
+  const top=pool.slice(0, Math.min(4,pool.length));
+  return top[Math.floor(RAND()*top.length)];
+}
+function _genPlaceHintOldMan(d){
+  const reach=reachAvoidBarriers(d, {x:d.start.x, y:d.start.y}), D=[[0,-1],[1,0],[0,1],[-1,0]], ends=[];
+  for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
+    if(d.wall[y][x] || d.ent[y][x]) continue;
+    if(!(reach[y]&&reach[y][x])) continue;
+    if((x===d.start.x&&y===d.start.y)||(x===d.stairs.x&&y===d.stairs.y)) continue;
+    let open=0; for(let i=0;i<D.length;i++){ const ax=x+D[i][0],ay=y+D[i][1]; if(ax>=0&&ay>=0&&ax<GRID&&ay<GRID&&!d.wall[ay][ax]) open++; }
+    if(open===1) ends.push({x:x,y:y});                 /* dead-end: blocking it severs nothing */
+  }
+  if(!ends.length) return false;
+  const c=ends[Math.floor(RAND()*ends.length)]; d.ent[c.y][c.x]={kind:'npc', shop:'hint'}; return true;
+}
+function _showSecretHint(){
+  const tag=floorTag(state.secretFloor);
+  const msg=({'zh-Hant':'老朽聽聞……這座塔的第 '+tag+' 層，有一道牆藏著不為人知的東西。\n持「門」之力者，或許能叩開它。','zh-Hans':'老朽听闻……这座塔的第 '+tag+' 层，有一道墙藏着不为人知的东西。\n持「门」之力者，或许能叩开它。','en':'They say floor '+tag+' of this tower hides something behind a wall.\nOne who wields the power of doors might knock it open.','ja':'この塔の '+tag+' 階には、壁の奥に知られざる物が眠るという。\n「扉」の力を持つ者なら、叩き開けるかもしれぬ。','ko':'이 탑의 '+tag+'층에는 벽 너머에 알려지지 않은 것이 잠들어 있다 하오.\n「문」의 힘을 지닌 자라면 두드려 열 수 있을지도.'})[state.lang] || ('Floor '+tag+'…');
+  try{ openPortalDlg(msg, t('ui.confirm'), null, null, null); }catch(_e){ try{ toast(msg); }catch(_e2){} }
+}
+function genSecretRoom(){
+  const wall=[], ent=[], lava=[];
+  for(let y=0;y<GRID;y++){ const wr=[],er=[],lr=[]; for(let x=0;x<GRID;x++){ wr.push(true); er.push(null); lr.push(false); } wall.push(wr); ent.push(er); lava.push(lr); }
+  const cx=Math.floor(GRID/2), yEntry=GRID-2;          /* center column, entry near the bottom */
+  for(let y=1;y<=yEntry;y++) wall[y][cx]=false;          /* carve the central corridor */
+  ent[6][cx]={kind:'door',color:'r'};                   /* red key door */
+  ent[3][cx]={kind:'door',color:'w'};                   /* white key door (deeper) */
+  ent[1][cx]={kind:'item',item:'jug'};                  /* 十字聖水 at the very back */
+  ent[yEntry][cx]={kind:'secretExit'};                  /* return portal: step on it to leave */
+  return {f:SECRET_FLOOR, wall:wall, start:{x:cx,y:yEntry}, stairs:{x:cx,y:yEntry}, ent:ent, lava:lava, explored:true, secret:true};
+}
 function genFloor(f){
   const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f));
   try{
+    if(f===SECRET_FLOOR) return genSecretRoom();
     if(f===FLOORS) return genBossFloorRaw(f);
     if(f===-BASEMENT) return genBasementBossFloorRaw(f);   // deepest basement is a boss floor too
     _realFloor=f;
     const d=genFloorRaw(effFloor(f));   /* basements & normal floors scale by effective floor */
     d.f=f;                              /* keep the real floor identity (negative = basement) */
+    if(f===state.secretFloor && state.secretWall==null){ const _w=_genFindSecretWall(d); if(_w) state.secretWall={floor:f, x:_w.x, y:_w.y}; }
+    if(f===state.hintFloor){ try{ _genPlaceHintOldMan(d); }catch(_e){} }
     if(f===2 && state.mode==='solo'){ try{ install2FGate(d); }catch(_e){} }   /* 任意門劇情關卡：封住 2F→3F，放老頭 */
     return d;
   } finally{ RAND=prev; }
@@ -4658,6 +4750,8 @@ function newGame(opts){
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null;
+  state.secretFloor=3+(hashSeed(state.seed,777)%(FLOORS-3)); state.secretWall=null; state.secretReturn=null;   /* hidden 密室: one surface floor 3..FLOORS-1 hides the entry wall */
+  state.hintFloor=2+(hashSeed(state.seed,555)%(FLOORS-2)); if(state.hintFloor===state.secretFloor) state.hintFloor=(state.hintFloor>2?state.hintFloor-1:state.hintFloor+1);   /* the hint old man lives on a different surface floor */
   state.busy=false; state.kills=0; state.over=false; state.finished=false;
   state.basementUnlocked=false; state.startTime=Date.now(); state.hintsSeen={};
   state.cheatActive=false; state.cheatSnap=null;
@@ -6287,7 +6381,7 @@ function applyConfig(cfg){
 let saveTimer=null;
 function serializeRun(){
   return { player:state.player, floor:state.floor, maxFloor:state.maxFloor, minFloor:state.minFloor, seed:state.seed,
-           kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
+           kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, secretReturn:(state.secretReturn||null), secretFloor:(state.secretFloor==null?null:state.secretFloor), secretWall:(state.secretWall||null), hintFloor:(state.hintFloor==null?null:state.hintFloor), basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
 }
 function _fbSafe(o){ try{ return JSON.parse(JSON.stringify(o===undefined?null:o)); }catch(e){ return o; } }   /* Realtime DB rejects undefined/NaN/Infinity; round-trip sanitises */
 function cloudSave(now){
@@ -6320,6 +6414,9 @@ function restoreRun(s){
   state.kills=s.kills||0;
   state.basementUnlocked=!!s.basementUnlocked;
   state.cheatActive=!!s.cheatActive; state.cheatSnap=s.cheatSnap||null;
+  state.secretReturn=s.secretReturn||null;
+  state.secretFloor=(s.secretFloor==null?state.secretFloor:s.secretFloor); state.secretWall=s.secretWall||null;
+  if(s.hintFloor!==undefined) state.hintFloor=s.hintFloor;
   state.floor=s.floor||1;
   if(!state.floors[state.floor]) ensureFloor(state.floor);
   const d=curFloor();
@@ -6468,7 +6565,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·31 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·39 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6476,7 +6573,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·31 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·39 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6613,6 +6710,12 @@ function adFxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+l
 function adFxSelectN(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select data-fxgroup="'+group+'" data-fxkey="'+key+'"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxNone')+'</option>'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur||'')+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div>'; }
 function adSfxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><select data-sfxgroup="'+group+'" data-sfxkey="'+key+'"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxNone')+'</option>'; SFX_PRESET_KEYS.forEach(function(kk){ o+='<option value="'+kk+'"'+(kk===cur?' selected':'')+'>'+t('admin.snd_'+kk)+'</option>'; }); return o+_sfxCustomOpts(cur||'')+'</select></div>'; }
 
+function adFixedFloor(o){
+  const M={dragon:FLOORS, overlordGordon:-BASEMENT, redDragon:18, venomDragon:-12, abyssLord:-15};   /* hardcoded placements: tower boss / basement boss / 3x3 vault guards */
+  if(!(o&&o.id in M)) return '';
+  const word=({'zh-Hant':'固定樓層','zh-Hans':'固定楼层','en':'Fixed floor','ja':'固定階','ko':'고정 층'})[state.lang]||'Fixed floor';
+  return '<div class="adField"><label>'+word+'</label><input type="text" value="'+floorTag(M[o.id])+'" disabled></div>';
+}
 function renderAdminBody(){
   _admRenderLang=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
   const body=byId('adminBody'); body.innerHTML=''; const _pinId=_pinNext; _pinNext=null;
@@ -6670,7 +6773,7 @@ function renderAdminBody(){
       row.innerHTML='<div class="adName">'+(b.face||'🐉')+' '+_admName(b)+' <span style="color:var(--txt-faint);font-weight:400">('+b.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
         adText(t('admin.icon'),b,'face')+adNameLoc(b)+adText(t('admin.mid'),b,'id','',24)+adImg(b,(isBase?'bboss':'boss'))+adAtkFx(b)+adAtkSfx(b)+adCritFx(b)+adCritSfx(b)+
         adNum('HP',b,'hp')+adNum(t('ui.atk'),b,'atk')+adNum(t('ui.def'),b,'def')+
-        adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adNum('atkc',b,'atkc')+adMonAbilities(b)+'</div>';
+        adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adNum('atkc',b,'atkc')+adFixedFloor(b)+adMonAbilities(b)+'</div>';
       body.appendChild(row);
     };
     hdr(t('admin.topBoss')); bossRow(adminDraft.boss,false);
@@ -6682,7 +6785,7 @@ function renderAdminBody(){
         row.innerHTML='<div class="adName">'+(g.face||'🐉')+' '+_admName(g)+' <span style="color:var(--txt-faint);font-weight:400">('+g.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
           adText(t('admin.icon'),g,'face')+adNameLoc(g)+adText(t('admin.mid'),g,'id','',24)+adImg(g,'g'+gi)+adAtkFx(g)+adAtkSfx(g)+adCritFx(g)+adCritSfx(g)+
           adNum('HP',g,'hp')+adNum(t('ui.atk'),g,'atk')+adNum(t('ui.def'),g,'def')+
-          adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adNum('atkc',g,'atkc')+adMonAbilities(g)+'</div>';
+          adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adNum('atkc',g,'atkc')+adFixedFloor(g)+adMonAbilities(g)+'</div>';
         body.appendChild(row);
       });
     }
@@ -6741,7 +6844,7 @@ function renderAdminBody(){
       mons.forEach(function(mm){ const on=wlArr.indexOf(mm.id)>=0; const _ic=mm.img?('<img class="adWlImg" src="'+mm.img+'" alt="">'):(mm.face||''); wh+='<label class="adWlCell'+(on?' on':'')+'"><input type="checkbox" data-wlmon="'+mm.id+'"'+(on?' checked':'')+'/><span>'+_ic+' '+_admName(mm)+'</span></label>'; });
       wh+='</div>'; wr.innerHTML=wh; body.appendChild(wr); }
     { const gh=document.createElement('p'); gh.className='adNote'; gh.innerHTML='<b>'+t('admin.glyphTitle')+'</b> — '+t('admin.glyphHint'); body.appendChild(gh);
-      GLYPH_ORDER.forEach(function(gk){ const go=(adminDraft.glyphs&&adminDraft.glyphs[gk])?adminDraft.glyphs[gk]:GLYPH_CFG[gk];
+      GLYPH_ORDER.forEach(function(gk){ if(!adminDraft.glyphs) adminDraft.glyphs={}; if(!adminDraft.glyphs[gk]) adminDraft.glyphs[gk]={face:(GLYPH_CFG[gk]&&GLYPH_CFG[gk].face)||'',img:(GLYPH_CFG[gk]&&GLYPH_CFG[gk].img)||null}; const go=adminDraft.glyphs[gk];
         const gr=document.createElement('div'); gr.className='adRowItem'; gr.dataset.glyph=gk;
         gr.innerHTML='<div class="adName">'+((go&&go.face)||'')+' '+t('admin.gly_'+gk)+'</div>'+adImg(go,'gly_'+gk);
         body.appendChild(gr); }); }
@@ -6850,7 +6953,7 @@ function adMonAbilities(m){
         '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>'+
         '<div class="adField"><label>'+t('admin.abTrue')+'</label><select data-k="trueDmg"><option value="0"'+(m.trueDmg?'':' selected')+'>'+t('admin.abNone')+'</option><option value="1"'+(m.trueDmg?' selected':'')+'>\u2713</option></select></div>'+
         '<div class="adField"><label>'+t('admin.abStatus')+'</label><select data-k="ability"><option value=""'+(!m.ability?' selected':'')+'>'+t('admin.abNone')+'</option><option value="poison"'+(m.ability==='poison'?' selected':'')+'>'+t('ab.poison')+'</option><option value="weak"'+(m.ability==='weak'?' selected':'')+'>'+t('ab.weak')+'</option></select></div>'+
-        '<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:5px 14px;padding:3px 0">'+['solid','vampire','pierce','multi','first','magic','poison','weak'].map(function(av){return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer"><input type="checkbox" data-ab="'+av+'"'+(hasAb(m,av)?' checked':'')+'>'+t('ab.'+av)+'</label>';}).join('')+'</div></div>'+
+        '<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:5px 14px;padding:3px 0">'+['solid','vampire','pierce','first','magic','poison','weak'].map(function(av){return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:400;cursor:pointer"><input type="checkbox" data-ab="'+av+'"'+(hasAb(m,av)?' checked':'')+'>'+t('ab.'+av)+'</label>';}).join('')+'</div></div>'+
         adNum(t('admin.abCrit'),{critMult:(m.critMult!=null?m.critMult:2)},'critMult')+
         '<div class=\"adField\"><label>'+t('admin.abDeath')+'</label><select data-k=\"deathTerrain\"><option value=\"\"'+(!m.deathTerrain?' selected':'')+'>'+t('admin.abNone')+'</option><option value=\"ice\"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value=\"lava\"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select></div>'+
         adNum(t('admin.abBonusDmg'),m,'bonusDmg')+adNum(t('admin.abDrainEn'),m,'drainEn')+
