@@ -3066,6 +3066,7 @@ function install2FGate(d){
         /* approach B — 2F's portal tutorial must fire reliably, so we seal whenever it's breakable. Only loot the new walls would BURY (the walled neighbour cells) is moved to the nearest reachable cell; the pocket BEHIND the seal is left UNTOUCHED so guarded treasures stay guarded (treasure still behind its monster) — the player reaches them by breaking the seal with the portal. */
         const _moved=[];
         for(let i=0;i<nbrs.length;i++){ const c=nbrs[i]; const e=d.ent[c.y][c.x]; if(e){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }
+        for(let si=0;si<stranded.length;si++){ const c=stranded[si]; if(c.x===S.x&&c.y===S.y) continue; const e=d.ent[c.y][c.x]; if(e){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }   // also evacuate the SEALED POCKET so only the stairs stay blocked (monsters/loot relocate to the reachable side)
         for(let m=0;m<_moved.length;m++){ const it=_moved[m]; let best=null,bdd=1e9;
           for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
             if(d.wall[y][x]||d.ent[y][x]) continue;
@@ -3627,18 +3628,19 @@ function foeTurn(){
   if(c.foeSkip){ c.foeSkip=false; c.halveNext=false; log('foe',t('msg.foeSkip')); renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* 能量盾 stunned the foe (armed defence kept for the next real attack) */
   const def = c.defArmed ? SKILL_BY_ID[c.defArmed] : null;   /* single-use defence skill armed for this round */
   let taken=0, anyHit=false, beforeTotal=0, hits=0;
-  const foeCrit = c.foeEn>=100; if(foeCrit) c.foeEn=0;
+  const foeCrit = c.foeEn>=100; let _critUsed=false;
   let _nHits=(foe.atkcMax>=foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+Math.floor(RAND()*(foe.atkcMax-foe.atkcMin+1))):foe.atkc;
   if(hasAb(foe,'multi')&&_nHits<2) _nHits=2;   /* 連擊標籤保證至少 2 段攻擊 */
   const _seq=[];
   for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
       let dmg;
+      const _thisCrit = foeCrit && !_critUsed; if(_thisCrit) _critUsed=true;
       if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); }   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
       else {
         const myDef = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);   // 神盾 buff while charges remain; 幻骨 lowers DEF
         dmg=dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(myDef*0.5):myDef),pl.thrD); if(dmg<0)dmg=0;
-        if(foeCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2));
+        if(_thisCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2));
         if(c.halveNext){ dmg=Math.ceil(dmg/2); }
       }
       if(c.shendunHits>0) c.shendunHits--;
@@ -3652,10 +3654,11 @@ function foeTurn(){
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
       pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100);   /* player also charges when taking a hit */
       if(foe.drainEn>0){ pl.en=clamp(pl.en-foe.drainEn,0,100); }   /* 吸取能量 */
-      _seq.push({d:dmg});
+      _seq.push({d:dmg, crit:_thisCrit});
       if(def && def.id==='enerdun'){ c.foeSkip=true; break; }   // 能量盾: cancel remaining hits + foe skips next round
     } else { _seq.push({miss:true}); }
   }
+  if(foeCrit) c.foeEn=0;   // crit consumed: empty the gauge so it must fully recharge before the next crit
   if(anyHit && foe.drainEn>0){ try{ playEventFx('me','ability','drainEn'); }catch(_e){} }   /* 吸能特效 */
   if(anyHit && (foe.statDownPct>0||foe.statDownN>0)){ const _rp=1-(foe.statDownPct||0)/100; pl.atk=Math.max(1,Math.floor(pl.atk*_rp)-(foe.statDownN||0)); pl.def=Math.max(0,Math.floor(pl.def*_rp)-(foe.statDownN||0)); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ playEventFx('me','ability','statDown'); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
   c.halveNext=false;
@@ -3695,8 +3698,8 @@ function _foeShowHits(seq, foeCrit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('me','miss!','miss'); }
     else if(h){
-      state.player.hp-=h.d; floatDmg('me','-'+h.d, foeCrit?'crit':null);
-      if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=foeCrit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=foeCrit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, foeCrit, _fsnd); }catch(_e){} }
+      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null);
+      if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=h.crit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=h.crit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, h.crit, _fsnd); }catch(_e){} }
     }
     try{ renderCombat(); }catch(_e){}
     if(i<seq.length){ setTimeout(step, COMBO_STEP_MS); } else { if(done) done(); }
@@ -4336,13 +4339,10 @@ function dismissTip(){
 function hintOnce(kind){
   // PC-only keyboard-shortcut hint, shown a single time ever (then never again)
   let isPC=true; try{ isPC=!!(window.matchMedia&&window.matchMedia('(pointer:fine)').matches); }catch(e){}
-  if(!isPC) return;
   const HINTMAP={ manualE:{msg:'ui.hintE',anchor:'btnManual2'}, teleF:{msg:'ui.hintF',anchor:'btnTeleport2'}, atkBook:{msg:'ui.hintAtk',anchor:'atkSlot'}, defBook:{msg:'ui.hintDef',anchor:'defSlot'} };
   const cfg=HINTMAP[kind]; if(!cfg) return;
-  const flag='mt_hint2_'+kind; let seen=false;
-  try{ seen=localStorage.getItem(flag)==='1'; }catch(e){ seen=!!(state.hints&&state.hints[kind]); }
-  if(seen) return;
-  try{ localStorage.setItem(flag,'1'); }catch(e){ state.hints=state.hints||{}; state.hints[kind]=true; }
+  if(state.hintsSeen && state.hintsSeen[kind]) return;
+  state.hintsSeen=state.hintsSeen||{}; state.hintsSeen[kind]=true;
   const tip=byId('tipBubble'); if(!tip) return;
   tip.innerHTML=t(cfg.msg)+'<br><span class="x" id="tipX">OK</span>';
   tip.classList.add('show');
@@ -4633,7 +4633,7 @@ function newGame(opts){
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null;
   state.busy=false; state.kills=0; state.over=false; state.finished=false;
-  state.basementUnlocked=false; state.startTime=Date.now();
+  state.basementUnlocked=false; state.startTime=Date.now(); state.hintsSeen={};
   state.cheatActive=false; state.cheatSnap=null;
   state.player=freshPlayer();
   state.hpRef=state.player.hp; state.stRef=state.player.reserve;
@@ -5664,44 +5664,44 @@ const I18N_ADMIN = {
 
 /* ===== Tutorial copy (shown step-by-step on every game start) ===== */
 const I18N_TUT = {
-'zh-Hant':{tut:{skip:'跳過教學',back:'上一步',next:'下一步',start:'開始遊戲',stepsM:[{icon:'🗼',h:'歡迎來到魔塔',t:'你的目標是一路往上爬，擊敗塔頂的魔王，再深入地下樓層探索。\n用畫面下方的方向鍵移動。'},{icon:'🪜',h:'移動與樓梯',t:'走到「往上樓梯」可前往更高樓層，走到「往下樓梯」則返回下層。\n每一層的地圖在你探索後都會記錄下來。'},{icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按畫面的「瞄準」鍵開戰。\n戰鬥是自動回合制，戰鬥畫面中可使用蓄力、技能與逃跑等按鈕。'},{icon:'📖',h:'技能',t:'撿起技能書即可學習。\n在戰鬥畫面中可切換並發動攻擊與防禦技能（需達到對應等級才能裝備）。'},{icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n彩色的門需要對應顏色的鑰匙才能打開，門後通常藏著寶物。'},{icon:'✨',h:'傳送與說明',t:'找到傳送卷軸後，點畫面的「傳送」鍵即可在已探索的樓層之間傳送。\n隨時可點右上角的 ❓ 重新查看遊戲說明。'}],steps:[
+'zh-Hant':{tut:{skip:'跳過教學',back:'上一步',next:'下一步',start:'我瞭解了',stepsM:[{icon:'🗼',h:'歡迎來到魔塔',t:'你的目標是一路往上爬，擊敗塔頂的魔王，再深入地下樓層探索。\n用畫面下方的方向鍵移動。'},{icon:'🪜',h:'移動與樓梯',t:'走到「往上樓梯」可前往更高樓層，走到「往下樓梯」則返回下層。\n每一層的地圖在你探索後都會記錄下來。'},{icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按畫面的「瞄準」鍵開戰。\n戰鬥是自動回合制，戰鬥畫面中可使用蓄力、技能與逃跑等按鈕。'},{icon:'📖',h:'技能',t:'撿起技能書即可學習。\n在戰鬥畫面中可切換並發動攻擊與防禦技能（需達到對應等級才能裝備）。'},{icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n鑰匙與門共有黃、藍、紅、白、白金五種顏色，要用「相同顏色」的鑰匙才能開門——黃鑰匙開黃門、藍鑰匙開藍門，其餘以此類推。門後通常藏著寶物。'},{icon:'✨',h:'傳送與說明',t:'找到傳送卷軸後，點畫面的「傳送」鍵即可在已探索的樓層之間傳送。\n隨時可點右上角的 ❓ 重新查看遊戲說明。'}],steps:[
   {icon:'🗼',h:'歡迎來到魔塔',t:'你的目標是一路往上爬，擊敗塔頂的魔王，再深入地下樓層探索。\n用 方向鍵 或 WASD 移動；手機則用畫面下方的方向鍵。'},
   {icon:'🪜',h:'移動與樓梯',t:'走到「往上樓梯」可前往更高樓層，走到「往下樓梯」則返回下層。\n每一層的地圖在你探索後都會記錄下來。'},
   {icon:'⚔️',h:'戰鬥',t:'朝怪物移動即可鎖定，再按 空白鍵／Enter（手機按「瞄準」）開戰。\n戰鬥是自動回合制；能量累積到 20 可按 C 蓄力爆擊，按 V 則可逃跑。'},
   {icon:'📖',h:'技能',t:'撿起技能書即可學習。戰鬥外用 Y／U 切換攻擊與防禦技能，戰鬥中用 Z／X 發動。\n技能需要達到對應等級才能裝備。'},
-  {icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n彩色的門需要對應顏色的鑰匙才能打開，門後通常藏著寶物。'},
+  {icon:'🗝️',h:'道具與門',t:'撿取藥水、寶石與鑰匙讓自己變強。\n鑰匙與門共有黃、藍、紅、白、白金五種顏色，要用「相同顏色」的鑰匙才能開門——黃鑰匙開黃門、藍鑰匙開藍門，其餘以此類推。門後通常藏著寶物。'},
   {icon:'✨',h:'傳送與說明',t:'找到傳送卷軸後，按 F 即可在已探索的樓層之間傳送。\n隨時可點右上角的 ❓ 重新查看遊戲說明。'}
 ]}},
-'zh-Hans':{tut:{skip:'跳过教学',back:'上一步',next:'下一步',start:'开始游戏',stepsM:[{icon:'🗼',h:'欢迎来到魔塔',t:'你的目标是一路往上爬，击败塔顶的魔王，再深入地下楼层探索。\n用画面下方的方向键移动。'},{icon:'🪜',h:'移动与楼梯',t:'走到「往上楼梯」可前往更高楼层，走到「往下楼梯」则返回下层。\n每一层的地图在你探索后都会记录下来。'},{icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按画面的「瞄准」键开战。\n战斗是自动回合制，战斗画面中可使用蓄力、技能与逃跑等按钮。'},{icon:'📖',h:'技能',t:'捡起技能书即可学习。\n在战斗画面中可切换并发动攻击与防御技能（需达到对应等级才能装备）。'},{icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n彩色的门需要对应颜色的钥匙才能打开，门后通常藏着宝物。'},{icon:'✨',h:'传送与说明',t:'找到传送卷轴后，点画面的「传送」键即可在已探索的楼层之间传送。\n随时可点右上角的 ❓ 重新查看游戏说明。'}],steps:[
+'zh-Hans':{tut:{skip:'跳过教学',back:'上一步',next:'下一步',start:'我了解了',stepsM:[{icon:'🗼',h:'欢迎来到魔塔',t:'你的目标是一路往上爬，击败塔顶的魔王，再深入地下楼层探索。\n用画面下方的方向键移动。'},{icon:'🪜',h:'移动与楼梯',t:'走到「往上楼梯」可前往更高楼层，走到「往下楼梯」则返回下层。\n每一层的地图在你探索后都会记录下来。'},{icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按画面的「瞄准」键开战。\n战斗是自动回合制，战斗画面中可使用蓄力、技能与逃跑等按钮。'},{icon:'📖',h:'技能',t:'捡起技能书即可学习。\n在战斗画面中可切换并发动攻击与防御技能（需达到对应等级才能装备）。'},{icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n钥匙与门共有黄、蓝、红、白、白金五种颜色，要用「相同颜色」的钥匙才能开门——黄钥匙开黄门、蓝钥匙开蓝门，其余以此类推。门后通常藏着宝物。'},{icon:'✨',h:'传送与说明',t:'找到传送卷轴后，点画面的「传送」键即可在已探索的楼层之间传送。\n随时可点右上角的 ❓ 重新查看游戏说明。'}],steps:[
   {icon:'🗼',h:'欢迎来到魔塔',t:'你的目标是一路往上爬，击败塔顶的魔王，再深入地下楼层探索。\n用 方向键 或 WASD 移动；手机则用画面下方的方向键。'},
   {icon:'🪜',h:'移动与楼梯',t:'走到「向上楼梯」可前往更高楼层，走到「向下楼梯」则返回下层。\n每一层的地图在你探索后都会记录下来。'},
   {icon:'⚔️',h:'战斗',t:'朝怪物移动即可锁定，再按 空格键／Enter（手机按「瞄准」）开战。\n战斗是自动回合制；能量累积到 20 可按 C 蓄力爆击，按 V 则可逃跑。'},
   {icon:'📖',h:'技能',t:'捡起技能书即可学习。战斗外用 Y／U 切换攻击与防御技能，战斗中用 Z／X 发动。\n技能需要达到对应等级才能装备。'},
-  {icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n彩色的门需要对应颜色的钥匙才能打开，门后通常藏着宝物。'},
+  {icon:'🗝️',h:'道具与门',t:'捡取药水、宝石与钥匙让自己变强。\n钥匙与门共有黄、蓝、红、白、白金五种颜色，要用「相同颜色」的钥匙才能开门——黄钥匙开黄门、蓝钥匙开蓝门，其余以此类推。门后通常藏着宝物。'},
   {icon:'✨',h:'传送与说明',t:'找到传送卷轴后，按 F 即可在已探索的楼层之间传送。\n随时可点右上角的 ❓ 重新查看游戏说明。'}
 ]}},
-'en':{tut:{skip:'Skip tutorial',back:'Back',next:'Next',start:'Start game',stepsM:[{icon:'🗼',h:'Welcome to Magic Tower',t:'Your goal is to climb upward, defeat the demon at the top, then explore the basement floors below.\nUse the on-screen arrow pad to move.'},{icon:'🪜',h:'Moving & stairs',t:'Step onto the up-stairs to go higher, or the down-stairs to go back down.\nEach floor map is recorded once you explore it.'},{icon:'⚔️',h:'Combat',t:'Move into a monster to lock onto it, then tap the on-screen Aim button to fight.\nCombat is auto turn-based; the combat screen has buttons for charging, skills and fleeing.'},{icon:'📖',h:'Skills',t:'Pick up skill books to learn skills.\nIn the combat screen you can switch and cast your attack and defence skills (the level requirement must be met).'},{icon:'🗝️',h:'Items & doors',t:'Collect potions, gems and keys to grow stronger.\nColoured doors need a key of the same colour; treasure often waits behind them.'},{icon:'✨',h:'Teleport & help',t:'After finding a teleport scroll, tap the on-screen Teleport button to warp between explored floors.\nTap the ❓ at the top-right anytime to read these tips again.'}],steps:[
+'en':{tut:{skip:'Skip tutorial',back:'Back',next:'Next',start:'I understand',stepsM:[{icon:'🗼',h:'Welcome to Magic Tower',t:'Your goal is to climb upward, defeat the demon at the top, then explore the basement floors below.\nUse the on-screen arrow pad to move.'},{icon:'🪜',h:'Moving & stairs',t:'Step onto the up-stairs to go higher, or the down-stairs to go back down.\nEach floor map is recorded once you explore it.'},{icon:'⚔️',h:'Combat',t:'Move into a monster to lock onto it, then tap the on-screen Aim button to fight.\nCombat is auto turn-based; the combat screen has buttons for charging, skills and fleeing.'},{icon:'📖',h:'Skills',t:'Pick up skill books to learn skills.\nIn the combat screen you can switch and cast your attack and defence skills (the level requirement must be met).'},{icon:'🗝️',h:'Items & doors',t:'Collect potions, gems and keys to grow stronger.\nKeys and doors come in five colours: yellow, blue, red, white and platinum. Open a door with a key of the SAME colour — a yellow key opens a yellow door, a blue key a blue door, and so on. Treasure often waits behind them.'},{icon:'✨',h:'Teleport & help',t:'After finding a teleport scroll, tap the on-screen Teleport button to warp between explored floors.\nTap the ❓ at the top-right anytime to read these tips again.'}],steps:[
   {icon:'🗼',h:'Welcome to Magic Tower',t:'Your goal is to climb to the top, defeat the demon lord, then descend into the basement floors.\nMove with the arrow keys or WASD; on mobile, use the on-screen D-pad.'},
   {icon:'🪜',h:'Moving & stairs',t:'Step onto the up-stairs to go higher, or the down-stairs to return below.\nEach floor is saved to your map once you have explored it.'},
   {icon:'⚔️',h:'Combat',t:'Move into a monster to lock on, then press Space / Enter (or tap “Aim” on mobile) to fight.\nCombat runs in automatic rounds; at 20 energy press C to charge a critical hit, or press V to flee.'},
   {icon:'📖',h:'Skills',t:'Pick up skill books to learn them. Outside combat use Y / U to switch attack and defence skills; in combat use Z / X to cast them.\nA skill must meet its level requirement before it can be equipped.'},
-  {icon:'🗝️',h:'Items & doors',t:'Grab potions, gems and keys to grow stronger.\nColoured doors need a matching key, and treasure is usually hidden just behind them.'},
+  {icon:'🗝️',h:'Items & doors',t:'Grab potions, gems and keys to grow stronger.\nKeys and doors come in five colours: yellow, blue, red, white and platinum. A door only opens with a key of the SAME colour — yellow key for a yellow door, blue key for a blue door, and so on. Treasure is usually hidden just behind them.'},
   {icon:'✨',h:'Teleport & help',t:'Once you find a teleport scroll, press F to warp between floors you have explored.\nTap the ❓ in the top-right corner any time to read these instructions again.'}
 ]}},
-'ja':{tut:{skip:'チュートリアルをスキップ',back:'戻る',next:'次へ',start:'ゲーム開始',stepsM:[{icon:'🗼',h:'魔塔へようこそ',t:'目標は上へ登り、塔頂の魔王を倒し、さらに地下階を探索することだ。\n画面下の方向パッドで移動する。'},{icon:'🪜',h:'移動と階段',t:'「上り階段」で上の階へ、「下り階段」で下の階へ移動できる。\n各階のマップは探索すると記録される。'},{icon:'⚔️',h:'戦闘',t:'モンスターに向かって移動するとロックし、画面の「照準」ボタンで戦闘開始。\n戦闘は自動ターン制。戦闘画面のボタンで溜め・スキル・逃走ができる。'},{icon:'📖',h:'スキル',t:'スキルブックを拾うと習得できる。\n戦闘画面で攻撃・防御スキルを切替・発動できる（必要レベルが必要）。'},{icon:'🗝️',h:'アイテムと扉',t:'ポーション・宝石・鍵を集めて強くなろう。\n色付きの扉は同じ色の鍵が必要で、奥には宝が隠れていることが多い。'},{icon:'✨',h:'転送と説明',t:'転送の巻物を見つけたら、画面の「転送」ボタンで探索済みの階へ移動できる。\n右上の ❓ でいつでも説明を読み返せる。'}],steps:[
+'ja':{tut:{skip:'チュートリアルをスキップ',back:'戻る',next:'次へ',start:'わかりました',stepsM:[{icon:'🗼',h:'魔塔へようこそ',t:'目標は上へ登り、塔頂の魔王を倒し、さらに地下階を探索することだ。\n画面下の方向パッドで移動する。'},{icon:'🪜',h:'移動と階段',t:'「上り階段」で上の階へ、「下り階段」で下の階へ移動できる。\n各階のマップは探索すると記録される。'},{icon:'⚔️',h:'戦闘',t:'モンスターに向かって移動するとロックし、画面の「照準」ボタンで戦闘開始。\n戦闘は自動ターン制。戦闘画面のボタンで溜め・スキル・逃走ができる。'},{icon:'📖',h:'スキル',t:'スキルブックを拾うと習得できる。\n戦闘画面で攻撃・防御スキルを切替・発動できる（必要レベルが必要）。'},{icon:'🗝️',h:'アイテムと扉',t:'ポーション・宝石・鍵を集めて強くなろう。\n鍵と扉は黄・青・赤・白・プラチナの5色。扉は「同じ色」の鍵でしか開かない——黄の鍵は黄の扉、青の鍵は青の扉、という具合だ。奥には宝が隠れていることが多い。'},{icon:'✨',h:'転送と説明',t:'転送の巻物を見つけたら、画面の「転送」ボタンで探索済みの階へ移動できる。\n右上の ❓ でいつでも説明を読み返せる。'}],steps:[
   {icon:'🗼',h:'魔塔へようこそ',t:'目標は塔を登りきって頂上の魔王を倒し、さらに地下階を探索することです。\n矢印キーまたはWASDで移動します。スマホでは画面下の方向ボタンを使います。'},
   {icon:'🪜',h:'移動と階段',t:'「上り階段」に乗ると上の階へ、「下り階段」に乗ると下の階へ移動します。\n各階のマップは探索すると記録されます。'},
   {icon:'⚔️',h:'戦闘',t:'モンスターに向かって移動するとロックオン、スペース／Enter（スマホは「照準」）で戦闘開始。\n戦闘は自動ターン制。エネルギーが20でCを押すとクリティカルを溜め、Vで逃走できます。'},
   {icon:'📖',h:'スキル',t:'スキルブックを拾うと習得します。戦闘外はY／Uで攻撃・防御スキルを切り替え、戦闘中はZ／Xで発動します。\nスキルは必要レベルに達しないと装備できません。'},
-  {icon:'🗝️',h:'アイテムと扉',t:'ポーション・宝石・鍵を集めて強化しましょう。\n色付きの扉は同じ色の鍵が必要で、扉の奥には宝物が隠れていることが多いです。'},
+  {icon:'🗝️',h:'アイテムと扉',t:'ポーション・宝石・鍵を集めて強化しましょう。\n鍵と扉は黄・青・赤・白・プラチナの5色。扉は「同じ色」の鍵でしか開きません——黄の鍵は黄の扉、青の鍵は青の扉、という具合です。扉の奥には宝物が隠れていることが多いです。'},
   {icon:'✨',h:'テレポートとヘルプ',t:'テレポートの巻物を見つけたら、Fで探索済みの階へワープできます。\n右上の❓をタップすれば、いつでもこの説明を読み返せます。'}
 ]}},
-'ko':{tut:{skip:'튜토리얼 건너뛰기',back:'이전',next:'다음',start:'게임 시작',stepsM:[{icon:'🗼',h:'마탑에 오신 것을 환영합니다',t:'목표는 위로 올라가 탑 꼭대기의 마왕을 물리치고, 지하 층도 탐험하는 것입니다.\n화면 아래의 방향 패드로 이동하세요.'},{icon:'🪜',h:'이동과 계단',t:'「올라가는 계단」으로 위층, 「내려가는 계단」으로 아래층으로 이동합니다.\n각 층의 지도는 탐험하면 기록됩니다.'},{icon:'⚔️',h:'전투',t:'몬스터 쪽으로 이동하면 조준되고, 화면의 「조준」 버튼으로 전투를 시작합니다.\n전투는 자동 턴제이며, 전투 화면의 버튼으로 충전·스킬·도주를 할 수 있습니다.'},{icon:'📖',h:'스킬',t:'스킬북을 주우면 배웁니다.\n전투 화면에서 공격·방어 스킬을 전환하고 발동할 수 있습니다(필요 레벨 충족 시).'},{icon:'🗝️',h:'아이템과 문',t:'물약·보석·열쇠를 모아 강해지세요.\n색깔 문은 같은 색 열쇠가 필요하며, 보물이 숨겨져 있는 경우가 많습니다.'},{icon:'✨',h:'이동과 도움말',t:'이동 두루마리를 찾으면 화면의 「이동」 버튼으로 탐험한 층 사이를 이동합니다.\n오른쪽 위 ❓ 를 누르면 언제든 설명을 다시 볼 수 있습니다.'}],steps:[
+'ko':{tut:{skip:'튜토리얼 건너뛰기',back:'이전',next:'다음',start:'이해했어요',stepsM:[{icon:'🗼',h:'마탑에 오신 것을 환영합니다',t:'목표는 위로 올라가 탑 꼭대기의 마왕을 물리치고, 지하 층도 탐험하는 것입니다.\n화면 아래의 방향 패드로 이동하세요.'},{icon:'🪜',h:'이동과 계단',t:'「올라가는 계단」으로 위층, 「내려가는 계단」으로 아래층으로 이동합니다.\n각 층의 지도는 탐험하면 기록됩니다.'},{icon:'⚔️',h:'전투',t:'몬스터 쪽으로 이동하면 조준되고, 화면의 「조준」 버튼으로 전투를 시작합니다.\n전투는 자동 턴제이며, 전투 화면의 버튼으로 충전·스킬·도주를 할 수 있습니다.'},{icon:'📖',h:'스킬',t:'스킬북을 주우면 배웁니다.\n전투 화면에서 공격·방어 스킬을 전환하고 발동할 수 있습니다(필요 레벨 충족 시).'},{icon:'🗝️',h:'아이템과 문',t:'물약·보석·열쇠를 모아 강해지세요.\n열쇠와 문은 노랑·파랑·빨강·하양·백금 다섯 색입니다. 문은 「같은 색」 열쇠로만 열립니다——노란 열쇠는 노란 문, 파란 열쇠는 파란 문, 이런 식입니다. 보물이 숨겨져 있는 경우가 많습니다.'},{icon:'✨',h:'이동과 도움말',t:'이동 두루마리를 찾으면 화면의 「이동」 버튼으로 탐험한 층 사이를 이동합니다.\n오른쪽 위 ❓ 를 누르면 언제든 설명을 다시 볼 수 있습니다.'}],steps:[
   {icon:'🗼',h:'마법탑에 오신 것을 환영합니다',t:'목표는 탑을 끝까지 올라가 꼭대기의 마왕을 물리치고, 지하층까지 탐험하는 것입니다.\n방향키 또는 WASD로 이동하세요. 모바일에서는 화면 아래의 방향 버튼을 사용합니다.'},
   {icon:'🪜',h:'이동과 계단',t:'「위층 계단」을 밟으면 위층으로, 「아래층 계단」을 밟으면 아래층으로 이동합니다.\n각 층의 지도는 탐험하면 기록됩니다.'},
   {icon:'⚔️',h:'전투',t:'몬스터를 향해 이동하면 조준되고, 스페이스／Enter(모바일은 「조준」)로 전투를 시작합니다.\n전투는 자동 턴제입니다. 에너지가 20이 되면 C로 치명타를 모으고, V로 도망칠 수 있습니다.'},
   {icon:'📖',h:'스킬',t:'스킬북을 주우면 배웁니다. 전투 밖에서는 Y／U로 공격·방어 스킬을 전환하고, 전투 중에는 Z／X로 발동합니다.\n스킬은 필요 레벨에 도달해야 장착할 수 있습니다.'},
-  {icon:'🗝️',h:'아이템과 문',t:'물약, 보석, 열쇠를 모아 강해지세요.\n색이 있는 문은 같은 색 열쇠가 필요하며, 문 뒤에는 보통 보물이 숨겨져 있습니다.'},
+  {icon:'🗝️',h:'아이템과 문',t:'물약, 보석, 열쇠를 모아 강해지세요.\n열쇠와 문은 노랑·파랑·빨강·하양·백금 다섯 색입니다. 문은 「같은 색」 열쇠로만 열립니다——노란 열쇠는 노란 문, 파란 열쇠는 파란 문, 이런 식입니다. 문 뒤에는 보통 보물이 숨겨져 있습니다.'},
   {icon:'✨',h:'순간이동과 도움말',t:'순간이동 두루마리를 찾으면 F로 탐험한 층 사이를 이동할 수 있습니다.\n오른쪽 위의 ❓를 누르면 언제든 이 설명을 다시 볼 수 있습니다.'}
 ]}}
 };
@@ -5872,35 +5872,35 @@ const I18N_AV = {
 const I18N_PORTAL = {
 'zh-Hant':{ ui:{portal:'任意門'},
   shop:{ portal:{n:'神秘老頭',d:'傳授任意門，並可補充（每個 75 金幣）'}, buyPortal:'購買任意門' },
-  msg:{ portalLearn:'老頭傳授了你「任意門」之術！獲得 5 個任意門。對著牆使用，可開出一道用黃鑰匙打開的黃色門。',
+  msg:{ portalLearn:'老頭傳授了你「任意門」之術！獲得 5 個任意門。按 T（手機點下方「任意門」），朝相鄰的牆使用，可開出一道用黃鑰匙打開的黃色門。',
     portalAim:'選擇方向，對相鄰的牆使用任意門。', portalCancel:'已取消任意門。',
     portalNeedWall:'只能對著牆使用任意門。', portalNone:'沒有任意門了，可向老頭購買。',
     portalFloor:'這個樓層無法使用任意門。', portalMade:'牆變成了黃色門！用黃鑰匙打開。',
     portalBad:'無法在這裡使用任意門。', barrierBlock:'冰封的牆擋住了去路，對著它使用任意門吧。' } },
 'zh-Hans':{ ui:{portal:'任意门'},
   shop:{ portal:{n:'神秘老头',d:'传授任意门，并可补充（每个 75 金币）'}, buyPortal:'购买任意门' },
-  msg:{ portalLearn:'老头传授了你「任意门」之术！获得 5 个任意门。对着墙使用，可开出一道用黄钥匙打开的黄色门。',
+  msg:{ portalLearn:'老头传授了你「任意门」之术！获得 5 个任意门。按 T（手机点下方「任意门」），朝相邻的墙使用，可开出一道用黄钥匙打开的黄色门。',
     portalAim:'选择方向，对相邻的墙使用任意门。', portalCancel:'已取消任意门。',
     portalNeedWall:'只能对着墙使用任意门。', portalNone:'没有任意门了，可向老头购买。',
     portalFloor:'这个楼层无法使用任意门。', portalMade:'墙变成了黄色门！用黄钥匙打开。',
     portalBad:'无法在这里使用任意门。', barrierBlock:'冰封的墙挡住了去路，对着它使用任意门吧。' } },
 'en':{ ui:{portal:'Portal'},
   shop:{ portal:{n:'Mysterious Old Man',d:'Teaches Portals; restock at 75 gold each'}, buyPortal:'Buy Portal' },
-  msg:{ portalLearn:'The old man taught you the Portal art! Got 5 portals. Use one on a wall to open a yellow door (needs a yellow key).',
+  msg:{ portalLearn:'The old man taught you the Portal art! Got 5 portals. Press T (or tap "Portal" below) and aim at an adjacent wall to open a yellow door (needs a yellow key).',
     portalAim:'Pick a direction to open a portal on an adjacent wall.', portalCancel:'Portal canceled.',
     portalNeedWall:'Portals can only be used on a wall.', portalNone:'No portals left. Buy more from the old man.',
     portalFloor:"Portals can't be used on this floor.", portalMade:'The wall became a yellow door! Open it with a yellow key.',
     portalBad:"Can't use a portal there.", barrierBlock:'An icy barrier blocks the way. Use a portal on it.' } },
 'ja':{ ui:{portal:'任意の扉'},
   shop:{ portal:{n:'謎の老人',d:'任意の扉を授け、補充も可（1つ75金貨）'}, buyPortal:'任意の扉を購入' },
-  msg:{ portalLearn:'老人が「任意の扉」の術を授けた！任意の扉を5つ入手。壁に使うと黄色い鍵で開く黄色い扉ができる。',
+  msg:{ portalLearn:'老人が「任意の扉」の術を授けた！任意の扉を5つ入手。T キー（スマホは下の「任意門」）で隣の壁に使うと、黄色い鍵で開く黄色い扉ができる。',
     portalAim:'方向を選んで隣の壁に任意の扉を使う。', portalCancel:'任意の扉をキャンセル。',
     portalNeedWall:'任意の扉は壁にのみ使えます。', portalNone:'任意の扉がありません。老人から購入できます。',
     portalFloor:'この階では任意の扉は使えません。', portalMade:'壁が黄色い扉になった！黄色い鍵で開けよう。',
     portalBad:'そこには任意の扉を使えません。', barrierBlock:'氷の壁が道を塞いでいる。任意の扉を使おう。' } },
 'ko':{ ui:{portal:'임의의 문'},
   shop:{ portal:{n:'신비한 노인',d:'임의의 문 전수, 보충 가능(개당 75골드)'}, buyPortal:'임의의 문 구입' },
-  msg:{ portalLearn:"노인이 '임의의 문' 기술을 전수했다! 임의의 문 5개 획득. 벽에 사용하면 노란 열쇠로 여는 노란 문이 열린다.",
+  msg:{ portalLearn:"노인이 '임의의 문' 기술을 전수했다! 임의의 문 5개 획득. T 키(모바일은 아래 「임의의 문」)로 인접한 벽에 사용하면 노란 열쇠로 여는 노란 문이 열린다.",
     portalAim:'방향을 선택해 인접한 벽에 임의의 문을 사용.', portalCancel:'임의의 문 취소.',
     portalNeedWall:'임의의 문은 벽에만 사용할 수 있습니다.', portalNone:'임의의 문이 없습니다. 노인에게서 구입하세요.',
     portalFloor:'이 층에서는 임의의 문을 사용할 수 없습니다.', portalMade:'벽이 노란 문이 되었다! 노란 열쇠로 열어라.',
@@ -6432,7 +6432,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·25 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·26 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6440,7 +6440,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·25 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·26 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
