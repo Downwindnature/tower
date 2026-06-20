@@ -3063,18 +3063,33 @@ function install2FGate(d){
         }
       }
       if(canBreak){ sealed=true;
-        /* approach B — 2F's portal tutorial must fire reliably, so we seal whenever it's breakable. Only loot the new walls would BURY (the walled neighbour cells) is moved to the nearest reachable cell; the pocket BEHIND the seal is left UNTOUCHED so guarded treasures stay guarded (treasure still behind its monster) — the player reaches them by breaking the seal with the portal. */
-        const _moved=[];
-        for(let i=0;i<nbrs.length;i++){ const c=nbrs[i]; const e=d.ent[c.y][c.x]; if(e){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }
-        for(let si=0;si<stranded.length;si++){ const c=stranded[si]; if(c.x===S.x&&c.y===S.y) continue; const e=d.ent[c.y][c.x]; if(e){ _moved.push({e:e,x:c.x,y:c.y}); d.ent[c.y][c.x]=null; } }   // also evacuate the SEALED POCKET so only the stairs stay blocked (monsters/loot relocate to the reachable side)
+        /* The seal walls the stairs' open neighbours, which can also sever an UNRELATED part of the maze. RECONNECT it below so only the stairs ends up blocked (opened with the portal); no orphan open cell is ever left. */
+        const _isSeal=function(x,y){ for(let k=0;k<dirs.length;k++){ if(x===S.x+dirs[k][0]&&y===S.y+dirs[k][1]) return true; } return false; };
+        let _rg=0;
+        while(_rg++ < GRID*GRID){
+          const _rc=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
+          let _op=false;
+          for(let y=1;y<GRID-1 && !_op;y++) for(let x=1;x<GRID-1 && !_op;x++){
+            if(!d.wall[y][x] || _isSeal(x,y) || (x===S.x&&y===S.y)) continue;
+            let _aR=false,_aU=false;
+            for(let k=0;k<dirs.length;k++){ const nx=x+dirs[k][0], ny=y+dirs[k][1];
+              if(nx<0||ny<0||nx>=GRID||ny>=GRID||d.wall[ny][nx]||(nx===S.x&&ny===S.y)) continue;
+              if(_rc[ny]&&_rc[ny][nx]) _aR=true; else _aU=true; }
+            if(_aR&&_aU){ d.wall[y][x]=false; _op=true; }   // re-open a NON-seal wall bridging reachable <-> cut-off
+          }
+          if(!_op) break;
+        }
+        const _moved=[]; const _fin=reachAvoidBarriers(d, {x:d.start.x,y:d.start.y});
+        for(let i=0;i<nbrs.length;i++){ const c=nbrs[i]; const e=d.ent[c.y][c.x]; if(e&&e.kind!=='door') _moved.push({e:e,x:c.x,y:c.y}); if(e) d.ent[c.y][c.x]=null; }
+        for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
+          if(d.wall[y][x]||(x===S.x&&y===S.y)||(_fin[y]&&_fin[y][x])) continue;   // open + unreachable + not the stairs = orphan
+          const e=d.ent[y][x]; if(e&&e.kind!=='door') _moved.push({e:e,x:x,y:y}); d.ent[y][x]=null; d.wall[y][x]=true;   // fill it in (drop stranded doors)
+        }
         for(let m=0;m<_moved.length;m++){ const it=_moved[m]; let best=null,bdd=1e9;
           for(let y=1;y<GRID-1;y++)for(let x=1;x<GRID-1;x++){
-            if(d.wall[y][x]||d.ent[y][x]) continue;
-            if(x===S.x&&y===S.y) continue;
-            if(x===d.start.x&&y===d.start.y) continue;
-            if(!(reach[y]&&reach[y][x])) continue;
-            const dd=Math.abs(x-it.x)+Math.abs(y-it.y);
-            if(dd<bdd){ bdd=dd; best={x:x,y:y}; }
+            if(d.wall[y][x]||d.ent[y][x]||(x===S.x&&y===S.y)||(x===d.start.x&&y===d.start.y)) continue;
+            if(!(_fin[y]&&_fin[y][x])) continue;
+            const dd=Math.abs(x-it.x)+Math.abs(y-it.y); if(dd<bdd){ bdd=dd; best={x:x,y:y}; }
           }
           if(best){ d.ent[best.y][best.x]=it.e; }
         }
@@ -6432,7 +6447,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·26 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·27 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6440,7 +6455,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·26 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·27 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
