@@ -351,6 +351,12 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .fx-demon .s3{--ang:40deg;height:6px;animation:fxSlash .66s .16s ease-out forwards;background:linear-gradient(90deg,transparent,#fff,#e0c2ff,transparent);box-shadow:0 0 12px #c79cff;}
 .fx-boss .fl{animation:fxFlash .6s ease-out forwards;background:radial-gradient(circle,rgba(255,80,80,.85),rgba(255,80,80,0) 66%);}
 .atkfx.crit{transform:scale(1.3);}
+/* ailment cue: a green (poison) / red (weak) ring that pulses on the player's combat portrait */
+.ailFx{position:absolute;inset:0;pointer-events:none;z-index:7;display:flex;align-items:center;justify-content:center;}
+.ailFx::before{content:"";width:90%;height:90%;border-radius:50%;border:4px solid currentColor;box-shadow:0 0 16px currentColor,inset 0 0 12px currentColor;opacity:0;animation:ailPulse .84s ease-out forwards;}
+.ailFx.poison{color:#5fe06b;}
+.ailFx.weak{color:#ff5161;}
+@keyframes ailPulse{0%{transform:scale(.45);opacity:0;}22%{opacity:.95;}100%{transform:scale(1.18);opacity:0;}}
 .qk{display:inline-block;margin-left:7px;padding:1px 6px;border-radius:5px;background:rgba(0,0,0,.28);font-family:var(--mono);font-size:11px;opacity:.85;vertical-align:middle;}
 .helpItem.kbHead{border-top:1px solid var(--line);margin-top:8px;padding-top:12px;}
 .helpItem.kbItem .num,.helpItem.kbItem{color:var(--txt-dim);}
@@ -3558,6 +3564,7 @@ function floatDmg(which,text,cls){
   host.appendChild(s);
   setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },800);
 }
+function ailRing(kind){ try{ const host=byId('mePortrait'); if(!host) return; const r=document.createElement('div'); r.className='ailFx '+(kind==='poison'?'poison':'weak'); host.appendChild(r); setTimeout(function(){ if(r.parentNode) r.parentNode.removeChild(r); }, 840); }catch(e){} }
 function zeroDmgFx(side){
   try{ floatDmg(side, '0', 'zero'); }catch(e){}
   try{ playAttackFx(side, 'punch', false, null, true); }catch(e){}
@@ -3692,7 +3699,7 @@ function foeTurn(){
   /* 連擊改為逐段顯示，見下方 _foeShowHits */
   if(!(def && def.id==='counterdun')){   // 反擊盾 reflects ailments instead of suffering them
     if(anyHit && foe.ability && pl.status==='normal'){ applyAilmentFromFoe(foe); }
-    else if(anyHit && foe.ability==='weak' && pl.status==='weak'){ if(chance(0.5)){ pl.weakStacks++; log('foe',fmt(t('msg.applyWeak'),{n:pl.weakStacks})); } }
+    else if(anyHit && foe.ability==='weak' && pl.status==='weak'){ if(chance(0.5)){ pl.weakStacks++; ailRing('weak'); try{ playEventFx('me','ability','weak'); }catch(_e){} } }
   }
   c.defArmed=null;   // single-use defence consumed
   _foeShowHits(_seq, foeCrit, function(){
@@ -3743,9 +3750,9 @@ function applyAilmentFromFoe(foe){
   const pl=state.player;
   const baseChance = foe.boss?0.5 : 0.35 + 0.03*state.floor;
   if(foe.ability==='poison'){
-    if(chance(clamp(baseChance,0,0.85))){ pl.status='poison'; pl.poisonStep=ri(1,4); log('foe',t('msg.applyPoison')); try{ playEventFx('me','ability','poison'); }catch(_e){} }
+    if(chance(clamp(baseChance,0,0.85))){ pl.status='poison'; pl.poisonStep=ri(1,4); ailRing('poison'); try{ playEventFx('me','ability','poison'); }catch(_e){} }
   }else if(foe.ability==='weak'){
-    if(chance(clamp(baseChance,0,0.85))){ pl.status='weak'; pl.weakStacks=1; pl.hp=Math.max(1,pl.hp-15); log('foe',fmt(t('msg.applyWeak'),{n:1})); try{ playEventFx('me','ability','weak'); }catch(_e){} }
+    if(chance(clamp(baseChance,0,0.85))){ pl.status='weak'; pl.weakStacks=1; pl.hp=Math.max(1,pl.hp-15); ailRing('weak'); try{ playEventFx('me','ability','weak'); }catch(_e){} }
   }
 }
 function combatWin(){
@@ -6447,7 +6454,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·27 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·28 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6455,7 +6462,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·27 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·28 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
