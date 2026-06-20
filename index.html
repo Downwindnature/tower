@@ -69,7 +69,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .topbar .floorBar .v{font-family:var(--cjk);font-size:18px;font-weight:800;color:var(--gold);}
 .topRight{flex:1 1 0;display:flex;justify-content:flex-end;position:relative;}
 .settingsBtn{font-size:18px;}
-.settingsMenu{position:absolute;top:calc(100% + 6px);right:0;z-index:60;min-width:196px;
+.settingsMenu{position:fixed;z-index:500;min-width:196px;
   display:none;flex-direction:column;gap:2px;padding:8px;border-radius:var(--r);
   background:linear-gradient(180deg,rgba(40,30,60,.99),rgba(22,16,36,1));
   border:1px solid var(--line);box-shadow:0 18px 44px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.05);}
@@ -159,7 +159,9 @@ select.langsel option{color:#15151c;background:#eef0f7;}
    box-shadow:inset 0 2px 0 rgba(255,255,255,.04),inset 0 -3px 4px rgba(0,0,0,.7),0 0 0 1px #060309;}
 .tile.wall.brick{background:linear-gradient(180deg,#4a3320,#2c1d11);box-shadow:inset 0 2px 0 rgba(255,205,140,.07),inset 0 -3px 4px rgba(0,0,0,.7),0 0 0 1px #19100a;}
 .tile.stairs{background:radial-gradient(circle at 50% 40%,rgba(232,176,75,.22),#1c1530);}
-.tile.lava{background:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAeAB4AAD/4QLoRXhpZgAATU0AKgAAAAgABAE7AAIAAAAKAAABSodpAAQAAAABAAABVJydAAEAAAAUAAACzOocAAcAAAEMAAAAPgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAd2VpdGFpLTAzAAAFkAMAAgAAABQAAAKikAQAAgAAABQAAAK2kpEAAgAAAAM1NAAAkpIAAgAAAAM1NAAA6hwABwAAAQwAAAGWAAAAABzqAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyMDI2OjA2OjE3IDE1OjIwOjI0ADIwMjY6MDY6MTcgMTU6MjA6MjQAAAB3AGUAaQB0AGEAaQAtADAAMwAAAP/hBBxodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIi8+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPjx4bXA6Q3JlYXRlRGF0ZT4yMDI2LTA2LTE3VDE1OjIwOjI0LjU0MzwveG1wOkNyZWF0ZURhdGU+PC9yZGY6RGVzY3JpcHRpb24+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iPjxkYzpjcmVhdG9yPjxyZGY6U2VxIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+PHJkZjpsaT53ZWl0YWktMDM8L3JkZjpsaT48L3JkZjpTZXE+DQoJCQk8L2RjOmNyZWF0b3I+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/eHBhY2tldCBlbmQ9J3cnPz7/2wBDAAcFBQYFBAcGBQYIBwcIChELCgkJChUPEAwRGBUaGRgVGBcbHichGx0lHRcYIi4iJSgpKywrGiAvMy8qMicqKyr/2wBDAQcICAoJChQLCxQqHBgcKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKir/wAARCAA1ADcDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDh4WaKbY3cdKeF+yQtM0hUryo9aVITNIG3jcTjFT/ZVWTDDJz0aspzcXZI7aFCM1zTdkiKJ5JovOkTLycDtUSo9pIGuN3lZzx2q5NErSKA5TZ2FE9qZIgrOSD1BrnjWlOF3udmIwVKnilSjK8WV5DuJMfyxv1NRtA8b7Q2ABxnvUpVbdUjTJPqalS2eRWkeXJ7A9q3hUctzjxGGhRdoyTKkMhgkI7minJEZJCc80Vocug9cK6mNuMdPer0btLhzyQMGs0JMmFRARnitC3ndoxHJFtZen1rKo03Y9DB83xJLTuVpH8uUlssSeAB0NWpGmmjURADA+YmmFCr7pfvdfpUQkbzXUdDx1rk5/f5Oh606PJT+s3Tk+gTFVkX260ks7IgVIj83RqJbeby85AB9e9Kso2gycEcACupK2x5EZe1jyzsvMiZvn/cgjjkUU3M0hKr90HIIorZM4JJKTUWIl832glY8jPAq1C0hlMkvA65FUILaaU5RguD19a1DGs0IjD9eDiuetJ8yjHc9bA0qfs5VajVl0YyS4EznaMADqakMUZCMqY7nHeqE8Bgbyw+Fx3NW4QyW+WcsCPl9qcqcnDTcKWLpqtzTXudiKe9PmGEQkBe+agVnxvMZIFLJEWjdyWBPqKtwENZD6c1UH7pyYinF17JWTKkN4UmLCPdn+GigWkryExEAeuaK2h70bnNWp+zm4jLVmTK5z8ppwQwR+ajHIwaKKRKFWXztzyruJHr0pLEsZuWO0HhaKKzUm5WNpRXITzyNKxjJwD6dqgunkiQRxvtAHpRRWS0Z6XxUk2Ns3ZJdu4kYoooroWx4z3P/9k=) center/cover no-repeat,radial-gradient(circle at 40% 44%,#5e2f18 0%,#2a1208 56%,#140905 100%);box-shadow:inset 0 0 10px rgba(255,55,0,.5),inset 0 0 2px rgba(0,0,0,.55);animation:lavaCracks 1.7s ease-in-out infinite alternate;}
+.tile.lava{background:radial-gradient(circle at 50% 42%,#ff5a2a 0%,#c41a00 58%,#7a0e00 100%);box-shadow:inset 0 0 11px rgba(255,90,30,.55),inset 0 0 2px rgba(0,0,0,.5);animation:lavaFlash 1.2s ease-in-out infinite;}
+.tile.lava.lavaCustom{background-size:cover;background-position:center;background-repeat:no-repeat;animation:none;box-shadow:inset 0 0 2px rgba(0,0,0,.45);}
+@keyframes lavaFlash{0%,100%{filter:brightness(.9) saturate(1.2);}50%{filter:brightness(1.85) saturate(.5);}}
 @keyframes lavaCracks{0%{filter:brightness(.82) saturate(1.25);box-shadow:inset 0 0 8px rgba(255,50,0,.45),inset 0 0 2px rgba(0,0,0,.55);}100%{filter:brightness(1.34) saturate(1.45);box-shadow:inset 0 0 16px rgba(255,95,12,.8),inset 0 0 2px rgba(0,0,0,.5);}}
 .tile.barrier{background:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAeAB4AAD/4QLoRXhpZgAATU0AKgAAAAgABAE7AAIAAAAKAAABSodpAAQAAAABAAABVJydAAEAAAAUAAACzOocAAcAAAEMAAAAPgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAd2VpdGFpLTAzAAAFkAMAAgAAABQAAAKikAQAAgAAABQAAAK2kpEAAgAAAAMwNQAAkpIAAgAAAAMwNQAA6hwABwAAAQwAAAGWAAAAABzqAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyMDI2OjA2OjE3IDE1OjIwOjUyADIwMjY6MDY6MTcgMTU6MjA6NTIAAAB3AGUAaQB0AGEAaQAtADAAMwAAAP/hBBxodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0n77u/JyBpZD0nVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkJz8+DQo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj48cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIi8+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPjx4bXA6Q3JlYXRlRGF0ZT4yMDI2LTA2LTE3VDE1OjIwOjUyLjA0NTwveG1wOkNyZWF0ZURhdGU+PC9yZGY6RGVzY3JpcHRpb24+PHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9InV1aWQ6ZmFmNWJkZDUtYmEzZC0xMWRhLWFkMzEtZDMzZDc1MTgyZjFiIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iPjxkYzpjcmVhdG9yPjxyZGY6U2VxIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+PHJkZjpsaT53ZWl0YWktMDM8L3JkZjpsaT48L3JkZjpTZXE+DQoJCQk8L2RjOmNyZWF0b3I+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/eHBhY2tldCBlbmQ9J3cnPz7/2wBDAAcFBQYFBAcGBQYIBwcIChELCgkJChUPEAwRGBUaGRgVGBcbHichGx0lHRcYIi4iJSgpKywrGiAvMy8qMicqKyr/2wBDAQcICAoJChQLCxQqHBgcKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKir/wAARCAA2ADQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDjtOtZrm+eCBGfIxwM12uk/Di4u7YT3BeE9hjFS/Ciyi/tKe9uhkRrnBFbeqajqWq6w8GmNIED4+XoK9XD0YuOp4uJxE1Pli9TMHwvVm4mYnvgU6L4YC3bdFIyD3rvooI9E0pGv3PnAZZ81kHXLXUJ3NuHl28JGp5z2NX7JP4Uckq9RPWRyF18LWRXdJXLHnbjrXG6rodzpjqLiGRFJwMjAr2+2uI9Ptybt/Nu5PupnJWsjx5ZNd+EHuLpAssfKcc1nKndWaOijiJKWsrnizfIxAGaKRI225bgn1ory3ue8noeofDF1vLG82/KSpBNegadY2nh20ku7l1LuM5rz74RyLax35K5EeTitHW9ROs6gI5rz7HErY2e1etSpynGy2PncTONOpzLcy/FXii81PV/7PhjzGwDA+1T+HZU0FxcognuZBgR+la+paJp5liayuUefylAAHJ461s+F/CiRsbu9G9yflBFdsq1ONPlOPkdSrpuSaN4bknvBquoSfvXO4J2FHxCYR+F7hhg4HSuolkjRTGkiq6jpnoK4rxfsfwvduZxMJOPpXmxqSnK72PTdONOCjHdnhT3Cztv2Y7UVCYGLtjgBscUV573PYWx6R8Ksuuoxty7rwB3q9qWhzTagSkRI3fMf6Vw3g7Xn0G9e8Gdq8GvSbXxzYTqLiOPdvOGNezharUfdPncdRkqup0/hzQBBGk9zhiB8oI6Vs32px2EJCKWfBwF7VyTfESCGMKIdtZlz4mt9TjbLOC3LFeKUqVSc7yKjXhTp2prUrp4hkn1mdFdmZgVJ9DUmrK8Pw5n88kSZ4zWaLzSrSYSMJM5ycHrWZ4y8ZxappiWNshjjXOB6/Wt6/LCCsjmw3PUqann3nOjMNx654op8SIykuxBzRXzjcrn16SsSxHyZXj6qRyKkmma1hKRkgtzwelFFbXa2MbJ7jre4uJflaUk46k1P5ktmu9ZXJPvRRR7Sfcfs49hjO8pDPI53DpmmTWCeZ8xJyOOelFFTOpJrVj5IroU3DRuVznFFFFQUf/Z) center/cover no-repeat,linear-gradient(135deg,#cfeeff,#6fc2ee 55%,#2f86c4);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),inset 0 -3px 6px rgba(0,45,90,.45),0 0 0 1px #1c5f8c,0 0 7px rgba(120,200,255,.4);}
 .tile.portalAimCell{box-shadow:inset 0 0 0 2px rgba(244,207,58,.8),inset 0 0 0 100px rgba(244,207,58,.16);z-index:2;}
@@ -1254,7 +1256,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 <!-- ===== Audio settings (three sliders: master / music / sfx) ===== -->
 <div class="overlay" id="audioPanel"><div class="modal">
   <h2><span class="ic">🔊</span><span id="audioTitle">音訊設定</span></h2>
-  <div class="audioRow"><label id="audioMasterLab">主音道</label><input type="range" id="volMaster" min="0" max="100" step="1" value="80"><span class="volPct" id="volMasterPct">80%</span></div>
+  <div class="audioRow"><label id="audioMasterLab">主音量</label><input type="range" id="volMaster" min="0" max="100" step="1" value="80"><span class="volPct" id="volMasterPct">80%</span></div>
   <div class="audioRow"><label id="audioMusicLab">音樂</label><input type="range" id="volMusic" min="0" max="100" step="1" value="70"><span class="volPct" id="volMusicPct">70%</span></div>
   <div class="audioRow"><label id="audioSfxLab">音效</label><input type="range" id="volSfx" min="0" max="100" step="1" value="80"><span class="volPct" id="volSfxPct">80%</span></div>
   <div class="closeRow"><button class="btn" id="audioTest"><span class="ic">🔊</span><span id="audioTestLab">測試</span></button><button class="btn gold" id="audioClose" data-close>完成</button></div>
@@ -1873,9 +1875,9 @@ let GLYPH_CFG={
   shop_old:{face:'🧓',img:null}, shop_older:{face:'👴',img:null},
   shop_healP:{face:'👵',img:null}, shop_healW:{face:'🤶',img:null},
   shop_keySell:{face:'🔑',img:null}, shop_keyBuy:{face:'💰',img:null}, shop_portal:{face:'👴',img:null},
-  stair_up:{face:'🪜',img:null}, stair_down:{face:'🪜',img:null}
+  stair_up:{face:'🪜',img:null}, stair_down:{face:'🪜',img:null}, lava:{face:'',img:null}
 };
-const GLYPH_ORDER=['shop_blue','shop_red','shop_old','shop_older','shop_healP','shop_healW','shop_keySell','shop_keyBuy','shop_portal','stair_up','stair_down'];
+const GLYPH_ORDER=['shop_blue','shop_red','shop_old','shop_older','shop_healP','shop_healW','shop_keySell','shop_keyBuy','shop_portal','stair_up','stair_down','lava'];
 function glyphImg(key){ const g=GLYPH_CFG[key]; return (g&&g.img)?g.img:null; }
 function _glyphImgEl(src){ const im=document.createElement('img'); im.className='entImgGlyph'; im.src=src; im.alt=''; return im; }
 const KEY_OF={y:'keyY',b:'keyB',r:'keyR',w:'keyW',p:'keyP'};
@@ -2815,6 +2817,7 @@ function weaponEl(kind, tier){
 function wallBrick(f,x,y){ return (hashSeed(state.seed, (f*733)+((y>>1)*31)+((x>>1)*7)) & 7) < 3; }   // ~37% brown-brick walls, in patches, deterministic per floor
 function floorZone(f){ const ef=effFloor(f); return ef<=8?'cosmic':(ef<=15?'stone':'ember'); }
 
+let _lavaClock=Date.now(); const LAVA_PERIOD=1200;   /* lava flash synced to a global clock so re-rendering each move doesn't restart it */
 function renderMap(){
   const d=curFloor(); const g=byId('grid'); g.innerHTML='';
   g.classList.remove('z-cosmic','z-stone','z-ember'); g.classList.add('z-'+floorZone(d.f));
@@ -2825,7 +2828,7 @@ function renderMap(){
       const cell=document.createElement('div');
       cell.className='tile '+(d.wall[y][x]?'wall':'floor');
       if(d.wall[y][x] && wallBrick(d.f,x,y)) cell.classList.add('brick');
-      if(!d.wall[y][x] && d.lava && d.lava[y][x]){ cell.classList.add('lava'); }
+      if(!d.wall[y][x] && d.lava && d.lava[y][x]){ cell.classList.add('lava'); const _lv=glyphImg('lava'); if(_lv){ cell.classList.add('lavaCustom'); cell.style.backgroundImage='url('+_lv+')'; } else { cell.style.animationDelay='-'+((Date.now()-_lavaClock)%LAVA_PERIOD)+'ms'; } }
       const isStairs=(x===d.stairs.x&&y===d.stairs.y)&&!d.boss;
       if(isStairs){ cell.classList.add('stairs'); const _gu=glyphImg('stair_up'); cell.appendChild(_gu?_glyphImgEl(_gu):stairEl('up')); }
       const isDown=hasDown(d.f)&&(x===d.start.x&&y===d.start.y)&&!sealed;
@@ -3167,7 +3170,7 @@ function tryMove(dx,dy){
       mpClear(state.floor,nx,ny,'door');
     }else{ toast(fmt(t('msg.needKey'),{c:colName(col)})); return; }
   }
-  state.px=nx; state.py=ny; state.target=null; dismissTip();
+  state.px=nx; state.py=ny; state.target=null;
   const cell=d.ent[ny][nx];
   /* portal old man is an impassable solid — handled on bump (above), never walked onto */
   if(cell&&cell.kind==='item'){ const _bk=!!(ITEMS[cell.item]&&ITEMS[cell.item].book); pickUp(cell.item); d.ent[ny][nx]=null; mpClear(state.floor,nx,ny,'item'); try{ sfx(_bk?'levelup':'pickup'); }catch(e){} try{ checkAchievements(); }catch(e){} }
@@ -3543,8 +3546,7 @@ function renderCombat(){
   if(pl.status==='poison') ms.innerHTML='<span class="cbStatusChip poison">'+t('status.poison')+'</span>';
   else if(pl.status==='weak') ms.innerHTML='<span class="cbStatusChip weak">'+t('status.weak')+' ×'+pl.weakStacks+'</span>';
   const fs=byId('foeStatus'); fs.innerHTML='';
-  abList(foe).forEach(function(_a){ fs.innerHTML+='<span class="tagAb '+_a+'">'+t('ab.'+_a)+'</span>'; });
-  if(foe.drains) fs.innerHTML+='<span class="tagAb drain">'+t('ab.drain')+'</span>';
+  /* foe ability tags (高防/連擊…) hidden during combat — show numbers only */
   byId('meName').textContent=t('cb.hero');
   byId('foeName').textContent=monName(foe);
   byId('cbFloor').textContent=floorTag(state.floor);
@@ -3651,7 +3653,7 @@ function foeTurn(){
   const def = c.defArmed ? SKILL_BY_ID[c.defArmed] : null;   /* single-use defence skill armed for this round */
   let taken=0, anyHit=false, beforeTotal=0, hits=0;
   const foeCrit = c.foeEn>=100; let _critUsed=false;
-  let _nHits=(foe.atkcMax>=foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+Math.floor(RAND()*(foe.atkcMax-foe.atkcMin+1))):foe.atkc;
+  let _nHits=foe.atkc||1;
   if(hasAb(foe,'multi')&&_nHits<2) _nHits=2;   /* 連擊標籤保證至少 2 段攻擊 */
   const _seq=[];
   for(let i=0;i<_nHits;i++){
@@ -3966,7 +3968,7 @@ function renderManual(){
       '<div style="font-size:26px;width:40px;text-align:center">'+(foe.img?('<img src="'+foe.img+'" alt="" style="width:34px;height:34px;object-fit:contain;border-radius:5px;vertical-align:middle">'):foe.face)+'</div>'+
       '<div class="info"><div class="ttl">'+monName(foe)+' '+abTag+'</div>'+
       '<div class="mstats">HP <span class="num">'+foe.maxhp+'</span> · '+t('cb.atk')+' <span class="num">'+foe.atk+'</span> · '+t('cb.def')+' <span class="num">'+foe.def+'</span>'+
-      ((foe.atkcMax>=foe.atkcMin&&foe.atkcMin>0)?(' · '+t('ab.multi')+'×'+foe.atkcMin+'~'+foe.atkcMax):(foe.atkc>1?(' · '+t('ab.multi')+'×'+foe.atkc):''))+' · '+t('shop.gold')+' <span class="num">'+foe.gold+'</span> · '+t('shop.exp')+' <span class="num">'+foe.exp+'</span></div></div>'+
+      (foe.atkc>1?(' · '+t('ab.multi')+'×'+foe.atkc):'')+' · '+t('shop.gold')+' <span class="num">'+foe.gold+'</span> · '+t('shop.exp')+' <span class="num">'+foe.exp+'</span></div></div>'+
       '<div class="dmgpred"><div class="k">'+(pred.killable?fmt(t('manual.kill'),{n:pred.rounds}):t('manual.cantHurt'))+'</div>'+
       '<div class="v '+pred.cls+'">'+(pred.killable?('-'+pred.dmg):'—')+'</div>'+
       '<div class="k">'+t('manual.take')+'</div></div>';
@@ -4122,7 +4124,7 @@ function renderLoot(){
     body.appendChild(g);
   }
 }
-function foeHitCount(foe){ return (foe.atkcMax>=foe.atkcMin && foe.atkcMin>0) ? Math.round((foe.atkcMin+foe.atkcMax)/2) : (foe.atkc||1); }
+function foeHitCount(foe){ return (foe.atkc||1); }
 function foePerHitDmg(foe, pl){ const base = foe.trueDmg ? foe.atk : Math.max(0,dmgDown(foe.atk,effDef(pl),pl.thrD)); return base + (foe.bonusDmg||0); }
 function abEffects(foe){
   const out=[];
@@ -4134,8 +4136,7 @@ function abEffects(foe){
   if(hasAb(foe,'weak')||foe.ability==='weak') out.push([t('ab.weak'),t('manual.effWeak')]);
   if(foe.ability==='poison') out.push([t('ab.poison'),t('manual.effPoison')]);
   if(foe.drains) out.push([t('ab.drain'),t('manual.effDrains')]);
-  if((foe.atkc||1)>1 && !(foe.atkcMax>=foe.atkcMin && foe.atkcMin>0)) out.push([t('ab.multi'),fmt(t('manual.effMulti'),{n:foe.atkc})]);
-  if(foe.atkcMax>=foe.atkcMin && foe.atkcMin>0) out.push([t('ab.randMulti'),fmt(t('manual.effRandMulti'),{a:foe.atkcMin,b:foe.atkcMax})]);
+  if((foe.atkc||1)>1) out.push([t('ab.multi'),fmt(t('manual.effMulti'),{n:foe.atkc})]);
   if(foe.bonusDmg>0) out.push([t('ab.bonusDmg'),fmt(t('manual.effBonusDmg'),{n:foe.bonusDmg})]);
   if(foe.drainEn>0) out.push([t('ab.drainEn'),fmt(t('manual.effDrainEn'),{n:foe.drainEn})]);
   if(foe.statDownPct>0||foe.statDownN>0) out.push([t('ab.statDown'),fmt(t('manual.effStatDown'),{p:foe.statDownPct||0,n:foe.statDownN||0})]);
@@ -4162,7 +4163,7 @@ function renderManualDetail(foe, body){
   if(effs.length){ for(let i=0;i<effs.length;i++){ effHtml+='<div class="efLine"><span class="efName">'+effs[i][0]+'</span>'+effs[i][1]+'</div>'; } }
   else { effHtml='<div class="efLine">'+t('manual.effNone')+'</div>'; }
   const list=state.manualList||[]; const idx=state.manualIdx||0;
-  const row1=statRowHtml([[t('manual.hp'),foe.maxhp],[t('manual.dealt'),pred.killable?myHit:'—'],[t('manual.atkc'),(foe.atkcMax>=foe.atkcMin&&foe.atkcMin>0)?(foe.atkcMin+'~'+foe.atkcMax):(foe.atkc||1)],[t('manual.taken'),foeHit]],[t('manual.total'),pred.killable?pred.dmg:'\u221e']);
+  const row1=statRowHtml([[t('manual.hp'),foe.maxhp],[t('manual.dealt'),pred.killable?myHit:'—'],[t('manual.atkc'),(foe.atkc||1)],[t('manual.taken'),foeHit]],[t('manual.total'),pred.killable?pred.dmg:'\u221e']);
   const row2=statRowHtml([[t('cb.atk'),foe.atk],[t('cb.def'),foe.def],[t('manual.energy'),100]],[t('manual.totalRounds'),pred.killable?pred.rounds:'\u2014']);
   const wrap=document.createElement('div'); wrap.className='monDetail';
   wrap.innerHTML=
@@ -4341,6 +4342,7 @@ function openHelp(){
   }
   show('help');
 }
+let _tipTimer=null;
 function maybeShowTip(){
   let seen=false;
   try{ seen=localStorage.getItem('mt_tip')==='1'; }catch(e){ seen=state.tipSeen; }
@@ -4348,6 +4350,7 @@ function maybeShowTip(){
   const tip=byId('tipBubble');
   tip.innerHTML=t('ui.hint')+'<br><span class="x" id="tipX">OK</span>';
   tip.classList.add('show');
+  if(_tipTimer)clearTimeout(_tipTimer); _tipTimer=setTimeout(dismissTip,7000);
   const anchor=byId('btnHelp2');
   if(anchor){ const r=anchor.getBoundingClientRect(); tip.style.top=(r.top-10)+'px'; tip.style.right=(window.innerWidth-r.right)+'px'; }
   const x=byId('tipX'); if(x) x.addEventListener('click',dismissTip);
@@ -4368,6 +4371,7 @@ function hintOnce(kind){
   const tip=byId('tipBubble'); if(!tip) return;
   tip.innerHTML=t(cfg.msg)+'<br><span class="x" id="tipX">OK</span>';
   tip.classList.add('show');
+  if(_tipTimer)clearTimeout(_tipTimer); _tipTimer=setTimeout(dismissTip,7000);
   const anchor=byId(cfg.anchor); const r=anchor?anchor.getBoundingClientRect():null;
   if(r && (r.width||r.height)){
     tip.style.left='auto';
@@ -4671,11 +4675,21 @@ function newGame(opts){
 function rngFreshSeed(){ return ((Math.random()*0xFFFFFFFF)>>>0); }
 
 /* ============================== Input wiring & boot ============================== */
+function toggleSettingsMenu(){
+  const m=byId('settingsMenu'); if(!m) return;
+  if(m.classList.contains('open')){ m.classList.remove('open'); return; }
+  try{ if(m.parentNode!==document.body) document.body.appendChild(m); }catch(_e){}   /* lift to body level so it layers above every overlay */
+  const b=byId('btnSettings');
+  if(b){ const r=b.getBoundingClientRect(); m.style.top=(r.bottom+6)+'px'; m.style.right=Math.max(8,(window.innerWidth-r.right))+'px'; }
+  else { m.style.top='52px'; m.style.right='12px'; }
+  m.classList.add('open');
+}
 function bindInput(){
   window.addEventListener('keydown',function(e){
     if(e.code==='KeyO' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inLobby()) openAdminEntry(); return; }   /* hidden admin entry — lobby only */
     if(e.code==='KeyT' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inGame() && !byId('combat').classList.contains('show')) openCheat(); return; }   /* hidden god-mode cheat — in-game only, never mid-combat */
     { const _t=e.target; if(_t && (_t.tagName==='INPUT' || _t.tagName==='TEXTAREA' || _t.tagName==='SELECT' || _t.isContentEditable)) return; }   /* typing in a field -> never hijack the key */
+    if(e.key==='Escape'){ e.preventDefault(); toggleSettingsMenu(); return; }   /* Esc summons the settings menu on the top-most layer */
     if(state._cineActive){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(typeof _cineProceed==='function') _cineProceed(); } return; }
     if(byId('combat').classList.contains('show')){
       if(e.key===' '||e.key==='Enter'){
@@ -4708,7 +4722,7 @@ function bindInput(){
       return;
     }
     if(byId('manual').classList.contains('show')){            /* PC: arrows select a monster, Alt toggles full info, Q exits */
-      if(e.key==='q'||e.key==='Q'){ e.preventDefault(); hide('manual'); return; }
+      if(e.key==='q'||e.key==='Q'||e.key==='Enter'){ e.preventDefault(); hide('manual'); return; }
       const ml=state.manualList||[];
       if(ml.length){
         if(e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='w'||e.key==='W'||e.key==='a'||e.key==='A'){ e.preventDefault(); state.manualIdx=(((state.manualIdx||0)-1)%ml.length+ml.length)%ml.length; renderManual(); return; }
@@ -4845,7 +4859,7 @@ function bindInput(){
 
   { const _bSet=byId('btnSettings'); const _menu=byId('settingsMenu');
     if(_bSet && _menu){
-      _bSet.addEventListener('click',function(ev){ ev.stopPropagation(); _menu.classList.toggle('open'); });
+      _bSet.addEventListener('click',function(ev){ ev.stopPropagation(); toggleSettingsMenu(); });
       _menu.addEventListener('click',function(ev){ ev.stopPropagation(); });   /* clicks inside stay open (e.g. the language picker) */
       const acts=_menu.querySelectorAll('.iconbtn'); for(let i=0;i<acts.length;i++){ acts[i].addEventListener('click',function(){ _menu.classList.remove('open'); }); }   /* picking an action closes the menu */
       _menu.addEventListener('click',function(ev){ if(ev.target.closest('.iconbtn')||ev.target.closest('select')||ev.target.closest('option')) return; const row=ev.target.closest('.setRow'); if(!row||row.classList.contains('langRow')) return; const b=row.querySelector('.iconbtn'); if(b) b.click(); });   /* whole row is clickable, not just the icon */
@@ -5729,8 +5743,8 @@ const I18N_TUT = {
 };
 (function mergeTut(){ for(const L in I18N_TUT){ if(!I18N[L]) continue; I18N[L].tut = I18N_TUT[L].tut; } })();
 const I18N_AUDIO = {
- 'zh-Hant':{audio:{title:'音訊設定',master:'主音道',music:'音樂',sfx:'音效',done:'完成',test:'測試'}},
- 'zh-Hans':{audio:{title:'音频设置',master:'主音道',music:'音乐',sfx:'音效',done:'完成',test:'测试'}},
+ 'zh-Hant':{audio:{title:'音訊設定',master:'主音量',music:'音樂',sfx:'音效',done:'完成',test:'測試'}},
+ 'zh-Hans':{audio:{title:'音频设置',master:'主音量',music:'音乐',sfx:'音效',done:'完成',test:'测试'}},
  'en':{audio:{title:'Audio',master:'Master',music:'Music',sfx:'SFX',done:'Done',test:'Test'}},
  'ja':{audio:{title:'オーディオ',master:'マスター',music:'音楽',sfx:'効果音',done:'完了',test:'テスト'}},
  'ko':{audio:{title:'오디오',master:'마스터',music:'음악',sfx:'효과음',done:'완료',test:'테스트'}}
@@ -5811,11 +5825,11 @@ const I18N_TS = {
  'en':{admin:{drainStam:'Stamina drain'}}, 'ja':{admin:{drainStam:'スタミナ消耗'}}, 'ko':{admin:{drainStam:'스태미나 소모'}}
 }; for(const L in S){ if(!I18N[L]) continue; for(const ns in S[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[L][ns]); } } })();
 (function mergeGlyphs(){ const S={
- 'zh-Hant':{admin:{glyphTitle:'地圖圖示',glyphHint:'替商店、NPC、樓梯上傳自訂圖片（留空＝用內建圖示）。改完按下方「儲存到雲端」。',gly_shop_blue:'商店(藍)',gly_shop_red:'商店(紅)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治療婆婆',gly_shop_healW:'治療婦人',gly_shop_keySell:'賣鑰匙',gly_shop_keyBuy:'買鑰匙',gly_shop_portal:'任意門老人',gly_stair_up:'上樓梯',gly_stair_down:'下樓梯'}},
- 'zh-Hans':{admin:{glyphTitle:'地图图示',glyphHint:'为商店、NPC、楼梯上传自定义图片（留空＝用内建图示）。改完按下方「保存到云端」。',gly_shop_blue:'商店(蓝)',gly_shop_red:'商店(红)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治疗婆婆',gly_shop_healW:'治疗妇人',gly_shop_keySell:'卖钥匙',gly_shop_keyBuy:'买钥匙',gly_shop_portal:'任意门老人',gly_stair_up:'上楼梯',gly_stair_down:'下楼梯'}},
- 'en':{admin:{glyphTitle:'Map glyphs',glyphHint:'Upload custom images for shops, NPCs and stairs (blank = built-in icons). Save to cloud below.',gly_shop_blue:'Shop (blue)',gly_shop_red:'Shop (red)',gly_shop_old:'Shopkeeper',gly_shop_older:'Shopkeeper (elder)',gly_shop_healP:'Healer (granny)',gly_shop_healW:'Healer (woman)',gly_shop_keySell:'Key seller',gly_shop_keyBuy:'Key buyer',gly_shop_portal:'Portal NPC',gly_stair_up:'Stairs up',gly_stair_down:'Stairs down'}},
- 'ja':{admin:{glyphTitle:'マップ図示',glyphHint:'店・NPC・階段に画像をアップロード（空欄＝内蔵図示）。下の「クラウドに保存」を押してください。',gly_shop_blue:'店(青)',gly_shop_red:'店(赤)',gly_shop_old:'店主',gly_shop_older:'店主(翁)',gly_shop_healP:'治療(婆)',gly_shop_healW:'治療(婦)',gly_shop_keySell:'鍵売り',gly_shop_keyBuy:'鍵買い',gly_shop_portal:'任意門の人',gly_stair_up:'上り階段',gly_stair_down:'下り階段'}},
- 'ko':{admin:{glyphTitle:'맵 아이콘',glyphHint:'상점·NPC·계단에 커스텀 이미지를 업로드(비우면 내장 아이콘). 아래 「클라우드 저장」을 누르세요.',gly_shop_blue:'상점(파랑)',gly_shop_red:'상점(빨강)',gly_shop_old:'상점 노인',gly_shop_older:'상점 노옹',gly_shop_healP:'치료 할머니',gly_shop_healW:'치료 부인',gly_shop_keySell:'열쇠 판매',gly_shop_keyBuy:'열쇠 구매',gly_shop_portal:'포탈 NPC',gly_stair_up:'위 계단',gly_stair_down:'아래 계단'}}
+ 'zh-Hant':{admin:{glyphTitle:'地圖圖示',glyphHint:'替商店、NPC、樓梯上傳自訂圖片（留空＝用內建圖示）。改完按下方「儲存到雲端」。',gly_shop_blue:'商店(藍)',gly_shop_red:'商店(紅)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治療婆婆',gly_shop_healW:'治療婦人',gly_shop_keySell:'賣鑰匙',gly_shop_keyBuy:'買鑰匙',gly_shop_portal:'任意門老人',gly_stair_up:'上樓梯',gly_stair_down:'下樓梯',gly_lava:'岩漿'}},
+ 'zh-Hans':{admin:{glyphTitle:'地图图示',glyphHint:'为商店、NPC、楼梯上传自定义图片（留空＝用内建图示）。改完按下方「保存到云端」。',gly_shop_blue:'商店(蓝)',gly_shop_red:'商店(红)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治疗婆婆',gly_shop_healW:'治疗妇人',gly_shop_keySell:'卖钥匙',gly_shop_keyBuy:'买钥匙',gly_shop_portal:'任意门老人',gly_stair_up:'上楼梯',gly_stair_down:'下楼梯',gly_lava:'岩浆'}},
+ 'en':{admin:{glyphTitle:'Map glyphs',glyphHint:'Upload custom images for shops, NPCs and stairs (blank = built-in icons). Save to cloud below.',gly_shop_blue:'Shop (blue)',gly_shop_red:'Shop (red)',gly_shop_old:'Shopkeeper',gly_shop_older:'Shopkeeper (elder)',gly_shop_healP:'Healer (granny)',gly_shop_healW:'Healer (woman)',gly_shop_keySell:'Key seller',gly_shop_keyBuy:'Key buyer',gly_shop_portal:'Portal NPC',gly_stair_up:'Stairs up',gly_stair_down:'Stairs down',gly_lava:'Lava'}},
+ 'ja':{admin:{glyphTitle:'マップ図示',glyphHint:'店・NPC・階段に画像をアップロード（空欄＝内蔵図示）。下の「クラウドに保存」を押してください。',gly_shop_blue:'店(青)',gly_shop_red:'店(赤)',gly_shop_old:'店主',gly_shop_older:'店主(翁)',gly_shop_healP:'治療(婆)',gly_shop_healW:'治療(婦)',gly_shop_keySell:'鍵売り',gly_shop_keyBuy:'鍵買い',gly_shop_portal:'任意門の人',gly_stair_up:'上り階段',gly_stair_down:'下り階段',gly_lava:'溶岩'}},
+ 'ko':{admin:{glyphTitle:'맵 아이콘',glyphHint:'상점·NPC·계단에 커스텀 이미지를 업로드(비우면 내장 아이콘). 아래 「클라우드 저장」을 누르세요.',gly_shop_blue:'상점(파랑)',gly_shop_red:'상점(빨강)',gly_shop_old:'상점 노인',gly_shop_older:'상점 노옹',gly_shop_healP:'치료 할머니',gly_shop_healW:'치료 부인',gly_shop_keySell:'열쇠 판매',gly_shop_keyBuy:'열쇠 구매',gly_shop_portal:'포탈 NPC',gly_stair_up:'위 계단',gly_stair_down:'아래 계단',gly_lava:'용암'}}
 }; for(const L in S){ if(!I18N[L]) continue; for(const ns in S[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[L][ns]); } } })();
 (function mergeItemGain(){ const S={
  'zh-Hant':{admin:{igTitle:'寶物得到數值',igHint:'設定每個寶物拾取時增加的數值（生命／攻擊／防禦／金幣／經驗）。'}},
@@ -5981,15 +5995,15 @@ const I18N_DEATHT = {
 
 /* ---- Batch-2 怪物能力 i18n（admin 標籤 + 戰鬥訊息） ---- */
 const I18N_AB2 = {
-'zh-Hant':{ admin:{abBonusDmg:'加成傷害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'復活一次', abAtkcMin:'連擊min', abAtkcMax:'連擊max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
+'zh-Hant':{ admin:{abBonusDmg:'加成傷害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'復活一次', abAtkc:'連擊次數', abAtkcMin:'連擊min', abAtkcMax:'連擊max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
   msg:{ revive:'怪物復活了！', cantFlee:'無法從這個敵人身邊逃跑！', statDown:'你的攻擊與防禦被削弱了！' } },
-'zh-Hans':{ admin:{abBonusDmg:'加成伤害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'复活一次', abAtkcMin:'连击min', abAtkcMax:'连击max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
+'zh-Hans':{ admin:{abBonusDmg:'加成伤害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'复活一次', abAtkc:'连击次数', abAtkcMin:'连击min', abAtkcMax:'连击max', abStatDownP:'削攻防%', abStatDownN:'削攻防+'},
   msg:{ revive:'怪物复活了！', cantFlee:'无法从这个敌人身边逃跑！', statDown:'你的攻击与防御被削弱了！' } },
-'en':{ admin:{abBonusDmg:'Bonus dmg', abDrainEn:'Drain EN', abNoFlee:'No flee', abRevive:'Revive 1x', abAtkcMin:'Hits min', abAtkcMax:'Hits max', abStatDownP:'Weaken%', abStatDownN:'Weaken+'},
+'en':{ admin:{abBonusDmg:'Bonus dmg', abDrainEn:'Drain EN', abNoFlee:'No flee', abRevive:'Revive 1x', abAtkc:'Hit count', abAtkcMin:'Hits min', abAtkcMax:'Hits max', abStatDownP:'Weaken%', abStatDownN:'Weaken+'},
   msg:{ revive:'The monster revived!', cantFlee:"You can't flee from this enemy!", statDown:'Your attack and defense were weakened!' } },
-'ja':{ admin:{abBonusDmg:'追加ダメ', abDrainEn:'気力吸収', abNoFlee:'逃走不可', abRevive:'一度復活', abAtkcMin:'連撃min', abAtkcMax:'連撃max', abStatDownP:'弱体%', abStatDownN:'弱体+'},
+'ja':{ admin:{abBonusDmg:'追加ダメ', abDrainEn:'気力吸収', abNoFlee:'逃走不可', abRevive:'一度復活', abAtkc:'連撃回数', abAtkcMin:'連撃min', abAtkcMax:'連撃max', abStatDownP:'弱体%', abStatDownN:'弱体+'},
   msg:{ revive:'魔物が復活した！', cantFlee:'この敵からは逃げられない！', statDown:'攻撃力と防御力が弱体化した！' } },
-'ko':{ admin:{abBonusDmg:'추가뎀', abDrainEn:'기력흡수', abNoFlee:'도주불가', abRevive:'1회부활', abAtkcMin:'연타min', abAtkcMax:'연타max', abStatDownP:'약화%', abStatDownN:'약화+'},
+'ko':{ admin:{abBonusDmg:'추가뎀', abDrainEn:'기력흡수', abNoFlee:'도주불가', abRevive:'1회부활', abAtkc:'연타 횟수', abAtkcMin:'연타min', abAtkcMax:'연타max', abStatDownP:'약화%', abStatDownN:'약화+'},
   msg:{ revive:'몬스터가 부활했다!', cantFlee:'이 적에게서 도망칠 수 없다!', statDown:'공격력과 방어력이 약화되었다!' } }
 };
 (function mergeAB2(){ for(const L in I18N_AB2){ if(!I18N[L]) continue; const S=I18N_AB2[L];
@@ -6454,7 +6468,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·28 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·31 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6462,7 +6476,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·28 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·31 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6840,7 +6854,7 @@ function adMonAbilities(m){
         adNum(t('admin.abCrit'),{critMult:(m.critMult!=null?m.critMult:2)},'critMult')+
         '<div class=\"adField\"><label>'+t('admin.abDeath')+'</label><select data-k=\"deathTerrain\"><option value=\"\"'+(!m.deathTerrain?' selected':'')+'>'+t('admin.abNone')+'</option><option value=\"ice\"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value=\"lava\"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select></div>'+
         adNum(t('admin.abBonusDmg'),m,'bonusDmg')+adNum(t('admin.abDrainEn'),m,'drainEn')+
-        adNum(t('admin.abAtkcMin'),m,'atkcMin')+adNum(t('admin.abAtkcMax'),m,'atkcMax')+
+        adNum(t('admin.abAtkc'),{atkc:(m.atkc>0?m.atkc:1)},'atkc')+
         adNum(t('admin.abStatDownP'),m,'statDownPct')+adNum(t('admin.abStatDownN'),m,'statDownN')+
         '<div class="adField"><label>'+t('admin.abNoFlee')+'</label><select data-k="noFlee"><option value="0"'+(!m.noFlee?' selected':'')+'>—</option><option value="1"'+(m.noFlee?' selected':'')+'>✓</option></select></div>'+
         '<div class="adField"><label>'+t('admin.abRevive')+'</label><select data-k="revive"><option value="0"'+(!m.revive?' selected':'')+'>—</option><option value="1"'+(m.revive?' selected':'')+'>✓</option></select></div>'+
@@ -6861,7 +6875,7 @@ function showMonPreview(m){
   if(!m) return;
   let foe; try{ foe=mkFoeDirect(m); }catch(e){ foe=Object.assign({}, m); }
   let effs=[]; try{ effs=abEffects(foe)||[]; }catch(e){ effs=[]; }
-  const atkc=(m.atkcMax>=m.atkcMin && m.atkcMax)?((m.atkcMin||1)+'~'+m.atkcMax):(m.atkc||1);
+  const atkc=(m.atkc||1);
   const hasS=((m.sMin||0)||(m.sMax||0)); const hasB=((m.bMin||0)||(m.bMax||0));
   const fl=[]; if(hasS) fl.push((m.sMin||0)+'F~'+(m.sMax||0)+'F'); if(hasB) fl.push('B'+(m.bMin||0)+'~B'+(m.bMax||0));
   const flStr=fl.length?fl.join(' · '):'—';
