@@ -2973,6 +2973,7 @@ function _portalFree(d){
 function _isKeyWall(d, wx, wy){
   /* a wall is "key" only if breaking it reaches cells you otherwise can't get to (past a monster/barrier or a sealed pocket) */
   if(wx<0||wy<0||wx>=GRID||wy>=GRID) return false;
+  if(state.secretWall && state.secretWall.floor===d.f && state.secretWall.x===wx && state.secretWall.y===wy && d.wall[wy][wx]) return true;   /* 密室指定牆一律可用任意門敲開（不受『需通往新區域』限制） */
   const wasWall=d.wall[wy][wx], wasEnt=d.ent[wy][wx];
   if(wasEnt && (wasEnt.kind==='shop'||wasEnt.kind==='npc'||wasEnt.kind==='shopwall')) return false;   // a shop / old-man counter must never become a door
   const isBar=!!(wasEnt&&wasEnt.kind==='barrier');
@@ -3009,9 +3010,16 @@ function doPortalConvert(){
   const conv=(en&&en.kind==='barrier') || (!!d.wall[tg.y][tg.x] && _isKeyWall(d,tg.x,tg.y));
   if(!conv){ const isWB=(en&&en.kind==='barrier')||!!d.wall[tg.y][tg.x]; try{ toast(t(isWB?'msg.portalNotKey':'msg.portalNeedWall')); }catch(e){} try{ renderMap(); }catch(e){} return; }
   pl.portals--;
-  d.wall[tg.y][tg.x]=false; d.ent[tg.y][tg.x]={kind:'door',color:'y'};
-  try{ sfx('door'); }catch(e){}
-  try{ toast(t('msg.portalMade') + ((pl.portals||0)===1 ? ('  '+t('msg.portalLow')) : '')); }catch(e){}
+  d.wall[tg.y][tg.x]=false;
+  if(state.secretWall && state.secretWall.floor===d.f && tg.x===state.secretWall.x && tg.y===state.secretWall.y){
+    d.ent[tg.y][tg.x]={kind:'mcircle'};                               /* 敲對密室位置 -> 直接變成魔法陣 */
+    try{ sfx('door'); }catch(e){}
+    try{ toast(({'zh-Hant':'牆後浮現發光的法陣…','zh-Hans':'墙后浮现发光的法阵…','en':'A glowing circle appears…','ja':'光る魔法陣が現れた…','ko':'빛나는 마법진이 나타났다…'})[state.lang]||'…'); }catch(e){}
+  } else {
+    d.ent[tg.y][tg.x]={kind:'door',color:'y'};                        /* 一般任意門 -> 黃色門 */
+    try{ sfx('door'); }catch(e){}
+    try{ toast(t('msg.portalMade') + ((pl.portals||0)===1 ? ('  '+t('msg.portalLow')) : '')); }catch(e){}
+  }
   try{ renderMap(); }catch(e){} try{ renderStats(); }catch(e){}
 }
 /* ---- generic old-man / portal dialog (reused by the convert-confirm and the first-time story) ---- */
@@ -3183,14 +3191,14 @@ function tryMove(dx,dy){
       toast(fmt(t('msg.useKey'),{c:colName(col)})); renderStats();
       mpClear(state.floor,nx,ny,'door');
       if(state.secretWall && state.floor===state.secretWall.floor && nx===state.secretWall.x && ny===state.secretWall.y){
-        d.ent[ny][nx]={kind:'mcircle'}; try{ renderAll(); }catch(_e){} try{ toast(({'zh-Hant':'牆後浮現發光的法陣…','zh-Hans':'墙后浮现发光的法阵…','en':'A glowing circle appears…','ja':'光る魔法陣が現れた…','ko':'빛나는 마법진이 나타났다…'})[state.lang]||'…'); }catch(_e){} return;
+        d.ent[ny][nx]={kind:'mcircle'}; try{ renderAll(); }catch(_e){} try{ toast(({'zh-Hant':'牆後浮現發光的法陣…','zh-Hans':'墙后浮现发光的法阵…','en':'A glowing circle appears…','ja':'光る魔法陣が現れた…','ko':'빛나는 마법진이 나타났다…'})[state.lang]||'…'); }catch(_e){} return;   /* 後備：救援舊存檔中已被轉成黃門的密室牆（新局不會用到，密室牆已直接變魔法陣） */
       }
     }else{ toast(fmt(t('msg.needKey'),{c:colName(col)})); return; }
   }
   state.px=nx; state.py=ny; state.target=null;
   const cell=d.ent[ny][nx];
   /* portal old man is an impassable solid — handled on bump (above), never walked onto */
-  if(cell&&cell.kind==='item'){ const _bk=!!(ITEMS[cell.item]&&ITEMS[cell.item].book); pickUp(cell.item); d.ent[ny][nx]=null; mpClear(state.floor,nx,ny,'item'); try{ sfx(_bk?'levelup':'pickup'); }catch(e){} try{ checkAchievements(); }catch(e){} }
+  if(cell&&cell.kind==='item'){ const _bk=!!(ITEMS[cell.item]&&ITEMS[cell.item].book); pickUp(cell.item); d.ent[ny][nx]=null; if(state.floor===SECRET_FLOOR) state.secretLooted=true; mpClear(state.floor,nx,ny,'item'); try{ sfx(_bk?'levelup':'pickup'); }catch(e){} try{ checkAchievements(); }catch(e){} }
   if(d.lava && d.lava[ny][nx]){ const plv=state.player;
     if(plv.icePendant){ d.lava[ny][nx]=false; toast(t('msg.iceMelt')); renderMap(); }
     else { plv.hp-=50; toast(t('msg.lava')); renderStats(); if(plv.hp<=0){ plv.hp=0; renderStats(); defeat(); return; } }
@@ -3327,7 +3335,7 @@ function engage(){
 
 /* ============================== Combat ============================== */
 const COMBAT_ROUND_MS=380;   /* pace of automatic rounds — brisk one-two */
-const COMBO_STEP_MS=600;   /* delay between successive hits shown in a multi-hit combo */
+const COMBO_STEP_MS=350;   /* delay between successive hits shown in a multi-hit combo */
 const STAM_DRAIN=26;         /* stamina a draining monster saps per hit (lowers your accuracy) */
 let combatTimer=null;
 const FX_DUR={unarmed:300,iron:340,silver:400,knight:480,holy:580,divine:700,punch:300,beast:470,cast:520,boss:620,claw:440,spark:480,fire:500,spike:460,nova:600,orb:520,beam:560,acid:540,dragon:520,spell:420,arcane:560,chaos:580,flame:540,archmage:640,demon:660};
@@ -4518,18 +4526,20 @@ function _genFindSecretWall(d){
         seen[y][x]=true; q.push({x:x,y:y}); } }
     return seen;
   }
-  const before=flood(), cands=[], D=[[0,-1],[1,0],[0,1],[-1,0]];
+  const before=flood(), cands=[], fallback=[], D=[[0,-1],[1,0],[0,1],[-1,0]];
   for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
     if(!d.wall[y][x] || d.ent[y][x]) continue;                       /* bare wall only */
     let adj=false; for(let i=0;i<D.length;i++){ const ax=x+D[i][0], ay=y+D[i][1]; if(ax>=0&&ay>=0&&ax<GRID&&ay<GRID&&before[ay][ax]){ adj=true; break; } }
     if(!adj) continue;                                               /* must touch the reachable area */
+    fallback.push({x:x,y:y});                                        /* 任一鄰接可達區的裸牆都可當入口（保底） */
     d.wall[y][x]=false; const after=flood(); d.wall[y][x]=true;
     let nw=0, item=false;
     for(let yy=0;yy<GRID;yy++)for(let xx=0;xx<GRID;xx++){ if(after[yy][xx]&&!before[yy][xx]&&!(xx===x&&yy===y)){ nw++; const e=d.ent[yy][xx]; if(e&&e.kind==='item') item=true; } }
     if(nw>0) cands.push({x:x,y:y,nw:nw,item:item});
   }
-  if(!cands.length) return null;
-  const clean=cands.filter(function(c){return !c.item;}); const pool=clean.length?clean:cands;
+  const clean=cands.filter(function(c){return !c.item;});
+  const pool = clean.length ? clean : (cands.length ? cands : fallback);   /* 找不到通往新區域的牆時，退而用任一鄰接可達區的牆，確保密室一定有入口 */
+  if(!pool.length) return null;
   pool.sort(function(a,b){return a.nw-b.nw;});
   const top=pool.slice(0, Math.min(4,pool.length));
   return top[Math.floor(RAND()*top.length)];
@@ -4581,7 +4591,7 @@ function genSecretRoom(){
   for(let y=1;y<=yEntry;y++) wall[y][cx]=false;          /* carve the central corridor */
   ent[6][cx]={kind:'door',color:'r'};                   /* red key door */
   ent[3][cx]={kind:'door',color:'w'};                   /* white key door (deeper) */
-  ent[1][cx]={kind:'item',item:'jug'};                  /* 十字聖水 at the very back */
+  if(!state.secretLooted) ent[1][cx]={kind:'item',item:'jug'};                  /* 十字聖水 at the very back */
   ent[yEntry][cx]={kind:'secretExit'};                  /* return portal: step on it to leave */
   return {f:SECRET_FLOOR, wall:wall, start:{x:cx,y:yEntry}, stairs:{x:cx,y:yEntry}, ent:ent, lava:lava, explored:true, secret:true};
 }
@@ -4778,7 +4788,7 @@ function newGame(opts){
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null;
-  state.secretFloor=3+(hashSeed(state.seed,777)%(FLOORS-3)); state.secretWall=null; state.secretReturn=null;   /* hidden 密室: one surface floor 3..FLOORS-1 hides the entry wall */
+  state.secretFloor=3+(hashSeed(state.seed,777)%(FLOORS-3)); state.secretWall=null; state.secretReturn=null; state.secretLooted=false;   /* hidden 密室: one surface floor 3..FLOORS-1 hides the entry wall */
   state.hintFloor=2+(hashSeed(state.seed,555)%(FLOORS-2)); if(state.hintFloor===state.secretFloor) state.hintFloor=(state.hintFloor>2?state.hintFloor-1:state.hintFloor+1);   /* the hint old man lives on a different surface floor */
   state.healPlaced={};
   { var _kf1=10+(hashSeed(state.seed,901)%7);                                  /* 18F 白門寶庫的白鑰匙 -> 放在 10~16F */
@@ -5017,8 +5027,9 @@ function requestRestart(){
 }
 
 /* ============================== Background music (per-floor, no overlap) ============================== */
-const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3' };
+const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3', secret:'bgm-secret.mp3' };
 function bgmKeyForFloor(f){
+  if(f===SECRET_FLOOR) return 'secret';        // 密室專屬 BGM（進去這首，出去依所在樓層切回）
   if(f===1) return 'floor1';                 // 1F
   if(f>=2 && f<=24) return 'upper';          // 2F-24F
   if(f===FLOORS) return 'topBoss';           // 25F boss
@@ -6414,7 +6425,7 @@ function applyConfig(cfg){
 let saveTimer=null;
 function serializeRun(){
   return { player:state.player, floor:state.floor, maxFloor:state.maxFloor, minFloor:state.minFloor, seed:state.seed,
-           kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, secretReturn:(state.secretReturn||null), secretFloor:(state.secretFloor==null?null:state.secretFloor), secretWall:(state.secretWall||null), hintFloor:(state.hintFloor==null?null:state.hintFloor), healPlaced:(state.healPlaced||null), vaultKeys:(state.vaultKeys||null), basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
+           kills:state.kills, floors:state.floors, px:state.px, py:state.py, lang:state.lang, secretReturn:(state.secretReturn||null), secretLooted:!!state.secretLooted, secretFloor:(state.secretFloor==null?null:state.secretFloor), secretWall:(state.secretWall||null), hintFloor:(state.hintFloor==null?null:state.hintFloor), healPlaced:(state.healPlaced||null), vaultKeys:(state.vaultKeys||null), basementUnlocked:!!state.basementUnlocked, cheatActive:!!state.cheatActive, cheatSnap:(state.cheatSnap||null), savedAt:Date.now() };
 }
 function _fbSafe(o){ try{ return JSON.parse(JSON.stringify(o===undefined?null:o)); }catch(e){ return o; } }   /* Realtime DB rejects undefined/NaN/Infinity; round-trip sanitises */
 function cloudSave(now){
@@ -6449,6 +6460,7 @@ function restoreRun(s){
   state.cheatActive=!!s.cheatActive; state.cheatSnap=s.cheatSnap||null;
   state.secretReturn=s.secretReturn||null;
   state.secretFloor=(s.secretFloor==null?state.secretFloor:s.secretFloor); state.secretWall=s.secretWall||null;
+  state.secretLooted=!!s.secretLooted;
   if(s.hintFloor!==undefined) state.hintFloor=s.hintFloor;
   state.healPlaced=s.healPlaced||{};
   if(s.vaultKeys!==undefined) state.vaultKeys=s.vaultKeys;
@@ -6600,7 +6612,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·43 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·45 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6608,7 +6620,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·43 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·45 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
