@@ -6626,7 +6626,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·51 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·52 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6634,7 +6634,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·51 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·52 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -7026,6 +7026,23 @@ function _abStatusToggle(cb){
   var all=row.querySelectorAll('input[data-abstatus]'); for(var i=0;i<all.length;i++){ if(all[i]!==cb) all[i].checked=false; }
 }
 function _abNum(key,on,off,val,step){ return '<input type="number" data-k="'+key+'" data-on="'+on+'" data-off="'+off+'"'+(step?' step="'+step+'"':'')+' value="'+val+'" style="width:58px;padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:13px">'; }
+function _abComboMode(sel){
+  if(!sel) return;
+  var box=sel.closest('[data-abset]')||sel.parentNode, mode=sel.value;
+  var fx=box.querySelector('[data-combobox="fixed"]'), rd=box.querySelector('[data-combobox="rand"]');
+  if(fx) fx.style.display=(mode==='fixed')?'inline-flex':'none';
+  if(rd) rd.style.display=(mode==='rand')?'inline-flex':'none';
+  var at=box.querySelector('[data-k="atkc"]'), mn=box.querySelector('[data-k="atkcMin"]'), mx=box.querySelector('[data-k="atkcMax"]');
+  if(mode==='fixed'){ if(mn)mn.value=0; if(mx)mx.value=0; if(at&&(at.value===''||(+at.value)<=1))at.value=2; }
+  else { if(at)at.value=1; if(mn&&(mn.value===''||(+mn.value)<1))mn.value=2; if(mx&&(mx.value===''||(+mx.value)<2))mx.value=3; }
+}
+function _abComboToggle(cb){
+  var row=cb.closest('.adRowItem')||document, box=row.querySelector('[data-abset="atkc"]'); if(!box) return;
+  box.style.display=cb.checked?'inline-flex':'none';
+  if(cb.checked){ _abComboMode(box.querySelector('[data-combomode]')); }
+  else { var at=box.querySelector('[data-k="atkc"]'),mn=box.querySelector('[data-k="atkcMin"]'),mx=box.querySelector('[data-k="atkcMax"]'); if(at)at.value=1; if(mn)mn.value=0; if(mx)mx.value=0; }
+}
+
 function adMonAbilities(m){
   var h='<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
   h+='<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:9px 15px;padding:3px 0;align-items:center">';
@@ -7036,7 +7053,7 @@ function adMonAbilities(m){
   h+=_abChip({cb:'data-kbool="revive"', label:t('admin.abRevive'), on:!!m.revive});
   h+=_abChip({cb:'data-abstatus="poison" onchange="_abStatusToggle(this)"', label:t('ab.poison'), on:(m.ability==='poison'||hasAb(m,'poison'))});
   h+=_abChip({cb:'data-abstatus="weak" onchange="_abStatusToggle(this)"', label:t('ab.weak'), on:(m.ability==='weak'||hasAb(m,'weak'))});
-  h+=_abChip({key:'atkc', cb:'data-abtog="atkc" onchange="_abToggle(this)"', label:t('admin.abAtkc'), on:((m.atkc||1)>1 || (m.atkcMax||0)>0), set:'<span style="font-size:11px;opacity:.7">固定</span>'+_abNum('atkc',2,1,(m.atkc>0?m.atkc:1))+'<span style="font-size:11px;opacity:.7;margin-left:7px">或隨機</span>'+_abNum('atkcMin',0,0,(m.atkcMin||0))+'<span style="font-size:11px;opacity:.7">~</span>'+_abNum('atkcMax',0,0,(m.atkcMax||0))});
+  { var _mOn=((m.atkc||1)>1||(m.atkcMax||0)>0), _mRand=((m.atkcMax||0)>0); var _vFix=(_mOn&&!_mRand)?m.atkc:1, _vMin=(_mOn&&_mRand)?(m.atkcMin>0?m.atkcMin:2):0, _vMax=(_mOn&&_mRand)?(m.atkcMax>0?m.atkcMax:3):0; h+=_abChip({key:'atkc', cb:'data-abtog="atkc" onchange="_abComboToggle(this)"', label:t('admin.abAtkc'), on:_mOn, set:'<select data-combomode onchange="_abComboMode(this)" style="font-size:12px;padding:1px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt)"><option value="fixed"'+(!_mRand?' selected':'')+'>固定</option><option value="rand"'+(_mRand?' selected':'')+'>隨機</option></select><span data-combobox="fixed" style="display:'+(!_mRand?'inline-flex':'none')+';align-items:center;gap:3px"><span style="font-size:11px;opacity:.7">次數</span>'+_abNum('atkc',2,1,_vFix)+'</span><span data-combobox="rand" style="display:'+(_mRand?'inline-flex':'none')+';align-items:center;gap:3px">'+_abNum('atkcMin',2,0,_vMin)+'<span style="font-size:11px;opacity:.7">~</span>'+_abNum('atkcMax',3,0,_vMax)+'</span>'}); }
   h+=_abChip({key:'critMult', cb:'data-abtog="critMult" onchange="_abToggle(this)"', label:t('admin.abCrit'), on:(m.critMult!=null&&m.critMult>1), set:_abNum('critMult',2,1,(m.critMult!=null?m.critMult:1),'0.1')});
   h+=_abChip({key:'bonusDmg', cb:'data-abtog="bonusDmg" onchange="_abToggle(this)"', label:t('admin.abBonusDmg'), on:(m.bonusDmg||0)>0, set:_abNum('bonusDmg',10,0,(m.bonusDmg||0))});
   h+=_abChip({key:'drainEn', cb:'data-abtog="drainEn" onchange="_abToggle(this)"', label:t('admin.abDrainEn'), on:(m.drainEn||0)>0, set:_abNum('drainEn',10,0,(m.drainEn||0))});
