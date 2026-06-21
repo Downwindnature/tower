@@ -89,7 +89,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .panel{background:linear-gradient(180deg,rgba(40,30,60,.92),rgba(26,19,40,.96));
   border:1px solid var(--line);border-radius:var(--r);
   box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.04);}
-#statsPanel{width:236px;flex-shrink:0;display:flex;flex-direction:column;align-self:flex-start;justify-content:space-between;gap:12px;overflow:auto;}
+#statsPanel{width:236px;flex-shrink:0;display:flex;flex-direction:column;align-self:stretch;justify-content:space-between;gap:12px;overflow:auto;margin-top:44px;}
 .statusCard,.keysCard{padding:12px;}
 .statusChip{display:flex;align-items:center;gap:8px;justify-content:center;padding:7px;border-radius:var(--r-s);
   font-weight:700;letter-spacing:.06em;margin-bottom:11px;border:1px solid var(--line);
@@ -935,6 +935,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
 .portrait .dmgnum.miss{color:var(--txt-dim);font-size:15px;}
 .portrait .dmgnum.crit{color:#ffd86b;font-size:25px;text-shadow:0 0 10px rgba(255,180,60,.85),0 2px 6px rgba(0,0,0,.9);}
 .portrait .dmgnum.zero{color:#a8c4dc;font-size:16px;opacity:.95;}
+.portrait .dmgnum.heal{color:#46e08a;top:8%;text-shadow:0 0 7px rgba(60,220,120,.55),0 2px 6px rgba(0,0,0,.9);}
 .cpRow{display:flex;flex-direction:column;gap:3px;color:var(--txt-dim);font-size:12px}
 .cpInp{width:100%;box-sizing:border-box;padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:var(--txt);font-family:var(--mono);font-size:13px}
 /* combat numeric stat rows (no bars) */
@@ -1015,7 +1016,7 @@ select.langsel option{color:#15151c;background:#eef0f7;}
   #app{height:100vh;height:100dvh;padding:6px 8px;}
   .main{gap:8px;}
   /* LEFT: compact data — status/stats on the left, keys on the right (the left has plenty of room) */
-  #statsPanel{flex:0 1 auto;max-width:46vw;flex-direction:row;align-items:stretch;align-self:stretch;gap:7px;overflow:hidden;}
+  #statsPanel{flex:0 1 auto;max-width:46vw;flex-direction:row;align-items:stretch;align-self:stretch;gap:7px;overflow:hidden;margin-top:0;}
   #statsPanel .statusCard{flex:1 1 auto;min-width:0;padding:7px 9px;overflow:auto;}
   #statsPanel .keysBox.keysCard{flex:0 0 auto;align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:6px 8px;margin:0;}
   #statsPanel .heroHead{margin-bottom:6px;gap:8px;}
@@ -1541,7 +1542,7 @@ const I18N = {
     ['🌀','<b>手冊與傳送</b>：怪物手冊預估戰損；撿到傳送卷軸後可傳送回已探索的樓層補給。'],
     ['🐉','<b>勝利條件</b>：一路向上攻略，擊敗頂層的魔塔巨龍即可通關！'] ]},
   end:{winT:'通關成功！',winD:'你擊敗了潛伏地底的魔界之王·古頓，斬斷魔塔的禍根，成為真正的勇者！',loseT:'勇者倒下了…',loseD:'你的冒險在此終結，但魔塔永遠歡迎挑戰者再臨。',retry:'再次挑戰',floor:'抵達樓層',lv:'等級',gold:'金幣',kills:'擊敗怪物',atk:'攻擊',def:'防禦',submitRank:'上傳成績到排行榜',submitted:'已上傳排行榜',home:'回到主畫面'},
-  msg:{pick:'獲得 {x}',gAtk:'攻擊 +{n}',gDef:'防禦 +{n}',gHp:'生命 +{n}',gGold:'金幣 +{n}',gExp:'經驗 +{n}',gotSkill:'習得技能 {n}！',defArm:'{n} 待命！',huanguGain:'幻骨：攻擊 +{n}、防禦 −{n}',tiantiDrain:'天體：吸取能量 {n}',jinshiHeal:'金石：回復 {n}',zhuantiDrain:'轉體：削減怪物體力',foeSkip:'怪物無法行動！',healShield:'療癒盾：回復 {n}',counter:'反擊 {n}！',reflWeak:'反彈衰弱！怪物攻防下降',reflPoison:'反彈中毒 {n}！',needKey:'需要{c}鑰匙',useKey:'使用了{c}鑰匙',curePoison:'中毒解除了',cureWeak:'衰弱解除了',noCure:'目前沒有可解除的狀態',lvUp:'等級提升！Lv {x}',reward:'擊敗{name}！+{g} 金幣 · +{e} 經驗',selectTarget:'請先撞向並鎖定相鄰的怪物',cantAfford:'資源不足',bought:'兌換成功',soldKey:'賣出！+{g} 金幣',noKeyToSell:'沒有可賣的鑰匙',targeted:'已鎖定 {name}',lockSpace:'已鎖定 {name}，請按下空白鍵對戰',lockAim:'已鎖定 {name}，請按下瞄準鍵對戰',fled:'你逃離了戰鬥',haveManual:'已經擁有怪物手冊',applyPoison:'你中毒了！',applyWeak:'你陷入衰弱（{n} 層）',win:'{name} 被擊敗了！',lose:'你倒下了…',start:'與 {name} 的戰鬥開始！',youHit:'你造成 {d} 點傷害',youMiss:'你的攻擊落空了',foeHit:'{name} 造成 {d} 點傷害',foeMiss:'{name} 的攻擊落空',skillCast:'施放【{n}】',crimsonHit:'赤紅斬！造成 {d} 點傷害',pierceHit:'破甲擊！無視防禦造成 {d} 點傷害',shieldUse:'結晶盾展開：體力 +40，下次受擊減半',breathUse:'深呼吸：能量 +30、體力 +30',poisonStep:'中毒發作 −5 生命',confirmNew:'確定要放棄目前的進度，重新開始嗎？',bossWarn:'頂層的魔塔巨龍擋在前方！',lava:'踩進岩漿！−50 生命',gotIce:'獲得冰凍吊墜！踏過岩漿不再受傷',gotManual:'獲得怪物手冊！可查看怪物數值',gotTeleport:'獲得樓層傳送！可在去過的樓層間移動',iceMelt:'冰凍吊墜凍結了岩漿',msTian:'【天靈】劍氣纏身，疲勞上升、體力下降',msLiu:'【流石】劍壓襲來，能量被削減',msShen:'【深紅】劍痕回流，怪物回復 {n} 體力',msJing:'【鏡膜盾】展開，你下次造成的傷害減半',msJie:'【結晶盾】束縛！你下一回合無法行動',msFan:'【反射盾】展開，你的傷害將被反彈',msStun:'被結晶盾束縛，本回合無法行動！',msReflect:'反射盾反彈 {n} 點傷害！',basementLocked:'地下迷宮尚未開啟——先登頂擊敗魔塔巨龍。',basementOpen:'通往地下的隱藏階梯浮現了！回到一樓即可向下。',exitHintPC:'退出請按 Q',exitHintTouch:'退出'},story:{introT:'國王的詔令',intro:['「勇士啊——魔塔的妖物傾巢而出，焚田毀城，王國已危在旦夕。」蒼老的國王自王座起身，目光落在你身上。','「唯有你，能登上那座高塔，斬除盤踞塔巔的禍源。傳聞最深的災厄，就潛伏於塔頂——地上第二十五層。」','「去吧，勇士。斬下魔王首級，將安寧帶回這片土地。整個王國，都將祈願你凱旋。」'],introFin:'領命出征',bossT:'魔塔巨龍',boss:['「雖然你打敗我了……」','「但是這座魔塔，可沒你想的那麼簡單。」','「哈哈哈哈哈——！」'],bossFin:'繼續',finalT:'魔界之王·古頓',final:['「人類……怎麼可能有這種力量……！」','「不——！」'],finalFin:'結束',next:'繼續',finish:'步入地下'}
+  msg:{pick:'獲得 {x}',gAtk:'攻擊 +{n}',gDef:'防禦 +{n}',gHp:'生命 +{n}',gGold:'金幣 +{n}',gExp:'經驗 +{n}',gotSkill:'習得技能 {n}！',defArm:'{n} 待命！',huanguGain:'幻骨：攻擊 +{n}、防禦 −{n}',tiantiDrain:'天體：吸取能量 {n}',jinshiHeal:'金石：回復 {n}',zhuantiDrain:'轉體：削減怪物體力',foeSkip:'怪物無法行動！',healShield:'療癒盾：回復 {n}',counter:'反擊 {n}！',reflWeak:'反彈衰弱！怪物攻防下降',reflPoison:'反彈中毒 {n}！',needKey:'需要{c}鑰匙',useKey:'使用了{c}鑰匙',curePoison:'中毒解除了',cureWeak:'衰弱解除了',noCure:'目前沒有可解除的狀態',lvUp:'等級提升！Lv {x}',lvUpItem:'獲得【{name}】！等級 +{n}（Lv {x}）',reward:'擊敗{name}！+{g} 金幣 · +{e} 經驗',selectTarget:'請先撞向並鎖定相鄰的怪物',cantAfford:'資源不足',bought:'兌換成功',soldKey:'賣出！+{g} 金幣',noKeyToSell:'沒有可賣的鑰匙',targeted:'已鎖定 {name}',lockSpace:'已鎖定 {name}，請按下空白鍵對戰',lockAim:'已鎖定 {name}，請按下瞄準鍵對戰',fled:'你逃離了戰鬥',haveManual:'已經擁有怪物手冊',applyPoison:'你中毒了！',applyWeak:'你陷入衰弱（{n} 層）',win:'{name} 被擊敗了！',lose:'你倒下了…',start:'與 {name} 的戰鬥開始！',youHit:'你造成 {d} 點傷害',youMiss:'你的攻擊落空了',foeHit:'{name} 造成 {d} 點傷害',foeMiss:'{name} 的攻擊落空',skillCast:'施放【{n}】',crimsonHit:'赤紅斬！造成 {d} 點傷害',pierceHit:'破甲擊！無視防禦造成 {d} 點傷害',shieldUse:'結晶盾展開：體力 +40，下次受擊減半',breathUse:'深呼吸：能量 +30、體力 +30',poisonStep:'中毒發作 −5 生命',confirmNew:'確定要放棄目前的進度，重新開始嗎？',bossWarn:'頂層的魔塔巨龍擋在前方！',lava:'踩進岩漿！−50 生命',gotIce:'獲得冰凍吊墜！踏過岩漿不再受傷',gotManual:'獲得怪物手冊！可查看怪物數值',gotTeleport:'獲得樓層傳送！可在去過的樓層間移動',iceMelt:'冰凍吊墜凍結了岩漿',msTian:'【天靈】劍氣纏身，疲勞上升、體力下降',msLiu:'【流石】劍壓襲來，能量被削減',msShen:'【深紅】劍痕回流，怪物回復 {n} 體力',msJing:'【鏡膜盾】展開，你下次造成的傷害減半',msJie:'【結晶盾】束縛！你下一回合無法行動',msFan:'【反射盾】展開，你的傷害將被反彈',msStun:'被結晶盾束縛，本回合無法行動！',msReflect:'反射盾反彈 {n} 點傷害！',basementLocked:'地下迷宮尚未開啟——先登頂擊敗魔塔巨龍。',basementOpen:'通往地下的隱藏階梯浮現了！回到一樓即可向下。',exitHintPC:'退出請按 Q',exitHintTouch:'退出'},story:{introT:'國王的詔令',intro:['「勇士啊——魔塔的妖物傾巢而出，焚田毀城，王國已危在旦夕。」蒼老的國王自王座起身，目光落在你身上。','「唯有你，能登上那座高塔，斬除盤踞塔巔的禍源。傳聞最深的災厄，就潛伏於塔頂——地上第二十五層。」','「去吧，勇士。斬下魔王首級，將安寧帶回這片土地。整個王國，都將祈願你凱旋。」'],introFin:'領命出征',bossT:'魔塔巨龍',boss:['「雖然你打敗我了……」','「但是這座魔塔，可沒你想的那麼簡單。」','「哈哈哈哈哈——！」'],bossFin:'繼續',finalT:'魔界之王·古頓',final:['「人類……怎麼可能有這種力量……！」','「不——！」'],finalFin:'結束',next:'繼續',finish:'步入地下'}
 },
 'zh-Hans':{
   title:'魔塔',
@@ -1569,7 +1570,7 @@ const I18N = {
     ['🌀','<b>手册与传送</b>：怪物手册预估战损；拾得传送卷轴后可传送回已探索的楼层补给。'],
     ['🐉','<b>胜利条件</b>：一路向上攻略，击败顶层的魔塔巨龙即可通关！'] ]},
   end:{winT:'通关成功！',winD:'你击败了潜伏地底的魔界之王·古顿，斩断魔塔的祸根，成为真正的勇者！',loseT:'勇者倒下了…',loseD:'你的冒险就此终结，但魔塔永远欢迎挑战者再临。',retry:'再次挑战',floor:'抵达楼层',lv:'等级',gold:'金币',kills:'击败怪物',atk:'攻击',def:'防御',submitRank:'上传成绩到排行榜',submitted:'已上传排行榜',home:'回到主画面'},
-  msg:{pick:'获得 {x}',gAtk:'攻击 +{n}',gDef:'防御 +{n}',gHp:'生命 +{n}',gGold:'金币 +{n}',gExp:'经验 +{n}',gotSkill:'习得技能 {n}！',defArm:'{n} 待命！',huanguGain:'幻骨：攻击 +{n}、防御 −{n}',tiantiDrain:'天体：吸取能量 {n}',jinshiHeal:'金石：回复 {n}',zhuantiDrain:'转体：削减怪物体力',foeSkip:'怪物无法行动！',healShield:'疗愈盾：回复 {n}',counter:'反击 {n}！',reflWeak:'反弹衰弱！怪物攻防下降',reflPoison:'反弹中毒 {n}！',needKey:'需要{c}钥匙',useKey:'使用了{c}钥匙',curePoison:'中毒解除了',cureWeak:'虚弱解除了',noCure:'当前没有可解除的状态',lvUp:'等级提升！Lv {x}',reward:'击败{name}！+{g} 金币 · +{e} 经验',selectTarget:'请先撞向并锁定相邻的怪物',cantAfford:'资源不足',bought:'兑换成功',soldKey:'卖出！+{g} 金币',noKeyToSell:'没有可卖的钥匙',targeted:'已锁定 {name}',lockSpace:'已锁定 {name}，请按下空格键对战',lockAim:'已锁定 {name}，请按下瞄准键对战',fled:'你逃离了战斗',haveManual:'已经拥有怪物手册',applyPoison:'你中毒了！',applyWeak:'你陷入虚弱（{n} 层）',win:'{name} 被击败了！',lose:'你倒下了…',start:'与 {name} 的战斗开始！',youHit:'你造成 {d} 点伤害',youMiss:'你的攻击落空了',foeHit:'{name} 造成 {d} 点伤害',foeMiss:'{name} 的攻击落空',skillCast:'施放【{n}】',crimsonHit:'赤红斩！造成 {d} 点伤害',pierceHit:'破甲击！无视防御造成 {d} 点伤害',shieldUse:'结晶盾展开：体力 +40，下次受击减半',breathUse:'深呼吸：能量 +30、体力 +30',poisonStep:'中毒发作 −5 生命',confirmNew:'确定要放弃当前进度，重新开始吗？',bossWarn:'顶层的魔塔巨龙挡在前方！',lava:'踩进岩浆！−50 生命',gotIce:'获得冰冻吊坠！踏过岩浆不再受伤',gotManual:'获得怪物手册！可查看怪物数值',gotTeleport:'获得楼层传送！可在去过的楼层间移动',iceMelt:'冰冻吊坠冻结了岩浆',msTian:'【天灵】剑气缠身，疲劳上升、体力下降',msLiu:'【流石】剑压袭来，能量被削减',msShen:'【深红】剑痕回流，怪物回复 {n} 体力',msJing:'【镜膜盾】展开，你下次造成的伤害减半',msJie:'【结晶盾】束缚！你下一回合无法行动',msFan:'【反射盾】展开，你的伤害将被反弹',msStun:'被结晶盾束缚，本回合无法行动！',msReflect:'反射盾反弹 {n} 点伤害！',basementLocked:'地下迷宫尚未开启——先登顶击败魔塔巨龙。',basementOpen:'通往地下的隐藏阶梯浮现了！回到一楼即可向下。',exitHintPC:'退出请按 Q',exitHintTouch:'退出'},story:{introT:'国王的诏令',intro:['「勇士啊——魔塔的妖物倾巢而出，焚田毁城，王国已危在旦夕。」苍老的国王自王座起身，目光落在你身上。','「唯有你，能登上那座高塔，斩除盘踞塔巅的祸源。传闻最深的灾厄，就潜伏于塔顶——地上第二十五层。」','「去吧，勇士。斩下魔王首级，将安宁带回这片土地。整个王国，都将祈愿你凯旋。」'],introFin:'领命出征',bossT:'魔塔巨龙',boss:['「虽然你打败我了……」','「但是这座魔塔，可没你想的那么简单。」','「哈哈哈哈哈——！」'],bossFin:'继续',finalT:'魔界之王·古顿',final:['「人类……怎么可能有这种力量……！」','「不——！」'],finalFin:'结束',next:'继续',finish:'步入地下'}
+  msg:{pick:'获得 {x}',gAtk:'攻击 +{n}',gDef:'防御 +{n}',gHp:'生命 +{n}',gGold:'金币 +{n}',gExp:'经验 +{n}',gotSkill:'习得技能 {n}！',defArm:'{n} 待命！',huanguGain:'幻骨：攻击 +{n}、防御 −{n}',tiantiDrain:'天体：吸取能量 {n}',jinshiHeal:'金石：回复 {n}',zhuantiDrain:'转体：削减怪物体力',foeSkip:'怪物无法行动！',healShield:'疗愈盾：回复 {n}',counter:'反击 {n}！',reflWeak:'反弹衰弱！怪物攻防下降',reflPoison:'反弹中毒 {n}！',needKey:'需要{c}钥匙',useKey:'使用了{c}钥匙',curePoison:'中毒解除了',cureWeak:'虚弱解除了',noCure:'当前没有可解除的状态',lvUp:'等级提升！Lv {x}',lvUpItem:'获得【{name}】！等级 +{n}（Lv {x}）',reward:'击败{name}！+{g} 金币 · +{e} 经验',selectTarget:'请先撞向并锁定相邻的怪物',cantAfford:'资源不足',bought:'兑换成功',soldKey:'卖出！+{g} 金币',noKeyToSell:'没有可卖的钥匙',targeted:'已锁定 {name}',lockSpace:'已锁定 {name}，请按下空格键对战',lockAim:'已锁定 {name}，请按下瞄准键对战',fled:'你逃离了战斗',haveManual:'已经拥有怪物手册',applyPoison:'你中毒了！',applyWeak:'你陷入虚弱（{n} 层）',win:'{name} 被击败了！',lose:'你倒下了…',start:'与 {name} 的战斗开始！',youHit:'你造成 {d} 点伤害',youMiss:'你的攻击落空了',foeHit:'{name} 造成 {d} 点伤害',foeMiss:'{name} 的攻击落空',skillCast:'施放【{n}】',crimsonHit:'赤红斩！造成 {d} 点伤害',pierceHit:'破甲击！无视防御造成 {d} 点伤害',shieldUse:'结晶盾展开：体力 +40，下次受击减半',breathUse:'深呼吸：能量 +30、体力 +30',poisonStep:'中毒发作 −5 生命',confirmNew:'确定要放弃当前进度，重新开始吗？',bossWarn:'顶层的魔塔巨龙挡在前方！',lava:'踩进岩浆！−50 生命',gotIce:'获得冰冻吊坠！踏过岩浆不再受伤',gotManual:'获得怪物手册！可查看怪物数值',gotTeleport:'获得楼层传送！可在去过的楼层间移动',iceMelt:'冰冻吊坠冻结了岩浆',msTian:'【天灵】剑气缠身，疲劳上升、体力下降',msLiu:'【流石】剑压袭来，能量被削减',msShen:'【深红】剑痕回流，怪物回复 {n} 体力',msJing:'【镜膜盾】展开，你下次造成的伤害减半',msJie:'【结晶盾】束缚！你下一回合无法行动',msFan:'【反射盾】展开，你的伤害将被反弹',msStun:'被结晶盾束缚，本回合无法行动！',msReflect:'反射盾反弹 {n} 点伤害！',basementLocked:'地下迷宫尚未开启——先登顶击败魔塔巨龙。',basementOpen:'通往地下的隐藏阶梯浮现了！回到一楼即可向下。',exitHintPC:'退出请按 Q',exitHintTouch:'退出'},story:{introT:'国王的诏令',intro:['「勇士啊——魔塔的妖物倾巢而出，焚田毁城，王国已危在旦夕。」苍老的国王自王座起身，目光落在你身上。','「唯有你，能登上那座高塔，斩除盘踞塔巅的祸源。传闻最深的灾厄，就潜伏于塔顶——地上第二十五层。」','「去吧，勇士。斩下魔王首级，将安宁带回这片土地。整个王国，都将祈愿你凯旋。」'],introFin:'领命出征',bossT:'魔塔巨龙',boss:['「虽然你打败我了……」','「但是这座魔塔，可没你想的那么简单。」','「哈哈哈哈哈——！」'],bossFin:'继续',finalT:'魔界之王·古顿',final:['「人类……怎么可能有这种力量……！」','「不——！」'],finalFin:'结束',next:'继续',finish:'步入地下'}
 },
 'en':{
   title:'Magic Tower',
@@ -1597,7 +1598,7 @@ const I18N = {
     ['🌀','<b>Bestiary & teleport</b>: The bestiary previews combat losses; with a Teleport Scroll you can warp back to explored floors to resupply.'],
     ['🐉','<b>Goal</b>: Climb the tower and defeat the Tower Dragon at the top to win!'] ]},
   end:{winT:'Victory!',winD:'You struck down Gordon, the Overlord of the Abyss lurking far below, and severed the root of the tower — a true hero!',loseT:'The hero has fallen…',loseD:'Your adventure ends here, but the tower always welcomes the next challenger.',retry:'Try Again',floor:'Floor reached',lv:'Level',gold:'Gold',kills:'Monsters slain',atk:'ATK',def:'DEF',submitRank:'Submit score to leaderboard',submitted:'Submitted to leaderboard',home:'Main Menu'},
-  msg:{pick:'Got {x}',gAtk:'ATK +{n}',gDef:'DEF +{n}',gHp:'HP +{n}',gGold:'Gold +{n}',gExp:'EXP +{n}',gotSkill:'Learned skill: {n}!',defArm:'{n} ready!',huanguGain:'Phantom Bone: ATK +{n}, DEF −{n}',tiantiDrain:'Celestial: drained {n} energy',jinshiHeal:'Goldstone: healed {n}',zhuantiDrain:'Pivot: foe stamina cut',foeSkip:'The foe cannot act!',healShield:'Healing Aegis: healed {n}',counter:'Counter {n}!',reflWeak:'Weaken reflected! Foe ATK/DEF down',reflPoison:'Poison reflected {n}!',needKey:'Need a {c} key',useKey:'Used a {c} key',curePoison:'Poison cured',cureWeak:'Weaken cured',noCure:'No ailment to cure',lvUp:'Level up! Lv {x}',reward:'Defeated {name}! +{g} gold · +{e} EXP',selectTarget:'Bump and lock an adjacent monster first',cantAfford:'Not enough resources',bought:'Trade complete',soldKey:'Sold! +{g} gold',noKeyToSell:'No key to sell',targeted:'Locked on {name}',lockSpace:'Locked on {name} — press Space to fight',lockAim:'Locked on {name} — tap Aim to fight',fled:'You fled the battle',haveManual:'You already have the bestiary',applyPoison:'You are poisoned!',applyWeak:'You are weakened ({n})',win:'{name} is defeated!',lose:'You have fallen…',start:'Battle with {name} begins!',youHit:'You deal {d} damage',youMiss:'Your attack misses',foeHit:'{name} deals {d} damage',foeMiss:'{name} misses',skillCast:'Cast {n}',crimsonHit:'Crimson Slash! {d} damage',pierceHit:'Armor Pierce! {d} damage through defense',shieldUse:'Crystal Shield: +40 stamina, next hit halved',breathUse:'Deep Breath: +30 energy, +30 stamina',poisonStep:'Poison! −5 HP',confirmNew:'Abandon this run and start over?',bossWarn:'The Tower Dragon blocks the summit!',lava:'Stepped on lava! −50 HP',gotIce:'Got the Ice Pendant! Lava no longer harms you',gotManual:'Got the Bestiary! Check monster stats',gotTeleport:'Got a Teleport Scroll! Warp between explored floors',iceMelt:'The Ice Pendant freezes the lava',msTian:'Tianling — sword aura saps your stamina',msLiu:'Liushi — sword pressure drains your energy',msShen:'Shenhong — the blade siphons {n} HP back',msJing:'Mirror Shield — your next hit is halved',msJie:'Crystal Shield — you cannot act next turn',msFan:'Reflect Shield — your damage will rebound',msStun:'Bound by the Crystal Shield — you skip this turn!',msReflect:'Reflect Shield rebounds {n} damage!',basementLocked:'The basement is sealed. Reach the summit and defeat the Tower Dragon first.',basementOpen:'A hidden staircase to the basement appears! Return to the first floor to descend.',exitHintPC:'Press Q to exit',exitHintTouch:'Exit'},story:{introT:'Royal Decree',intro:['"Hero — the fiends of the Magic Tower have poured forth, burning fields and razing cities. The kingdom stands on the brink." The aged king rises from his throne, his gaze settling upon you.','"Only you can climb that tower and cut down the source of this calamity. The greatest evil, they say, lurks at the very summit — the twenty-fifth floor above."','"Go, hero. Slay the demon lord and bring peace back to this land. The whole kingdom prays for your return."'],introFin:'Set Out',bossT:'The Tower Dragon',boss:['"So... you have defeated me."','"But this tower is not as simple as you believe."','"Hahahaha—!"'],bossFin:'Continue',finalT:'Gordon, Overlord of the Abyss',final:['"How... how could a mere human wield such power...!"','"No——!"'],finalFin:'The End',next:'Continue',finish:'Descend'}
+  msg:{pick:'Got {x}',gAtk:'ATK +{n}',gDef:'DEF +{n}',gHp:'HP +{n}',gGold:'Gold +{n}',gExp:'EXP +{n}',gotSkill:'Learned skill: {n}!',defArm:'{n} ready!',huanguGain:'Phantom Bone: ATK +{n}, DEF −{n}',tiantiDrain:'Celestial: drained {n} energy',jinshiHeal:'Goldstone: healed {n}',zhuantiDrain:'Pivot: foe stamina cut',foeSkip:'The foe cannot act!',healShield:'Healing Aegis: healed {n}',counter:'Counter {n}!',reflWeak:'Weaken reflected! Foe ATK/DEF down',reflPoison:'Poison reflected {n}!',needKey:'Need a {c} key',useKey:'Used a {c} key',curePoison:'Poison cured',cureWeak:'Weaken cured',noCure:'No ailment to cure',lvUp:'Level up! Lv {x}',lvUpItem:'Got {name}! Level +{n} (Lv {x})',reward:'Defeated {name}! +{g} gold · +{e} EXP',selectTarget:'Bump and lock an adjacent monster first',cantAfford:'Not enough resources',bought:'Trade complete',soldKey:'Sold! +{g} gold',noKeyToSell:'No key to sell',targeted:'Locked on {name}',lockSpace:'Locked on {name} — press Space to fight',lockAim:'Locked on {name} — tap Aim to fight',fled:'You fled the battle',haveManual:'You already have the bestiary',applyPoison:'You are poisoned!',applyWeak:'You are weakened ({n})',win:'{name} is defeated!',lose:'You have fallen…',start:'Battle with {name} begins!',youHit:'You deal {d} damage',youMiss:'Your attack misses',foeHit:'{name} deals {d} damage',foeMiss:'{name} misses',skillCast:'Cast {n}',crimsonHit:'Crimson Slash! {d} damage',pierceHit:'Armor Pierce! {d} damage through defense',shieldUse:'Crystal Shield: +40 stamina, next hit halved',breathUse:'Deep Breath: +30 energy, +30 stamina',poisonStep:'Poison! −5 HP',confirmNew:'Abandon this run and start over?',bossWarn:'The Tower Dragon blocks the summit!',lava:'Stepped on lava! −50 HP',gotIce:'Got the Ice Pendant! Lava no longer harms you',gotManual:'Got the Bestiary! Check monster stats',gotTeleport:'Got a Teleport Scroll! Warp between explored floors',iceMelt:'The Ice Pendant freezes the lava',msTian:'Tianling — sword aura saps your stamina',msLiu:'Liushi — sword pressure drains your energy',msShen:'Shenhong — the blade siphons {n} HP back',msJing:'Mirror Shield — your next hit is halved',msJie:'Crystal Shield — you cannot act next turn',msFan:'Reflect Shield — your damage will rebound',msStun:'Bound by the Crystal Shield — you skip this turn!',msReflect:'Reflect Shield rebounds {n} damage!',basementLocked:'The basement is sealed. Reach the summit and defeat the Tower Dragon first.',basementOpen:'A hidden staircase to the basement appears! Return to the first floor to descend.',exitHintPC:'Press Q to exit',exitHintTouch:'Exit'},story:{introT:'Royal Decree',intro:['"Hero — the fiends of the Magic Tower have poured forth, burning fields and razing cities. The kingdom stands on the brink." The aged king rises from his throne, his gaze settling upon you.','"Only you can climb that tower and cut down the source of this calamity. The greatest evil, they say, lurks at the very summit — the twenty-fifth floor above."','"Go, hero. Slay the demon lord and bring peace back to this land. The whole kingdom prays for your return."'],introFin:'Set Out',bossT:'The Tower Dragon',boss:['"So... you have defeated me."','"But this tower is not as simple as you believe."','"Hahahaha—!"'],bossFin:'Continue',finalT:'Gordon, Overlord of the Abyss',final:['"How... how could a mere human wield such power...!"','"No——!"'],finalFin:'The End',next:'Continue',finish:'Descend'}
 },
 'ja':{
   title:'魔塔',
@@ -1625,7 +1626,7 @@ const I18N = {
     ['🌀','<b>図鑑と転送</b>：図鑑で被害を予測。転送の巻物があれば探索済みの階へ戻って補給できる。'],
     ['🐉','<b>勝利条件</b>：塔を登り、最上階の塔のドラゴンを倒せばクリア！'] ]},
   end:{winT:'クリア！',winD:'地底に潜む魔界の王・ゴードンを討ち倒し、魔塔の元凶を断った——真の勇者だ！',loseT:'勇者は倒れた…',loseD:'冒険はここで終わるが、塔はいつでも次の挑戦者を待っている。',retry:'再挑戦',floor:'到達階',lv:'レベル',gold:'金貨',kills:'撃破数',atk:'攻撃',def:'防御',submitRank:'スコアをランキングに登録',submitted:'ランキングに登録した',home:'タイトルへ'},
-  msg:{pick:'{x} を入手',gAtk:'攻撃 +{n}',gDef:'防御 +{n}',gHp:'生命 +{n}',gGold:'金貨 +{n}',gExp:'経験 +{n}',gotSkill:'スキル {n} を習得！',defArm:'{n} 構え！',huanguGain:'幻骨：攻撃 +{n}・防御 −{n}',tiantiDrain:'天体：エナジー {n} 吸収',jinshiHeal:'金石：{n} 回復',zhuantiDrain:'転体：敵の体力を削る',foeSkip:'敵は行動できない！',healShield:'治癒盾：{n} 回復',counter:'反撃 {n}！',reflWeak:'衰弱を反射！敵の攻防低下',reflPoison:'毒を反射 {n}！',needKey:'{c}の鍵が必要',useKey:'{c}の鍵を使った',curePoison:'毒が治った',cureWeak:'衰弱が治った',noCure:'解除できる状態はない',lvUp:'レベルアップ！Lv {x}',reward:'{name} を撃破！+{g} 金貨・+{e} 経験',selectTarget:'まず隣の敵に当たってロックして',cantAfford:'資源が足りない',bought:'交換完了',soldKey:'売却！+{g} 金貨',noKeyToSell:'売れる鍵がない',targeted:'{name} をロック',lockSpace:'{name} をロック — スペースで戦闘',lockAim:'{name} をロック — 照準ボタンで戦闘',fled:'戦闘から逃げた',haveManual:'すでに魔物図鑑を持っている',applyPoison:'毒を受けた！',applyWeak:'衰弱した（{n} 層）',win:'{name} を倒した！',lose:'倒れてしまった…',start:'{name} との戦闘開始！',youHit:'{d} ダメージを与えた',youMiss:'攻撃を外した',foeHit:'{name} が {d} ダメージ',foeMiss:'{name} は外した',skillCast:'【{n}】発動',crimsonHit:'赤紅斬！{d} ダメージ',pierceHit:'破甲撃！防御無視で {d} ダメージ',shieldUse:'結晶盾：体力+40、次の被弾を半減',breathUse:'深呼吸：エナジー+30・体力+30',poisonStep:'毒発動 −5 HP',confirmNew:'今の進行を捨てて最初からやり直しますか？',bossWarn:'最上階の塔のドラゴンが立ちはだかる！',lava:'溶岩を踏んだ！−50 HP',gotIce:'氷結のペンダントを入手！溶岩のダメージなし',gotManual:'モンスター図鑑を入手！敵の数値を確認できる',gotTeleport:'階層転送を入手！探索済みの階へ移動できる',iceMelt:'氷結のペンダントが溶岩を凍らせた',msTian:'【天霊】剣気で疲労が増し体力が減る',msLiu:'【流石】剣圧でエナジーが削られる',msShen:'【深紅】剣痕で {n} 回復',msJing:'【鏡膜盾】次に与えるダメージが半減',msJie:'【結晶盾】次のターン行動できない',msFan:'【反射盾】ダメージが反射される',msStun:'結晶盾に拘束され行動不能！',msReflect:'反射盾が {n} ダメージを反射！',basementLocked:'地下はまだ開かない——先に頂上で塔のドラゴンを倒そう。',basementOpen:'地下への隠し階段が現れた！一階に戻れば下りられる。',exitHintPC:'Qで退出',exitHintTouch:'退出'},story:{introT:'王の勅命',intro:['「勇者よ——魔塔の妖魔どもが溢れ出し、畑を焼き、街を滅ぼした。王国はもはや風前の灯火だ。」老いた王が玉座から立ち上がり、その視線をそなたに向ける。','「あの塔を登り、災いの根源を斬れるのはそなただけだ。最も深き災厄は、塔の頂——地上二十五階に潜むという。」','「行け、勇者よ。魔王の首を討ち取り、この地に安寧を取り戻すのだ。王国のすべてが、そなたの凱旋を祈っている。」'],introFin:'出征する',bossT:'魔塔の龍',boss:['「我を倒したか……」','「だが、この魔塔はそなたが思うほど甘くはない。」','「ハハハハハ——！」'],bossFin:'続ける',finalT:'魔界の王・ゴードン',final:['「人間如きが……なぜこれほどの力を……！」','「あり得ぬ——！」'],finalFin:'終幕',next:'続ける',finish:'地下へ'}
+  msg:{pick:'{x} を入手',gAtk:'攻撃 +{n}',gDef:'防御 +{n}',gHp:'生命 +{n}',gGold:'金貨 +{n}',gExp:'経験 +{n}',gotSkill:'スキル {n} を習得！',defArm:'{n} 構え！',huanguGain:'幻骨：攻撃 +{n}・防御 −{n}',tiantiDrain:'天体：エナジー {n} 吸収',jinshiHeal:'金石：{n} 回復',zhuantiDrain:'転体：敵の体力を削る',foeSkip:'敵は行動できない！',healShield:'治癒盾：{n} 回復',counter:'反撃 {n}！',reflWeak:'衰弱を反射！敵の攻防低下',reflPoison:'毒を反射 {n}！',needKey:'{c}の鍵が必要',useKey:'{c}の鍵を使った',curePoison:'毒が治った',cureWeak:'衰弱が治った',noCure:'解除できる状態はない',lvUp:'レベルアップ！Lv {x}',lvUpItem:'【{name}】を入手！レベル +{n}（Lv {x}）',reward:'{name} を撃破！+{g} 金貨・+{e} 経験',selectTarget:'まず隣の敵に当たってロックして',cantAfford:'資源が足りない',bought:'交換完了',soldKey:'売却！+{g} 金貨',noKeyToSell:'売れる鍵がない',targeted:'{name} をロック',lockSpace:'{name} をロック — スペースで戦闘',lockAim:'{name} をロック — 照準ボタンで戦闘',fled:'戦闘から逃げた',haveManual:'すでに魔物図鑑を持っている',applyPoison:'毒を受けた！',applyWeak:'衰弱した（{n} 層）',win:'{name} を倒した！',lose:'倒れてしまった…',start:'{name} との戦闘開始！',youHit:'{d} ダメージを与えた',youMiss:'攻撃を外した',foeHit:'{name} が {d} ダメージ',foeMiss:'{name} は外した',skillCast:'【{n}】発動',crimsonHit:'赤紅斬！{d} ダメージ',pierceHit:'破甲撃！防御無視で {d} ダメージ',shieldUse:'結晶盾：体力+40、次の被弾を半減',breathUse:'深呼吸：エナジー+30・体力+30',poisonStep:'毒発動 −5 HP',confirmNew:'今の進行を捨てて最初からやり直しますか？',bossWarn:'最上階の塔のドラゴンが立ちはだかる！',lava:'溶岩を踏んだ！−50 HP',gotIce:'氷結のペンダントを入手！溶岩のダメージなし',gotManual:'モンスター図鑑を入手！敵の数値を確認できる',gotTeleport:'階層転送を入手！探索済みの階へ移動できる',iceMelt:'氷結のペンダントが溶岩を凍らせた',msTian:'【天霊】剣気で疲労が増し体力が減る',msLiu:'【流石】剣圧でエナジーが削られる',msShen:'【深紅】剣痕で {n} 回復',msJing:'【鏡膜盾】次に与えるダメージが半減',msJie:'【結晶盾】次のターン行動できない',msFan:'【反射盾】ダメージが反射される',msStun:'結晶盾に拘束され行動不能！',msReflect:'反射盾が {n} ダメージを反射！',basementLocked:'地下はまだ開かない——先に頂上で塔のドラゴンを倒そう。',basementOpen:'地下への隠し階段が現れた！一階に戻れば下りられる。',exitHintPC:'Qで退出',exitHintTouch:'退出'},story:{introT:'王の勅命',intro:['「勇者よ——魔塔の妖魔どもが溢れ出し、畑を焼き、街を滅ぼした。王国はもはや風前の灯火だ。」老いた王が玉座から立ち上がり、その視線をそなたに向ける。','「あの塔を登り、災いの根源を斬れるのはそなただけだ。最も深き災厄は、塔の頂——地上二十五階に潜むという。」','「行け、勇者よ。魔王の首を討ち取り、この地に安寧を取り戻すのだ。王国のすべてが、そなたの凱旋を祈っている。」'],introFin:'出征する',bossT:'魔塔の龍',boss:['「我を倒したか……」','「だが、この魔塔はそなたが思うほど甘くはない。」','「ハハハハハ——！」'],bossFin:'続ける',finalT:'魔界の王・ゴードン',final:['「人間如きが……なぜこれほどの力を……！」','「あり得ぬ——！」'],finalFin:'終幕',next:'続ける',finish:'地下へ'}
 },
 'ko':{
   title:'마탑',
@@ -1653,7 +1654,7 @@ const I18N = {
     ['🌀','<b>도감과 이동</b>: 도감으로 전투 피해를 예측하고, 전송 두루마리가 있으면 탐험한 층으로 돌아가 보급.'],
     ['🐉','<b>승리 조건</b>: 탑을 올라 꼭대기의 마탑 드래곤을 물리치면 클리어!'] ]},
   end:{winT:'클리어!',winD:'지하 깊은 곳에 도사린 마계의 왕·고든을 쓰러뜨리고 마탑의 근원을 끊었습니다 — 진정한 용사!',loseT:'용사가 쓰러졌습니다…',loseD:'모험은 여기서 끝나지만, 탑은 언제나 다음 도전자를 기다립니다.',retry:'다시 도전',floor:'도달 층',lv:'레벨',gold:'금화',kills:'처치 수',atk:'공격',def:'방어',submitRank:'점수를 순위표에 등록',submitted:'순위표에 등록함',home:'메인 화면으로'},
-  msg:{pick:'{x} 획득',gAtk:'공격 +{n}',gDef:'방어 +{n}',gHp:'생명 +{n}',gGold:'금화 +{n}',gExp:'경험 +{n}',gotSkill:'스킬 {n} 습득!',defArm:'{n} 준비!',huanguGain:'환골: 공격 +{n}, 방어 −{n}',tiantiDrain:'천체: 에너지 {n} 흡수',jinshiHeal:'금석: {n} 회복',zhuantiDrain:'전신: 적 체력 감소',foeSkip:'적이 행동할 수 없다!',healShield:'치유 방패: {n} 회복',counter:'반격 {n}!',reflWeak:'약화 반사! 적 공방 감소',reflPoison:'중독 반사 {n}!',needKey:'{c} 열쇠가 필요',useKey:'{c} 열쇠 사용',curePoison:'중독이 해제됨',cureWeak:'쇠약이 해제됨',noCure:'해제할 상태가 없음',lvUp:'레벨 업! Lv {x}',reward:'{name} 처치! +{g} 금화 · +{e} 경험',selectTarget:'먼저 인접한 몬스터를 부딪혀 조준하세요',cantAfford:'자원이 부족',bought:'교환 완료',soldKey:'판매! +{g} 금화',noKeyToSell:'팔 열쇠가 없음',targeted:'{name} 조준',lockSpace:'{name} 조준 — 스페이스로 전투',lockAim:'{name} 조준 — 조준 버튼으로 전투',fled:'전투에서 도망쳤다',haveManual:'이미 도감을 가지고 있다',applyPoison:'중독되었다!',applyWeak:'쇠약해졌다({n}중첩)',win:'{name} 처치!',lose:'쓰러지고 말았다…',start:'{name} 와의 전투 시작!',youHit:'{d} 피해를 입혔다',youMiss:'공격이 빗나갔다',foeHit:'{name} 이(가) {d} 피해',foeMiss:'{name} 이(가) 빗나감',skillCast:'【{n}】 발동',crimsonHit:'적홍참! {d} 피해',pierceHit:'파갑격! 방어 무시 {d} 피해',shieldUse:'결정 방패: 체력 +40, 다음 피격 절반',breathUse:'심호흡: 에너지 +30, 체력 +30',poisonStep:'중독 발동 −5 생명',confirmNew:'현재 진행을 버리고 새로 시작할까요?',bossWarn:'꼭대기의 마탑 드래곤이 앞을 막는다!',lava:'용암을 밟았다! −50 HP',gotIce:'빙결 펜던트 획득! 용암 피해 없음',gotManual:'몬스터 도감 획득! 몬스터 수치 확인 가능',gotTeleport:'층 이동 획득! 탐험한 층 사이를 이동',iceMelt:'빙결 펜던트가 용암을 얼렸다',msTian:'【천령】검기로 피로 증가, 체력 감소',msLiu:'【유석】검압으로 에너지 감소',msShen:'【심홍】검흔으로 {n} 회복',msJing:'【경막순】다음 피해 절반으로',msJie:'【결정순】다음 턴 행동 불가',msFan:'【반사순】피해가 반사됨',msStun:'결정순에 속박되어 행동 불가!',msReflect:'반사순이 {n} 피해 반사!',basementLocked:'지하는 아직 열리지 않았다——먼저 정상에서 마탑 드래곤을 물리치자.',basementOpen:'지하로 가는 숨겨진 계단이 나타났다! 1층으로 돌아가면 내려갈 수 있다.',exitHintPC:'Q로 나가기',exitHintTouch:'나가기'},story:{introT:'왕의 칙명',intro:['"용사여——마탑의 마물들이 쏟아져 나와 들을 태우고 도시를 무너뜨렸다. 왕국은 이미 풍전등화의 위기에 놓였다." 늙은 왕이 옥좌에서 일어나 그대를 바라본다.','"저 탑에 올라 재앙의 근원을 베어낼 수 있는 것은 오직 그대뿐. 가장 깊은 재앙은 탑의 꼭대기——지상 25층에 도사리고 있다고 한다."','"가라, 용사여. 마왕의 목을 베어 이 땅에 평안을 되찾아라. 온 왕국이 그대의 개선을 기원한다."'],introFin:'출정한다',bossT:'마탑 드래곤',boss:['"비록 네가 나를 쓰러뜨렸다만……"','"하지만 이 마탑은 네가 생각하는 것만큼 만만하지 않다."','"하하하하하——!"'],bossFin:'계속',finalT:'마계의 왕·고든',final:['"인간 따위가…… 어떻게 이런 힘을……!"','"안 돼——!"'],finalFin:'종막',next:'계속',finish:'지하로'}
+  msg:{pick:'{x} 획득',gAtk:'공격 +{n}',gDef:'방어 +{n}',gHp:'생명 +{n}',gGold:'금화 +{n}',gExp:'경험 +{n}',gotSkill:'스킬 {n} 습득!',defArm:'{n} 준비!',huanguGain:'환골: 공격 +{n}, 방어 −{n}',tiantiDrain:'천체: 에너지 {n} 흡수',jinshiHeal:'금석: {n} 회복',zhuantiDrain:'전신: 적 체력 감소',foeSkip:'적이 행동할 수 없다!',healShield:'치유 방패: {n} 회복',counter:'반격 {n}!',reflWeak:'약화 반사! 적 공방 감소',reflPoison:'중독 반사 {n}!',needKey:'{c} 열쇠가 필요',useKey:'{c} 열쇠 사용',curePoison:'중독이 해제됨',cureWeak:'쇠약이 해제됨',noCure:'해제할 상태가 없음',lvUp:'레벨 업! Lv {x}',lvUpItem:'【{name}】 획득! 레벨 +{n} (Lv {x})',reward:'{name} 처치! +{g} 금화 · +{e} 경험',selectTarget:'먼저 인접한 몬스터를 부딪혀 조준하세요',cantAfford:'자원이 부족',bought:'교환 완료',soldKey:'판매! +{g} 금화',noKeyToSell:'팔 열쇠가 없음',targeted:'{name} 조준',lockSpace:'{name} 조준 — 스페이스로 전투',lockAim:'{name} 조준 — 조준 버튼으로 전투',fled:'전투에서 도망쳤다',haveManual:'이미 도감을 가지고 있다',applyPoison:'중독되었다!',applyWeak:'쇠약해졌다({n}중첩)',win:'{name} 처치!',lose:'쓰러지고 말았다…',start:'{name} 와의 전투 시작!',youHit:'{d} 피해를 입혔다',youMiss:'공격이 빗나갔다',foeHit:'{name} 이(가) {d} 피해',foeMiss:'{name} 이(가) 빗나감',skillCast:'【{n}】 발동',crimsonHit:'적홍참! {d} 피해',pierceHit:'파갑격! 방어 무시 {d} 피해',shieldUse:'결정 방패: 체력 +40, 다음 피격 절반',breathUse:'심호흡: 에너지 +30, 체력 +30',poisonStep:'중독 발동 −5 생명',confirmNew:'현재 진행을 버리고 새로 시작할까요?',bossWarn:'꼭대기의 마탑 드래곤이 앞을 막는다!',lava:'용암을 밟았다! −50 HP',gotIce:'빙결 펜던트 획득! 용암 피해 없음',gotManual:'몬스터 도감 획득! 몬스터 수치 확인 가능',gotTeleport:'층 이동 획득! 탐험한 층 사이를 이동',iceMelt:'빙결 펜던트가 용암을 얼렸다',msTian:'【천령】검기로 피로 증가, 체력 감소',msLiu:'【유석】검압으로 에너지 감소',msShen:'【심홍】검흔으로 {n} 회복',msJing:'【경막순】다음 피해 절반으로',msJie:'【결정순】다음 턴 행동 불가',msFan:'【반사순】피해가 반사됨',msStun:'결정순에 속박되어 행동 불가!',msReflect:'반사순이 {n} 피해 반사!',basementLocked:'지하는 아직 열리지 않았다——먼저 정상에서 마탑 드래곤을 물리치자.',basementOpen:'지하로 가는 숨겨진 계단이 나타났다! 1층으로 돌아가면 내려갈 수 있다.',exitHintPC:'Q로 나가기',exitHintTouch:'나가기'},story:{introT:'왕의 칙명',intro:['"용사여——마탑의 마물들이 쏟아져 나와 들을 태우고 도시를 무너뜨렸다. 왕국은 이미 풍전등화의 위기에 놓였다." 늙은 왕이 옥좌에서 일어나 그대를 바라본다.','"저 탑에 올라 재앙의 근원을 베어낼 수 있는 것은 오직 그대뿐. 가장 깊은 재앙은 탑의 꼭대기——지상 25층에 도사리고 있다고 한다."','"가라, 용사여. 마왕의 목을 베어 이 땅에 평안을 되찾아라. 온 왕국이 그대의 개선을 기원한다."'],introFin:'출정한다',bossT:'마탑 드래곤',boss:['"비록 네가 나를 쓰러뜨렸다만……"','"하지만 이 마탑은 네가 생각하는 것만큼 만만하지 않다."','"하하하하하——!"'],bossFin:'계속',finalT:'마계의 왕·고든',final:['"인간 따위가…… 어떻게 이런 힘을……!"','"안 돼——!"'],finalFin:'종막',next:'계속',finish:'지하로'}
 }
 };
 
@@ -2013,11 +2014,11 @@ function migrateFloorRanges(){
   if(typeof MONSTERS!=='undefined') MONSTERS.forEach(function(m){
     if(m.sMin==null){ var lo=clamp(m.minF||1,1,FLOORS), hi=clamp(Math.min(m.maxF||FLOORS,FLOORS),1,FLOORS); m.sMin=lo; m.sMax=Math.max(lo,hi); }
     if(m.id==='swordsman'){ m.bMin=0; m.bMax=0; }                                  /* 雙手劍兵永遠僅地上（地下版是劍王，兩者分開） */
-    else if(m.bMin==null){ var blo=0,bhi=0,minF=m.minF||1,maxF=m.maxF||99; for(var d=1;d<=9;d++){ var eff=effFloor(-d); if(eff>=minF&&eff<=maxF){ if(!blo)blo=d; bhi=d; } } m.bMin=blo; m.bMax=bhi; }
+    else if(m.bMin==null){ m.bMin=0; m.bMax=0; }                                  /* 地上怪預設只在地上；要讓牠也出現在地下，請在後台設定該怪的「地下最低/最高」 */
   });
   if(typeof BASEMENT_MONSTERS!=='undefined') BASEMENT_MONSTERS.forEach(function(m){
     if(m.sMin==null){ m.sMin=0; m.sMax=0; }
-    if(m.bMin==null){ if(m.b20){ m.bMin=0; m.bMax=0; } else { m.bMin=10; m.bMax=BASEMENT-1; } }   /* 地下怪預設 B10-B19；b20 只在 boss 樓層 */
+    if(m.bMin==null){ if(m.b20){ m.bMin=0; m.bMax=0; } else { m.bMin=1; m.bMax=BASEMENT-1; } }   /* 地下怪預設 B1-B19；b20 只在 boss 樓層 */
   });
   if(typeof SWORD_KING!=='undefined' && SWORD_KING){ SWORD_KING.sMin=0; SWORD_KING.sMax=0; if(!(SWORD_KING.bMin>0)){ SWORD_KING.bMin=1; SWORD_KING.bMax=9; } }
 }
@@ -3202,7 +3203,7 @@ function tryMove(dx,dy){
   if(cell&&cell.kind==='item'){ const _bk=!!(ITEMS[cell.item]&&ITEMS[cell.item].book); pickUp(cell.item); d.ent[ny][nx]=null; if(state.floor===SECRET_FLOOR) state.secretLooted=true; mpClear(state.floor,nx,ny,'item'); try{ sfx(_bk?'levelup':'pickup'); }catch(e){} try{ checkAchievements(); }catch(e){} }
   if(d.lava && d.lava[ny][nx]){ const plv=state.player;
     if(plv.icePendant){ d.lava[ny][nx]=false; toast(t('msg.iceMelt')); renderMap(); }
-    else { plv.hp-=50; toast(t('msg.lava')); renderStats(); if(plv.hp<=0){ plv.hp=0; renderStats(); defeat(); return; } }
+    else { plv.hp-=50; renderStats(); if(plv.hp<=0){ plv.hp=0; renderStats(); defeat(); return; } }
   }
   poisonTick();
   if(state.over) return;
@@ -3302,8 +3303,8 @@ function pickUp(id){
     case 'bestiary': if(pl.hasManual){ toast(t('msg.haveManual')); return; } pl.hasManual=true; toast(t('msg.gotManual')); hintOnce('manualE'); break;
     case 'icePendant': pl.icePendant=true; toast(t('msg.gotIce')); break;
     case 'jug': pl.hp=Math.round(pl.hp*2.5); break;
-    case 'staff1': wingsPackage(pl,1); recordLoot('staff1','treasure',_lootSnap); toast(fmt(t('msg.lvUp'),{x:pl.lv})); renderStats(); return;
-    case 'staff3': wingsPackage(pl,3); recordLoot('staff3','treasure',_lootSnap); toast(fmt(t('msg.lvUp'),{x:pl.lv})); renderStats(); return;
+    case 'staff1': wingsPackage(pl,1); recordLoot('staff1','treasure',_lootSnap); toast(fmt(t('msg.lvUpItem'),{name:t('item.staff1'),n:1,x:pl.lv})); renderStats(); return;
+    case 'staff3': wingsPackage(pl,3); recordLoot('staff3','treasure',_lootSnap); toast(fmt(t('msg.lvUpItem'),{name:t('item.staff3'),n:3,x:pl.lv})); renderStats(); return;
     case 'ironSword': pl.atk+=itemGainN('ironSword'); break;   case 'silverSword': pl.atk+=itemGainN('silverSword'); break;   case 'knightSword': pl.atk+=itemGainN('knightSword'); break;
     case 'holySword': pl.atk+=itemGainN('holySword'); break;   case 'divineSword': pl.atk+=itemGainN('divineSword'); break;
     case 'ironShield': pl.def+=itemGainN('ironShield'); break;  case 'silverShield': pl.def+=itemGainN('silverShield'); break;  case 'knightShield': pl.def+=itemGainN('knightShield'); break;
@@ -3453,6 +3454,7 @@ function playAttackFx(side, kind, crit, snd, noSnd){
 function playEventFx(side, mapName, key){ try{ const m=FX_MAP[mapName]; if(m && m[key]) playAttackFx(side, m[key], false, null, true); const sm=FX_MAP[mapName+'Sfx']; const sId=sm&&sm[key]; if(sId){ if(CUSTOM_SFX[sId]) playCustomSfx(sId); else if(SFX_PRESETS[sId]) sfxPlayPreset(sId); } }catch(e){} }
 function openCombat(x,y,ent){
   const foe=ent.foe;
+  try{ document.querySelectorAll('.dmgnum').forEach(function(_e){ if(_e.parentNode) _e.parentNode.removeChild(_e); }); }catch(_e){}   /* 清掉上一場殘留的傷害數字 */
   state.combat={ x:x,y:y,ent:ent,foe:foe, foeMaxHp:foe.maxhp, foePreHp:foe.hp,
     meStam:100, foeStam:100, foeEn:0, halveNext:false, done:false, ended:false, win:false, critArmed:false,
     atkBuff:0, defDebuff:0, defArmed:null, shendunBonus:0, shendunHits:0, foeSkip:false, mIdx:0, shieldHalf:false, shieldReflect:false, playerStun:false, foeFx:foeFxKind(foe,state.floor) };
@@ -3708,7 +3710,7 @@ function foeTurn(){
     if(chance(hitChance(c.foeStam))){
       let dmg;
       const _thisCrit = foeCrit && !_critUsed; if(_thisCrit){ _critUsed=true; c.foeStam=clamp(c.foeStam-1,0,100); if((foe.critDrainStam||0)>0) c.meStam=clamp(c.meStam-foe.critDrainStam,0,100); }   /* 爆擊命中:怪物 -1 體力 + 可吸玩家體力 */
-      if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); }   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
+      if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); if(c.shendunHits>0) dmg=Math.max(0, dmg-(c.shendunBonus||0)); }   /* 神盾可抵擋部分真實傷害 */   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
       else {
         const myDef = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);   // 神盾 buff while charges remain; 幻骨 lowers DEF
         dmg=dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(myDef*0.5):myDef),pl.thrD); if(dmg<0)dmg=0;
@@ -3721,12 +3723,12 @@ function foeTurn(){
       if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       taken+=dmg; anyHit=true; hits++;
-      if(hasAb(foe,'vampire')&&dmg>0){ foe.hp=Math.min(foe.maxhp,foe.hp+Math.round(dmg*0.3)); }
-      if(foe.drains){ const _ds=(typeof foe.drainStam==='number'?foe.drainStam:STAM_DRAIN); c.meStam=clamp(c.meStam-_ds,0,100); }
+      var _vhl=0; if(hasAb(foe,'vampire')&&dmg>0){ _vhl=Math.round(dmg*0.15); foe.hp=Math.min(foe.maxhp,foe.hp+_vhl); }
+      if(foe.drains && !_thisCrit){ const _ds=(typeof foe.drainStam==='number'?foe.drainStam:STAM_DRAIN); c.meStam=clamp(c.meStam-_ds,0,100); }   /* 普攻耗體；爆擊改走爆擊耗體量，不重複 */
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
       pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100);   /* player also charges when taking a hit */
       if(foe.drainEn>0){ pl.en=clamp(pl.en-foe.drainEn,0,100); }   /* 吸取能量 */
-      _seq.push({d:dmg, crit:_thisCrit});
+      _seq.push({d:dmg, crit:_thisCrit, heal:_vhl});
       if(def && def.id==='enerdun'){ c.foeSkip=true; break; }   // 能量盾: cancel remaining hits + foe skips next round
     } else { _seq.push({miss:true}); }
   }
@@ -3770,7 +3772,7 @@ function _foeShowHits(seq, foeCrit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('me','miss!','miss'); }
     else if(h){
-      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null);
+      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null); if(h.heal>0) floatDmg('foe','+'+h.heal,'heal');
       if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=h.crit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=h.crit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, h.crit, _fsnd); }catch(_e){} }
     }
     try{ renderCombat(); }catch(_e){}
@@ -3798,7 +3800,7 @@ function _meShowHits(seq, skill, crit, done){
 }
 function applyAilmentFromFoe(foe){
   const pl=state.player;
-  const baseChance = foe.boss?0.5 : 0.35 + 0.03*state.floor;
+  const baseChance = clamp(foe.boss?0.4 : 0.2 + 0.01*Math.abs(state.floor), 0, 0.5);   /* 中毒/衰弱機率：上限約 50%，不再每次必中 */
   if(foe.ability==='poison'){
     if(chance(clamp(baseChance,0,0.85))){ pl.status='poison'; pl.poisonStep=ri(1,4); ailRing('poison'); try{ playEventFx('me','ability','poison'); }catch(_e){} }
   }else if(foe.ability==='weak'){
@@ -3964,7 +3966,7 @@ function doBuy(o,cost){
   if(o.kind==='curePoison' && pl.status!=='poison'){ toast(t('msg.noCure')); return; }   // nothing to cure -> no charge
   if(o.kind==='cureWeak'   && pl.status!=='weak'){ toast(t('msg.noCure')); return; }
   if(o.res==='exp') pl.exp-=cost; else pl.gold-=cost; try{ sfx('buy'); }catch(e){} markFeat('shopBuy');
-  if(o.kind==='pack'){ wingsPackage(pl,o.pack.l); toast(fmt(t('msg.lvUp'),{x:pl.lv})); }   // same per-level gains as the wing staffs (all of HP/ATK/DEF)
+  if(o.kind==='pack'){ wingsPackage(pl,o.pack.l); toast(fmt(t('msg.lvUpItem'),{name:t('shop.lvlPack'),n:o.pack.l,x:pl.lv})); }   // same per-level gains as the wing staffs (all of HP/ATK/DEF)
   else if(o.kind==='st'){ pl.reserve=clamp(pl.reserve+o.amt,0,100); }
   else if(o.kind==='hp'){ pl.hp+=o.amt; }
   else if(o.kind==='atk'){ pl.atk+=o.amt; }
@@ -4451,7 +4453,7 @@ function showStory(key, onDone){
   state._stKey=key;
   state._stPages = t('story.'+key) || []; state._stI=0; state._stDone=onDone||null;
   byId('storyTitle').textContent = t('story.'+key+'T');
-  { const _gm={intro:'📜',boss:'🐉',final:'👹'}; const _ge=byId('storyGlyph'); if(_ge) _ge.textContent=_gm[key]||'📜'; }
+  { const _gm={intro:'📜',boss:'',final:'👹'}; const _ge=byId('storyGlyph'); if(_ge){ const _g=(_gm[key]!=null?_gm[key]:'📜'); _ge.textContent=_g; _ge.style.display=_g?'':'none'; } }
   renderStoryPage(); show('story');
 }
 function renderStoryPage(){
@@ -6624,7 +6626,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·50 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·51 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6632,7 +6634,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·50 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·51 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -7011,7 +7013,7 @@ function _abChip(o){
   return s+'</label>';
 }
 function _abToggle(cb){
-  var key=cb.getAttribute('data-abtog'); var row=cb.closest('.adRowItem')||document;
+  var key=cb.getAttribute('data-abtog')||cb.getAttribute('data-kbool'); var row=cb.closest('.adRowItem')||document;
   var box=row.querySelector('[data-abset="'+key+'"]'); if(!box) return;
   box.style.display = cb.checked ? 'inline-flex' : 'none';
   var inps=box.querySelectorAll('[data-k]');
@@ -7028,7 +7030,7 @@ function adMonAbilities(m){
   var h='<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
   h+='<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:9px 15px;padding:3px 0;align-items:center">';
   ['solid','vampire','pierce','first','magic'].forEach(function(av){ h+=_abChip({cb:'data-ab="'+av+'"', label:t('ab.'+av), on:hasAb(m,av)}); });
-  h+=_abChip({cb:'data-kbool="drains"', label:t('admin.drains'), on:!!m.drains});
+  h+=_abChip({key:'drains', cb:'data-kbool="drains" onchange="_abToggle(this)"', label:t('admin.drains'), on:!!m.drains, set:_abNum('drainStam',STAM_DRAIN,0,(m.drainStam!=null?m.drainStam:STAM_DRAIN))});
   h+=_abChip({cb:'data-kbool="trueDmg"', label:t('admin.abTrue'), on:!!m.trueDmg});
   h+=_abChip({cb:'data-kbool="noFlee"', label:t('admin.abNoFlee'), on:!!m.noFlee});
   h+=_abChip({cb:'data-kbool="revive"', label:t('admin.abRevive'), on:!!m.revive});
@@ -7038,7 +7040,7 @@ function adMonAbilities(m){
   h+=_abChip({key:'critMult', cb:'data-abtog="critMult" onchange="_abToggle(this)"', label:t('admin.abCrit'), on:(m.critMult!=null&&m.critMult>1), set:_abNum('critMult',2,1,(m.critMult!=null?m.critMult:1),'0.1')});
   h+=_abChip({key:'bonusDmg', cb:'data-abtog="bonusDmg" onchange="_abToggle(this)"', label:t('admin.abBonusDmg'), on:(m.bonusDmg||0)>0, set:_abNum('bonusDmg',10,0,(m.bonusDmg||0))});
   h+=_abChip({key:'drainEn', cb:'data-abtog="drainEn" onchange="_abToggle(this)"', label:t('admin.abDrainEn'), on:(m.drainEn||0)>0, set:_abNum('drainEn',10,0,(m.drainEn||0))});
-  h+=_abChip({key:'drainStam', cb:'data-abtog="drainStam" onchange="_abToggle(this)"', label:t('admin.drainStam'), on:(m.drainStam||0)>0, set:_abNum('drainStam',STAM_DRAIN,0,(m.drainStam!=null?m.drainStam:0))});
+  /* 「耗體量」已併入上方「耗體」開關：勾選耗體即可設定普通攻擊的耗體量 */
   h+=_abChip({key:'critDrainStam', cb:'data-abtog="critDrainStam" onchange="_abToggle(this)"', label:t('admin.critDrainStam'), on:(m.critDrainStam||0)>0, set:_abNum('critDrainStam',5,0,(m.critDrainStam||0))});
   var sdOn=((m.statDownPct||0)>0||(m.statDownN||0)>0);
   h+=_abChip({key:'statDown', cb:'data-abtog="statDown" onchange="_abToggle(this)"', label:t('admin.abStatDown'), on:sdOn, set:_abNum('statDownPct',10,0,(m.statDownPct||0))+'<span style="opacity:.6">%</span>'+_abNum('statDownN',5,0,(m.statDownN||0))+'<span style="opacity:.6">+</span>'});
