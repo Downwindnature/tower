@@ -3256,7 +3256,7 @@ function ascend(){
   state.px=d.start.x; state.py=d.start.y;                 /* land ON the down-staircase */
   state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
   state.target=null; poisonReset();
-  renderAll(); mpPresence(); if(d.boss) toast(t('msg.bossWarn'));
+  renderAll(); mpPresence();
 }
 function descend(){
   if(!hasDown(state.floor)) return;
@@ -3268,7 +3268,7 @@ function descend(){
   state.px=d.stairs.x; state.py=d.stairs.y;               /* land ON the up-staircase */
   state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null;
   state.target=null; poisonReset();
-  renderAll(); mpPresence(); if(d.boss) toast(t('msg.bossWarn'));
+  renderAll(); mpPresence();
 }
 function pickUpSkillBook(kind, skillId){
   const pl=ensureSkills(state.player);
@@ -3461,6 +3461,7 @@ function playEventFx(side, mapName, key){ try{ const m=FX_MAP[mapName]; if(m && 
 function openCombat(x,y,ent){
   const foe=ent.foe;
   try{ document.querySelectorAll('.dmgnum').forEach(function(_e){ if(_e.parentNode) _e.parentNode.removeChild(_e); }); }catch(_e){}   /* 清掉上一場殘留的傷害數字 */
+  try{ document.querySelectorAll('.atkfx').forEach(function(_e){ if(_e.parentNode) _e.parentNode.removeChild(_e); }); }catch(_e){}   /* 清掉上一場殘留的攻擊特效 */
   state.combat={ x:x,y:y,ent:ent,foe:foe, foeMaxHp:foe.maxhp, foePreHp:foe.hp,
     meStam:100, foeStam:100, foeEn:0, halveNext:false, done:false, ended:false, win:false, critArmed:false,
     atkBuff:0, defDebuff:0, defArmed:null, shendunBonus:0, shendunHits:0, foeSkip:false, mIdx:0, shieldHalf:false, shieldReflect:false, playerStun:false, foeFx:foeFxKind(foe,state.floor) };
@@ -3729,6 +3730,7 @@ function foeTurn(){
   const foeCrit = (c.foeEn>=100) && _foeCanDmg; let _critUsed=false;
   let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
   const _seq=[];
+  let _defBlocks = (def && def.div && def.div>1) ? 1 : 0;   // one defence cast mitigates only ONE incoming hit; multi-hit foes get the rest through
   for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
       let dmg;
@@ -3742,7 +3744,7 @@ function foeTurn(){
       }
       if(c.shendunHits>0) c.shendunHits--;
       const before=dmg;
-      if(def && def.div && def.div>1){ dmg=Math.ceil(dmg/def.div); }   // 岩盾/能量盾/反擊盾/療癒盾 mitigation — also reduces true damage (mages) now
+      if(_defBlocks>0 && def && def.div && def.div>1){ dmg=Math.ceil(dmg/def.div); _defBlocks--; }   // 岩盾/能量盾/反擊盾/療癒盾 — blocks ONE hit only; also reduces true damage (mages)
       if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       taken+=dmg; anyHit=true; hits++;
@@ -3791,7 +3793,7 @@ function _foeShowHits(seq, foeCrit, done){
   if(!c || !seq || seq.length===0){ if(done) done(); return; }
   let i=0;
   function step(){
-    const c2=state.combat; if(!c2 || c2.done){ return; }
+    const c2=state.combat; if(!c2 || c2.done || c2!==c){ return; }
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('me','miss!','miss'); }
     else if(h){
@@ -3809,7 +3811,7 @@ function _meShowHits(seq, skill, crit, done){
   const pl=state.player;
   let i=0;
   function step(){
-    const c2=state.combat; if(!c2 || c2.done){ return; }
+    const c2=state.combat; if(!c2 || c2.done || c2!==c){ return; }
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('foe','miss!','miss'); }
     else if(h){
@@ -4381,15 +4383,15 @@ function teleportTo(f){
   const from=state.floor;
   state.floor=f; ensureFloor(f);
   const d=curFloor();
-  if(f<from){                                            /* teleporting DOWN -> arrive at the UP-staircase, exactly as if walking down into the floor */
-    state.px=d.stairs.x; state.py=d.stairs.y;
-    state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null;
-  } else {                                               /* teleporting UP or onto the SAME floor -> arrive at the DOWN-staircase */
+  if(f<from){                                            /* teleporting DOWN -> land ON the DOWN-staircase, facing further down */
     state.px=d.start.x; state.py=d.start.y;
     state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
+  } else {                                               /* teleporting UP / SAME floor -> land ON the UP-staircase, facing further up */
+    state.px=d.stairs.x; state.py=d.stairs.y;
+    state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null;
   }
   state.target=null;
-  poisonReset(); hide('teleport'); renderAll(); renderStats(); if(d.boss) toast(t('msg.bossWarn'));
+  poisonReset(); hide('teleport'); renderAll(); renderStats();
 }
 
 /* ============================== Help / tip ============================== */
@@ -4644,7 +4646,7 @@ function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f
 function ensureFloor(f){ if(!state.floors[f]){ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } }
 function curFloor(){ return state.floors[state.floor]; }
 const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev'];
-function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} ae.style.display = (isAdmin && !open && onMenu) ? '' : 'none'; }
+function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} let modalOpen=false; try{ const _ovs=document.querySelectorAll('.overlay.show'); for(let _i=0;_i<_ovs.length;_i++){ if(_ovs[_i].id!=='startScreen'){ modalOpen=true; break; } } }catch(e){} ae.style.display = (isAdmin && !open && onMenu && !modalOpen) ? '' : 'none'; }
 function show(id){
   /* only ONE modal overlay open at a time — close any other so windows never stack */
   for(let i=0;i<OVERLAY_IDS.length;i++){ if(OVERLAY_IDS[i]!==id){ const el=byId(OVERLAY_IDS[i]); if(el) el.classList.remove('show'); } }
@@ -6657,7 +6659,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·59 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·62 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6665,7 +6667,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·59 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·62 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
