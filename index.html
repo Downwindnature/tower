@@ -425,6 +425,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .cbSwDesc{margin-top:4px;font-size:11px;line-height:1.5;color:var(--txt-faint);text-align:center;}
 .cbSwCard.lock{opacity:.42;cursor:not-allowed;}
 .cbSwLv{display:inline-block;margin-left:5px;font-size:10px;font-family:var(--mono);color:var(--gold);font-weight:800;}
+.cbSwSec.cursor{box-shadow:0 0 0 2px var(--gold),0 0 11px rgba(232,176,75,.35);}
+.cbSwSec.cursor .cbSwCard.sel{border-color:var(--gold)!important;box-shadow:0 0 0 2px var(--gold) inset,0 0 7px rgba(232,176,75,.55)!important;}
 .mdIdx{color:var(--txt-dim);font-family:var(--mono);font-size:13px;min-width:50px;text-align:center;}
 /* teleport: compact number + up/down stepper (replaces the long floor grid) */
 .tpStepper{display:flex;flex-direction:column;align-items:center;gap:9px;margin:10px 0 16px;}
@@ -513,7 +515,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 #cheatBadge button{background:#2a1c06;color:var(--gold);font-weight:800;border-radius:999px;padding:3px 11px;font-size:11px;cursor:pointer;border:none;}
 #adminEnterBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #6b4914;}
 #voiceMsg{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:240;background:rgba(20,6,6,.92);border:1px solid #b23b3b;color:#ff6b6b;font-weight:800;padding:8px 14px;border-radius:10px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.5);}
-#exitHint{position:fixed;left:14px;bottom:14px;z-index:150;display:none;align-items:center;gap:6px;
+#exitHint{position:absolute;left:14px;bottom:12px;z-index:150;display:none;align-items:center;gap:6px;
   font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--gold);
   background:rgba(20,12,6,.5);border:1px solid rgba(232,176,75,.28);padding:7px 13px;border-radius:999px;
   box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:pointer;user-select:none;-webkit-user-select:none;
@@ -579,7 +581,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .achToastName{color:#fff;font-weight:800;font-size:22px;text-shadow:0 2px 10px rgba(0,0,0,.9),0 0 18px rgba(255,200,100,.5);}
 #shop{background:rgba(6,4,12,.42);backdrop-filter:none;-webkit-backdrop-filter:none;}   /* keep the side stats panel readable while trading (問題2) */
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-.modal{width:100%;max-width:520px;max-height:88vh;overflow:auto;border-radius:16px;padding:20px;
+.modal{position:relative;width:100%;max-width:520px;max-height:88vh;overflow:auto;border-radius:16px;padding:20px;
   background:linear-gradient(180deg,#1f1733,#140d22);border:1px solid var(--line);
   box-shadow:0 24px 70px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05);animation:modalIn .25s cubic-bezier(.2,.9,.3,1.2);}
 @keyframes modalIn{from{opacity:0;transform:translateY(18px) scale(.97);}to{opacity:1;transform:none;}}
@@ -1521,7 +1523,7 @@ const I18N = {
 'zh-Hant':{
   title:'魔塔',
   ui:{floor:'FLOOR',lv:'等級',status:'狀態',gold:'金錢',hp:'生命',en:'能量',st:'體力',atk:'攻擊',def:'防禦',atkThr:'攻擊臨界',defThr:'防禦臨界',exp:'經驗',keys:'鑰匙',aim:'瞄準',
-      hint:'方向鍵 / WASD 移動 · 撞向怪物選取 · 空白鍵或瞄準鍵開戰',manual:'怪物手冊',teleport:'樓層傳送',help:'說明',newGame:'重新開始',hintE:'拿到怪物手冊！按 E 開啟（手機點「手冊」），可查看每種怪物的數值，先看清楚再決定要不要打。',hintF:'拿到傳送卷軸！按 F 使用（手機點「傳送」），可在去過的樓層之間快速移動。',hintYU:'電腦版：按 Y / U 選擇攻擊 / 防禦技能',hintAtk:'學會攻擊技能！按 Y 切換攻擊技能，戰鬥中按 Z 發動（需達到技能等級才能裝備）。',hintDef:'學會防禦技能！按 U 切換防禦技能，戰鬥中按 X 發動。'},cheat:{title:'請輸入密碼',ph:'輸入密碼',ok:'確定',cancel:'取消',wrong:'密碼錯誤',badge:'管理者模式',exit:'退出',on:'管理者模式啟動：生命 / 攻擊 / 防禦 +10000',off:'已退出管理者模式，能力值已還原',tpAny:'管理者：可直接傳送到任一樓層（含地下室）'},
+      hint:'方向鍵 / WASD 移動 · 撞向怪物選取 · 空白鍵或瞄準鍵開戰',manual:'怪物手冊',teleport:'樓層傳送',help:'說明',newGame:'重新開始',hintE:'拿到怪物手冊！按 E 開啟（手機點「手冊」），可查看每種怪物的數值，先看清楚再決定要不要打。',hintF:'拿到傳送卷軸！按 F 使用（手機點「傳送」），可在去過的樓層之間快速移動。',hintYU:'電腦版：戰鬥中用方向鍵選技能——↑↓ 切換攻擊／防禦，←→ 換技能；按 Z 發動攻擊技、X 發動防禦技（手機可直接點卡片）。',hintAtk:'學會攻擊技能！戰鬥中以方向鍵 ↑↓ 移到攻擊列、←→ 選技能，按 Z 發動（需達技能等級；手機點卡片即可）。',hintDef:'學會防禦技能！戰鬥中以方向鍵 ↑↓ 移到防禦列、←→ 選技能，按 X 發動（手機點卡片即可）。'},cheat:{title:'請輸入密碼',ph:'輸入密碼',ok:'確定',cancel:'取消',wrong:'密碼錯誤',badge:'管理者模式',exit:'退出',on:'管理者模式啟動：生命 / 攻擊 / 防禦 +10000',off:'已退出管理者模式，能力值已還原',tpAny:'管理者：可直接傳送到任一樓層（含地下室）'},
   cb:{hp:'生命',en:'能量',st:'體力',atk:'攻',def:'防',vs:'VS',attack:'普通攻擊',skill:'技能',flee:'逃跑',hero:'玩家',pause:'暫停',resume:'繼續',crit:'爆擊!',critArmed:'蓄力中',critNeed:'能量不足（需 20）',critNoDmg:'對怪物造不成傷害，無法蓄力爆擊',atkSkills:'攻擊技能',defSkills:'防禦技能',pickHint:'點選要裝備的技能',noneFound:'尚未習得此類技能',equipped:'已裝備 {n}',none:'—',stamShort:'體',needLv:'需要等級 {n}',needEnStam:'能量或體力不足',noAtkSkill:'未裝備攻擊技能',noDefSkill:'未裝備防禦技能',atkUse:'攻擊技',defUse:'防禦技'},
   status:{normal:'正常',poison:'中毒',weak:'衰弱'},
   col:{y:'黃色',b:'藍色',r:'紅色',w:'白色',p:'白金'},
@@ -1531,10 +1533,10 @@ const I18N = {
   skill:{crimson:{n:'赤紅斬',d:'消耗 30 能量，本回合攻擊傷害翻倍。'},pierce:{n:'破甲擊',d:'消耗 35 能量，本回合無視敵方防禦。'},shield:{n:'結晶盾',d:'消耗 25 能量，體力 +40，並使下次受到的傷害減半（本回合不攻擊）。'},breath:{n:'深呼吸',d:'不消耗能量，能量 +30、體力 +30（本回合不攻擊）。'}},
   shop:{blue:{n:'藍色次級商店',d:'以金幣兌換能力。'},red:{n:'紅色高級商店',d:'以金幣兌換更強能力。'},old:{n:'藍衣老人',d:'以經驗值兌換能力。'},older:{n:'年邁藍衣老人',d:'以經驗值兌換大量能力。'},healer:{n:'白衣治療老人',d:'以金幣解除中毒或衰弱，前方有怪物把守，需擊退才能靠近。'},healP:{n:'解毒老人',d:'地下專屬。以金幣解除中毒，前方有怪物把守，需擊退才能靠近。'},healW:{n:'解衰弱老人',d:'地下專屬。以金幣解除衰弱，前方有怪物把守，需擊退才能靠近。'},
         keySell:{n:'賣鑰匙的老人',d:'以金幣購買鑰匙（不販售白金鑰匙）。'},keyBuy:{n:'收鑰匙的老人',d:'把多餘的鑰匙換成金幣。'},exp:'經驗',gold:'金幣',leave:'離開',lvlPack:'升級套裝',packSub:'Lv+{l} · 生命+{s} · 攻+{a} · 防+{d}',hpOpt:'生命 +{x}',stOpt:'體力 +{x}',atkOpt:'攻擊 +{x}',defOpt:'防禦 +{x}',curePoison:'解除中毒',cureWeak:'解除衰弱',buy:'兌換',buyKey:'買 {k}',sellKey:'賣 {k}',sell:'賣出'},
-  manual:{title:'怪物手冊',desc:'下列為本層怪物的能力與「以目前狀態擊敗對方時，你預計會承受的傷害」。',noFoe:'本層沒有怪物。',navHint:'方向鍵選怪 · Alt 看詳細 · Q 離開',back:'返回',speed:'速度',reward:'報酬',yourHit:'你每回合傷害',foeHit:'每回合受傷',altHint:'按 Alt 查看完整資料，再按一次返回列表',nameLab:'名稱',specialLab:'特殊',effectLab:'效果',hp:'體力',dealt:'給予傷害',atkc:'攻回數',taken:'承受傷害',total:'總',energy:'能量',totalRounds:'總回合',effTrue:'攻擊無視玩家防禦力，但神盾仍可抵擋部分傷害。',effSolid:'你對它造成的傷害減半。',effPierce:'攻擊會無視你一半的防禦。',effVampire:'攻擊時吸取部分傷害回復自身。',effBoss:'強大的頭目，數值全面提升。',effWeak:'攻擊有機率使你衰弱，降低攻防並侵蝕生命。',effPoison:'攻擊有機率使你中毒，行走時持續扣血。',effDrains:'攻擊會降低你的體力，使你更易落空。',effMulti:'每回合會連續攻擊多次。',effNone:'沒有特殊能力。',kill:'需 {n} 回合',take:'預計受傷',cantHurt:'無法擊破'},
+  manual:{title:'怪物手冊',desc:'下列為本層怪物的能力與「以目前狀態擊敗對方時，你預計會承受的傷害」。',noFoe:'本層沒有怪物。',navHint:'方向鍵選怪 · Alt 看詳細 · Q 離開',back:'返回',speed:'速度',reward:'報酬',yourHit:'你每回合傷害',foeHit:'每回合受傷',altHint:'按 Alt 查看完整資料，再按一次返回列表',nameLab:'名稱',specialLab:'特殊',effectLab:'效果',hp:'體力',dealt:'給予傷害',atkc:'攻回數',taken:'承受傷害',total:'總',energy:'能量',totalRounds:'總回合',effTrue:'攻擊無視玩家防禦力，但防禦技能仍可抵擋部分傷害。',effSolid:'你對它造成的傷害減半。',effPierce:'攻擊會無視你一半的防禦。',effVampire:'攻擊時吸取部分傷害回復自身。',effBoss:'強大的頭目，數值全面提升。',effWeak:'攻擊有機率使你衰弱，降低攻防並侵蝕生命。',effPoison:'攻擊有機率使你中毒，行走時持續扣血。',effDrains:'攻擊會降低你的體力，使你更易落空。',effMulti:'每回合會連續攻擊多次。',effNone:'沒有特殊能力。',kill:'需 {n} 回合',take:'預計受傷',cantHurt:'無法擊破'},
   sk:{huangu:{name:'幻骨',desc:'將少量防禦轉為攻擊，造成傷害≥等級時生效、整場疊加。傷害×1.5。'},tianti:{name:'天體',desc:'吸取怪物現有能量的一半（扣除消耗）；與爆擊同用則不吸。傷害×1.3。'},jinshi:{name:'金石',desc:'手下留情不致死，回復造成傷害的30%。傷害×0.8。'},zhuanti:{name:'轉體',desc:'降低怪物體力。傷害×1.8。'},shenlei:{name:'神壘',desc:'傷害×5，但不致死（最低保留1滴血）。'},yandun:{name:'岩盾',desc:'受到的傷害除以2.5。'},enerdun:{name:'能量盾',desc:'受傷除以1.5；怪物下回合無法行動，並中止本回合剩餘連擊。'},counterdun:{name:'反擊盾',desc:'受傷除以1.3；反彈傷害，並反射衰弱與中毒。'},healShield:{name:'療癒盾',desc:'受傷除以2.5；回復被擋下傷害的60%。'},shendun:{name:'神盾',desc:'防禦提升(生命+防禦)×等級÷100，可抵擋3次攻擊。'}},
   tp:{goTo:'前往 {n}',descPerm:'已取得傳送寶物，可自由前往到過的樓層。',title:'樓層傳送',desc:'選擇要前往的已探索樓層。',cur:'目前',locked:'未探索',floor:'{n} 樓',needScroll:'需要傳送卷軸，請在地圖上尋找',scrolls:'（剩餘 {n} 張）',goHere:'回到下樓梯',bossLock:'已踏入最終樓層，擊敗此處的首領前無法離開',inSecret:'密室之中無法使用樓層傳送，請走魔法陣離開'},
-  help:{title:'玩法說明',start:'我了解了',kbTitle:'快捷鍵（電腦版）',kbManual:'按 E 開啟怪物手冊',kbTeleport:'按 F 開啟樓層傳送',kbAtk:'按 Y 選擇攻擊技能',kbDef:'按 U 選擇防禦技能',items:[
+  help:{title:'玩法說明',start:'我了解了',kbTitle:'快捷鍵（電腦版）',kbManual:'按 E 開啟怪物手冊',kbTeleport:'按 F 開啟樓層傳送',kbAtk:'方向鍵 ↑↓←→ 選技能、Z 發動攻擊技',kbDef:'方向鍵 ↑↓←→ 選技能、X 發動防禦技',items:[
     ['🎯','<b>移動與開戰</b>：方向鍵 / WASD 或畫面方向鍵移動；撞向怪物會以紅框鎖定，按空白鍵或紅色瞄準鍵展開戰鬥。'],
     ['⚔️','<b>戰鬥</b>：雙方會自動輪流攻擊，傷害 = 攻擊 − 防禦。體力越低越容易落空。戰鬥中可隨時施放技能、暫停或逃跑（已扣的生命不會回復）。'],
     ['✨','<b>能量與技能</b>：攻擊與受擊都會累積能量（上限 100），用於施放赤紅斬、破甲擊、結晶盾、深呼吸。'],
@@ -1549,7 +1551,7 @@ const I18N = {
 'zh-Hans':{
   title:'魔塔',
   ui:{floor:'FLOOR',lv:'等级',status:'状态',gold:'金币',hp:'生命',en:'能量',st:'体力',atk:'攻击',def:'防御',atkThr:'攻击临界',defThr:'防御临界',exp:'经验',keys:'钥匙',aim:'瞄准',
-      hint:'方向键 / WASD 移动 · 撞向怪物选取 · 空格或瞄准键开战',manual:'怪物手册',teleport:'楼层传送',help:'说明',newGame:'重新开始',hintE:'拿到怪物手册！按 E 打开（手机点「手册」），可查看每种怪物的数值，先看清楚再决定要不要打。',hintF:'拿到传送卷轴！按 F 使用（手机点「传送」），可在去过的楼层之间快速移动。',hintYU:'电脑版：按 Y / U 选择攻击 / 防御技能',hintAtk:'学会攻击技能！按 Y 切换攻击技能，战斗中按 Z 发动（需达到技能等级才能装备）。',hintDef:'学会防御技能！按 U 切换防御技能，战斗中按 X 发动。'},cheat:{title:'请输入密码',ph:'输入密码',ok:'确定',cancel:'取消',wrong:'密码错误',badge:'管理者模式',exit:'退出',on:'管理者模式启动：生命 / 攻击 / 防御 +10000',off:'已退出管理者模式，能力值已还原',tpAny:'管理者：可直接传送到任一楼层（含地下室）'},
+      hint:'方向键 / WASD 移动 · 撞向怪物选取 · 空格或瞄准键开战',manual:'怪物手册',teleport:'楼层传送',help:'说明',newGame:'重新开始',hintE:'拿到怪物手册！按 E 打开（手机点「手册」），可查看每种怪物的数值，先看清楚再决定要不要打。',hintF:'拿到传送卷轴！按 F 使用（手机点「传送」），可在去过的楼层之间快速移动。',hintYU:'电脑版：战斗中用方向键选技能——↑↓ 切换攻击／防御，←→ 换技能；按 Z 发动攻击技、X 发动防御技（手机可直接点卡片）。',hintAtk:'学会攻击技能！战斗中以方向键 ↑↓ 移到攻击列、←→ 选技能，按 Z 发动（需达技能等级；手机点卡片即可）。',hintDef:'学会防御技能！战斗中以方向键 ↑↓ 移到防御列、←→ 选技能，按 X 发动（手机点卡片即可）。'},cheat:{title:'请输入密码',ph:'输入密码',ok:'确定',cancel:'取消',wrong:'密码错误',badge:'管理者模式',exit:'退出',on:'管理者模式启动：生命 / 攻击 / 防御 +10000',off:'已退出管理者模式，能力值已还原',tpAny:'管理者：可直接传送到任一楼层（含地下室）'},
   cb:{hp:'生命',en:'能量',st:'体力',atk:'攻',def:'防',vs:'VS',attack:'普通攻击',skill:'技能',flee:'逃跑',hero:'玩家',pause:'暂停',resume:'继续',crit:'爆击!',critArmed:'蓄力中',critNeed:'能量不足（需 20）',critNoDmg:'对怪物造不成伤害，无法蓄力爆击',atkSkills:'攻擊技能',defSkills:'防禦技能',pickHint:'點選要裝備的技能',noneFound:'尚未習得此類技能',equipped:'已裝備 {n}',none:'—',stamShort:'體',needLv:'需要等級 {n}',needEnStam:'能量或體力不足',noAtkSkill:'未裝備攻擊技能',noDefSkill:'未裝備防禦技能',atkUse:'攻擊技',defUse:'防禦技'},
   status:{normal:'正常',poison:'中毒',weak:'虚弱'},
   col:{y:'黄色',b:'蓝色',r:'红色',w:'白色',p:'白金'},
@@ -1559,10 +1561,10 @@ const I18N = {
   skill:{crimson:{n:'赤红斩',d:'消耗 30 能量，本回合攻击伤害翻倍。'},pierce:{n:'破甲击',d:'消耗 35 能量，本回合无视敌方防御。'},shield:{n:'结晶盾',d:'消耗 25 能量，体力 +40，并使下次受到的伤害减半（本回合不攻击）。'},breath:{n:'深呼吸',d:'不消耗能量，能量 +30、体力 +30（本回合不攻击）。'}},
   shop:{blue:{n:'蓝色次级商店',d:'以金币兑换能力。'},red:{n:'红色高级商店',d:'以金币兑换更强能力。'},old:{n:'蓝衣老人',d:'以经验值兑换能力。'},older:{n:'年迈蓝衣老人',d:'以经验值兑换大量能力。'},healer:{n:'白衣治疗老人',d:'以金币解除中毒或虚弱，前方有怪物把守，需击退才能靠近。'},healP:{n:'解毒老人',d:'地下专属。以金币解除中毒，前方有怪物把守，需击退才能靠近。'},healW:{n:'解虚弱老人',d:'地下专属。以金币解除虚弱，前方有怪物把守，需击退才能靠近。'},
         keySell:{n:'卖钥匙的老人',d:'以金币购买钥匙（不贩售白金钥匙）。'},keyBuy:{n:'收钥匙的老人',d:'把多余的钥匙换成金币。'},exp:'经验',gold:'金币',leave:'离开',lvlPack:'升级套装',packSub:'Lv+{l} · 生命+{s} · 攻+{a} · 防+{d}',hpOpt:'生命 +{x}',stOpt:'体力 +{x}',atkOpt:'攻击 +{x}',defOpt:'防御 +{x}',curePoison:'解除中毒',cureWeak:'解除虚弱',buy:'兑换',buyKey:'买 {k}',sellKey:'卖 {k}',sell:'卖出'},
-  manual:{title:'怪物手册',desc:'以下为本层怪物的能力，以及「以当前状态击败对方时，你预计承受的伤害」。',noFoe:'本层没有怪物。',navHint:'方向键选怪 · Alt 看详细 · Q 离开',back:'返回',speed:'速度',reward:'报酬',yourHit:'你每回合伤害',foeHit:'每回合受伤',altHint:'按 Alt 查看完整资料，再按一次返回列表',nameLab:'名称',specialLab:'特殊',effectLab:'效果',hp:'体力',dealt:'给予伤害',atkc:'攻回数',taken:'承受伤害',total:'总',energy:'能量',totalRounds:'总回合',effTrue:'攻击无视玩家防御力，但神盾仍可抵挡部分伤害。',effSolid:'你对它造成的伤害减半。',effPierce:'攻击会无视你一半的防御。',effVampire:'攻击时吸取部分伤害回复自身。',effBoss:'强大的头目，数值全面提升。',effWeak:'攻击有几率使你虚弱，降低攻防并侵蚀生命。',effPoison:'攻击有几率使你中毒，行走时持续扣血。',effDrains:'攻击会降低你的体力，使你更易落空。',effMulti:'每回合会连续攻击多次。',effNone:'没有特殊能力。',kill:'需 {n} 回合',take:'预计受伤',cantHurt:'无法击破'},
+  manual:{title:'怪物手册',desc:'以下为本层怪物的能力，以及「以当前状态击败对方时，你预计承受的伤害」。',noFoe:'本层没有怪物。',navHint:'方向键选怪 · Alt 看详细 · Q 离开',back:'返回',speed:'速度',reward:'报酬',yourHit:'你每回合伤害',foeHit:'每回合受伤',altHint:'按 Alt 查看完整资料，再按一次返回列表',nameLab:'名称',specialLab:'特殊',effectLab:'效果',hp:'体力',dealt:'给予伤害',atkc:'攻回数',taken:'承受伤害',total:'总',energy:'能量',totalRounds:'总回合',effTrue:'攻击无视玩家防御力，但防御技能仍可抵挡部分伤害。',effSolid:'你对它造成的伤害减半。',effPierce:'攻击会无视你一半的防御。',effVampire:'攻击时吸取部分伤害回复自身。',effBoss:'强大的头目，数值全面提升。',effWeak:'攻击有几率使你虚弱，降低攻防并侵蚀生命。',effPoison:'攻击有几率使你中毒，行走时持续扣血。',effDrains:'攻击会降低你的体力，使你更易落空。',effMulti:'每回合会连续攻击多次。',effNone:'没有特殊能力。',kill:'需 {n} 回合',take:'预计受伤',cantHurt:'无法击破'},
   sk:{huangu:{name:'幻骨',desc:'将少量防御转为攻击，造成伤害≥等级时生效、整场叠加。伤害×1.5。'},tianti:{name:'天体',desc:'吸取怪物现有能量的一半（扣除消耗）；与爆击同用则不吸。伤害×1.3。'},jinshi:{name:'金石',desc:'手下留情不致死，回复造成伤害的30%。伤害×0.8。'},zhuanti:{name:'转体',desc:'降低怪物体力。伤害×1.8。'},shenlei:{name:'神垒',desc:'伤害×5，但不致死（最低保留1滴血）。'},yandun:{name:'岩盾',desc:'受到的伤害除以2.5。'},enerdun:{name:'能量盾',desc:'受伤除以1.5；怪物下回合无法行动，并中止本回合剩余连击。'},counterdun:{name:'反击盾',desc:'受伤除以1.3；反弹伤害，并反射衰弱与中毒。'},healShield:{name:'疗愈盾',desc:'受伤除以2.5；回复被挡下伤害的60%。'},shendun:{name:'神盾',desc:'防御提升(生命+防御)×等级÷100，可抵挡3次攻击。'}},
   tp:{goTo:'前往 {n}',descPerm:'已取得传送宝物，可自由前往到过的楼层。',title:'楼层传送',desc:'选择要前往的已探索楼层。',cur:'当前',locked:'未探索',floor:'{n} 楼',needScroll:'需要传送卷轴，请在地图上寻找',scrolls:'（剩余 {n} 张）',goHere:'回到下楼梯',bossLock:'已踏入最终楼层，击败此处的首领前无法离开',inSecret:'密室之中无法使用楼层传送，请走魔法阵离开'},
-  help:{title:'玩法说明',start:'我知道了',kbTitle:'快捷键（电脑版）',kbManual:'按 E 打开怪物手册',kbTeleport:'按 F 打开楼层传送',kbAtk:'按 Y 选择攻击技能',kbDef:'按 U 选择防御技能',items:[
+  help:{title:'玩法说明',start:'我知道了',kbTitle:'快捷键（电脑版）',kbManual:'按 E 打开怪物手册',kbTeleport:'按 F 打开楼层传送',kbAtk:'方向键 ↑↓←→ 选技能、Z 发动攻击技',kbDef:'方向键 ↑↓←→ 选技能、X 发动防御技',items:[
     ['🎯','<b>移动与开战</b>：方向键 / WASD 或屏幕方向键移动；撞向怪物会以红框锁定，按空格或红色瞄准键开战。'],
     ['⚔️','<b>战斗</b>：双方会自动轮流攻击，伤害 = 攻击 − 防御。体力越低越容易落空。战斗中可随时施放技能、暂停或逃跑（已扣的生命不会回复）。'],
     ['✨','<b>能量与技能</b>：攻击与受击都会累积能量（上限 100），用于施放赤红斩、破甲击、结晶盾、深呼吸。'],
@@ -1577,7 +1579,7 @@ const I18N = {
 'en':{
   title:'Magic Tower',
   ui:{floor:'FLOOR',lv:'Level',status:'Status',gold:'Gold',hp:'HP',en:'Energy',st:'Stamina',atk:'ATK',def:'DEF',atkThr:'Atk Edge',defThr:'Def Edge',exp:'EXP',keys:'Keys',aim:'Aim',
-      hint:'Arrows / WASD to move · bump a monster to target · Space or Aim to fight',manual:'Bestiary',teleport:'Teleport',help:'Help',newGame:'New Run',hintE:'Bestiary obtained! Press E to open it (tap “Bestiary” on mobile) to check each monster\'s stats before you fight.',hintF:'Teleport scroll obtained! Press F to use it (tap “Teleport”) to warp between floors you have explored.',hintYU:'PC: press Y / U to choose your attack / defence skill',hintAtk:'Attack skill learned! Press Y to switch attack skills; press Z in combat to cast (must meet the level requirement).',hintDef:'Defence skill learned! Press U to switch defence skills; press X in combat to cast.'},cheat:{title:'Enter password',ph:'Password',ok:'OK',cancel:'Cancel',wrong:'Wrong password',badge:'ADMIN MODE',exit:'Exit',on:'Admin mode on: HP / ATK / DEF +10000',off:'Admin mode off; stats restored',tpAny:'Admin: teleport to any floor (basement included)'},
+      hint:'Arrows / WASD to move · bump a monster to target · Space or Aim to fight',manual:'Bestiary',teleport:'Teleport',help:'Help',newGame:'New Run',hintE:'Bestiary obtained! Press E to open it (tap “Bestiary” on mobile) to check each monster\'s stats before you fight.',hintF:'Teleport scroll obtained! Press F to use it (tap “Teleport”) to warp between floors you have explored.',hintYU:'PC: in combat use the arrow keys — Up/Down switch attack/defence, Left/Right change the skill; press Z to cast the attack skill, X for defence (mobile: just tap a card).',hintAtk:'Attack skill learned! In combat use Up/Down to reach the attack row and Left/Right to pick a skill, then press Z to cast (must meet the level; mobile: tap a card).',hintDef:'Defence skill learned! In combat use Up/Down to reach the defence row and Left/Right to pick a skill, then press X to cast (mobile: tap a card).'},cheat:{title:'Enter password',ph:'Password',ok:'OK',cancel:'Cancel',wrong:'Wrong password',badge:'ADMIN MODE',exit:'Exit',on:'Admin mode on: HP / ATK / DEF +10000',off:'Admin mode off; stats restored',tpAny:'Admin: teleport to any floor (basement included)'},
   cb:{hp:'HP',en:'Energy',st:'Stamina',atk:'A',def:'D',vs:'VS',attack:'Attack',skill:'Skills',flee:'Flee',hero:'Player',pause:'Pause',resume:'Resume',crit:'Crit!',critArmed:'Ready!',critNeed:'Need 20 energy',critNoDmg:'No damage to this foe — cannot charge a crit',atkSkills:'Attack Skills',defSkills:'Defence Skills',pickHint:'Tap a skill to equip it',noneFound:'No skills of this type yet',equipped:'Equipped {n}',none:'—',stamShort:'ST',needLv:'Needs level {n}',needEnStam:'Not enough energy or stamina',noAtkSkill:'No attack skill equipped',noDefSkill:'No defence skill equipped',atkUse:'Atk Skill',defUse:'Def Skill'},
   status:{normal:'Normal',poison:'Poison',weak:'Weak'},
   col:{y:'yellow',b:'blue',r:'red',w:'white',p:'platinum'},
@@ -1587,10 +1589,10 @@ const I18N = {
   skill:{crimson:{n:'Crimson Slash',d:'Costs 30 energy. Doubles your attack damage this round.'},pierce:{n:'Armor Pierce',d:'Costs 35 energy. Ignores the foe defense this round.'},shield:{n:'Crystal Shield',d:'Costs 25 energy. +40 stamina and halves the next damage you take (you skip attacking).'},breath:{n:'Deep Breath',d:'No energy cost. +30 energy and +30 stamina (you skip attacking).'}},
   shop:{blue:{n:'Lesser Blue Shop',d:'Trade gold for power.'},red:{n:'Grand Red Shop',d:'Trade gold for greater power.'},old:{n:'Old Man in Blue',d:'Trade EXP for power.'},older:{n:'Ancient Man in Blue',d:'Trade EXP for great power.'},healer:{n:'Healer in White',d:'Spend gold to cure poison or weaken; a monster guards the way — defeat it to approach.'},healP:{n:'Antidote Elder',d:'Basement only. Spend gold to cure poison; a monster guards the way.'},healW:{n:'Restoration Elder',d:'Basement only. Spend gold to cure weaken; a monster guards the way.'},
         keySell:{n:'Key Seller',d:'Buy keys with gold (no platinum key).'},keyBuy:{n:'Key Buyer',d:'Trade spare keys for gold.'},exp:'EXP',gold:'Gold',leave:'Leave',lvlPack:'Level Pack',packSub:'Lv+{l} · HP+{s} · ATK+{a} · DEF+{d}',hpOpt:'HP +{x}',stOpt:'Stamina +{x}',atkOpt:'ATK +{x}',defOpt:'DEF +{x}',curePoison:'Cure Poison',cureWeak:'Cure Weaken',buy:'Trade',buyKey:'Buy {k}',sellKey:'Sell {k}',sell:'Sell'},
-  manual:{title:'Bestiary',desc:'Each monster on this floor, with the damage you are expected to take if you defeat it at your current strength.',noFoe:'No monsters on this floor.',navHint:'Arrows select · Alt detail · Q exit',back:'Back',speed:'Speed',reward:'Reward',yourHit:'Your dmg/round',foeHit:'Dmg taken/round',altHint:'Press Alt for full info, Alt again to go back',nameLab:'Name',specialLab:'Special',effectLab:'Effect',hp:'HP',dealt:'Dmg dealt',atkc:'Hits',taken:'Dmg taken',total:'Total',energy:'Energy',totalRounds:'Rounds',effTrue:'Attacks ignore your defence, but Divine Shield still blocks part.',effSolid:'Your damage to it is halved.',effPierce:'Attacks ignore half of your defence.',effVampire:'Heals itself for part of the damage it deals.',effBoss:'A powerful boss with raised stats.',effWeak:'May weaken you, lowering ATK/DEF and draining HP.',effPoison:'May poison you, draining HP as you walk.',effDrains:'Attacks lower your stamina, making you miss more.',effMulti:'Attacks multiple times per round.',effNone:'No special ability.',kill:'{n} rounds',take:'Est. damage',cantHurt:'Cannot harm'},
+  manual:{title:'Bestiary',desc:'Each monster on this floor, with the damage you are expected to take if you defeat it at your current strength.',noFoe:'No monsters on this floor.',navHint:'Arrows select · Alt detail · Q exit',back:'Back',speed:'Speed',reward:'Reward',yourHit:'Your dmg/round',foeHit:'Dmg taken/round',altHint:'Press Alt for full info, Alt again to go back',nameLab:'Name',specialLab:'Special',effectLab:'Effect',hp:'HP',dealt:'Dmg dealt',atkc:'Hits',taken:'Dmg taken',total:'Total',energy:'Energy',totalRounds:'Rounds',effTrue:'Attacks ignore your defence, but defence skills still block part.',effSolid:'Your damage to it is halved.',effPierce:'Attacks ignore half of your defence.',effVampire:'Heals itself for part of the damage it deals.',effBoss:'A powerful boss with raised stats.',effWeak:'May weaken you, lowering ATK/DEF and draining HP.',effPoison:'May poison you, draining HP as you walk.',effDrains:'Attacks lower your stamina, making you miss more.',effMulti:'Attacks multiple times per round.',effNone:'No special ability.',kill:'{n} rounds',take:'Est. damage',cantHurt:'Cannot harm'},
   sk:{huangu:{name:'Phantom Bone',desc:'Turn a little DEF into ATK; takes hold when the hit reaches your level, stacking all battle. x1.5.'},tianti:{name:'Celestial',desc:'Drain half the foe current energy (minus the cost); none if paired with a crit. x1.3.'},jinshi:{name:'Goldstone',desc:'Non-lethal; heal 30% of the damage dealt. x0.8.'},zhuanti:{name:'Pivot',desc:'Drain the foe stamina. x1.8.'},shenlei:{name:'Divine Rampart',desc:'x5 damage but non-lethal (leaves the foe on 1 HP).'},yandun:{name:'Rock Shield',desc:'Incoming damage divided by 2.5.'},enerdun:{name:'Energy Shield',desc:'Incoming / 1.5; foe skips next turn and remaining multi-hits are cancelled.'},counterdun:{name:'Counter Shield',desc:'Incoming / 1.3; reflect damage and bounce back weaken and poison.'},healShield:{name:'Healing Aegis',desc:'Incoming / 2.5; heal 60% of the blocked amount.'},shendun:{name:'Divine Shield',desc:'DEF += (HP+DEF) x level / 100; blocks 3 attacks.'}},
   tp:{goTo:'Go to {n}',descPerm:'Teleport treasure obtained — travel freely to any floor you have reached.',title:'Floor Teleport',desc:'Choose an explored floor to travel to.',cur:'Current',locked:'Unexplored',floor:'Floor {n}',needScroll:'You need a Teleport Scroll — find one on the map',scrolls:'({n} left)',goHere:'Back to stairs',bossLock:'You are on the final floor — you cannot leave until its boss is defeated.',inSecret:'You cannot use floor teleport inside the secret room — leave via the magic circle.'},
-  help:{title:'How to Play',start:'Got it',kbTitle:'Shortcuts (PC)',kbManual:'Press E to open the bestiary',kbTeleport:'Press F to open Teleport',kbAtk:'Press Y to choose an attack skill',kbDef:'Press U to choose a defence skill',items:[
+  help:{title:'How to Play',start:'Got it',kbTitle:'Shortcuts (PC)',kbManual:'Press E to open the bestiary',kbTeleport:'Press F to open Teleport',kbAtk:'Arrow keys to pick a skill, Z to cast the attack skill',kbDef:'Arrow keys to pick a skill, X to cast the defence skill',items:[
     ['🎯','<b>Move & engage</b>: Arrows / WASD or the on-screen pad. Bump a monster to lock it (red outline), then press Space or the red Aim button to fight.'],
     ['⚔️','<b>Combat</b>: You and the foe trade blows automatically; damage = ATK − DEF. Low stamina misses more often. Cast skills, pause, or flee anytime (lost HP stays lost).'],
     ['✨','<b>Energy & skills</b>: Dealing and taking damage build energy (max 100) for Crimson Slash, Armor Pierce, Crystal Shield and Deep Breath.'],
@@ -1605,7 +1607,7 @@ const I18N = {
 'ja':{
   title:'魔塔',
   ui:{floor:'FLOOR',lv:'レベル',status:'状態',gold:'金貨',hp:'HP',en:'エナジー',st:'体力',atk:'攻撃',def:'防御',atkThr:'攻撃限界',defThr:'防御限界',exp:'経験',keys:'鍵',aim:'照準',
-      hint:'方向キー / WASD で移動・敵に当たると照準・スペースか照準ボタンで戦闘',manual:'モンスター図鑑',teleport:'階層転送',help:'説明',newGame:'最初から',hintE:'魔物図鑑を入手！E で開く（スマホは「図鑑」）。各モンスターの数値を確認できます。',hintF:'階層転送の巻物を入手！F で使用（スマホは「転送」）。探索済みの階へ移動できます。',hintYU:'PC版：Y / U で攻撃 / 防御スキルを選択',hintAtk:'攻撃スキルを習得！Y で攻撃スキルを切替、戦闘中は Z で発動（必要レベルが必要）。',hintDef:'防御スキルを習得！U で防御スキルを切替、戦闘中は X で発動。'},cheat:{title:'パスワードを入力',ph:'パスワード',ok:'OK',cancel:'キャンセル',wrong:'パスワードが違う',badge:'管理者モード',exit:'終了',on:'管理者モード：生命 / 攻撃 / 防御 +10000',off:'管理者モード終了。能力値を元に戻した',tpAny:'管理者：任意の階へ直接転送（地下含む）'},
+      hint:'方向キー / WASD で移動・敵に当たると照準・スペースか照準ボタンで戦闘',manual:'モンスター図鑑',teleport:'階層転送',help:'説明',newGame:'最初から',hintE:'魔物図鑑を入手！E で開く（スマホは「図鑑」）。各モンスターの数値を確認できます。',hintF:'階層転送の巻物を入手！F で使用（スマホは「転送」）。探索済みの階へ移動できます。',hintYU:'PC版：戦闘中は矢印キーでスキル選択——↑↓ で攻撃／防御を切替、←→ でスキル変更。Z で攻撃スキル、X で防御スキルを発動（スマホはカードをタップ）。',hintAtk:'攻撃スキルを習得！戦闘中は ↑↓ で攻撃の列へ、←→ でスキルを選び、Z で発動（必要レベルが必要。スマホはカードをタップ）。',hintDef:'防御スキルを習得！戦闘中は ↑↓ で防御の列へ、←→ でスキルを選び、X で発動（スマホはカードをタップ）。'},cheat:{title:'パスワードを入力',ph:'パスワード',ok:'OK',cancel:'キャンセル',wrong:'パスワードが違う',badge:'管理者モード',exit:'終了',on:'管理者モード：生命 / 攻撃 / 防御 +10000',off:'管理者モード終了。能力値を元に戻した',tpAny:'管理者：任意の階へ直接転送（地下含む）'},
   cb:{hp:'HP',en:'エナジー',st:'体力',atk:'攻',def:'防',vs:'VS',attack:'通常攻撃',skill:'スキル',flee:'逃走',hero:'プレイヤー',pause:'一時停止',resume:'再開',crit:'会心!',critArmed:'発動準備',critNeed:'エナジー20が必要',critNoDmg:'敵にダメージを与えられず、会心を発動できない',atkSkills:'攻撃スキル',defSkills:'防御スキル',pickHint:'装備するスキルをタップ',noneFound:'この種類のスキルはまだない',equipped:'{n} を装備',none:'—',stamShort:'体',needLv:'レベル {n} が必要',needEnStam:'エナジーか体力が不足',noAtkSkill:'攻撃スキル未装備',noDefSkill:'防御スキル未装備',atkUse:'攻撃技',defUse:'防御技'},
   status:{normal:'正常',poison:'毒',weak:'衰弱'},
   col:{y:'黄',b:'青',r:'赤',w:'白',p:'プラチナ'},
@@ -1615,10 +1617,10 @@ const I18N = {
   skill:{crimson:{n:'赤紅斬',d:'エナジー30消費。このラウンドの攻撃ダメージが2倍。'},pierce:{n:'破甲撃',d:'エナジー35消費。このラウンドは敵の防御を無視。'},shield:{n:'結晶盾',d:'エナジー25消費。体力+40、次に受けるダメージを半減（この回は攻撃しない）。'},breath:{n:'深呼吸',d:'エナジー消費なし。エナジー+30・体力+30（この回は攻撃しない）。'}},
   shop:{blue:{n:'青の下級商店',d:'金貨で能力と交換。'},red:{n:'赤の上級商店',d:'金貨でより強い能力と交換。'},old:{n:'青衣の老人',d:'経験値で能力と交換。'},older:{n:'年老いた青衣の老人',d:'経験値で大きな能力と交換。'},healer:{n:'白衣の治療老人',d:'金貨で毒や衰弱を治す。前を魔物が守っており、倒さないと近づけない。'},healP:{n:'解毒の老人',d:'地下専用。金貨で毒を治す。前を魔物が守っており、倒さないと近づけない。'},healW:{n:'衰弱回復の老人',d:'地下専用。金貨で衰弱を治す。前を魔物が守っており、倒さないと近づけない。'},
         keySell:{n:'鍵を売る老人',d:'金貨で鍵を買える（プラチナの鍵は売らない）。'},keyBuy:{n:'鍵を買い取る老人',d:'余った鍵を金貨に換える。'},exp:'経験',gold:'金貨',leave:'立ち去る',lvlPack:'レベルパック',packSub:'Lv+{l}・生命+{s}・攻+{a}・防+{d}',hpOpt:'生命 +{x}',stOpt:'体力 +{x}',atkOpt:'攻撃 +{x}',defOpt:'防御 +{x}',curePoison:'毒を治す',cureWeak:'衰弱を治す',buy:'交換',buyKey:'{k}を買う',sellKey:'{k}を売る',sell:'売る'},
-  manual:{title:'モンスター図鑑',desc:'この階のモンスターと、現在の力で倒した場合に受けると予想されるダメージ。',noFoe:'この階に敵はいません。',navHint:'矢印で選択 · Alt で詳細 · Q で退出',back:'戻る',speed:'速さ',reward:'報酬',yourHit:'毎ターン与ダメージ',foeHit:'毎ターン被ダメージ',altHint:'Alt で詳細、もう一度 Alt で一覧へ',nameLab:'名称',specialLab:'特殊',effectLab:'効果',hp:'体力',dealt:'与ダメージ',atkc:'攻撃回数',taken:'被ダメージ',total:'合計',energy:'エナジー',totalRounds:'総ターン',effTrue:'攻撃は防御を無視するが、神盾で一部を防げる。',effSolid:'与えるダメージが半減する。',effPierce:'防御の半分を無視して攻撃する。',effVampire:'与えたダメージの一部を吸収して回復。',effBoss:'数値が全面的に高い強敵。',effWeak:'衰弱させ、攻防低下と体力侵食の恐れ。',effPoison:'毒にし、歩行中に体力を削る恐れ。',effDrains:'体力を削り、攻撃を外しやすくする。',effMulti:'1ターンに複数回攻撃する。',effNone:'特殊能力なし。',kill:'{n} ラウンド',take:'想定被害',cantHurt:'撃破不可'},
+  manual:{title:'モンスター図鑑',desc:'この階のモンスターと、現在の力で倒した場合に受けると予想されるダメージ。',noFoe:'この階に敵はいません。',navHint:'矢印で選択 · Alt で詳細 · Q で退出',back:'戻る',speed:'速さ',reward:'報酬',yourHit:'毎ターン与ダメージ',foeHit:'毎ターン被ダメージ',altHint:'Alt で詳細、もう一度 Alt で一覧へ',nameLab:'名称',specialLab:'特殊',effectLab:'効果',hp:'体力',dealt:'与ダメージ',atkc:'攻撃回数',taken:'被ダメージ',total:'合計',energy:'エナジー',totalRounds:'総ターン',effTrue:'攻撃は防御を無視するが、防御スキルで一部を防げる。',effSolid:'与えるダメージが半減する。',effPierce:'防御の半分を無視して攻撃する。',effVampire:'与えたダメージの一部を吸収して回復。',effBoss:'数値が全面的に高い強敵。',effWeak:'衰弱させ、攻防低下と体力侵食の恐れ。',effPoison:'毒にし、歩行中に体力を削る恐れ。',effDrains:'体力を削り、攻撃を外しやすくする。',effMulti:'1ターンに複数回攻撃する。',effNone:'特殊能力なし。',kill:'{n} ラウンド',take:'想定被害',cantHurt:'撃破不可'},
   sk:{huangu:{name:'幻骨',desc:'防御の一部を攻撃に変換。与ダメージ≥レベルで発動し戦闘中累積。×1.5。'},tianti:{name:'天体',desc:'敵の現在エネルギーの半分を吸収（消費分を差引）。会心と併用時は吸収なし。×1.3。'},jinshi:{name:'金石',desc:'とどめを刺さず、与ダメージの30%を回復。×0.8。'},zhuanti:{name:'転体',desc:'敵のスタミナを減らす。×1.8。'},shenlei:{name:'神塁',desc:'ダメージ×5、ただし致命なし（最低HP1で残る）。'},yandun:{name:'岩盾',desc:'受けるダメージを2.5で割る。'},enerdun:{name:'エネルギー盾',desc:'被ダメージ÷1.5。敵は次ターン行動不能、残りの連続攻撃も中断。'},counterdun:{name:'反撃盾',desc:'被ダメージ÷1.3。ダメージを反射し、衰弱・毒も跳ね返す。'},healShield:{name:'治癒盾',desc:'被ダメージ÷2.5。防いだ分の60%を回復。'},shendun:{name:'神盾',desc:'防御+(HP+防御)×レベル÷100。3回の攻撃を防ぐ。'}},
   tp:{goTo:'{n} へ',descPerm:'転送の宝物を入手。到達した階へ自由に移動できる。',title:'階層転送',desc:'探索済みの階を選んで移動します。',cur:'現在',locked:'未探索',floor:'{n} 階',needScroll:'転送の巻物が必要です。マップで探してください',scrolls:'（残り {n} 個）',goHere:'下り階段へ戻る',bossLock:'最終フロアに入った——ここのボスを倒すまで出られない。',inSecret:'隠し部屋では階層転送を使えない。魔法陣から出てください。'},
-  help:{title:'遊び方',start:'わかりました',kbTitle:'ショートカット（PC）',kbManual:'E で図鑑を開く',kbTeleport:'F で階層転送を開く',kbAtk:'Y で攻撃スキルを選ぶ',kbDef:'U で防御スキルを選ぶ',items:[
+  help:{title:'遊び方',start:'わかりました',kbTitle:'ショートカット（PC）',kbManual:'E で図鑑を開く',kbTeleport:'F で階層転送を開く',kbAtk:'矢印キーでスキル選択、Z で攻撃スキル発動',kbDef:'矢印キーでスキル選択、X で防御スキル発動',items:[
     ['🎯','<b>移動と戦闘</b>：方向キー / WASD か画面のパッドで移動。敵に当たると赤枠でロックし、スペースか赤い照準ボタンで戦闘開始。'],
     ['⚔️','<b>戦闘</b>：自動で交互に攻撃し、ダメージ＝攻撃−防御。体力が低いほど外れやすい。戦闘中はスキル・一時停止・逃走がいつでも可能（減ったHPは戻らない）。'],
     ['✨','<b>エナジーとスキル</b>：攻撃・被弾でエナジー（上限100）が貯まり、赤紅斬・破甲撃・結晶盾・深呼吸に使う。'],
@@ -1633,7 +1635,7 @@ const I18N = {
 'ko':{
   title:'마탑',
   ui:{floor:'FLOOR',lv:'레벨',status:'상태',gold:'금화',hp:'생명',en:'에너지',st:'체력',atk:'공격',def:'방어',atkThr:'공격 임계',defThr:'방어 임계',exp:'경험',keys:'열쇠',aim:'조준',
-      hint:'방향키 / WASD 이동 · 몬스터에 부딪혀 조준 · 스페이스 또는 조준 버튼으로 전투',manual:'몬스터 도감',teleport:'층 이동',help:'도움말',newGame:'새 게임',hintE:'몬스터 도감 획득! E로 열기(모바일은 「도감」). 각 몬스터의 수치를 확인할 수 있어요.',hintF:'층 이동 두루마리 획득! F로 사용(모바일은 「이동」). 탐험한 층 사이를 이동할 수 있어요.',hintYU:'PC: Y / U로 공격 / 방어 스킬 선택',hintAtk:'공격 스킬 습득! Y로 공격 스킬 전환, 전투 중 Z로 발동(필요 레벨 충족 시).',hintDef:'방어 스킬 습득! U로 방어 스킬 전환, 전투 중 X로 발동.'},cheat:{title:'비밀번호 입력',ph:'비밀번호',ok:'확인',cancel:'취소',wrong:'비밀번호가 틀림',badge:'관리자 모드',exit:'종료',on:'관리자 모드: 생명 / 공격 / 방어 +10000',off:'관리자 모드 종료, 능력치 복원',tpAny:'관리자: 임의의 층으로 직접 이동(지하 포함)'},
+      hint:'방향키 / WASD 이동 · 몬스터에 부딪혀 조준 · 스페이스 또는 조준 버튼으로 전투',manual:'몬스터 도감',teleport:'층 이동',help:'도움말',newGame:'새 게임',hintE:'몬스터 도감 획득! E로 열기(모바일은 「도감」). 각 몬스터의 수치를 확인할 수 있어요.',hintF:'층 이동 두루마리 획득! F로 사용(모바일은 「이동」). 탐험한 층 사이를 이동할 수 있어요.',hintYU:'PC: 전투 중 방향키로 스킬 선택——↑↓ 공격/방어 전환, ←→ 스킬 변경; Z로 공격 스킬, X로 방어 스킬 발동(모바일은 카드 탭).',hintAtk:'공격 스킬 습득! 전투 중 ↑↓로 공격 열로 이동, ←→로 스킬 선택 후 Z로 발동(필요 레벨 충족 시; 모바일은 카드 탭).',hintDef:'방어 스킬 습득! 전투 중 ↑↓로 방어 열로 이동, ←→로 스킬 선택 후 X로 발동(모바일은 카드 탭).'},cheat:{title:'비밀번호 입력',ph:'비밀번호',ok:'확인',cancel:'취소',wrong:'비밀번호가 틀림',badge:'관리자 모드',exit:'종료',on:'관리자 모드: 생명 / 공격 / 방어 +10000',off:'관리자 모드 종료, 능력치 복원',tpAny:'관리자: 임의의 층으로 직접 이동(지하 포함)'},
   cb:{hp:'생명',en:'에너지',st:'체력',atk:'공',def:'방',vs:'VS',attack:'일반 공격',skill:'스킬',flee:'도망',hero:'플레이어',pause:'일시정지',resume:'계속',crit:'치명타!',critArmed:'준비됨',critNeed:'에너지 20 필요',critNoDmg:'적에게 피해를 줄 수 없어 치명타를 발동할 수 없음',atkSkills:'공격 스킬',defSkills:'방어 스킬',pickHint:'장착할 스킬을 탭하세요',noneFound:'아직 이 종류의 스킬이 없음',equipped:'{n} 장착',none:'—',stamShort:'체',needLv:'레벨 {n} 필요',needEnStam:'에너지나 체력 부족',noAtkSkill:'공격 스킬 미장착',noDefSkill:'방어 스킬 미장착',atkUse:'공격기',defUse:'방어기'},
   status:{normal:'정상',poison:'중독',weak:'쇠약'},
   col:{y:'노란',b:'파란',r:'빨간',w:'하얀',p:'백금'},
@@ -1643,10 +1645,10 @@ const I18N = {
   skill:{crimson:{n:'적홍참',d:'에너지 30 소모. 이번 라운드 공격 피해 2배.'},pierce:{n:'파갑격',d:'에너지 35 소모. 이번 라운드 적 방어 무시.'},shield:{n:'결정 방패',d:'에너지 25 소모. 체력 +40, 다음 받는 피해 절반(이번엔 공격하지 않음).'},breath:{n:'심호흡',d:'에너지 소모 없음. 에너지 +30, 체력 +30(이번엔 공격하지 않음).'}},
   shop:{blue:{n:'파란 하급 상점',d:'금화로 능력 교환.'},red:{n:'빨간 고급 상점',d:'금화로 더 강한 능력 교환.'},old:{n:'파란 옷 노인',d:'경험치로 능력 교환.'},older:{n:'늙은 파란 옷 노인',d:'경험치로 큰 능력 교환.'},healer:{n:'흰옷 치료 노인',d:'금화로 중독·쇠약 해제. 앞을 몬스터가 지키고 있어 물리쳐야 다가갈 수 있다.'},healP:{n:'해독 노인',d:'지하 전용. 금화로 중독 해제. 앞을 몬스터가 지키고 있어 물리쳐야 한다.'},healW:{n:'쇠약 회복 노인',d:'지하 전용. 금화로 쇠약 해제. 앞을 몬스터가 지키고 있어 물리쳐야 한다.'},
         keySell:{n:'열쇠 파는 노인',d:'금화로 열쇠를 구매(백금 열쇠는 판매 안 함).'},keyBuy:{n:'열쇠 사는 노인',d:'남는 열쇠를 금화로 교환.'},exp:'경험',gold:'금화',leave:'나가기',lvlPack:'레벨 패키지',packSub:'Lv+{l} · 생명+{s} · 공+{a} · 방+{d}',hpOpt:'생명 +{x}',stOpt:'체력 +{x}',atkOpt:'공격 +{x}',defOpt:'방어 +{x}',curePoison:'중독 해제',cureWeak:'쇠약 해제',buy:'교환',buyKey:'{k} 구매',sellKey:'{k} 판매',sell:'판매'},
-  manual:{title:'몬스터 도감',desc:'이 층의 몬스터와, 현재 능력으로 처치할 때 예상되는 피해입니다.',noFoe:'이 층에는 몬스터가 없습니다.',navHint:'방향키 선택 · Alt 상세 · Q 나가기',back:'뒤로',speed:'속도',reward:'보상',yourHit:'턴당 내 피해',foeHit:'턴당 받는 피해',altHint:'Alt로 상세, 다시 Alt로 목록',nameLab:'이름',specialLab:'특수',effectLab:'효과',hp:'체력',dealt:'주는 피해',atkc:'공격 횟수',taken:'받는 피해',total:'합계',energy:'에너지',totalRounds:'총 턴',effTrue:'공격이 방어를 무시하지만, 신성 방패는 일부를 막는다.',effSolid:'주는 피해가 절반으로 줄어든다.',effPierce:'방어의 절반을 무시하고 공격한다.',effVampire:'주는 피해의 일부를 흡수해 회복한다.',effBoss:'능력치가 전반적으로 높은 강적.',effWeak:'쇠약하게 만들어 공방 감소·체력 침식.',effPoison:'중독시켜 이동 중 체력을 깎는다.',effDrains:'체력을 깎아 공격을 빗나가게 한다.',effMulti:'한 턴에 여러 번 공격한다.',effNone:'특수 능력 없음.',kill:'{n} 라운드',take:'예상 피해',cantHurt:'격파 불가'},
+  manual:{title:'몬스터 도감',desc:'이 층의 몬스터와, 현재 능력으로 처치할 때 예상되는 피해입니다.',noFoe:'이 층에는 몬스터가 없습니다.',navHint:'방향키 선택 · Alt 상세 · Q 나가기',back:'뒤로',speed:'속도',reward:'보상',yourHit:'턴당 내 피해',foeHit:'턴당 받는 피해',altHint:'Alt로 상세, 다시 Alt로 목록',nameLab:'이름',specialLab:'특수',effectLab:'효과',hp:'체력',dealt:'주는 피해',atkc:'공격 횟수',taken:'받는 피해',total:'합계',energy:'에너지',totalRounds:'총 턴',effTrue:'공격이 방어를 무시하지만, 방어 스킬은 일부를 막는다.',effSolid:'주는 피해가 절반으로 줄어든다.',effPierce:'방어의 절반을 무시하고 공격한다.',effVampire:'주는 피해의 일부를 흡수해 회복한다.',effBoss:'능력치가 전반적으로 높은 강적.',effWeak:'쇠약하게 만들어 공방 감소·체력 침식.',effPoison:'중독시켜 이동 중 체력을 깎는다.',effDrains:'체력을 깎아 공격을 빗나가게 한다.',effMulti:'한 턴에 여러 번 공격한다.',effNone:'특수 능력 없음.',kill:'{n} 라운드',take:'예상 피해',cantHurt:'격파 불가'},
   sk:{huangu:{name:'환골',desc:'방어 일부를 공격으로 전환. 입힌 피해≥레벨일 때 발동하며 전투 내내 누적. ×1.5.'},tianti:{name:'천체',desc:'적의 현재 에너지 절반 흡수(소모량 제외). 치명타와 함께 쓰면 흡수 없음. ×1.3.'},jinshi:{name:'금석',desc:'치명타 없이 입힌 피해의 30% 회복. ×0.8.'},zhuanti:{name:'전신',desc:'적의 체력을 감소. ×1.8.'},shenlei:{name:'신루',desc:'피해 ×5, 단 치명 불가(적 HP 1로 남음).'},yandun:{name:'암석 방패',desc:'받는 피해를 2.5로 나눔.'},enerdun:{name:'에너지 방패',desc:'받는 피해 ÷1.5. 적은 다음 턴 행동 불가, 남은 연속공격도 중단.'},counterdun:{name:'반격 방패',desc:'받는 피해 ÷1.3. 피해를 반사하고 약화·중독도 되돌림.'},healShield:{name:'치유 방패',desc:'받는 피해 ÷2.5. 막은 피해의 60% 회복.'},shendun:{name:'신성 방패',desc:'방어 +(HP+방어)×레벨÷100. 3회 공격을 막음.'}},
   tp:{goTo:'{n}(으)로',descPerm:'전송 보물 획득 — 도달한 층으로 자유롭게 이동할 수 있다.',title:'층 이동',desc:'이동할 탐험한 층을 선택하세요.',cur:'현재',locked:'미탐험',floor:'{n} 층',needScroll:'전송 두루마리가 필요합니다 — 맵에서 찾으세요',scrolls:'(남은 수 {n})',goHere:'계단으로 돌아가기',bossLock:'최종 층에 들어섰다——이곳의 보스를 쓰러뜨리기 전에는 나갈 수 없다.',inSecret:'비밀의 방에서는 층 이동을 사용할 수 없습니다. 마법진으로 나가세요.'},
-  help:{title:'플레이 방법',start:'알겠습니다',kbTitle:'단축키 (PC)',kbManual:'E로 도감 열기',kbTeleport:'F로 층 이동 열기',kbAtk:'Y로 공격 스킬 선택',kbDef:'U로 방어 스킬 선택',items:[
+  help:{title:'플레이 방법',start:'알겠습니다',kbTitle:'단축키 (PC)',kbManual:'E로 도감 열기',kbTeleport:'F로 층 이동 열기',kbAtk:'방향키로 스킬 선택, Z로 공격 스킬 발동',kbDef:'방향키로 스킬 선택, X로 방어 스킬 발동',items:[
     ['🎯','<b>이동과 전투</b>: 방향키 / WASD 또는 화면 패드로 이동. 몬스터에 부딪히면 빨간 테두리로 조준되고, 스페이스나 빨간 조준 버튼으로 전투.'],
     ['⚔️','<b>전투</b>: 자동으로 번갈아 공격하며 피해 = 공격 − 방어. 체력이 낮을수록 빗나가기 쉬움. 전투 중 스킬·일시정지·도망 가능(잃은 생명은 돌아오지 않음).'],
     ['✨','<b>에너지와 스킬</b>: 공격·피격으로 에너지(최대 100)가 쌓여 적홍참·파갑격·결정 방패·심호흡에 사용.'],
@@ -2804,8 +2806,10 @@ function sizeBoard(){
     sp.style.minHeight='';
     if(window.innerWidth>760 && !coarse){
       /* DESKTOP sidebar lines up with the board height. On touch (tablet/landscape) the panel keeps its natural height + scrolls. */
-      sp.style.height = (GRID*tile + 24) + 'px';
-      sp.style.marginTop = '0px';
+      var _mf=byId('mapFrame'), _fb=byId('floorBar'), _mw=byId('mapWrap');
+      var _gap=10; try{ if(_mw){ var _g=getComputedStyle(_mw).rowGap; if(_g&&_g.indexOf('px')>=0) _gap=parseFloat(_g)||10; } }catch(_e){}
+      sp.style.height = (_mf && _mf.offsetHeight ? _mf.offsetHeight : (GRID*tile + 24)) + 'px';
+      sp.style.marginTop = (_fb && _fb.offsetHeight ? (_fb.offsetHeight + _gap) : 44) + 'px';   /* drop to the board's top, clearing the floor bar above the map */
     } else { sp.style.height=''; sp.style.marginTop=''; }
   }
 }
@@ -3509,7 +3513,22 @@ function cbSwitchSkill(kind, dir){
   let i=list.indexOf(cur); if(i<0) i=0;
   i=(i+dir+list.length)%list.length;
   if(kind==='atk') pl.atkEquip=list[i]; else pl.defEquip=list[i];
+  if(state.combat) state.combat.skCur=kind;
   refreshCombatButtons(); renderSkillSlots(); renderCombatSkillSwitch();
+}
+function _cbSkRows(pl){ var r=[]; if(pl.atkSkills&&pl.atkSkills.length)r.push('atk'); if(pl.defSkills&&pl.defSkills.length)r.push('def'); return r; }
+function cbCursorRow(){
+  var c=state.combat, pl=state.player; if(!c||c.ended||!pl) return; ensureSkills(pl);
+  var rows=_cbSkRows(pl); if(!rows.length) return;
+  var i=rows.indexOf(c.skCur); if(i<0) i=0;
+  c.skCur=rows[(i+1)%rows.length];                              // toggle attack<->defence row (wraps; never sticks, even with one row)
+  renderCombatSkillSwitch();
+}
+function cbCursorMove(dir){
+  var c=state.combat, pl=state.player; if(!c||c.ended||!pl) return; ensureSkills(pl);
+  var rows=_cbSkRows(pl); if(!rows.length) return;
+  if(rows.indexOf(c.skCur)<0) c.skCur=rows[0];
+  cbSwitchSkill(c.skCur, dir);                                  // cycles only level-met skills, wraps (cbSwitchSkill already filters/wraps)
 }
 function cbEquipSkill(kind, id){
   const pl=state.player; if(!pl) return; ensureSkills(pl);
@@ -3517,12 +3536,14 @@ function cbEquipSkill(kind, id){
   if(!list || list.indexOf(id)<0) return;
   const s=SKILL_BY_ID[id]; if(s && pl.lv<s.lv){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }   // locked until you reach the level
   if(kind==='atk') pl.atkEquip=id; else pl.defEquip=id;
+  if(state.combat) state.combat.skCur=kind;
   refreshCombatButtons(); renderSkillSlots(); renderCombatSkillSwitch();
 }
 function renderCombatSkillSwitch(){
   const c=state.combat, pl=state.player, box=byId('cbSwitch'); if(!box) return;
   if(!c || c.ended || !pl){ box.style.display='none'; box.innerHTML=''; return; }
   ensureSkills(pl);
+  { var _rows=[]; if(pl.atkSkills&&pl.atkSkills.length)_rows.push('atk'); if(pl.defSkills&&pl.defSkills.length)_rows.push('def'); if(_rows.length&&(!c.skCur||_rows.indexOf(c.skCur)<0))c.skCur=_rows[0]; }
   function sec(kind){
     const list = kind==='atk'?pl.atkSkills:pl.defSkills;
     if(!list || !list.length) return '';
@@ -3534,7 +3555,7 @@ function renderCombatSkillSwitch(){
     for(let i=0;i<list.length;i++){ const id=list[i], s=SKILL_BY_ID[id], locked=(s && pl.lv<s.lv);
       cards+='<button class="cbSwCard'+(id===cur?' sel':'')+(locked?' lock':'')+'" data-k="'+kind+'" data-id="'+id+'">'+skillName(id)+(locked?'<span class="cbSwLv">Lv'+s.lv+'</span>':'')+'</button>'; }
     const dis = equippable.length<2?' disabled':'';
-    return '<div class="cbSwSec '+kind+'">'+
+    return '<div class="cbSwSec '+kind+(c.skCur===kind?' cursor':'')+'">'+
       '<div class="cbSwTitle">'+lab+'</div>'+
       '<div class="cbSwCards">'+cards+'</div>'+
       '<div class="cbSwBar"><button class="cbSwArr" data-k="'+kind+'" data-d="-1"'+dis+'>\u25c0</button><span class="cbSwSel">'+skillName(cur)+'</span><button class="cbSwArr" data-k="'+kind+'" data-d="1"'+dis+'>\u25b6</button></div>'+
@@ -3721,7 +3742,7 @@ function foeTurn(){
       }
       if(c.shendunHits>0) c.shendunHits--;
       const before=dmg;
-      if(!foe.trueDmg && def && def.div && def.div>1){ dmg=Math.ceil(dmg/def.div); }   // 岩盾/能量盾/反擊盾/療癒盾 mitigation — true damage (mages) bypasses it
+      if(def && def.div && def.div>1){ dmg=Math.ceil(dmg/def.div); }   // 岩盾/能量盾/反擊盾/療癒盾 mitigation — also reduces true damage (mages) now
       if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       taken+=dmg; anyHit=true; hits++;
@@ -4641,10 +4662,12 @@ const DISMISS_OVERLAYS=['shop','manual','teleport','help','skillPicker','loot','
 function exitTopOverlay(){ for(let i=0;i<DISMISS_OVERLAYS.length;i++){ const id=DISMISS_OVERLAYS[i], el=byId(id); if(el&&el.classList.contains('show')){ hide(id); return true; } } return false; }
 function updateExitHint(){
   const el=byId('exitHint'); if(!el) return;
-  let open=false; for(let i=0;i<DISMISS_OVERLAYS.length;i++){ const o=byId(DISMISS_OVERLAYS[i]); if(o&&o.classList.contains('show')){ open=true; break; } }
-  if(open){ let pc=true; try{ pc=!!(window.matchMedia&&window.matchMedia('(pointer:fine)').matches); }catch(e){}
-    el.textContent=t(pc?'msg.exitHintPC':'msg.exitHintTouch'); el.classList.add('show'); }
-  else el.classList.remove('show');
+  let openModal=null; for(let i=0;i<DISMISS_OVERLAYS.length;i++){ const o=byId(DISMISS_OVERLAYS[i]); if(o&&o.classList.contains('show')){ openModal=(o.querySelector&&o.querySelector('.modal'))||o; break; } }
+  if(openModal){ let pc=true; try{ pc=!!(window.matchMedia&&window.matchMedia('(pointer:fine)').matches); }catch(e){}
+    el.textContent=t(pc?'msg.exitHintPC':'msg.exitHintTouch');
+    try{ if(el.parentNode!==openModal) openModal.appendChild(el); }catch(_e){}      /* sit inside the open window, not the screen corner */
+    el.classList.add('show'); }
+  else { el.classList.remove('show'); try{ if(el.parentNode&&el.parentNode!==document.body) document.body.appendChild(el); }catch(_e){} }
 }
 /* ===== hidden god-mode cheat (Ctrl+Alt+Shift+T) — in-game only, reversible ===== */
 function inGame(){
@@ -4853,6 +4876,12 @@ function bindInput(){
         e.preventDefault(); combatAtkSkill();                   /* Z = attack skill */
       } else if((e.key==='x'||e.key==='X') && state.combat && !state.combat.ended){
         e.preventDefault(); combatDefSkill();                   /* X = defence skill */
+      } else if((e.key==='ArrowUp'||e.key==='ArrowDown') && state.combat && !state.combat.ended){
+        e.preventDefault(); cbCursorRow();                      /* up/down = switch attack / defence skill row */
+      } else if(e.key==='ArrowLeft' && state.combat && !state.combat.ended){
+        e.preventDefault(); cbCursorMove(-1);                   /* left  = previous skill in the cursor row */
+      } else if(e.key==='ArrowRight' && state.combat && !state.combat.ended){
+        e.preventDefault(); cbCursorMove(1);                    /* right = next skill in the cursor row */
       } else if((e.key==='v'||e.key==='V') && state.combat && !state.combat.ended){
         e.preventDefault(); fleeCombat();                       /* V = flee */
       }
@@ -6628,7 +6657,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·56 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·59 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6636,7 +6665,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·56 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·59 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
