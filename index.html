@@ -62,6 +62,8 @@ select.langsel{height:34px;border-radius:var(--r-s);padding:0 8px;font-size:12px
   background:#d7dae6;border:1px solid #aab;
   box-shadow:0 2px 0 rgba(0,0,0,.25);outline:none;}
 select.langsel option{color:#15151c;background:#eef0f7;}
+select:not(.langsel){color:var(--txt);}
+select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 /* ---- top bar: brand (left) · floor (center) · settings (right) ---- */
 .topbar{position:relative;}
 .brand{flex:1 1 0;min-width:0;}
@@ -6626,7 +6628,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·54 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·56 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6634,7 +6636,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·54 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·56 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -7048,6 +7050,22 @@ function _abComboToggle(cb){
   else { var at=box.querySelector('[data-k="atkc"]'),mn=box.querySelector('[data-k="atkcMin"]'),mx=box.querySelector('[data-k="atkcMax"]'); if(at)at.value=1; if(mn)mn.value=0; if(mx)mx.value=0; }
 }
 
+function _dtMode(btn){
+  if(!btn) return;
+  var box=btn.closest('[data-abset]'); if(!box) return;
+  var type=btn.getAttribute('data-dtbtn')||'ice';
+  var seg=box.querySelector('[data-dtseg]'); if(seg) seg.setAttribute('data-curtype',type);
+  var inp=box.querySelector('[data-k="deathTerrain"]'); if(inp) inp.value=type;
+  var btns=box.querySelectorAll('[data-dtbtn]');
+  for(var i=0;i<btns.length;i++){ var b=btns[i], act=(b.getAttribute('data-dtbtn')===type);
+    b.style.background=act?'var(--gold)':'transparent'; b.style.color=act?'#17101f':'var(--txt-dim)'; b.style.fontWeight=act?'700':'500'; }
+}
+function _dtToggle(cb){
+  var row=cb.closest('.adRowItem')||document, box=row.querySelector('[data-abset="deathTerrain"]'); if(!box) return;
+  box.style.display=cb.checked?'inline-flex':'none';
+  if(cb.checked){ var seg=box.querySelector('[data-dtseg]'); var type=(seg&&seg.getAttribute('data-curtype'))||'ice'; _dtMode(box.querySelector('[data-dtbtn="'+type+'"]')); }
+  else { var inp=box.querySelector('[data-k="deathTerrain"]'); if(inp) inp.value=''; }
+}
 function adMonAbilities(m){
   var h='<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
   h+='<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:9px 15px;padding:3px 0;align-items:center">';
@@ -7066,8 +7084,12 @@ function adMonAbilities(m){
   h+=_abChip({key:'critDrainStam', cb:'data-abtog="critDrainStam" onchange="_abToggle(this)"', label:t('admin.critDrainStam'), on:(m.critDrainStam||0)>0, set:_abNum('critDrainStam',5,0,(m.critDrainStam||0))});
   var sdOn=((m.statDownPct||0)>0||(m.statDownN||0)>0);
   h+=_abChip({key:'statDown', cb:'data-abtog="statDown" onchange="_abToggle(this)"', label:t('admin.abStatDown'), on:sdOn, set:_abNum('statDownPct',10,0,(m.statDownPct||0))+'<span style="opacity:.6">%</span>'+_abNum('statDownN',5,0,(m.statDownN||0))+'<span style="opacity:.6">+</span>'});
-  var dtSel='<select data-k="deathTerrain" data-on="ice" data-off="" style="padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:13px"><option value=""'+(!m.deathTerrain?' selected':'')+'>\u2014</option><option value="ice"'+(m.deathTerrain==='ice'?' selected':'')+'>'+t('admin.deathIce')+'</option><option value="lava"'+(m.deathTerrain==='lava'?' selected':'')+'>'+t('admin.deathLava')+'</option></select>';
-  h+=_abChip({key:'deathTerrain', cb:'data-abtog="deathTerrain" onchange="_abToggle(this)"', label:t('admin.abDeath'), on:!!m.deathTerrain, set:dtSel});
+  var _dt=m.deathTerrain||'', _dtType=(_dt==='lava')?'lava':'ice';
+  var _dsc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;';
+  var _dIce=_dsc+'background:'+(_dtType==='ice'?'var(--gold)':'transparent')+';color:'+(_dtType==='ice'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_dtType==='ice'?'700':'500')+';';
+  var _dLava=_dsc+'background:'+(_dtType==='lava'?'var(--gold)':'transparent')+';color:'+(_dtType==='lava'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_dtType==='lava'?'700':'500')+';';
+  var dtSeg='<input type="hidden" data-k="deathTerrain" value="'+_dt+'">'+'<span data-dtseg data-curtype="'+_dtType+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden">'+'<button type="button" data-dtbtn="ice" onclick="event.stopPropagation();_dtMode(this)" style="'+_dIce+'">'+t('admin.deathIce')+'</button>'+'<button type="button" data-dtbtn="lava" onclick="event.stopPropagation();_dtMode(this)" style="'+_dLava+'">'+t('admin.deathLava')+'</button>'+'</span>';
+  h+=_abChip({key:'deathTerrain', cb:'data-abtog="deathTerrain" onchange="_dtToggle(this)"', label:t('admin.abDeath'), on:!!m.deathTerrain, set:dtSeg});
   h+='</div></div>';
   return h;
 }
