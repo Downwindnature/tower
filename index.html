@@ -3779,7 +3779,7 @@ function foeTurn(){
   }
   if(foeCrit) c.foeEn=0;   // crit consumed: empty the gauge so it must fully recharge before the next crit
   if(anyHit && foe.drainEn>0){ try{ playEventFx('me','ability','drainEn'); }catch(_e){} }   /* 吸能特效 */
-  if(anyHit && (foe.statDownPct>0||foe.statDownN>0)){ const _rp=1-(foe.statDownPct||0)/100; pl.atk=Math.max(1,Math.floor(pl.atk*_rp)-(foe.statDownN||0)); pl.def=Math.max(0,Math.floor(pl.def*_rp)-(foe.statDownN||0)); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ playEventFx('me','ability','statDown'); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
+  if(anyHit && (foe.statDownPct>0||foe.statDownN>0)){ const _rp=1-(foe.statDownPct||0)/100; var _sdOA=pl.atk, _sdOD=pl.def; pl.atk=Math.max(1,Math.floor(pl.atk*_rp)-(foe.statDownN||0)); pl.def=Math.max(0,Math.floor(pl.def*_rp)-(foe.statDownN||0)); c.statDownAtk=(c.statDownAtk||0)+(_sdOA-pl.atk); c.statDownDef=(c.statDownDef||0)+(_sdOD-pl.def); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ playEventFx('me','ability','statDown'); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
   c.halveNext=false;
   applyMasterSkill(foe, taken);
   if(def && def.id==='healShield'){ const healed=Math.floor((beforeTotal-taken)*0.6); if(healed>0){ pl.hp+=healed; log('me',fmt(t('msg.healShield'),{n:healed})); } }
@@ -3902,6 +3902,7 @@ function closeCombat(){
   byId('cbCritBtn').style.display='';
   const win=c.win, wasBoss=c.wasBoss;
   state.combat=null; state.busy=false;
+  if(c.statDownAtk||c.statDownDef){ state.player.atk+=(c.statDownAtk||0); state.player.def+=(c.statDownDef||0); }   /* 削攻防也只在戰鬥中，結束即還原 */
   if(win){
     renderAll(); mpPresence();
     if(wasBoss){ if(state.floor<0) onFinalBossDefeated(); else onBossDefeated(); }
@@ -3914,6 +3915,7 @@ function fleeCombat(){
   const c=state.combat; if(!c||c.done) return;
   if(c.foe && c.foe.noFlee){ try{ toast(t('msg.cantFlee')); }catch(e){} return; }   /* 禁止逃跑 */
   c.foe.hp=c.foePreHp; c.done=true; state.busy=false; state.target=null; state.combat=null;
+  if(c.statDownAtk||c.statDownDef){ state.player.atk+=(c.statDownAtk||0); state.player.def+=(c.statDownDef||0); }
   hide('combat'); toast(t('msg.fled')); renderAll(); markFeat('flee');
 }
 function monName(foe){
@@ -6682,7 +6684,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·76 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·79 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6690,7 +6692,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·76 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·79 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
