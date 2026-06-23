@@ -1535,7 +1535,7 @@ const I18N = {
         keySell:{n:'賣鑰匙的老人',d:'以金幣購買鑰匙（不販售白金鑰匙）。'},keyBuy:{n:'收鑰匙的老人',d:'把多餘的鑰匙換成金幣。'},exp:'經驗',gold:'金幣',leave:'離開',lvlPack:'升級套裝',packSub:'Lv+{l} · 生命+{s} · 攻+{a} · 防+{d}',hpOpt:'生命 +{x}',stOpt:'體力 +{x}',atkOpt:'攻擊 +{x}',defOpt:'防禦 +{x}',curePoison:'解除中毒',cureWeak:'解除衰弱',buy:'兌換',buyKey:'買 {k}',sellKey:'賣 {k}',sell:'賣出'},
   manual:{title:'怪物手冊',desc:'下列為本層怪物的能力與「以目前狀態擊敗對方時，你預計會承受的傷害」。',noFoe:'本層沒有怪物。',navHint:'方向鍵選怪 · Alt 看詳細 · Q 離開',back:'返回',speed:'速度',reward:'報酬',yourHit:'你每回合傷害',foeHit:'每回合受傷',altHint:'按 Alt 查看完整資料，再按一次返回列表',nameLab:'名稱',specialLab:'特殊',effectLab:'效果',hp:'體力',dealt:'給予傷害',atkc:'攻回數',taken:'承受傷害',total:'總',energy:'能量',totalRounds:'總回合',effTrue:'攻擊無視玩家防禦力，但防禦技能仍可抵擋部分傷害。',effSolid:'你對它造成的傷害減半。',effPierce:'攻擊會無視你一半的防禦。',effVampire:'攻擊時吸取部分傷害回復自身。',effBoss:'強大的頭目，數值全面提升。',effWeak:'攻擊有機率使你衰弱，降低攻防並侵蝕生命。',effPoison:'攻擊有機率使你中毒，行走時持續扣血。',effDrains:'攻擊會降低你的體力，使你更易落空。',effMulti:'每回合會連續攻擊多次。',effNone:'沒有特殊能力。',kill:'需 {n} 回合',take:'預計受傷',cantHurt:'無法擊破'},
   sk:{huangu:{name:'幻骨',desc:'將少量防禦轉為攻擊，造成傷害≥等級時生效、整場疊加。傷害×1.5。'},tianti:{name:'天體',desc:'吸取怪物現有能量的一半（扣除消耗）；與爆擊同用則不吸。傷害×1.3。'},jinshi:{name:'金石',desc:'手下留情不致死，回復造成傷害的30%。傷害×0.8。'},zhuanti:{name:'轉體',desc:'降低怪物體力。傷害×1.8。'},shenlei:{name:'神壘',desc:'傷害×5，但不致死（最低保留1滴血）。'},yandun:{name:'岩盾',desc:'受到的傷害除以2.5。'},enerdun:{name:'能量盾',desc:'受傷除以1.5；怪物下回合無法行動，並中止本回合剩餘連擊。'},counterdun:{name:'反擊盾',desc:'受傷除以1.3；反彈傷害，並反射衰弱與中毒。'},healShield:{name:'療癒盾',desc:'受傷除以2.5；回復被擋下傷害的60%。'},shendun:{name:'神盾',desc:'防禦提升(生命+防禦)×等級÷100，可抵擋3次攻擊。'}},
-  tp:{goTo:'前往 {n}',descPerm:'已取得傳送寶物，可自由前往到過的樓層。',title:'樓層傳送',desc:'選擇要前往的已探索樓層。',cur:'目前',locked:'未探索',floor:'{n} 樓',needScroll:'需要傳送卷軸，請在地圖上尋找',scrolls:'（剩餘 {n} 張）',goHere:'回到下樓梯',bossLock:'已踏入最終樓層，擊敗此處的首領前無法離開',inSecret:'密室之中無法使用樓層傳送，請走魔法陣離開'},
+  tp:{goTo:'前往 {n}',descPerm:'已取得傳送寶物，可自由前往到過的樓層。',title:'樓層傳送',desc:'選擇要前往的已探索樓層。',cur:'目前',locked:'未探索',floor:'{n} 樓',needScroll:'需要傳送卷軸，請在地圖上尋找',scrolls:'（剩餘 {n} 張）',goHere:'回到下樓梯',bossLock:'已踏入最終樓層，擊敗此處的首領前無法離開',blocked:'此樓層有怪物封鎖了傳送，擊敗它才能使用',inSecret:'密室之中無法使用樓層傳送，請走魔法陣離開'},
   help:{title:'玩法說明',start:'我了解了',kbTitle:'快捷鍵（電腦版）',kbManual:'按 E 開啟怪物手冊',kbTeleport:'按 F 開啟樓層傳送',kbAtk:'方向鍵 ↑↓←→ 選技能、Z 發動攻擊技',kbDef:'方向鍵 ↑↓←→ 選技能、X 發動防禦技',items:[
     ['🎯','<b>移動與開戰</b>：方向鍵 / WASD 或畫面方向鍵移動；撞向怪物會以紅框鎖定，按空白鍵或紅色瞄準鍵展開戰鬥。'],
     ['⚔️','<b>戰鬥</b>：雙方會自動輪流攻擊，傷害 = 攻擊 − 防禦。體力越低越容易落空。戰鬥中可隨時施放技能、暫停或逃跑（已扣的生命不會回復）。'],
@@ -1563,7 +1563,7 @@ const I18N = {
         keySell:{n:'卖钥匙的老人',d:'以金币购买钥匙（不贩售白金钥匙）。'},keyBuy:{n:'收钥匙的老人',d:'把多余的钥匙换成金币。'},exp:'经验',gold:'金币',leave:'离开',lvlPack:'升级套装',packSub:'Lv+{l} · 生命+{s} · 攻+{a} · 防+{d}',hpOpt:'生命 +{x}',stOpt:'体力 +{x}',atkOpt:'攻击 +{x}',defOpt:'防御 +{x}',curePoison:'解除中毒',cureWeak:'解除虚弱',buy:'兑换',buyKey:'买 {k}',sellKey:'卖 {k}',sell:'卖出'},
   manual:{title:'怪物手册',desc:'以下为本层怪物的能力，以及「以当前状态击败对方时，你预计承受的伤害」。',noFoe:'本层没有怪物。',navHint:'方向键选怪 · Alt 看详细 · Q 离开',back:'返回',speed:'速度',reward:'报酬',yourHit:'你每回合伤害',foeHit:'每回合受伤',altHint:'按 Alt 查看完整资料，再按一次返回列表',nameLab:'名称',specialLab:'特殊',effectLab:'效果',hp:'体力',dealt:'给予伤害',atkc:'攻回数',taken:'承受伤害',total:'总',energy:'能量',totalRounds:'总回合',effTrue:'攻击无视玩家防御力，但防御技能仍可抵挡部分伤害。',effSolid:'你对它造成的伤害减半。',effPierce:'攻击会无视你一半的防御。',effVampire:'攻击时吸取部分伤害回复自身。',effBoss:'强大的头目，数值全面提升。',effWeak:'攻击有几率使你虚弱，降低攻防并侵蚀生命。',effPoison:'攻击有几率使你中毒，行走时持续扣血。',effDrains:'攻击会降低你的体力，使你更易落空。',effMulti:'每回合会连续攻击多次。',effNone:'没有特殊能力。',kill:'需 {n} 回合',take:'预计受伤',cantHurt:'无法击破'},
   sk:{huangu:{name:'幻骨',desc:'将少量防御转为攻击，造成伤害≥等级时生效、整场叠加。伤害×1.5。'},tianti:{name:'天体',desc:'吸取怪物现有能量的一半（扣除消耗）；与爆击同用则不吸。伤害×1.3。'},jinshi:{name:'金石',desc:'手下留情不致死，回复造成伤害的30%。伤害×0.8。'},zhuanti:{name:'转体',desc:'降低怪物体力。伤害×1.8。'},shenlei:{name:'神垒',desc:'伤害×5，但不致死（最低保留1滴血）。'},yandun:{name:'岩盾',desc:'受到的伤害除以2.5。'},enerdun:{name:'能量盾',desc:'受伤除以1.5；怪物下回合无法行动，并中止本回合剩余连击。'},counterdun:{name:'反击盾',desc:'受伤除以1.3；反弹伤害，并反射衰弱与中毒。'},healShield:{name:'疗愈盾',desc:'受伤除以2.5；回复被挡下伤害的60%。'},shendun:{name:'神盾',desc:'防御提升(生命+防御)×等级÷100，可抵挡3次攻击。'}},
-  tp:{goTo:'前往 {n}',descPerm:'已取得传送宝物，可自由前往到过的楼层。',title:'楼层传送',desc:'选择要前往的已探索楼层。',cur:'当前',locked:'未探索',floor:'{n} 楼',needScroll:'需要传送卷轴，请在地图上寻找',scrolls:'（剩余 {n} 张）',goHere:'回到下楼梯',bossLock:'已踏入最终楼层，击败此处的首领前无法离开',inSecret:'密室之中无法使用楼层传送，请走魔法阵离开'},
+  tp:{goTo:'前往 {n}',descPerm:'已取得传送宝物，可自由前往到过的楼层。',title:'楼层传送',desc:'选择要前往的已探索楼层。',cur:'当前',locked:'未探索',floor:'{n} 楼',needScroll:'需要传送卷轴，请在地图上寻找',scrolls:'（剩余 {n} 张）',goHere:'回到下楼梯',bossLock:'已踏入最终楼层，击败此处的首领前无法离开',blocked:'此楼层有怪物封锁了传送，击败它才能使用',inSecret:'密室之中无法使用楼层传送，请走魔法阵离开'},
   help:{title:'玩法说明',start:'我知道了',kbTitle:'快捷键（电脑版）',kbManual:'按 E 打开怪物手册',kbTeleport:'按 F 打开楼层传送',kbAtk:'方向键 ↑↓←→ 选技能、Z 发动攻击技',kbDef:'方向键 ↑↓←→ 选技能、X 发动防御技',items:[
     ['🎯','<b>移动与开战</b>：方向键 / WASD 或屏幕方向键移动；撞向怪物会以红框锁定，按空格或红色瞄准键开战。'],
     ['⚔️','<b>战斗</b>：双方会自动轮流攻击，伤害 = 攻击 − 防御。体力越低越容易落空。战斗中可随时施放技能、暂停或逃跑（已扣的生命不会回复）。'],
@@ -1591,7 +1591,7 @@ const I18N = {
         keySell:{n:'Key Seller',d:'Buy keys with gold (no platinum key).'},keyBuy:{n:'Key Buyer',d:'Trade spare keys for gold.'},exp:'EXP',gold:'Gold',leave:'Leave',lvlPack:'Level Pack',packSub:'Lv+{l} · HP+{s} · ATK+{a} · DEF+{d}',hpOpt:'HP +{x}',stOpt:'Stamina +{x}',atkOpt:'ATK +{x}',defOpt:'DEF +{x}',curePoison:'Cure Poison',cureWeak:'Cure Weaken',buy:'Trade',buyKey:'Buy {k}',sellKey:'Sell {k}',sell:'Sell'},
   manual:{title:'Bestiary',desc:'Each monster on this floor, with the damage you are expected to take if you defeat it at your current strength.',noFoe:'No monsters on this floor.',navHint:'Arrows select · Alt detail · Q exit',back:'Back',speed:'Speed',reward:'Reward',yourHit:'Your dmg/round',foeHit:'Dmg taken/round',altHint:'Press Alt for full info, Alt again to go back',nameLab:'Name',specialLab:'Special',effectLab:'Effect',hp:'HP',dealt:'Dmg dealt',atkc:'Hits',taken:'Dmg taken',total:'Total',energy:'Energy',totalRounds:'Rounds',effTrue:'Attacks ignore your defence, but defence skills still block part.',effSolid:'Your damage to it is halved.',effPierce:'Attacks ignore half of your defence.',effVampire:'Heals itself for part of the damage it deals.',effBoss:'A powerful boss with raised stats.',effWeak:'May weaken you, lowering ATK/DEF and draining HP.',effPoison:'May poison you, draining HP as you walk.',effDrains:'Attacks lower your stamina, making you miss more.',effMulti:'Attacks multiple times per round.',effNone:'No special ability.',kill:'{n} rounds',take:'Est. damage',cantHurt:'Cannot harm'},
   sk:{huangu:{name:'Phantom Bone',desc:'Turn a little DEF into ATK; takes hold when the hit reaches your level, stacking all battle. x1.5.'},tianti:{name:'Celestial',desc:'Drain half the foe current energy (minus the cost); none if paired with a crit. x1.3.'},jinshi:{name:'Goldstone',desc:'Non-lethal; heal 30% of the damage dealt. x0.8.'},zhuanti:{name:'Pivot',desc:'Drain the foe stamina. x1.8.'},shenlei:{name:'Divine Rampart',desc:'x5 damage but non-lethal (leaves the foe on 1 HP).'},yandun:{name:'Rock Shield',desc:'Incoming damage divided by 2.5.'},enerdun:{name:'Energy Shield',desc:'Incoming / 1.5; foe skips next turn and remaining multi-hits are cancelled.'},counterdun:{name:'Counter Shield',desc:'Incoming / 1.3; reflect damage and bounce back weaken and poison.'},healShield:{name:'Healing Aegis',desc:'Incoming / 2.5; heal 60% of the blocked amount.'},shendun:{name:'Divine Shield',desc:'DEF += (HP+DEF) x level / 100; blocks 3 attacks.'}},
-  tp:{goTo:'Go to {n}',descPerm:'Teleport treasure obtained — travel freely to any floor you have reached.',title:'Floor Teleport',desc:'Choose an explored floor to travel to.',cur:'Current',locked:'Unexplored',floor:'Floor {n}',needScroll:'You need a Teleport Scroll — find one on the map',scrolls:'({n} left)',goHere:'Back to stairs',bossLock:'You are on the final floor — you cannot leave until its boss is defeated.',inSecret:'You cannot use floor teleport inside the secret room — leave via the magic circle.'},
+  tp:{goTo:'Go to {n}',descPerm:'Teleport treasure obtained — travel freely to any floor you have reached.',title:'Floor Teleport',desc:'Choose an explored floor to travel to.',cur:'Current',locked:'Unexplored',floor:'Floor {n}',needScroll:'You need a Teleport Scroll — find one on the map',scrolls:'({n} left)',goHere:'Back to stairs',bossLock:'You are on the final floor — you cannot leave until its boss is defeated.',blocked:'A monster on this floor is blocking teleport — defeat it to use it.',inSecret:'You cannot use floor teleport inside the secret room — leave via the magic circle.'},
   help:{title:'How to Play',start:'Got it',kbTitle:'Shortcuts (PC)',kbManual:'Press E to open the bestiary',kbTeleport:'Press F to open Teleport',kbAtk:'Arrow keys to pick a skill, Z to cast the attack skill',kbDef:'Arrow keys to pick a skill, X to cast the defence skill',items:[
     ['🎯','<b>Move & engage</b>: Arrows / WASD or the on-screen pad. Bump a monster to lock it (red outline), then press Space or the red Aim button to fight.'],
     ['⚔️','<b>Combat</b>: You and the foe trade blows automatically; damage = ATK − DEF. Low stamina misses more often. Cast skills, pause, or flee anytime (lost HP stays lost).'],
@@ -1619,7 +1619,7 @@ const I18N = {
         keySell:{n:'鍵を売る老人',d:'金貨で鍵を買える（プラチナの鍵は売らない）。'},keyBuy:{n:'鍵を買い取る老人',d:'余った鍵を金貨に換える。'},exp:'経験',gold:'金貨',leave:'立ち去る',lvlPack:'レベルパック',packSub:'Lv+{l}・生命+{s}・攻+{a}・防+{d}',hpOpt:'生命 +{x}',stOpt:'体力 +{x}',atkOpt:'攻撃 +{x}',defOpt:'防御 +{x}',curePoison:'毒を治す',cureWeak:'衰弱を治す',buy:'交換',buyKey:'{k}を買う',sellKey:'{k}を売る',sell:'売る'},
   manual:{title:'モンスター図鑑',desc:'この階のモンスターと、現在の力で倒した場合に受けると予想されるダメージ。',noFoe:'この階に敵はいません。',navHint:'矢印で選択 · Alt で詳細 · Q で退出',back:'戻る',speed:'速さ',reward:'報酬',yourHit:'毎ターン与ダメージ',foeHit:'毎ターン被ダメージ',altHint:'Alt で詳細、もう一度 Alt で一覧へ',nameLab:'名称',specialLab:'特殊',effectLab:'効果',hp:'体力',dealt:'与ダメージ',atkc:'攻撃回数',taken:'被ダメージ',total:'合計',energy:'エナジー',totalRounds:'総ターン',effTrue:'攻撃は防御を無視するが、防御スキルで一部を防げる。',effSolid:'与えるダメージが半減する。',effPierce:'防御の半分を無視して攻撃する。',effVampire:'与えたダメージの一部を吸収して回復。',effBoss:'数値が全面的に高い強敵。',effWeak:'衰弱させ、攻防低下と体力侵食の恐れ。',effPoison:'毒にし、歩行中に体力を削る恐れ。',effDrains:'体力を削り、攻撃を外しやすくする。',effMulti:'1ターンに複数回攻撃する。',effNone:'特殊能力なし。',kill:'{n} ラウンド',take:'想定被害',cantHurt:'撃破不可'},
   sk:{huangu:{name:'幻骨',desc:'防御の一部を攻撃に変換。与ダメージ≥レベルで発動し戦闘中累積。×1.5。'},tianti:{name:'天体',desc:'敵の現在エネルギーの半分を吸収（消費分を差引）。会心と併用時は吸収なし。×1.3。'},jinshi:{name:'金石',desc:'とどめを刺さず、与ダメージの30%を回復。×0.8。'},zhuanti:{name:'転体',desc:'敵のスタミナを減らす。×1.8。'},shenlei:{name:'神塁',desc:'ダメージ×5、ただし致命なし（最低HP1で残る）。'},yandun:{name:'岩盾',desc:'受けるダメージを2.5で割る。'},enerdun:{name:'エネルギー盾',desc:'被ダメージ÷1.5。敵は次ターン行動不能、残りの連続攻撃も中断。'},counterdun:{name:'反撃盾',desc:'被ダメージ÷1.3。ダメージを反射し、衰弱・毒も跳ね返す。'},healShield:{name:'治癒盾',desc:'被ダメージ÷2.5。防いだ分の60%を回復。'},shendun:{name:'神盾',desc:'防御+(HP+防御)×レベル÷100。3回の攻撃を防ぐ。'}},
-  tp:{goTo:'{n} へ',descPerm:'転送の宝物を入手。到達した階へ自由に移動できる。',title:'階層転送',desc:'探索済みの階を選んで移動します。',cur:'現在',locked:'未探索',floor:'{n} 階',needScroll:'転送の巻物が必要です。マップで探してください',scrolls:'（残り {n} 個）',goHere:'下り階段へ戻る',bossLock:'最終フロアに入った——ここのボスを倒すまで出られない。',inSecret:'隠し部屋では階層転送を使えない。魔法陣から出てください。'},
+  tp:{goTo:'{n} へ',descPerm:'転送の宝物を入手。到達した階へ自由に移動できる。',title:'階層転送',desc:'探索済みの階を選んで移動します。',cur:'現在',locked:'未探索',floor:'{n} 階',needScroll:'転送の巻物が必要です。マップで探してください',scrolls:'（残り {n} 個）',goHere:'下り階段へ戻る',bossLock:'最終フロアに入った——ここのボスを倒すまで出られない。',blocked:'この階のモンスターが転送を封じている——倒すと使えます。',inSecret:'隠し部屋では階層転送を使えない。魔法陣から出てください。'},
   help:{title:'遊び方',start:'わかりました',kbTitle:'ショートカット（PC）',kbManual:'E で図鑑を開く',kbTeleport:'F で階層転送を開く',kbAtk:'矢印キーでスキル選択、Z で攻撃スキル発動',kbDef:'矢印キーでスキル選択、X で防御スキル発動',items:[
     ['🎯','<b>移動と戦闘</b>：方向キー / WASD か画面のパッドで移動。敵に当たると赤枠でロックし、スペースか赤い照準ボタンで戦闘開始。'],
     ['⚔️','<b>戦闘</b>：自動で交互に攻撃し、ダメージ＝攻撃−防御。体力が低いほど外れやすい。戦闘中はスキル・一時停止・逃走がいつでも可能（減ったHPは戻らない）。'],
@@ -1647,7 +1647,7 @@ const I18N = {
         keySell:{n:'열쇠 파는 노인',d:'금화로 열쇠를 구매(백금 열쇠는 판매 안 함).'},keyBuy:{n:'열쇠 사는 노인',d:'남는 열쇠를 금화로 교환.'},exp:'경험',gold:'금화',leave:'나가기',lvlPack:'레벨 패키지',packSub:'Lv+{l} · 생명+{s} · 공+{a} · 방+{d}',hpOpt:'생명 +{x}',stOpt:'체력 +{x}',atkOpt:'공격 +{x}',defOpt:'방어 +{x}',curePoison:'중독 해제',cureWeak:'쇠약 해제',buy:'교환',buyKey:'{k} 구매',sellKey:'{k} 판매',sell:'판매'},
   manual:{title:'몬스터 도감',desc:'이 층의 몬스터와, 현재 능력으로 처치할 때 예상되는 피해입니다.',noFoe:'이 층에는 몬스터가 없습니다.',navHint:'방향키 선택 · Alt 상세 · Q 나가기',back:'뒤로',speed:'속도',reward:'보상',yourHit:'턴당 내 피해',foeHit:'턴당 받는 피해',altHint:'Alt로 상세, 다시 Alt로 목록',nameLab:'이름',specialLab:'특수',effectLab:'효과',hp:'체력',dealt:'주는 피해',atkc:'공격 횟수',taken:'받는 피해',total:'합계',energy:'에너지',totalRounds:'총 턴',effTrue:'공격이 방어를 무시하지만, 방어 스킬은 일부를 막는다.',effSolid:'주는 피해가 절반으로 줄어든다.',effPierce:'방어의 절반을 무시하고 공격한다.',effVampire:'주는 피해의 일부를 흡수해 회복한다.',effBoss:'능력치가 전반적으로 높은 강적.',effWeak:'쇠약하게 만들어 공방 감소·체력 침식.',effPoison:'중독시켜 이동 중 체력을 깎는다.',effDrains:'체력을 깎아 공격을 빗나가게 한다.',effMulti:'한 턴에 여러 번 공격한다.',effNone:'특수 능력 없음.',kill:'{n} 라운드',take:'예상 피해',cantHurt:'격파 불가'},
   sk:{huangu:{name:'환골',desc:'방어 일부를 공격으로 전환. 입힌 피해≥레벨일 때 발동하며 전투 내내 누적. ×1.5.'},tianti:{name:'천체',desc:'적의 현재 에너지 절반 흡수(소모량 제외). 치명타와 함께 쓰면 흡수 없음. ×1.3.'},jinshi:{name:'금석',desc:'치명타 없이 입힌 피해의 30% 회복. ×0.8.'},zhuanti:{name:'전신',desc:'적의 체력을 감소. ×1.8.'},shenlei:{name:'신루',desc:'피해 ×5, 단 치명 불가(적 HP 1로 남음).'},yandun:{name:'암석 방패',desc:'받는 피해를 2.5로 나눔.'},enerdun:{name:'에너지 방패',desc:'받는 피해 ÷1.5. 적은 다음 턴 행동 불가, 남은 연속공격도 중단.'},counterdun:{name:'반격 방패',desc:'받는 피해 ÷1.3. 피해를 반사하고 약화·중독도 되돌림.'},healShield:{name:'치유 방패',desc:'받는 피해 ÷2.5. 막은 피해의 60% 회복.'},shendun:{name:'신성 방패',desc:'방어 +(HP+방어)×레벨÷100. 3회 공격을 막음.'}},
-  tp:{goTo:'{n}(으)로',descPerm:'전송 보물 획득 — 도달한 층으로 자유롭게 이동할 수 있다.',title:'층 이동',desc:'이동할 탐험한 층을 선택하세요.',cur:'현재',locked:'미탐험',floor:'{n} 층',needScroll:'전송 두루마리가 필요합니다 — 맵에서 찾으세요',scrolls:'(남은 수 {n})',goHere:'계단으로 돌아가기',bossLock:'최종 층에 들어섰다——이곳의 보스를 쓰러뜨리기 전에는 나갈 수 없다.',inSecret:'비밀의 방에서는 층 이동을 사용할 수 없습니다. 마법진으로 나가세요.'},
+  tp:{goTo:'{n}(으)로',descPerm:'전송 보물 획득 — 도달한 층으로 자유롭게 이동할 수 있다.',title:'층 이동',desc:'이동할 탐험한 층을 선택하세요.',cur:'현재',locked:'미탐험',floor:'{n} 층',needScroll:'전송 두루마리가 필요합니다 — 맵에서 찾으세요',scrolls:'(남은 수 {n})',goHere:'계단으로 돌아가기',bossLock:'최종 층에 들어섰다——이곳의 보스를 쓰러뜨리기 전에는 나갈 수 없다.',blocked:'이 층의 몬스터가 이동을 막고 있다 — 쓰러뜨리면 사용 가능.',inSecret:'비밀의 방에서는 층 이동을 사용할 수 없습니다. 마법진으로 나가세요.'},
   help:{title:'플레이 방법',start:'알겠습니다',kbTitle:'단축키 (PC)',kbManual:'E로 도감 열기',kbTeleport:'F로 층 이동 열기',kbAtk:'방향키로 스킬 선택, Z로 공격 스킬 발동',kbDef:'방향키로 스킬 선택, X로 방어 스킬 발동',items:[
     ['🎯','<b>이동과 전투</b>: 방향키 / WASD 또는 화면 패드로 이동. 몬스터에 부딪히면 빨간 테두리로 조준되고, 스페이스나 빨간 조준 버튼으로 전투.'],
     ['⚔️','<b>전투</b>: 자동으로 번갈아 공격하며 피해 = 공격 − 방어. 체력이 낮을수록 빗나가기 쉬움. 전투 중 스킬·일시정지·도망 가능(잃은 생명은 돌아오지 않음).'],
@@ -1972,8 +1972,8 @@ function freshPlayer(){
     atkSkills:[], defSkills:[], atkEquip:null, defEquip:null, bestSword:0, loot:[]
   };
 }
-function effAtk(pl){ return Math.max(1, pl.atk - 3*pl.weakStacks); }
-function effDef(pl){ return Math.max(0, pl.def - 3*pl.weakStacks); }
+function effAtk(pl){ return Math.max(1, pl.atk - (pl.weakAtkAmt!=null?pl.weakAtkAmt:3)*pl.weakStacks); }
+function effDef(pl){ return Math.max(0, pl.def - (pl.weakDefAmt!=null?pl.weakDefAmt:3)*pl.weakStacks); }
 
 /* ============================== Damage ============================== */
 function dmgUp(atk,def,thrA){ const raw=atk-def; if(raw>0) return raw; return ((def-atk)<=thrA)?1:0; }     // attacker chips 1 while (foe DEF - ATK) stays within the attack threshold
@@ -1991,23 +1991,23 @@ function scaleFoe(base,f){
   const _mf=src.minF||mf;
   let _id=src.id, _name=src.name||null, _atkc=src.atkc||1;
   return {
-    id:_id, face:src.face, name:_name, img:src.img||null, atkFx:src.atkFx||null, atkSfx:src.atkSfx||null, ability:src.ability||null, ab:src.ab||null, atkc:_atkc, agi:src.agi||0, drains:!!src.drains, trueDmg:!!src.trueDmg, master:src.master||null, critFx:src.critFx||null, critSfx:src.critSfx||null, deathTerrain:src.deathTerrain||null, bonusDmg:src.bonusDmg||0, drainEn:src.drainEn||0, drainStam:(typeof src.drainStam==='number'?src.drainStam:null), noFlee:!!src.noFlee, revive:!!src.revive, atkcMin:src.atkcMin||0, atkcMax:src.atkcMax||0, statDownPct:src.statDownPct||0, statDownN:src.statDownN||0,
+    id:_id, face:src.face, name:_name, img:src.img||null, atkFx:src.atkFx||null, atkSfx:src.atkSfx||null, ability:src.ability||null, ab:src.ab||null, atkc:_atkc, agi:src.agi||0, drains:!!src.drains, trueDmg:!!src.trueDmg, master:src.master||null, critFx:src.critFx||null, critSfx:src.critSfx||null, deathTerrain:src.deathTerrain||null, bonusDmg:src.bonusDmg||0, drainEn:src.drainEn||0, drainStam:(typeof src.drainStam==='number'?src.drainStam:null), noFlee:!!src.noFlee, revive:!!src.revive, atkcMin:src.atkcMin||0, atkcMax:src.atkcMax||0, statDownPct:src.statDownPct||0, statDownN:src.statDownN||0, poisonChance:src.poisonChance||0, vampPct:src.vampPct||0, trueTriple:!!src.trueTriple, weakChance:src.weakChance||0, weakAtk:(src.weakAtk!=null?src.weakAtk:3), weakDef:(src.weakDef!=null?src.weakDef:3), critDrainEn:src.critDrainEn||0, blockTp:!!src.blockTp, atkFatigue:src.atkFatigue||0, noEnergy:src.noEnergy||'', poisonBuffChance:src.poisonBuffChance||0, poisonBuffAtk:src.poisonBuffAtk||0, poisonBuffDef:src.poisonBuffDef||0, statMatch:src.statMatch||'', reviveInto:src.reviveInto||'', mAtkSkill:src.mAtkSkill||'', skillHpBelow:src.skillHpBelow||0, skillEveryN:src.skillEveryN||0, mDefSkill:src.mDefSkill||'', mAtkSkills:(src.mAtkSkills&&src.mAtkSkills.length)?src.mAtkSkills.slice():(src.mAtkSkill?[src.mAtkSkill]:[]), mDefSkills:(src.mDefSkills&&src.mDefSkills.length)?src.mDefSkills.slice():(src.mDefSkill?[src.mDefSkill]:[]), skillOrder:src.skillOrder||'seq',
     maxhp:r(src.hp*mult), hp:r(src.hp*mult), atk:(src.trueDmg?src.atk:r(src.atk*mult)), def:r(src.def*mult),
     gold:r(src.gold*mult), exp:r(src.exp*mult), thrA:6+2*_mf, thrD:4+2*_mf, boss:false
   };
 }
 function makeBoss(){
-  return {id:BOSS.id,face:BOSS.face,name:BOSS.name||null,img:BOSS.img||null,atkFx:BOSS.atkFx||null,atkSfx:BOSS.atkSfx||null,ability:BOSS.ability,ab:BOSS.ab,atkc:BOSS.atkc,agi:BOSS.agi||0,drains:!!BOSS.drains, trueDmg:!!BOSS.trueDmg, master:BOSS.master||null, critFx:BOSS.critFx||null, critSfx:BOSS.critSfx||null, deathTerrain:BOSS.deathTerrain||null, bonusDmg:BOSS.bonusDmg||0, drainEn:BOSS.drainEn||0, drainStam:(typeof BOSS.drainStam==='number'?BOSS.drainStam:null), noFlee:!!BOSS.noFlee, revive:!!BOSS.revive, statDownPct:BOSS.statDownPct||0, statDownN:BOSS.statDownN||0,
+  return {id:BOSS.id,face:BOSS.face,name:BOSS.name||null,img:BOSS.img||null,atkFx:BOSS.atkFx||null,atkSfx:BOSS.atkSfx||null,ability:BOSS.ability,ab:BOSS.ab,atkc:BOSS.atkc,agi:BOSS.agi||0,drains:!!BOSS.drains, trueDmg:!!BOSS.trueDmg, master:BOSS.master||null, critFx:BOSS.critFx||null, critSfx:BOSS.critSfx||null, deathTerrain:BOSS.deathTerrain||null, bonusDmg:BOSS.bonusDmg||0, drainEn:BOSS.drainEn||0, drainStam:(typeof BOSS.drainStam==='number'?BOSS.drainStam:null), noFlee:!!BOSS.noFlee, revive:!!BOSS.revive, statDownPct:BOSS.statDownPct||0, statDownN:BOSS.statDownN||0, poisonChance:BOSS.poisonChance||0, vampPct:BOSS.vampPct||0, trueTriple:!!BOSS.trueTriple, weakChance:BOSS.weakChance||0, weakAtk:(BOSS.weakAtk!=null?BOSS.weakAtk:3), weakDef:(BOSS.weakDef!=null?BOSS.weakDef:3), critDrainEn:BOSS.critDrainEn||0, blockTp:!!BOSS.blockTp, atkFatigue:BOSS.atkFatigue||0, noEnergy:BOSS.noEnergy||'', poisonBuffChance:BOSS.poisonBuffChance||0, poisonBuffAtk:BOSS.poisonBuffAtk||0, poisonBuffDef:BOSS.poisonBuffDef||0, statMatch:BOSS.statMatch||'', reviveInto:BOSS.reviveInto||'', mAtkSkill:BOSS.mAtkSkill||'', skillHpBelow:BOSS.skillHpBelow||0, skillEveryN:BOSS.skillEveryN||0, mDefSkill:BOSS.mDefSkill||'', mAtkSkills:(BOSS.mAtkSkills&&BOSS.mAtkSkills.length)?BOSS.mAtkSkills.slice():(BOSS.mAtkSkill?[BOSS.mAtkSkill]:[]), mDefSkills:(BOSS.mDefSkills&&BOSS.mDefSkills.length)?BOSS.mDefSkills.slice():(BOSS.mDefSkill?[BOSS.mDefSkill]:[]), skillOrder:BOSS.skillOrder||'seq',
     maxhp:BOSS.hp,hp:BOSS.hp,atk:BOSS.atk,def:BOSS.def,gold:BOSS.gold,exp:BOSS.exp,
     thrA:40,thrD:30,boss:true};
 }
-const BASEMENT_BOSS={id:'overlordGordon', name:'魔界之王·古頓', face:'👹', hp:20000, atk:500, def:1100, gold:600, exp:600, atkc:4, agi:24, ab:'boss', atkFx:'demon', atkSfx:'boom'};
+const BASEMENT_BOSS={id:'overlordGordon', name:'魔界之王·古頓', face:'👹', hp:20000, atk:500, def:1100, gold:600, exp:600, atkc:4, agi:24, ab:'boss', atkFx:'demon', atkSfx:'boom', pillarDrainEn:30, barrierEn:15, barrierStam:3, reflectEn:25, reflectStam:5, reflectBlockPct:60, reflectHealPct:30};
 function makeBasementBoss(){
-  return {id:BASEMENT_BOSS.id,face:BASEMENT_BOSS.face,name:BASEMENT_BOSS.name||null,img:BASEMENT_BOSS.img||null,atkFx:BASEMENT_BOSS.atkFx||null,atkSfx:BASEMENT_BOSS.atkSfx||null,ability:BASEMENT_BOSS.ability,ab:BASEMENT_BOSS.ab,atkc:BASEMENT_BOSS.atkc,agi:BASEMENT_BOSS.agi||0,drains:!!BASEMENT_BOSS.drains,trueDmg:!!BASEMENT_BOSS.trueDmg,master:BASEMENT_BOSS.master||null, critFx:BASEMENT_BOSS.critFx||null, critSfx:BASEMENT_BOSS.critSfx||null, deathTerrain:BASEMENT_BOSS.deathTerrain||null, bonusDmg:BASEMENT_BOSS.bonusDmg||0, drainEn:BASEMENT_BOSS.drainEn||0, drainStam:(typeof BASEMENT_BOSS.drainStam==='number'?BASEMENT_BOSS.drainStam:null), noFlee:!!BASEMENT_BOSS.noFlee, revive:!!BASEMENT_BOSS.revive, statDownPct:BASEMENT_BOSS.statDownPct||0, statDownN:BASEMENT_BOSS.statDownN||0,
+  return {id:BASEMENT_BOSS.id,face:BASEMENT_BOSS.face,name:BASEMENT_BOSS.name||null,img:BASEMENT_BOSS.img||null,atkFx:BASEMENT_BOSS.atkFx||null,atkSfx:BASEMENT_BOSS.atkSfx||null,ability:BASEMENT_BOSS.ability,ab:BASEMENT_BOSS.ab,atkc:BASEMENT_BOSS.atkc,agi:BASEMENT_BOSS.agi||0,drains:!!BASEMENT_BOSS.drains,trueDmg:!!BASEMENT_BOSS.trueDmg,master:BASEMENT_BOSS.master||null, pillarDrainEn:(BASEMENT_BOSS.pillarDrainEn!=null?BASEMENT_BOSS.pillarDrainEn:30), barrierEn:(BASEMENT_BOSS.barrierEn!=null?BASEMENT_BOSS.barrierEn:15), barrierStam:(BASEMENT_BOSS.barrierStam!=null?BASEMENT_BOSS.barrierStam:3), reflectEn:(BASEMENT_BOSS.reflectEn!=null?BASEMENT_BOSS.reflectEn:25), reflectStam:(BASEMENT_BOSS.reflectStam!=null?BASEMENT_BOSS.reflectStam:5), reflectBlockPct:(BASEMENT_BOSS.reflectBlockPct!=null?BASEMENT_BOSS.reflectBlockPct:60), reflectHealPct:(BASEMENT_BOSS.reflectHealPct!=null?BASEMENT_BOSS.reflectHealPct:30), critFx:BASEMENT_BOSS.critFx||null, critSfx:BASEMENT_BOSS.critSfx||null, deathTerrain:BASEMENT_BOSS.deathTerrain||null, bonusDmg:BASEMENT_BOSS.bonusDmg||0, drainEn:BASEMENT_BOSS.drainEn||0, drainStam:(typeof BASEMENT_BOSS.drainStam==='number'?BASEMENT_BOSS.drainStam:null), noFlee:!!BASEMENT_BOSS.noFlee, revive:!!BASEMENT_BOSS.revive, statDownPct:BASEMENT_BOSS.statDownPct||0, statDownN:BASEMENT_BOSS.statDownN||0, poisonChance:BASEMENT_BOSS.poisonChance||0, vampPct:BASEMENT_BOSS.vampPct||0, trueTriple:!!BASEMENT_BOSS.trueTriple, weakChance:BASEMENT_BOSS.weakChance||0, weakAtk:(BASEMENT_BOSS.weakAtk!=null?BASEMENT_BOSS.weakAtk:3), weakDef:(BASEMENT_BOSS.weakDef!=null?BASEMENT_BOSS.weakDef:3), critDrainEn:BASEMENT_BOSS.critDrainEn||0, blockTp:!!BASEMENT_BOSS.blockTp, atkFatigue:BASEMENT_BOSS.atkFatigue||0, noEnergy:BASEMENT_BOSS.noEnergy||'', poisonBuffChance:BASEMENT_BOSS.poisonBuffChance||0, poisonBuffAtk:BASEMENT_BOSS.poisonBuffAtk||0, poisonBuffDef:BASEMENT_BOSS.poisonBuffDef||0, statMatch:BASEMENT_BOSS.statMatch||'', reviveInto:BASEMENT_BOSS.reviveInto||'', mAtkSkill:BASEMENT_BOSS.mAtkSkill||'', skillHpBelow:BASEMENT_BOSS.skillHpBelow||0, skillEveryN:BASEMENT_BOSS.skillEveryN||0, mDefSkill:BASEMENT_BOSS.mDefSkill||'', mAtkSkills:(BASEMENT_BOSS.mAtkSkills&&BASEMENT_BOSS.mAtkSkills.length)?BASEMENT_BOSS.mAtkSkills.slice():(BASEMENT_BOSS.mAtkSkill?[BASEMENT_BOSS.mAtkSkill]:[]), mDefSkills:(BASEMENT_BOSS.mDefSkills&&BASEMENT_BOSS.mDefSkills.length)?BASEMENT_BOSS.mDefSkills.slice():(BASEMENT_BOSS.mDefSkill?[BASEMENT_BOSS.mDefSkill]:[]), skillOrder:BASEMENT_BOSS.skillOrder||'seq',
     maxhp:BASEMENT_BOSS.hp,hp:BASEMENT_BOSS.hp,atk:BASEMENT_BOSS.atk,def:BASEMENT_BOSS.def,gold:BASEMENT_BOSS.gold,exp:BASEMENT_BOSS.exp,
     thrA:60,thrD:55,boss:true};
 }
-function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,critFx:base.critFx||null,critSfx:base.critSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,atkcMin:(base.atkcMin||0),atkcMax:(base.atkcMax||0),agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,drainStam:(typeof base.drainStam==='number'?base.drainStam:null),critDrainStam:(base.critDrainStam||0),noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,master:base.master||null,dropItem2:base.dropItem2||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
+function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,critFx:base.critFx||null,critSfx:base.critSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,atkcMin:(base.atkcMin||0),atkcMax:(base.atkcMax||0),agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,drainStam:(typeof base.drainStam==='number'?base.drainStam:null),critDrainStam:(base.critDrainStam||0),noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,poisonChance:base.poisonChance||0,vampPct:base.vampPct||0,trueTriple:!!base.trueTriple,weakChance:base.weakChance||0,weakAtk:(base.weakAtk!=null?base.weakAtk:3),weakDef:(base.weakDef!=null?base.weakDef:3),critDrainEn:base.critDrainEn||0,blockTp:!!base.blockTp,atkFatigue:base.atkFatigue||0,noEnergy:base.noEnergy||'',poisonBuffChance:base.poisonBuffChance||0,poisonBuffAtk:base.poisonBuffAtk||0,poisonBuffDef:base.poisonBuffDef||0,statMatch:base.statMatch||'',reviveInto:base.reviveInto||'',mAtkSkill:base.mAtkSkill||'',skillHpBelow:base.skillHpBelow||0,skillEveryN:base.skillEveryN||0,mDefSkill:base.mDefSkill||'',mAtkSkills:(base.mAtkSkills&&base.mAtkSkills.length)?base.mAtkSkills.slice():(base.mAtkSkill?[base.mAtkSkill]:[]), mDefSkills:(base.mDefSkills&&base.mDefSkills.length)?base.mDefSkills.slice():(base.mDefSkill?[base.mDefSkill]:[]), skillOrder:base.skillOrder||'seq',master:base.master||null,dropItem2:base.dropItem2||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
 const GUARD_DRAGONS={
   red:    {id:'redDragon',  name:'紅龍', face:'🐉', hp:760,  atk:58, def:26, gold:90,  exp:4, atkc:1, agi:8, thrA:45, thrD:35, atkFx:'dragon', atkSfx:'roar'},
   poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite', dropItem2:'jug'}
@@ -3608,13 +3608,17 @@ function armCrit(){
   c.critArmed = !c.critArmed;   /* toggle: arm / cancel, no cooldown */
   updateCritBtn();
 }
+function _foeSkArr(foe,a){ var L=a?foe.mAtkSkills:foe.mDefSkills; if(L&&L.length) return L; var s=a?foe.mAtkSkill:foe.mDefSkill; return s?[s]:[]; }
+function _pickFoeSk(c,list,a){ if(!list.length) return ''; var ord=(c.foe.skillOrder||'seq'); if(ord==='rand') return list[Math.floor(RAND()*list.length)]; if(ord==='ai'){ var best='',bv=-Infinity; for(var i=0;i<list.length;i++){ var s=SKILL_BY_ID[list[i]]; if(!s)continue; var v=a?(s.mult||0):(s.id==='healShield'?100:(s.div||0)); if(v>bv){bv=v;best=list[i];} } return best; } var k=a?'_skAi':'_skDi'; c[k]=(c[k]||0); var p=list[c[k]%list.length]; c[k]++; return p; }
+function _statMatch(){ var c=state.combat; if(!c||!c.foe) return; var foe=c.foe, pl=state.player, sm=foe.statMatch; if(sm!=='A'&&sm!=='B') return; var pa=effAtk(pl), pd=effDef(pl); var tA=(sm==='A')?pa:null, tD=(sm==='A')?pd:pa; if(tA!=null && tA>foe.atk){ c.fBuffA=(c.fBuffA||0)+(tA-foe.atk); foe.atk=tA; } if(tD>foe.def){ c.fBuffD=(c.fBuffD||0)+(tD-foe.def); foe.def=tD; } }
 function renderCombat(){
   const c=state.combat, pl=state.player, foe=c.foe;
+  _statMatch();
   byId('meHpV').textContent=pl.hp; byId('foeHpV').textContent=Math.max(0,foe.hp);
   byId('meEnV').textContent=pl.en; byId('foeEnV').textContent=clamp(c.foeEn,0,100);
   byId('meStV').textContent=Math.round(c.meStam); byId('foeStV').textContent=Math.round(c.foeStam);
-  byId('meAtkV').textContent=effAtk(pl)+(c.atkBuff||0); byId('foeAtkV').textContent=foe.atk;
-  byId('meDefV').textContent=Math.max(0,effDef(pl)-((state.combat&&state.combat.defDebuff)||0)); byId('foeDefV').textContent=foe.def;
+  byId('meAtkV').textContent=effAtk(pl)+(c.atkBuff||0); byId('foeAtkV').innerHTML=foe.atk+((c.fBuffA>0)?'<sup style="color:#6cc2ff;font-size:.7em;font-weight:700">+'+c.fBuffA+'</sup>':'');
+  byId('meDefV').textContent=Math.max(0,effDef(pl)-((state.combat&&state.combat.defDebuff)||0)); byId('foeDefV').innerHTML=foe.def+((c.fBuffD>0)?'<sup style="color:#6cc2ff;font-size:.7em;font-weight:700">+'+c.fBuffD+'</sup>':'');
   const ms=byId('meStatus'); ms.innerHTML='';
   /* player ailment chip (中毒/衰弱) hidden during combat — numbers only; status still shown in the main panel */
   const fs=byId('foeStatus'); fs.innerHTML='';
@@ -3668,12 +3672,18 @@ function playerAct(action){
   let dealt=0, anyHit=false;
   const _shHalf=!!c.shieldHalf, _shRefl=!!c.shieldReflect; c.shieldHalf=false; c.shieldReflect=false;   /* 鏡膜盾 / 反射盾 apply to this attack */
   const _pseq=[]; let _fhp=foe.hp;
+  var _mdDiv=1, _mdId='', _mdBlocked=0;
+  { var _dL=_foeSkArr(foe,false); if(_dL.length){ var _ordD=(foe.skillOrder||'seq'), _hpPd=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100; var _fireD=(_ordD==='ai')?(_hpPd<50):((foe.skillHpBelow>0 && _hpPd<=foe.skillHpBelow)||(foe.skillEveryN>0 && ((c.foeRounds||0)%foe.skillEveryN)===0)); if(_fireD){ _mdId=_pickFoeSk(c,_dL,false); var _ds0=SKILL_BY_ID[_mdId]; if(_ds0){ _mdDiv=(_ds0.id==='shendun')?2.5:(_ds0.div||1); try{ log('foe',fmt(t('msg.foeDefSkill'),{name:skillName(_mdId)})); }catch(e){} } } } }
+  var _bsId='', _bsAbsorb=0, _bsReflect=0;
+  if(foe.id==='overlordGordon'){ var _rE=(foe.reflectEn!=null?foe.reflectEn:25), _rS=(foe.reflectStam!=null?foe.reflectStam:5), _bE=(foe.barrierEn!=null?foe.barrierEn:15), _bS=(foe.barrierStam!=null?foe.barrierStam:3); var _bhp=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100, _canR=(c.foeEn>=_rE&&c.foeStam>=_rS), _canB=(c.foeEn>=_bE&&c.foeStam>=_bS), _pthreat=dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)*(pl.atkc||1), _bigHit=(_pthreat>=foe.maxhp*0.06), _use=''; if(_bhp<40){ _use=_canR?'reflect':(_canB?'barrier':''); } else if(_bigHit){ _use=_canR?'reflect':(_canB?'barrier':''); } if(_use==='reflect'){ _bsId='reflect'; c.foeEn-=_rE; c.foeStam=clamp(c.foeStam-_rS,0,100); try{ log('foe',t('msg.bossReflShield')); }catch(e){} } else if(_use==='barrier'){ _bsId='barrier'; c.foeEn-=_bE; c.foeStam=clamp(c.foeStam-_bS,0,100); try{ log('foe',t('msg.bossBarrier')); }catch(e){} } }   /* 15c 防禦 AI：低血或面對大傷害時開盾(優先反射盾)，否則承受並蓄力沖天柱 */
   for(let i=0;i<pl.atkc;i++){
     if(chance(hitChance(c.meStam))){
       let dmg=Math.round(dmgUp(aAtk,foe.def,pl.thrA)*mult); if(hasAb(foe,'solid')) dmg=Math.ceil(dmg/2); if(_shHalf) dmg=Math.ceil(dmg/2); if(dmg<0)dmg=0;
+      if(_mdDiv>1){ var _pbk=dmg; dmg=Math.ceil(dmg/_mdDiv); _mdBlocked+=(_pbk-dmg); }
+      if(_bsId==='barrier'){ var _ap=clamp(0.5+dmg/3000,0.5,0.9); var _rd=Math.round(dmg*(1-_ap)); _bsAbsorb+=(dmg-_rd); dmg=_rd; } else if(_bsId==='reflect'){ var _blk=Math.round(dmg*((foe.reflectBlockPct!=null?foe.reflectBlockPct:60)/100)); _bsReflect+=_blk; dmg=dmg-_blk; }
       if(nonLethal && _fhp-dmg<1){ dmg=Math.max(0,_fhp-1); }
       _fhp-=dmg; dealt+=dmg; anyHit=true;
-      pl.en=clamp(pl.en+clamp(Math.round(dmg*0.08)+2,2,13),0,100);      /* player charges a bit when landing a hit */
+      if(c.foe.noEnergy!=='atk'&&c.foe.noEnergy!=='all'){ pl.en=clamp(pl.en+clamp(Math.round(dmg*0.08)+2,2,13),0,100); }      /* charge on landing a hit (blocked by 不增能量) */
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.12)+10,11,20),0,100);   /* the foe ALSO charges when it takes a hit */
       _pseq.push({d:dmg});
     } else { _pseq.push({miss:true}); }
@@ -3684,6 +3694,9 @@ function playerAct(action){
   _meShowHits(_pseq, skill, crit, function(){
     if(!state.combat || state.combat.done) return;
     if(_shRefl && dealt>0){ const refl=Math.max(1,Math.round(dealt*0.25)); pl.hp-=refl; floatDmg('me','-'+refl,'crit'); log('foe',fmt(t('msg.msReflect'),{n:refl})); renderCombat(); if(pl.hp<=0){ if(_godClamp()){ renderCombat(); } else { pl.hp=0; renderCombat(); setTimeout(combatLose,240); return; } } }
+    if(_bsReflect>0){ pl.hp-=_bsReflect; try{ floatDmg('me','-'+_bsReflect,'crit'); }catch(e){} try{ renderStats(); }catch(e){} var _bh=Math.round(_bsReflect*((foe.reflectHealPct!=null?foe.reflectHealPct:30)/100)); foe.hp=Math.min(foe.maxhp, foe.hp+_bh); }
+    if(_mdId==='counterdun' && _mdBlocked>0){ var _cr=Math.max(1,Math.round(_mdBlocked)); pl.hp-=_cr; try{ floatDmg('me','-'+_cr,'crit'); }catch(e){} try{ renderStats(); }catch(e){} }
+    if(_mdId==='healShield' && _mdBlocked>0){ foe.hp=Math.min(foe.maxhp, foe.hp+Math.round(_mdBlocked*0.6)); }
     if(foe.hp<=0){ setTimeout(combatWin, 240); return; }
     setTimeout(foeTurn, 220);
   });
@@ -3693,7 +3706,7 @@ function applyAtkSkillEffect(skill, dealt, crit){
   if(skill.id==='huangu'){
     if(dealt>=pl.lv){ const gain=Math.max(1,Math.floor(pl.def*0.05)); c.atkBuff=(c.atkBuff||0)+gain; c.defDebuff=(c.defDebuff||0)+gain; log('me',fmt(t('msg.huanguGain'),{n:gain})); }
   } else if(skill.id==='tianti'){
-    if(!crit){ const drained=Math.floor(c.foeEn/2); if(drained>0){ c.foeEn=clamp(c.foeEn-drained,0,100); pl.en=clamp(pl.en+drained,0,100); log('me',fmt(t('msg.tiantiDrain'),{n:drained})); } }
+    if(!crit){ const drained=Math.floor(c.foeEn/2); if(drained>0){ c.foeEn=clamp(c.foeEn-drained,0,100); if(c.foe.noEnergy!=='all') pl.en=clamp(pl.en+drained,0,100); log('me',fmt(t('msg.tiantiDrain'),{n:drained})); } }
   } else if(skill.id==='jinshi'){
     const heal=Math.round(dealt*0.3); if(heal>0){ pl.hp+=heal; log('me',fmt(t('msg.jinshiHeal'),{n:heal})); }
   } else if(skill.id==='zhuanti'){
@@ -3724,35 +3737,42 @@ function foeTurn(){
   const pl=state.player, foe=c.foe;
   if(c.foeSkip){ c.foeSkip=false; c.halveNext=false; log('foe',t('msg.foeSkip')); renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* 能量盾 stunned the foe (armed defence kept for the next real attack) */
   const def = c.defArmed ? SKILL_BY_ID[c.defArmed] : null;   /* single-use defence skill armed for this round */
-  let taken=0, anyHit=false, beforeTotal=0, hits=0;
+  let taken=0, anyHit=false, beforeTotal=0, hits=0; _statMatch();
+  c.foeRounds=(c.foeRounds||0)+1; var _useSkill=false, _skMult=1, _skId='';
+  { var _aL=_foeSkArr(foe,true); if(_aL.length){ var _ordA=(foe.skillOrder||'seq'), _hpP=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100; var _fireA=(_ordA==='ai')?chance(0.5):((foe.skillHpBelow>0 && _hpP<=foe.skillHpBelow)||(foe.skillEveryN>0 && (c.foeRounds%foe.skillEveryN)===0)); if(_fireA){ _skId=_pickFoeSk(c,_aL,true); var _sk0=SKILL_BY_ID[_skId]; if(_sk0){ _useSkill=true; _skMult=_sk0.mult||1; try{ log('foe',fmt(t('msg.foeSkill'),{name:skillName(_skId)})); }catch(e){} } } } }
+  if(pl.status==='poison' && (foe.poisonBuffChance>0) && chance(clamp(foe.poisonBuffChance/100,0,1))){ const _pba=foe.poisonBuffAtk||0, _pbd=foe.poisonBuffDef||0; if(_pba>0||_pbd>0){ foe.atk+=_pba; foe.def+=_pbd; c.fBuffA=(c.fBuffA||0)+_pba; c.fBuffD=(c.fBuffD||0)+_pbd; } }   /* 中毒強化：玩家中毒時，怪物機率提升自身攻防 */
   const _myDef0 = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);
   const _foeCanDmg = foe.trueDmg ? (foe.atk>0) : (dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(_myDef0*0.5):_myDef0),pl.thrD)>0);   /* 對玩家造不成傷害就不發動爆擊 */
   const foeCrit = (c.foeEn>=100) && _foeCanDmg; let _critUsed=false;
-  let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
+  let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); if(foe.id==='overlordGordon'){ _nHits = foeCrit ? 1 : 4; } }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
   const _seq=[];
   let _defBlocks = (def && def.div && def.div>1) ? 1 : 0;   // one defence cast mitigates only ONE incoming hit; multi-hit foes get the rest through
   for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
       let dmg;
       const _thisCrit = foeCrit && !_critUsed; if(_thisCrit){ _critUsed=true; c.foeStam=clamp(c.foeStam-1,0,100); if((foe.critDrainStam||0)>0) c.meStam=clamp(c.meStam-foe.critDrainStam,0,100); }   /* 爆擊命中:怪物 -1 體力 + 可吸玩家體力 */
-      if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); if(c.shendunHits>0) dmg=Math.max(0, dmg-(c.shendunBonus||0)); }   /* 神盾可抵擋部分真實傷害 */   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
+      if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); if(foe.trueTriple && effDef(pl)<foe.atk){ dmg=dmg*3; } if(c.shendunHits>0) dmg=Math.max(0, dmg-(c.shendunBonus||0)); }   /* 神盾可抵擋部分真實傷害 */   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
       else {
         const myDef = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);   // 神盾 buff while charges remain; 幻骨 lowers DEF
         dmg=dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(myDef*0.5):myDef),pl.thrD); if(dmg<0)dmg=0;
         if(_thisCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2));
         if(c.halveNext){ dmg=Math.ceil(dmg/2); }
       }
+      if(foe.id==='overlordGordon' && !_thisCrit){ dmg=Math.round(dmg/4); }   /* 4道能量彈：一次傷害四等分，每道各自可 miss */
       if(c.shendunHits>0) c.shendunHits--;
+      if(_useSkill){ dmg=Math.round(dmg*_skMult); }
       const before=dmg;
       if(_defBlocks>0 && def && def.div && def.div>1){ dmg=Math.ceil(dmg/def.div); _defBlocks--; }   // 岩盾/能量盾/反擊盾/療癒盾 — blocks ONE hit only; also reduces true damage (mages)
       if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       taken+=dmg; anyHit=true; hits++;
-      var _vhl=0; if(hasAb(foe,'vampire')&&dmg>0){ _vhl=Math.round(dmg*0.15); foe.hp=Math.min(foe.maxhp,foe.hp+_vhl); }
+      var _vhl=0; if(hasAb(foe,'vampire')&&dmg>0){ _vhl=Math.round(dmg*((foe.vampPct||15)/100)); foe.hp=Math.min(foe.maxhp,foe.hp+_vhl); }
       if(foe.drains && !_thisCrit){ const _ds=(typeof foe.drainStam==='number'?foe.drainStam:STAM_DRAIN); c.meStam=clamp(c.meStam-_ds,0,100); }   /* 普攻耗體；爆擊改走爆擊耗體量，不重複 */
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
-      pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100);   /* player also charges when taking a hit */
+      if(c.foe.noEnergy!=='all'){ pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100); }   /* charge on taking a hit (blocked by 全部不增能量) */
       if(foe.drainEn>0){ pl.en=clamp(pl.en-foe.drainEn,0,100); }   /* 吸取能量 */
+      if(_thisCrit && foe.critDrainEn>0){ pl.en=clamp(pl.en-foe.critDrainEn,0,100); }   /* 爆擊扣能量 */
+      if(foe.id==='overlordGordon' && _thisCrit && foe.pillarDrainEn>0){ pl.en=clamp(pl.en-foe.pillarDrainEn,0,100); }   /* 沖天柱：爆擊吸取玩家能量 */
       _seq.push({d:dmg, crit:_thisCrit, heal:_vhl});
       if(def && def.id==='enerdun'){ c.foeSkip=true; break; }   // 能量盾: cancel remaining hits + foe skips next round
     } else { _seq.push({miss:true}); }
@@ -3776,7 +3796,7 @@ function foeTurn(){
   /* 連擊改為逐段顯示，見下方 _foeShowHits */
   if(!(def && def.id==='counterdun')){   // 反擊盾 reflects ailments instead of suffering them
     if(foe.ability && pl.status==='normal'){ applyAilmentFromFoe(foe); }   /* 即使傷害為 0 也可能附加中毒/衰弱 */
-    else if(foe.ability==='weak' && pl.status==='weak'){ if(chance(0.5)){ pl.weakStacks++; ailRing('weak'); try{ playEventFx('me','ability','weak'); }catch(_e){} } }
+    else if(foe.ability==='weak' && pl.status==='weak'){ if(chance(0.5)){ pl.weakStacks++; pl.weakAtkAmt=(foe.weakAtk!=null?foe.weakAtk:3); pl.weakDefAmt=(foe.weakDef!=null?foe.weakDef:3); ailRing('weak'); try{ playEventFx('me','ability','weak'); }catch(_e){} } }
   }
   c.defArmed=null;   // single-use defence consumed
   _foeShowHits(_seq, foeCrit, function(){
@@ -3815,7 +3835,7 @@ function _meShowHits(seq, skill, crit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('foe','miss!','miss'); }
     else if(h){
-      c2.foe.hp-=h.d; if(h.d===0){ zeroDmgFx('foe'); }
+      c2.foe.hp-=h.d; if(c2.foe.atkFatigue>0){ c2.meStam=clamp(c2.meStam-c2.foe.atkFatigue,0,100); } if(h.d===0){ zeroDmgFx('foe'); }
       else { const _pfx=(skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); try{ playAttackFx('foe', _pfx, crit, (skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); }catch(_e){} floatDmg('foe','-'+h.d, crit?'crit':null); }
     }
     try{ renderCombat(); }catch(_e){}
@@ -3827,14 +3847,15 @@ function applyAilmentFromFoe(foe){
   const pl=state.player;
   const baseChance = clamp(foe.boss?0.4 : 0.2 + 0.01*Math.abs(state.floor), 0, 0.5);   /* 中毒/衰弱機率：上限約 50%，不再每次必中 */
   if(foe.ability==='poison'){
-    if(chance(clamp(baseChance,0,0.85))){ pl.status='poison'; pl.poisonStep=ri(1,4); ailRing('poison'); try{ playEventFx('me','ability','poison'); }catch(_e){} }
+    if(chance((foe.poisonChance>0)?clamp(foe.poisonChance/100,0,1):clamp(baseChance,0,0.85))){ pl.status='poison'; pl.poisonStep=ri(1,4); ailRing('poison'); try{ playEventFx('me','ability','poison'); }catch(_e){} }
   }else if(foe.ability==='weak'){
-    if(chance(clamp(baseChance,0,0.85))){ pl.status='weak'; pl.weakStacks=1; pl.hp=Math.max(1,pl.hp-15); ailRing('weak'); try{ playEventFx('me','ability','weak'); }catch(_e){} }
+    if(chance((foe.weakChance>0)?clamp(foe.weakChance/100,0,1):clamp(baseChance,0,0.85))){ pl.status='weak'; pl.weakStacks=1; pl.weakAtkAmt=(foe.weakAtk!=null?foe.weakAtk:3); pl.weakDefAmt=(foe.weakDef!=null?foe.weakDef:3); pl.hp=Math.max(1,pl.hp-15); ailRing('weak'); try{ playEventFx('me','ability','weak'); }catch(_e){} }
   }
 }
 function combatWin(){
   clearTimeout(combatTimer); try{ sfx('defeat'); }catch(e){}
   const c=state.combat, pl=state.player, foe=c.foe;
+  if(c && foe && foe.reviveInto && !c.revivedInto){ c.revivedInto=true; var _rb=MONSTERS.concat(BASEMENT_MONSTERS).filter(function(_m){return _m.id===foe.reviveInto;})[0]; if(_rb){ var _nf=scaleFoe(_rb,state.floor); c.foe=_nf; c.foeMaxHp=_nf.maxhp; c.foePreHp=_nf.hp; c.foeEn=0; c.fBuffA=0; c.fBuffD=0; c.foeStam=100; c.foeSkip=false; c.halveNext=false; if(c.ent){ c.ent.foe=_nf; } try{ log('foe',t('msg.reviveInto')); }catch(e){} try{ playEventFx('foe','ability','revive'); }catch(e){} state.busy=false; try{ renderCombat(); }catch(e){} try{ refreshCombatButtons(); }catch(e){} return; } }
   if(c && foe && foe.revive && !c.revived){ c.revived=true; foe.hp=Math.max(1,Math.round((foe.maxhp||foe.hp||1)*0.5)); try{ log('foe',t('msg.revive')); }catch(e){} try{ playEventFx('foe','ability','revive'); }catch(e){} state.busy=false; try{ renderCombat(); }catch(e){} try{ refreshCombatButtons(); }catch(e){} return; }   /* 死亡復活一次 */
   log('sys',fmt(t('msg.win'),{name:monName(foe)}),true);
   const d=curFloor(); d.ent[c.y][c.x]=null;
@@ -4316,11 +4337,13 @@ function confirmSkillPick(){
 }
 
 /* ============================== Teleport ============================== */
+function floorHasBlockTp(){ const d=curFloor(); if(!d||!d.ent) return false; for(let _y=0;_y<d.ent.length;_y++){ const _row=d.ent[_y]; if(!_row) continue; for(let _x=0;_x<_row.length;_x++){ const _e=_row[_x]; if(_e && _e.kind==='monster' && _e.foe && _e.foe.blockTp) return true; } } return false; }
 function openTeleport(){
   if(state.mode!=='solo'){ toast(t('mp.tpDisabled')); return; }
   if(state.floor===SECRET_FLOOR){ toast(t('tp.inSecret')); return; }   /* 密室內禁用樓層傳送 */
   if(!state.cheatActive && (state.player.tpScrolls||0)<=0){ toast(t('tp.needScroll')); return; }   /* normal play needs a scroll; admin mode does not */
   if(bossSealed(curFloor())){ toast(t('tp.bossLock')); return; }   /* can't teleport out of a boss arena until its boss is defeated */
+  if(!state.cheatActive && floorHasBlockTp()){ toast(t('tp.blocked')); return; }   /* a living monster on this floor blocks teleport */
   renderTeleportContent(); show('teleport');
 }
 function renderTeleportContent(){
@@ -6180,16 +6203,16 @@ const I18N_DEATHT = {
 
 /* ---- Batch-2 怪物能力 i18n（admin 標籤 + 戰鬥訊息） ---- */
 const I18N_AB2 = {
-'zh-Hant':{ admin:{abBonusDmg:'加成傷害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'復活一次', abAtkc:'連擊次數', abAtkcMin:'連擊min', abAtkcMax:'連擊max', abStatDownP:'削攻防%', abStatDownN:'削攻防+',abStatDown:'削攻防'},
-  msg:{ revive:'怪物復活了！', cantFlee:'無法從這個敵人身邊逃跑！', statDown:'你的攻擊與防禦被削弱了！' } },
-'zh-Hans':{ admin:{abBonusDmg:'加成伤害', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'复活一次', abAtkc:'连击次数', abAtkcMin:'连击min', abAtkcMax:'连击max', abStatDownP:'削攻防%', abStatDownN:'削攻防+',abStatDown:'削攻防'},
-  msg:{ revive:'怪物复活了！', cantFlee:'无法从这个敌人身边逃跑！', statDown:'你的攻击与防御被削弱了！' } },
-'en':{ admin:{abBonusDmg:'Bonus dmg', abDrainEn:'Drain EN', abNoFlee:'No flee', abRevive:'Revive 1x', abAtkc:'Hit count', abAtkcMin:'Hits min', abAtkcMax:'Hits max', abStatDownP:'Weaken%', abStatDownN:'Weaken+',abStatDown:'Weaken'},
-  msg:{ revive:'The monster revived!', cantFlee:"You can't flee from this enemy!", statDown:'Your attack and defense were weakened!' } },
-'ja':{ admin:{abBonusDmg:'追加ダメ', abDrainEn:'気力吸収', abNoFlee:'逃走不可', abRevive:'一度復活', abAtkc:'連撃回数', abAtkcMin:'連撃min', abAtkcMax:'連撃max', abStatDownP:'弱体%', abStatDownN:'弱体+',abStatDown:'弱体'},
-  msg:{ revive:'魔物が復活した！', cantFlee:'この敵からは逃げられない！', statDown:'攻撃力と防御力が弱体化した！' } },
-'ko':{ admin:{abBonusDmg:'추가뎀', abDrainEn:'기력흡수', abNoFlee:'도주불가', abRevive:'1회부활', abAtkc:'연타 횟수', abAtkcMin:'연타min', abAtkcMax:'연타max', abStatDownP:'약화%', abStatDownN:'약화+',abStatDown:'약화'},
-  msg:{ revive:'몬스터가 부활했다!', cantFlee:'이 적에게서 도망칠 수 없다!', statDown:'공격력과 방어력이 약화되었다!' } }
+'zh-Hant':{ admin:{abBonusDmg:'加成傷害',abPoisonChance:'中毒機率',abTrueTriple:'防禦不足三倍',abWeakCfg:'衰弱設定',abCritDrainEn:'爆擊扣能',abBlockTp:'禁傳送',abAtkFatigue:'攻擊疲勞',abNoEnergy:'不增能量',neAtk:'攻擊時',neAll:'全部',abPoisonBuff:'中毒強化',abStatMatch:'數值同步',abReviveInto:'邪惡重生',abMAtkSkill:'攻擊技',abMDefSkill:'防禦技',soSeq:'順序',soRand:'隨機',soAi:'AI',bossParams:'B20魔王',bpPillar:'沖天柱吸能',bpBarrier:'結界盾能/體',bpReflect:'反射盾能/體',bpBlk:'反射擋',bpHeal:'回血',skNone:'(無)',skHp:'血<',skRd:'每',riNone:'(無)',smA:'攻防鏡像',smB:'防擋攻',pbAtk:' 攻',pbDef:' 防',wkAtk:' 扣攻',wkDef:' 扣防', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'復活一次', abAtkc:'連擊次數', abAtkcMin:'連擊min', abAtkcMax:'連擊max', abStatDownP:'削攻防%', abStatDownN:'削攻防+',abStatDown:'削攻防'},
+  msg:{ revive:'怪物復活了！',reviveInto:'怪物化作新生的存在！',foeSkill:'怪物施展了 {name}！',foeDefSkill:'怪物以 {name} 防禦！',bossBarrier:'古頓展開結界盾！',bossReflShield:'古頓展開能量反射盾！', cantFlee:'無法從這個敵人身邊逃跑！', statDown:'你的攻擊與防禦被削弱了！' } },
+'zh-Hans':{ admin:{abBonusDmg:'加成伤害',abPoisonChance:'中毒几率',abTrueTriple:'防御不足三倍',abWeakCfg:'衰弱设定',abCritDrainEn:'爆击扣能',abBlockTp:'禁传送',abAtkFatigue:'攻击疲劳',abNoEnergy:'不增能量',neAtk:'攻击时',neAll:'全部',abPoisonBuff:'中毒强化',abStatMatch:'数值同步',abReviveInto:'邪恶重生',abMAtkSkill:'攻击技',abMDefSkill:'防御技',soSeq:'顺序',soRand:'随机',soAi:'AI',bossParams:'B20魔王',bpPillar:'冲天柱吸能',bpBarrier:'结界盾能/体',bpReflect:'反射盾能/体',bpBlk:'反射挡',bpHeal:'回血',skNone:'(无)',skHp:'血<',skRd:'每',riNone:'(无)',smA:'攻防镜像',smB:'防挡攻',pbAtk:' 攻',pbDef:' 防',wkAtk:' 扣攻',wkDef:' 扣防', abDrainEn:'吸能量', abNoFlee:'禁逃跑', abRevive:'复活一次', abAtkc:'连击次数', abAtkcMin:'连击min', abAtkcMax:'连击max', abStatDownP:'削攻防%', abStatDownN:'削攻防+',abStatDown:'削攻防'},
+  msg:{ revive:'怪物复活了！',reviveInto:'怪物化作新生的存在！',foeSkill:'怪物施展了 {name}！',foeDefSkill:'怪物以 {name} 防御！',bossBarrier:'古顿展开结界盾！',bossReflShield:'古顿展开能量反射盾！', cantFlee:'无法从这个敌人身边逃跑！', statDown:'你的攻击与防御被削弱了！' } },
+'en':{ admin:{abBonusDmg:'Bonus dmg',abPoisonChance:'Poison %',abTrueTriple:'3x vs low DEF',abWeakCfg:'Weak cfg',abCritDrainEn:'Crit -EN',abBlockTp:'No TP',abAtkFatigue:'Atk fatigue',abNoEnergy:'No EN gain',neAtk:'On atk',neAll:'All',abPoisonBuff:'Poison buff',abStatMatch:'Stat sync',abReviveInto:'Rebirth as',abMAtkSkill:'Atk skill',abMDefSkill:'Def skill',soSeq:'Seq',soRand:'Rand',soAi:'AI',bossParams:'B20 Boss',bpPillar:'Pillar EN',bpBarrier:'Barrier EN/ST',bpReflect:'Reflect EN/ST',bpBlk:'Block',bpHeal:'Heal',skNone:'(none)',skHp:'HP<',skRd:'every',riNone:'(none)',smA:'Mirror',smB:'Def=Atk',pbAtk:' +ATK',pbDef:' +DEF',wkAtk:' -ATK',wkDef:' -DEF', abDrainEn:'Drain EN', abNoFlee:'No flee', abRevive:'Revive 1x', abAtkc:'Hit count', abAtkcMin:'Hits min', abAtkcMax:'Hits max', abStatDownP:'Weaken%', abStatDownN:'Weaken+',abStatDown:'Weaken'},
+  msg:{ revive:'The monster revived!',reviveInto:'The monster is reborn as a new being!',foeSkill:'The monster used {name}!',foeDefSkill:'The monster defended with {name}!',bossBarrier:'Gordon raises a Barrier Shield!',bossReflShield:'Gordon raises an Energy Reflection Shield!', cantFlee:"You can't flee from this enemy!", statDown:'Your attack and defense were weakened!' } },
+'ja':{ admin:{abBonusDmg:'追加ダメ',abPoisonChance:'毒確率',abTrueTriple:'防御不足で3倍',abWeakCfg:'弱体設定',abCritDrainEn:'会心気力減',abBlockTp:'転送封じ',abAtkFatigue:'攻撃疲労',abNoEnergy:'気力不増',neAtk:'攻撃時',neAll:'全部',abPoisonBuff:'毒強化',abStatMatch:'数値同期',abReviveInto:'邪悪再生',abMAtkSkill:'攻撃技',abMDefSkill:'防御技',soSeq:'順番',soRand:'ランダム',soAi:'AI',bossParams:'B20ボス',bpPillar:'柱の吸気',bpBarrier:'結界盾 気/体',bpReflect:'反射盾 気/体',bpBlk:'反射',bpHeal:'回復',skNone:'(なし)',skHp:'HP<',skRd:'毎',riNone:'(なし)',smA:'攻防鏡',smB:'防=攻',pbAtk:' 攻',pbDef:' 防',wkAtk:' 攻減',wkDef:' 防減', abDrainEn:'気力吸収', abNoFlee:'逃走不可', abRevive:'一度復活', abAtkc:'連撃回数', abAtkcMin:'連撃min', abAtkcMax:'連撃max', abStatDownP:'弱体%', abStatDownN:'弱体+',abStatDown:'弱体'},
+  msg:{ revive:'魔物が復活した！',reviveInto:'魔物が新たな存在へ転生した！',foeSkill:'魔物が {name} を放った！',foeDefSkill:'魔物が {name} で防御！',bossBarrier:'ゴードンが結界盾を展開！',bossReflShield:'ゴードンがエネルギー反射盾を展開！', cantFlee:'この敵からは逃げられない！', statDown:'攻撃力と防御力が弱体化した！' } },
+'ko':{ admin:{abBonusDmg:'추가뎀',abPoisonChance:'중독 확률',abTrueTriple:'방어 부족시 3배',abWeakCfg:'약화 설정',abCritDrainEn:'치명 기력',abBlockTp:'이동 봉쇄',abAtkFatigue:'공격 피로',abNoEnergy:'기력 불가',neAtk:'공격시',neAll:'전부',abPoisonBuff:'중독 강화',abStatMatch:'수치 동기화',abReviveInto:'사악 재생',abMAtkSkill:'공격기',abMDefSkill:'방어기',soSeq:'순서',soRand:'랜덤',soAi:'AI',bossParams:'B20보스',bpPillar:'기둥 흡기',bpBarrier:'결계 기/체',bpReflect:'반사 기/체',bpBlk:'반사',bpHeal:'회복',skNone:'(없음)',skHp:'HP<',skRd:'매',riNone:'(없음)',smA:'공방 미러',smB:'방=공',pbAtk:' 공',pbDef:' 방',wkAtk:' 공감',wkDef:' 방감', abDrainEn:'기력흡수', abNoFlee:'도주불가', abRevive:'1회부활', abAtkc:'연타 횟수', abAtkcMin:'연타min', abAtkcMax:'연타max', abStatDownP:'약화%', abStatDownN:'약화+',abStatDown:'약화'},
+  msg:{ revive:'몬스터가 부활했다!',reviveInto:'몬스터가 새로운 존재로 환생했다!',foeSkill:'몬스터가 {name} 발동!',foeDefSkill:'몬스터가 {name}(으)로 방어!',bossBarrier:'고든이 결계 방패를 펼쳤다!',bossReflShield:'고든이 에너지 반사 방패를 펼쳤다!', cantFlee:'이 적에게서 도망칠 수 없다!', statDown:'공격력과 방어력이 약화되었다!' } }
 };
 (function mergeAB2(){ for(const L in I18N_AB2){ if(!I18N[L]) continue; const S=I18N_AB2[L];
   for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
@@ -6659,7 +6682,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·62 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·76 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6667,7 +6690,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·62 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·76 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -7091,6 +7114,10 @@ function _dtMode(btn){
   for(var i=0;i<btns.length;i++){ var b=btns[i], act=(b.getAttribute('data-dtbtn')===type);
     b.style.background=act?'var(--gold)':'transparent'; b.style.color=act?'#17101f':'var(--txt-dim)'; b.style.fontWeight=act?'700':'500'; }
 }
+function _smMode(btn){ if(!btn) return; var box=btn.closest('[data-abset]'); if(!box) return; var type=btn.getAttribute('data-smbtn')||'A'; var seg=box.querySelector('[data-smseg]'); if(seg) seg.setAttribute('data-curtype',type); var inp=box.querySelector('[data-k="statMatch"]'); if(inp) inp.value=type; var btns=box.querySelectorAll('[data-smbtn]'); for(var i=0;i<btns.length;i++){ var b=btns[i], act=(b.getAttribute('data-smbtn')===type); b.style.background=act?'var(--gold)':'transparent'; b.style.color=act?'#17101f':'var(--txt-dim)'; b.style.fontWeight=act?'700':'500'; } }
+function _smToggle(cb){ var row=cb.closest('.adRowItem')||document, box=row.querySelector('[data-abset="statMatch"]'); if(!box) return; box.style.display=cb.checked?'inline-flex':'none'; if(cb.checked){ var seg=box.querySelector('[data-smseg]'); var type=(seg&&seg.getAttribute('data-curtype'))||'A'; _smMode(box.querySelector('[data-smbtn="'+type+'"]')); } else { var inp=box.querySelector('[data-k="statMatch"]'); if(inp) inp.value=''; } }
+function _neMode(btn){ if(!btn) return; var box=btn.closest('[data-abset]'); if(!box) return; var type=btn.getAttribute('data-nebtn')||'atk'; var seg=box.querySelector('[data-neseg]'); if(seg) seg.setAttribute('data-curtype',type); var inp=box.querySelector('[data-k="noEnergy"]'); if(inp) inp.value=type; var btns=box.querySelectorAll('[data-nebtn]'); for(var i=0;i<btns.length;i++){ var b=btns[i], act=(b.getAttribute('data-nebtn')===type); b.style.background=act?'var(--gold)':'transparent'; b.style.color=act?'#17101f':'var(--txt-dim)'; b.style.fontWeight=act?'700':'500'; } }
+function _neToggle(cb){ var row=cb.closest('.adRowItem')||document, box=row.querySelector('[data-abset="noEnergy"]'); if(!box) return; box.style.display=cb.checked?'inline-flex':'none'; if(cb.checked){ var seg=box.querySelector('[data-neseg]'); var type=(seg&&seg.getAttribute('data-curtype'))||'atk'; _neMode(box.querySelector('[data-nebtn="'+type+'"]')); } else { var inp=box.querySelector('[data-k="noEnergy"]'); if(inp) inp.value=''; } }
 function _dtToggle(cb){
   var row=cb.closest('.adRowItem')||document, box=row.querySelector('[data-abset="deathTerrain"]'); if(!box) return;
   box.style.display=cb.checked?'inline-flex':'none';
@@ -7100,19 +7127,50 @@ function _dtToggle(cb){
 function adMonAbilities(m){
   var h='<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
   h+='<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:9px 15px;padding:3px 0;align-items:center">';
-  ['solid','vampire','pierce','first'].forEach(function(av){ h+=_abChip({cb:'data-ab="'+av+'"', label:t('ab.'+av), on:hasAb(m,av)}); });
+  ['solid','pierce','first'].forEach(function(av){ h+=_abChip({cb:'data-ab="'+av+'"', label:t('ab.'+av), on:hasAb(m,av)}); });
+  h+=_abChip({key:'vampire', cb:'data-ab="vampire" data-abtog="vampire" onchange="_abToggle(this)"', label:t('ab.vampire'), on:hasAb(m,'vampire'), set:_abNum('vampPct',15,0,(m.vampPct||15))+'<span style="opacity:.6">%</span>'});
   h+=_abChip({key:'drains', cb:'data-kbool="drains" onchange="_abToggle(this)"', label:t('admin.drains'), on:!!m.drains, set:_abNum('drainStam',STAM_DRAIN,0,(m.drainStam!=null?m.drainStam:STAM_DRAIN))});
-  h+=_abChip({cb:'data-kbool="trueDmg"', label:t('admin.abTrue'), on:!!m.trueDmg});
+  h+=_abChip({key:'trueDmg', cb:'data-kbool="trueDmg" data-abtog="trueDmg" onchange="_abToggle(this)"', label:t('admin.abTrue'), on:!!m.trueDmg, set:'<label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;opacity:.85;cursor:pointer;font-weight:400"><input type="checkbox" data-kbool="trueTriple"'+(m.trueTriple?' checked':'')+'>'+t('admin.abTrueTriple')+'</label>'});
   h+=_abChip({cb:'data-kbool="noFlee"', label:t('admin.abNoFlee'), on:!!m.noFlee});
-  h+=_abChip({cb:'data-kbool="revive"', label:t('admin.abRevive'), on:!!m.revive});
+  h+=_abChip({cb:'data-kbool="blockTp"', label:t('admin.abBlockTp'), on:!!m.blockTp});
+  var _riOpts='<option value="">'+t('admin.riNone')+'</option>';
+  (adminDraft&&adminDraft.monsters?adminDraft.monsters:[]).concat(adminDraft&&adminDraft.basementMonsters?adminDraft.basementMonsters:[]).forEach(function(_mm){ if(_mm&&_mm.id){ _riOpts+='<option value="'+_mm.id+'"'+((m.reviveInto===_mm.id)?' selected':'')+'>'+(_mm.name||_mm.id)+'</option>'; } });
+  h+='<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:400;white-space:nowrap">'+t('admin.abReviveInto')+'<select data-k="reviveInto" style="padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px;max-width:130px">'+_riOpts+'</select></label>';
+  var _curA=_foeSkArr(m,true), _curD=_foeSkArr(m,false), _chkSt='display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:400;cursor:pointer;margin-right:5px';
+  var _skBlk='<div style="display:flex;flex-wrap:wrap;align-items:center;gap:3px 1px;grid-column:1/-1;padding:2px 0">';
+  _skBlk+='<span style="opacity:.55;margin-right:2px">'+t('admin.abMAtkSkill')+'</span>';
+  ATK_SKILLS.forEach(function(_s){ _skBlk+='<label style="'+_chkSt+'"><input type="checkbox" data-matk="'+_s.id+'"'+((_curA.indexOf(_s.id)>=0)?' checked':'')+'>'+skillName(_s.id)+'</label>'; });
+  _skBlk+='<span style="opacity:.55;margin:0 2px">'+t('admin.abMDefSkill')+'</span>';
+  DEF_SKILLS.forEach(function(_s){ _skBlk+='<label style="'+_chkSt+'"><input type="checkbox" data-mdef="'+_s.id+'"'+((_curD.indexOf(_s.id)>=0)?' checked':'')+'>'+skillName(_s.id)+'</label>'; });
+  var _so=m.skillOrder||'seq';
+  _skBlk+='<select data-k="skillOrder" style="padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px;margin-left:3px"><option value="seq"'+((_so==='seq')?' selected':'')+'>'+t('admin.soSeq')+'</option><option value="rand"'+((_so==='rand')?' selected':'')+'>'+t('admin.soRand')+'</option><option value="ai"'+((_so==='ai')?' selected':'')+'>'+t('admin.soAi')+'</option></select>';
+  _skBlk+='<span style="opacity:.55;margin-left:3px">'+t('admin.skHp')+'</span>'+_abNum('skillHpBelow',50,0,(m.skillHpBelow||0))+'<span style="opacity:.55">% '+t('admin.skRd')+'</span>'+_abNum('skillEveryN',0,0,(m.skillEveryN||0))+'</div>';
+  h+=_skBlk;
   h+=_abChip({cb:'data-abstatus="poison" onchange="_abStatusToggle(this)"', label:t('ab.poison'), on:(m.ability==='poison'||hasAb(m,'poison'))});
   h+=_abChip({cb:'data-abstatus="weak" onchange="_abStatusToggle(this)"', label:t('ab.weak'), on:(m.ability==='weak'||hasAb(m,'weak'))});
+  h+=_abChip({key:'poisonChance', cb:'data-abtog="poisonChance" onchange="_abToggle(this)"', label:t('admin.abPoisonChance'), on:(m.poisonChance||0)>0, set:_abNum('poisonChance',30,0,(m.poisonChance||0))+'<span style="opacity:.6">%</span>'});
+  var _wc=m.weakChance||0, _wa=(m.weakAtk!=null?m.weakAtk:3), _wd=(m.weakDef!=null?m.weakDef:3);
+  h+=_abChip({key:'weakCfg', cb:'data-abtog="weakCfg" onchange="_abToggle(this)"', label:t('admin.abWeakCfg'), on:(_wc>0||_wa!=3||_wd!=3), set:_abNum('weakChance',30,0,_wc)+'<span style="opacity:.6">%'+t('admin.wkAtk')+'</span>'+_abNum('weakAtk',3,3,_wa)+'<span style="opacity:.6">'+t('admin.wkDef')+'</span>'+_abNum('weakDef',3,3,_wd)});
   { var _mOn=((m.atkc||1)>1||(m.atkcMax||0)>0), _mRand=((m.atkcMax||0)>0); var _vFix=(_mOn&&!_mRand)?m.atkc:1, _vMin=(_mOn&&_mRand)?(m.atkcMin>0?m.atkcMin:2):0, _vMax=(_mOn&&_mRand)?(m.atkcMax>0?m.atkcMax:3):0; var _sc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;'; var _bf=_sc+'background:'+(!_mRand?'var(--gold)':'transparent')+';color:'+(!_mRand?'#17101f':'var(--txt-dim)')+';font-weight:'+(!_mRand?'700':'500')+';'; var _br=_sc+'background:'+(_mRand?'var(--gold)':'transparent')+';color:'+(_mRand?'#17101f':'var(--txt-dim)')+';font-weight:'+(_mRand?'700':'500')+';'; h+=_abChip({key:'atkc', cb:'data-abtog="atkc" onchange="_abComboToggle(this)"', label:t('admin.abAtkc'), on:_mOn, set:'<span data-comboseg data-curmode="'+(_mRand?'rand':'fixed')+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden">'+'<button type="button" data-combobtn="fixed" onclick="event.stopPropagation();_abComboMode(this)" style="'+_bf+'">固定</button>'+'<button type="button" data-combobtn="rand" onclick="event.stopPropagation();_abComboMode(this)" style="'+_br+'">隨機</button>'+'</span>'+'<span data-combobox="fixed" style="display:'+(!_mRand?'inline-flex':'none')+';align-items:center;gap:3px"><span style="font-size:11px;opacity:.7">次數</span>'+_abNum('atkc',2,1,_vFix)+'</span>'+'<span data-combobox="rand" style="display:'+(_mRand?'inline-flex':'none')+';align-items:center;gap:3px">'+_abNum('atkcMin',2,0,_vMin)+'<span style="font-size:11px;opacity:.7">~</span>'+_abNum('atkcMax',3,0,_vMax)+'</span>'}); }
   h+=_abChip({key:'critMult', cb:'data-abtog="critMult" onchange="_abToggle(this)"', label:t('admin.abCrit'), on:(m.critMult!=null&&m.critMult>1), set:_abNum('critMult',2,1,(m.critMult!=null?m.critMult:1),'0.1')});
   h+=_abChip({key:'bonusDmg', cb:'data-abtog="bonusDmg" onchange="_abToggle(this)"', label:t('admin.abBonusDmg'), on:(m.bonusDmg||0)>0, set:_abNum('bonusDmg',10,0,(m.bonusDmg||0))});
   h+=_abChip({key:'drainEn', cb:'data-abtog="drainEn" onchange="_abToggle(this)"', label:t('admin.abDrainEn'), on:(m.drainEn||0)>0, set:_abNum('drainEn',10,0,(m.drainEn||0))});
   /* 「耗體量」已併入上方「耗體」開關：勾選耗體即可設定普通攻擊的耗體量 */
   h+=_abChip({key:'critDrainStam', cb:'data-abtog="critDrainStam" onchange="_abToggle(this)"', label:t('admin.critDrainStam'), on:(m.critDrainStam||0)>0, set:_abNum('critDrainStam',5,0,(m.critDrainStam||0))});
+  h+=_abChip({key:'critDrainEn', cb:'data-abtog="critDrainEn" onchange="_abToggle(this)"', label:t('admin.abCritDrainEn'), on:(m.critDrainEn||0)>0, set:_abNum('critDrainEn',20,0,(m.critDrainEn||0))});
+  h+=_abChip({key:'atkFatigue', cb:'data-abtog="atkFatigue" onchange="_abToggle(this)"', label:t('admin.abAtkFatigue'), on:(m.atkFatigue||0)>0, set:_abNum('atkFatigue',10,0,(m.atkFatigue||0))});
+  var _ne=m.noEnergy||'', _neType=(_ne==='all')?'all':'atk', _nesc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;';
+  var _neAtkS=_nesc+'background:'+(_neType==='atk'?'var(--gold)':'transparent')+';color:'+(_neType==='atk'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_neType==='atk'?'700':'500')+';';
+  var _neAllS=_nesc+'background:'+(_neType==='all'?'var(--gold)':'transparent')+';color:'+(_neType==='all'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_neType==='all'?'700':'500')+';';
+  var neSeg='<input type="hidden" data-k="noEnergy" value="'+_ne+'"><span data-neseg data-curtype="'+_neType+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden"><button type="button" data-nebtn="atk" onclick="event.stopPropagation();_neMode(this)" style="'+_neAtkS+'">'+t('admin.neAtk')+'</button><button type="button" data-nebtn="all" onclick="event.stopPropagation();_neMode(this)" style="'+_neAllS+'">'+t('admin.neAll')+'</button></span>';
+  h+=_abChip({key:'noEnergy', cb:'onchange="_neToggle(this)"', label:t('admin.abNoEnergy'), on:!!m.noEnergy, set:neSeg});
+  var _pbc=m.poisonBuffChance||0, _pba=m.poisonBuffAtk||0, _pbd=m.poisonBuffDef||0;
+  h+=_abChip({key:'poisonBuff', cb:'data-abtog="poisonBuff" onchange="_abToggle(this)"', label:t('admin.abPoisonBuff'), on:(_pbc>0||_pba>0||_pbd>0), set:_abNum('poisonBuffChance',30,0,_pbc)+'<span style="opacity:.6">%'+t('admin.pbAtk')+'</span>'+_abNum('poisonBuffAtk',50,0,_pba)+'<span style="opacity:.6">'+t('admin.pbDef')+'</span>'+_abNum('poisonBuffDef',50,0,_pbd)});
+  var _sm=m.statMatch||'', _smType=(_sm==='B')?'B':'A', _smsc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;';
+  var _smAS=_smsc+'background:'+(_smType==='A'?'var(--gold)':'transparent')+';color:'+(_smType==='A'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_smType==='A'?'700':'500')+';';
+  var _smBS=_smsc+'background:'+(_smType==='B'?'var(--gold)':'transparent')+';color:'+(_smType==='B'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_smType==='B'?'700':'500')+';';
+  var smSeg='<input type="hidden" data-k="statMatch" value="'+_sm+'"><span data-smseg data-curtype="'+_smType+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden"><button type="button" data-smbtn="A" onclick="event.stopPropagation();_smMode(this)" style="'+_smAS+'">'+t('admin.smA')+'</button><button type="button" data-smbtn="B" onclick="event.stopPropagation();_smMode(this)" style="'+_smBS+'">'+t('admin.smB')+'</button></span>';
+  h+=_abChip({key:'statMatch', cb:'onchange="_smToggle(this)"', label:t('admin.abStatMatch'), on:!!m.statMatch, set:smSeg});
   var sdOn=((m.statDownPct||0)>0||(m.statDownN||0)>0);
   h+=_abChip({key:'statDown', cb:'data-abtog="statDown" onchange="_abToggle(this)"', label:t('admin.abStatDown'), on:sdOn, set:_abNum('statDownPct',10,0,(m.statDownPct||0))+'<span style="opacity:.6">%</span>'+_abNum('statDownN',5,0,(m.statDownN||0))+'<span style="opacity:.6">+</span>'});
   var _dt=m.deathTerrain||'', _dtType=(_dt==='lava')?'lava':'ice';
@@ -7122,6 +7180,15 @@ function adMonAbilities(m){
   var dtSeg='<input type="hidden" data-k="deathTerrain" value="'+_dt+'">'+'<span data-dtseg data-curtype="'+_dtType+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden">'+'<button type="button" data-dtbtn="ice" onclick="event.stopPropagation();_dtMode(this)" style="'+_dIce+'">'+t('admin.deathIce')+'</button>'+'<button type="button" data-dtbtn="lava" onclick="event.stopPropagation();_dtMode(this)" style="'+_dLava+'">'+t('admin.deathLava')+'</button>'+'</span>';
   h+=_abChip({key:'deathTerrain', cb:'data-abtog="deathTerrain" onchange="_dtToggle(this)"', label:t('admin.abDeath'), on:!!m.deathTerrain, set:dtSeg});
   h+='</div></div>';
+  if(m.id==='overlordGordon'){ var _bp=function(k,d){ return '<input type="number" data-k="'+k+'" value="'+(m[k]!=null?m[k]:d)+'" style="width:46px;padding:2px 3px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px">'; };
+    h+='<div style="grid-column:1/-1;border-top:1px solid var(--line);margin-top:5px;padding-top:5px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12px">';
+    h+='<span style="opacity:.6;font-weight:600">'+t('admin.bossParams')+'</span>';
+    h+='<label style="display:inline-flex;align-items:center;gap:3px">'+t('admin.bpPillar')+_bp('pillarDrainEn',30)+'</label>';
+    h+='<label style="display:inline-flex;align-items:center;gap:3px">'+t('admin.bpBarrier')+_bp('barrierEn',15)+'<span style="opacity:.5">/</span>'+_bp('barrierStam',3)+'</label>';
+    h+='<label style="display:inline-flex;align-items:center;gap:3px">'+t('admin.bpReflect')+_bp('reflectEn',25)+'<span style="opacity:.5">/</span>'+_bp('reflectStam',5)+'</label>';
+    h+='<label style="display:inline-flex;align-items:center;gap:3px">'+t('admin.bpBlk')+_bp('reflectBlockPct',60)+'%</label>';
+    h+='<label style="display:inline-flex;align-items:center;gap:3px">'+t('admin.bpHeal')+_bp('reflectHealPct',30)+'%</label>';
+    h+='</div>'; }
   return h;
 }
 function _adPrev(){ return '<button type="button" data-prev class="adPrevBtn" style="margin-left:8px;padding:1px 9px;font-size:12px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);cursor:pointer;vertical-align:middle">👁 '+t('admin.preview')+'</button>'; }
@@ -7221,10 +7288,12 @@ function collectAdminDraft(){
       if(k==='drains'){ target.drains = fields[j].value==='1'; }
       else if(k==='id'){ const vv=(fields[j].value||'').trim(); if(vv) target.id=vv; }
       else if(k==='face'||k==='name'){ target[k] = (fields[j].value||'').trim(); }
-      else if(k==='atkFx'||k==='atkSfx'||k==='critFx'||k==='critSfx'||k==='role'||k==='ability'||k==='deathTerrain'){ target[k] = fields[j].value||''; }
+      else if(k==='atkFx'||k==='atkSfx'||k==='critFx'||k==='critSfx'||k==='role'||k==='ability'||k==='deathTerrain'||k==='noEnergy'||k==='statMatch'||k==='reviveInto'||k==='mAtkSkill'||k==='mDefSkill'||k==='skillOrder'){ target[k] = fields[j].value||''; }
       else { const num=parseFloat(fields[j].value); target[k]= isNaN(num)?0:num; }
     }
     { const _abx=row.querySelectorAll('input[data-ab]'); if(_abx.length){ const _aba=[]; for(let _j=0;_j<_abx.length;_j++){ if(_abx[_j].checked) _aba.push(_abx[_j].getAttribute('data-ab')); } target.ab=_aba; } }
+    { const _ma=row.querySelectorAll('input[data-matk]'); if(_ma.length){ const _maa=[]; for(let _j=0;_j<_ma.length;_j++){ if(_ma[_j].checked) _maa.push(_ma[_j].getAttribute('data-matk')); } target.mAtkSkills=_maa; } }
+    { const _md=row.querySelectorAll('input[data-mdef]'); if(_md.length){ const _mda=[]; for(let _j=0;_j<_md.length;_j++){ if(_md[_j].checked) _mda.push(_md[_j].getAttribute('data-mdef')); } target.mDefSkills=_mda; } }
     { const _kb=row.querySelectorAll('input[data-kbool]'); for(let _j=0;_j<_kb.length;_j++){ const _kk=_kb[_j].getAttribute('data-kbool'); if(_kk==='drains') target.drains=_kb[_j].checked; else target[_kk]=_kb[_j].checked?1:0; } }
     { const _ps=row.querySelector('input[data-abstatus="poison"]'), _ws=row.querySelector('input[data-abstatus="weak"]'); if(_ps||_ws) target.ability=(_ps&&_ps.checked)?'poison':((_ws&&_ws.checked)?'weak':''); }
     const _nlf=row.querySelectorAll('[data-knl]');
