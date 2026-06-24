@@ -6256,6 +6256,16 @@ const I18N_BOSSFX = {
 };
 (function mergeBossFx(){ for(const L in I18N_BOSSFX){ if(!I18N[L]) continue; const S=I18N_BOSSFX[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 
+/* ---- 出怪表 分頁標籤 ---- */
+const I18N_SPAWNS = {
+'zh-Hant':{ admin:{tabSpawns:'出怪表'} },
+'zh-Hans':{ admin:{tabSpawns:'出怪表'} },
+'en':{ admin:{tabSpawns:'Spawns'} },
+'ja':{ admin:{tabSpawns:'出現表'} },
+'ko':{ admin:{tabSpawns:'출현표'} }
+};
+(function mergeSpawns(){ for(const L in I18N_SPAWNS){ if(!I18N[L]) continue; const S=I18N_SPAWNS[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
 /* ---- 技能特效 / 能力特效 區塊標籤 ---- */
 const I18N_SKILLFX = {
 'zh-Hant':{ admin:{fxSkills:'技能特效（攻擊／防禦）', fxAbilities:'怪物能力特效'} },
@@ -6668,7 +6678,7 @@ function doCloudLoad(){
 
 /* ---- admin backend ---- */
 let adminDraft=null, adminTab='monsters', _admRenderLang='zh-Hant', _monSearch='', _collapse={surf:false,base:false}, _pinNext=null;
-const ADMIN_TABS=[['monsters','tabMon','mtTabMon'],['boss','tabBoss','mtTabBoss'],['player','tabPlayer','mtTabPlayer'],['map','tabMap','mtTabMap'],['fx','tabFx','mtTabFx'],['items','tabItems','mtTabItems'],['skills','tabSkills','mtTabSkills'],['sounds','tabSounds','mtTabSounds'],['data','tabData','mtTabData']];
+const ADMIN_TABS=[['monsters','tabMon','mtTabMon'],['boss','tabBoss','mtTabBoss'],['player','tabPlayer','mtTabPlayer'],['map','tabMap','mtTabMap'],['spawns','tabSpawns','mtTabSpawns'],['fx','tabFx','mtTabFx'],['items','tabItems','mtTabItems'],['skills','tabSkills','mtTabSkills'],['sounds','tabSounds','mtTabSounds'],['data','tabData','mtTabData']];
 function buildAdminTabs(){
   let tb=document.querySelector('.adminTabs');
   if(!tb){
@@ -6678,7 +6688,7 @@ function buildAdminTabs(){
     else { const m=document.querySelector('.adminModal'); if(m) m.insertBefore(tb, m.children[1]||null); }
   }
   tb.style.cssText='display:block;width:100%;margin:0 0 12px;padding:7px;background:rgba(0,0,0,.28);border:1px solid var(--gold-d);border-radius:12px;box-sizing:border-box;font-size:0;';
-  const TAB_LBL={monsters:'怪物',boss:'魔王',player:'玩家',map:'地圖',fx:'特效',items:'寶物',skills:'技能',sounds:'聲音',data:'資料'};
+  const TAB_LBL={monsters:'怪物',boss:'魔王',player:'玩家',map:'地圖',spawns:'出怪表',fx:'特效',items:'寶物',skills:'技能',sounds:'聲音',data:'資料'};
   let h='';
   ADMIN_TABS.forEach(function(pp){
     const sel=(pp[0]===adminTab);
@@ -6694,7 +6704,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·80 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·81 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6702,7 +6712,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·80 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·81 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6845,6 +6855,80 @@ function adFixedFloor(o){
   const word=({'zh-Hant':'固定樓層','zh-Hans':'固定楼层','en':'Fixed floor','ja':'固定階','ko':'고정 층'})[state.lang]||'Fixed floor';
   return '<div class="adField"><label>'+word+'</label><input type="text" value="'+floorTag(M[o.id])+'" disabled></div>';
 }
+/* ===== 出怪表 (Spawn table) — floor → eligible monsters, mirrors bfsDistMap roster logic ===== */
+function _spawnMonLookup(){
+  var map={}; function add(m){ if(m&&m.id&&!map[m.id]) map[m.id]=m; }
+  MONSTERS.forEach(add); BASEMENT_MONSTERS.forEach(add);
+  if(typeof SWORD_KING!=='undefined') add(SWORD_KING);
+  if(typeof BOSS!=='undefined') add(BOSS);
+  if(typeof BASEMENT_BOSS!=='undefined') add(BASEMENT_BOSS);
+  if(typeof ABYSS_GUARD!=='undefined') add(ABYSS_GUARD);
+  if(typeof GUARD_DRAGONS!=='undefined'){ for(var k in GUARD_DRAGONS) add(GUARD_DRAGONS[k]); }
+  return map;
+}
+function _spawnRosterFor(rf){
+  var isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };
+  var ALL=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);
+  var roster;
+  if(rf>0){ roster=ALL.filter(function(m){ return !m.b20 && (m.sMin|0)>0 && rf>=(m.sMin|0) && rf<=(m.sMax|0) && (rf>=15||!isDebuff(m)); }); }
+  else { var dp=-rf; roster=ALL.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }
+  var wl=(typeof FLOOR_WL!=='undefined'&&FLOOR_WL[rf])?FLOOR_WL[rf]:null;
+  if(wl&&wl.length){ var w=ALL.filter(function(m){ return !m.b20 && wl.indexOf(m.id)>=0; }); if(w.length) roster=w; }
+  return roster;
+}
+function _spawnChip(m, badge){
+  if(!m) return '';
+  var ic = m.img ? ('<img src="'+m.img+'" alt="" style="width:18px;height:18px;object-fit:contain;border-radius:4px">')
+                 : ('<span style="font-size:15px;line-height:1">'+(m.face||'\u2753')+'</span>');
+  var bd = badge ? ('<span style="font-size:10px;color:var(--gold);font-weight:700">'+badge+'</span>') : '';
+  return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);font-size:12px;margin:2px;white-space:nowrap">'+bd+ic+'<span>'+_admName(m)+'</span></span>';
+}
+function renderSpawnTable(body){
+  var lang=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
+  var T=function(o){ return o[lang]||o['zh-Hant']; };
+  var look=_spawnMonLookup();
+  var FIXED={dragon:FLOORS, overlordGordon:-BASEMENT, redDragon:18, venomDragon:-12, abyssLord:-15};
+  var bossIds={dragon:1, overlordGordon:1};
+  var bossBadge=T({'zh-Hant':'魔王','zh-Hans':'魔王','en':'BOSS','ja':'ボス','ko':'보스'});
+  var guardBadge=T({'zh-Hant':'守關','zh-Hans':'守关','en':'GUARD','ja':'門番','ko':'관문'});
+  function fixedFor(rf){ var out=[]; for(var id in FIXED){ if(FIXED[id]===rf){ out.push({m:look[id]||{id:id,face:'\u2753'}, badge:(bossIds[id]?bossBadge:guardBadge)}); } } return out; }
+
+  var note=document.createElement('p'); note.className='adNote';
+  note.textContent=T({
+    'zh-Hant':'依你目前雲端/已套用的怪物樓層設定，列出每一層會出現的怪物（漫遊怪＋守衛＋固定魔王）。改完怪物的樓層範圍後，請先按下方「套用到本機」或「儲存到雲端」，再回此頁查看。',
+    'zh-Hans':'依你目前云端/已应用的怪物楼层设定，列出每一层会出现的怪物（漫游怪＋守卫＋固定魔王）。改完怪物的楼层范围后，请先按下方「应用到本机」或「保存到云端」，再回此页查看。',
+    'en':'Lists the monsters that can appear on each floor, based on your currently applied/cloud monster floor settings (wanderers + guards + fixed bosses). After editing ranges, Apply or Save first, then revisit this tab.',
+    'ja':'現在の適用/クラウドのモンスター階層設定に基づき、各階に出現するモンスターを一覧表示（徘徊＋ガード＋固定ボス）。範囲を編集したら「適用」か「保存」を押してから再表示してください。',
+    'ko':'현재 적용/클라우드 몬스터 층 설정에 따라 각 층에 나타날 수 있는 몬스터를 표시합니다(배회+가드+고정 보스). 범위 편집 후 적용/저장한 뒤 다시 확인하세요.'
+  });
+  body.appendChild(note);
+
+  function section(title){ var h=document.createElement('div'); h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:14px;'; h.textContent=title; body.appendChild(h); }
+  var emptyTxt=T({'zh-Hant':'（這層沒有設定怪物）','zh-Hans':'（这层没有设定怪物）','en':'(no monsters set)','ja':'（設定なし）','ko':'(설정 없음)'});
+  function floorRow(label, partsHtml){
+    var r=document.createElement('div');
+    r.style.cssText='display:flex;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.05);align-items:flex-start;';
+    r.innerHTML='<div style="min-width:44px;font-weight:700;color:var(--txt);padding-top:5px;flex:0 0 auto">'+label+'</div>'+
+      '<div style="flex:1;display:flex;flex-wrap:wrap;min-height:26px;align-items:center">'+(partsHtml||('<span style="color:var(--txt-faint);font-size:12px">'+emptyTxt+'</span>'))+'</div>';
+    body.appendChild(r);
+  }
+
+  section(T({'zh-Hant':'地上樓層','zh-Hans':'地上楼层','en':'Surface floors','ja':'地上フロア','ko':'지상 층'})+' (2F~'+FLOORS+'F)');
+  for(var f=2; f<=FLOORS; f++){
+    var seen={}, parts=[];
+    fixedFor(f).forEach(function(x){ if(x.m&&x.m.id&&!seen[x.m.id]){ seen[x.m.id]=1; parts.push(_spawnChip(x.m,x.badge)); } });
+    _spawnRosterFor(f).forEach(function(m){ if(!seen[m.id]){ seen[m.id]=1; parts.push(_spawnChip(m,'')); } });
+    floorRow(f+'F', parts.join(''));
+  }
+  section(T({'zh-Hant':'地下樓層','zh-Hans':'地下楼层','en':'Basement floors','ja':'地下フロア','ko':'지하 층'})+' (B1~B'+BASEMENT+')');
+  for(var b=1; b<=BASEMENT; b++){
+    var rf=-b, seenB={}, partsB=[];
+    fixedFor(rf).forEach(function(x){ if(x.m&&x.m.id&&!seenB[x.m.id]){ seenB[x.m.id]=1; partsB.push(_spawnChip(x.m,x.badge)); } });
+    _spawnRosterFor(rf).forEach(function(m){ if(!seenB[m.id]){ seenB[m.id]=1; partsB.push(_spawnChip(m,'')); } });
+    floorRow('B'+b, partsB.join(''));
+  }
+}
+
 function renderAdminBody(){
   _admRenderLang=(typeof state!=='undefined'&&state.lang)||'zh-Hant';
   const body=byId('adminBody'); body.innerHTML=''; const _pinId=_pinNext; _pinNext=null;
@@ -7053,7 +7137,7 @@ function renderAdminBody(){
     body.appendChild(row);
     const tip=document.createElement('p'); tip.className='adNote'; tip.style.marginTop='8px'; tip.textContent=t('admin.sndTry'); body.appendChild(tip);
     body.appendChild(_customSfxManager());
-  } else if(adminTab==='data'){
+  } else if(adminTab==='spawns'){ try{ renderSpawnTable(body); }catch(_e){ var _ep=document.createElement('p'); _ep.className='desc'; _ep.textContent=''+_e; body.appendChild(_ep); } } else if(adminTab==='data'){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.dataNote'); body.appendChild(n);
     if(!Net.db){ const p=document.createElement('p'); p.className='desc'; p.textContent=t('acct.noFirebase'); body.appendChild(p); return; }
     const loading=document.createElement('p'); loading.className='desc'; loading.textContent='…'; body.appendChild(loading);
