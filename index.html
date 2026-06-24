@@ -2951,7 +2951,7 @@ function renderStats(){
 }
 
 /* ============================== Movement & interaction ============================== */
-function portalUsableFloor(f){ return f!==FLOORS && f!==-BASEMENT; }   /* 任意門：頭目層不可用 */
+function portalUsableFloor(f){ return true; }   /* 任意門：任何樓層皆可用（頭目競技場的牆壁仍受保護，見 usePortalDir / doPortalConvert） */
 function _syncPortalBtn(){ const b=byId('btnPortal2'); if(b){ if(state.portalAim) b.classList.add('active'); else b.classList.remove('active'); } }
 function togglePortalAim(){
   const pl=state.player; if(!pl||!pl.portalGot) return;
@@ -3002,7 +3002,7 @@ function usePortalDir(dx,dy){
   if(nx<0||ny<0||nx>=GRID||ny>=GRID){ state.portalAim=false; _syncPortalBtn(); try{ renderMap(); }catch(e){} try{ toast(t('msg.portalNeedWall')); }catch(e){} return; }
   const en=d.ent[ny][nx];
   const isWB=(en&&en.kind==='barrier') || !!d.wall[ny][nx];
-  const conv=(en&&en.kind==='barrier') || (!!d.wall[ny][nx] && _isKeyWall(d,nx,ny));
+  const conv=(en&&en.kind==='barrier') || (!d.boss && !!d.wall[ny][nx] && _isKeyWall(d,nx,ny));   /* 頭目競技場的牆壁不可被任意門打穿，只能清除死亡冰封障礙 */
   if(!conv){ state.portalAim=false; _syncPortalBtn(); try{ renderMap(); }catch(e){} try{ toast(t(isWB?'msg.portalNotKey':'msg.portalNeedWall')); }catch(e){} return; }
   if((pl.portals||0)<=0){ state.portalAim=false; _syncPortalBtn(); try{ toast(t('msg.portalNone')); }catch(e){} return; }
   state.portalAim=false; _syncPortalBtn();
@@ -3016,7 +3016,7 @@ function doPortalConvert(){
   if(!pl||!d||!tg){ try{ renderMap(); }catch(e){} return; }
   if((pl.portals||0)<=0){ try{ toast(t('msg.portalNone')); }catch(e){} try{ renderMap(); }catch(e){} return; }
   const en=d.ent[tg.y][tg.x];
-  const conv=(en&&en.kind==='barrier') || (!!d.wall[tg.y][tg.x] && _isKeyWall(d,tg.x,tg.y));
+  const conv=(en&&en.kind==='barrier') || (!d.boss && !!d.wall[tg.y][tg.x] && _isKeyWall(d,tg.x,tg.y));   /* 頭目競技場的牆壁不可被任意門打穿 */
   if(!conv){ const isWB=(en&&en.kind==='barrier')||!!d.wall[tg.y][tg.x]; try{ toast(t(isWB?'msg.portalNotKey':'msg.portalNeedWall')); }catch(e){} try{ renderMap(); }catch(e){} return; }
   pl.portals--;
   d.wall[tg.y][tg.x]=false;
@@ -4394,8 +4394,8 @@ function tpRenderReadout(){
   const f=state.tpList[state.tpIdx], here=(f===state.floor);
   byId('tpVal').textContent=floorTag(f);
   byId('tpValSub').textContent = here ? t('tp.cur') : '';
-  byId('tpGo').textContent = here ? t('tp.goHere') : fmt(t('tp.goTo'),{n:floorTag(f)});
-  byId('tpGo').disabled = false;   /* same-floor teleport is allowed — it returns you to this floor's down-staircase */
+  byId('tpGo').textContent = here ? (f>0 ? t('tp.goHere') : t('tp.goHereUp')) : fmt(t('tp.goTo'),{n:floorTag(f)});
+  byId('tpGo').disabled = false;   /* same-floor teleport is allowed — surface returns to the down-staircase, basement to the up-staircase */
   byId('tpUp').disabled = (state.tpIdx>=state.tpList.length-1);
   byId('tpDown').disabled = (state.tpIdx<=0);
   { const mp=byId('tpMap'); if(mp) mp.innerHTML=tpMiniMap(f); }
@@ -4409,10 +4409,16 @@ function teleportTo(f){
   const from=state.floor;
   state.floor=f; ensureFloor(f);
   const d=curFloor();
-  if(f<from){                                            /* teleporting DOWN -> land ON the DOWN-staircase, facing further down */
+  /* Land on the staircase that leads back toward the floor you came FROM.
+     Floor value is the physical-height axis (1..FLOORS high above; B1=-1 … B20=-BASEMENT deep below), so a LARGER value = physically HIGHER.
+       dest higher than source -> DOWN-staircase (d.start)  — it leads back DOWN toward the source
+       dest lower  than source -> UP-staircase   (d.stairs) — it leads back UP toward the source (e.g. B2->B3)
+       same floor              -> surface: DOWN-staircase (toward 1F);  basement: UP-staircase (toward B1) */
+  var _landDown = (f>from) ? true : (f<from) ? false : (f>0);
+  if(_landDown && d.start){                              /* DOWN-staircase */
     state.px=d.start.x; state.py=d.start.y;
     state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
-  } else {                                               /* teleporting UP / SAME floor -> land ON the UP-staircase, facing further up */
+  } else {                                               /* UP-staircase */
     state.px=d.stairs.x; state.py=d.stairs.y;
     state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null;
   }
@@ -6267,6 +6273,16 @@ const I18N_SPAWNS = {
 };
 (function mergeSpawns(){ for(const L in I18N_SPAWNS){ if(!I18N[L]) continue; const S=I18N_SPAWNS[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 
+/* ---- 同層傳送：地下樓層回到上樓梯的按鈕標籤 ---- */
+const I18N_TPUP = {
+'zh-Hant':{ tp:{goHereUp:'回到上樓梯'} },
+'zh-Hans':{ tp:{goHereUp:'回到上楼梯'} },
+'en':{ tp:{goHereUp:'Back to up-stairs'} },
+'ja':{ tp:{goHereUp:'上り階段へ戻る'} },
+'ko':{ tp:{goHereUp:'위층 계단으로 돌아가기'} }
+};
+(function mergeTpUp(){ for(const L in I18N_TPUP){ if(!I18N[L]) continue; const S=I18N_TPUP[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
 /* ---- 技能特效 / 能力特效 區塊標籤 ---- */
 const I18N_SKILLFX = {
 'zh-Hant':{ admin:{fxSkills:'技能特效（攻擊／防禦）', fxAbilities:'怪物能力特效'} },
@@ -6725,7 +6741,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·83 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·85 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6733,7 +6749,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·83 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·85 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
