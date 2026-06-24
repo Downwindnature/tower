@@ -2809,12 +2809,12 @@ function sizeBoard(){
       /* DESKTOP sidebar lines up with the board height. On touch (tablet/landscape) the panel keeps its natural height + scrolls. */
       var _mf=byId('mapFrame'), _fb=byId('floorBar'), _mw=byId('mapWrap');
       var _gap=10; try{ if(_mw){ var _g=getComputedStyle(_mw).rowGap; if(_g&&_g.indexOf('px')>=0) _gap=parseFloat(_g)||10; } }catch(_e){}
-      sp.style.height = (_mf && _mf.offsetHeight ? _mf.offsetHeight : (GRID*tile + 24)) + 'px';
+      sp.style.height = Math.max((_mf && _mf.offsetHeight) ? _mf.offsetHeight : 0, GRID*tile + 24) + 'px';   /* never collapse: at least the board height even if measured before the grid is filled */
       sp.style.marginTop = (_fb && _fb.offsetHeight ? (_fb.offsetHeight + _gap) : 44) + 'px';   /* drop to the board's top, clearing the floor bar above the map */
     } else { sp.style.height=''; sp.style.marginTop=''; }
   }
 }
-function renderAll(){ sizeBoard(); renderMap(); renderStats(); try{ updateBGM(); }catch(e){} }
+function renderAll(){ sizeBoard(); renderMap(); sizeBoard(); renderStats(); try{ updateBGM(); }catch(e){} }   /* 2nd sizeBoard runs AFTER renderMap so the sidebar height is measured against the FILLED board (fixes first-entry collapse) */
 function glyph(ch){const s=document.createElement('span'); s.className='glyph-ent'; s.textContent=ch; return s;}
 function flaskEl(color){ const w=document.createElement('div'); w.className='potion '+(color==='b'?'pb':'pr');
   const neck=document.createElement('i'); neck.className='pf-neck'; const body=document.createElement('i'); body.className='pf-body'; const shine=document.createElement('i'); shine.className='pf-shine';
@@ -6725,7 +6725,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·82 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·83 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6733,7 +6733,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·82 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·83 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
