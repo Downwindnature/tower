@@ -6246,6 +6246,16 @@ const I18N_CRITFX = {
 (function mergeCritFx(){ for(const L in I18N_CRITFX){ if(!I18N[L]) continue; const S=I18N_CRITFX[L];
   for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
 
+/* ---- 魔王(古頓)專屬:能量彈/沖天柱 攻擊特效與音效標籤 ---- */
+const I18N_BOSSFX = {
+'zh-Hant':{ admin:{bossBoltFx:'能量彈特效', bossBoltSfx:'能量彈音效', bossPillarFx:'沖天柱特效', bossPillarSfx:'沖天柱音效'} },
+'zh-Hans':{ admin:{bossBoltFx:'能量弹特效', bossBoltSfx:'能量弹音效', bossPillarFx:'冲天柱特效', bossPillarSfx:'冲天柱音效'} },
+'en':{ admin:{bossBoltFx:'Bolt FX', bossBoltSfx:'Bolt SFX', bossPillarFx:'Pillar FX', bossPillarSfx:'Pillar SFX'} },
+'ja':{ admin:{bossBoltFx:'エネルギー弾エフェクト', bossBoltSfx:'エネルギー弾サウンド', bossPillarFx:'天柱エフェクト', bossPillarSfx:'天柱サウンド'} },
+'ko':{ admin:{bossBoltFx:'에너지탄 이펙트', bossBoltSfx:'에너지탄 소리', bossPillarFx:'천주 이펙트', bossPillarSfx:'천주 소리'} }
+};
+(function mergeBossFx(){ for(const L in I18N_BOSSFX){ if(!I18N[L]) continue; const S=I18N_BOSSFX[L]; for(const ns in S){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[ns]); } } })();
+
 /* ---- 技能特效 / 能力特效 區塊標籤 ---- */
 const I18N_SKILLFX = {
 'zh-Hant':{ admin:{fxSkills:'技能特效（攻擊／防禦）', fxAbilities:'怪物能力特效'} },
@@ -6684,7 +6694,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·79 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·80 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6692,7 +6702,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·79 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·80 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6803,10 +6813,10 @@ function _customSfxManager(){
   else { h+='<div class="cmList">'; ids.forEach(function(id){ h+='<div class="cmItem"><button class="btn cmPlay" data-sfxplay="'+id+'">\u25b6</button><input class="cmNameInp" data-sfxname="'+id+'" value="'+(CUSTOM_SFX_NAME[id]||'').replace(/"/g,'&quot;')+'" placeholder="'+t('admin.sndCustom')+' '+id.replace('csfx','')+'"><button class="btn btnDanger" data-sfxdel="'+id+'">'+t('admin.del')+'</button></div>'; }); h+='</div>'; }
   box.innerHTML=h; return box;
 }
-function adAtkFx(obj){ const cur=(obj&&obj.atkFx)||''; let o='<div class="adField"><label>'+t('admin.atkFx')+'</label><select data-k="atkFx"><option value="">'+t('admin.fxDefault')+'</option>'; FX_PRESETS.forEach(function(pp){ o+='<option value="'+pp+'"'+(pp===cur?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select></div>'; }
-function adAtkSfx(obj){ const cur=(obj&&obj.atkSfx)||''; let o='<div class="adField"><label>'+t('admin.atkSfx')+'</label><select data-k="atkSfx"><option value="">'+t('admin.sndDefault')+'</option>'; SFX_PRESET_KEYS.forEach(function(kk){ o+='<option value="'+kk+'"'+(kk===cur?' selected':'')+'>'+t('admin.snd_'+kk)+'</option>'; }); return o+_sfxCustomOpts(cur)+'</select></div>'; }
-function adCritFx(obj){ const cur=(obj&&obj.critFx)||''; let o='<div class="adField"><label>'+t('admin.critFx')+'</label><select data-k="critFx"><option value="">'+t('admin.fxDefault')+'</option>'; FX_PRESETS.forEach(function(pp){ o+='<option value="'+pp+'"'+(pp===cur?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select></div>'; }
-function adCritSfx(obj){ const cur=(obj&&obj.critSfx)||''; let o='<div class="adField"><label>'+t('admin.critSfx')+'</label><select data-k="critSfx"><option value="">'+t('admin.sndDefault')+'</option>'; SFX_PRESET_KEYS.forEach(function(kk){ o+='<option value="'+kk+'"'+(kk===cur?' selected':'')+'>'+t('admin.snd_'+kk)+'</option>'; }); return o+_sfxCustomOpts(cur)+'</select></div>'; }
+function adAtkFx(obj){ const cur=(obj&&obj.atkFx)||''; let o='<div class="adField"><label>'+((obj&&obj.id==='overlordGordon')?t('admin.bossBoltFx'):t('admin.atkFx'))+'</label><select data-k="atkFx"><option value="">'+t('admin.fxDefault')+'</option>'; FX_PRESETS.forEach(function(pp){ o+='<option value="'+pp+'"'+(pp===cur?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select></div>'; }
+function adAtkSfx(obj){ const cur=(obj&&obj.atkSfx)||''; let o='<div class="adField"><label>'+((obj&&obj.id==='overlordGordon')?t('admin.bossBoltSfx'):t('admin.atkSfx'))+'</label><select data-k="atkSfx"><option value="">'+t('admin.sndDefault')+'</option>'; SFX_PRESET_KEYS.forEach(function(kk){ o+='<option value="'+kk+'"'+(kk===cur?' selected':'')+'>'+t('admin.snd_'+kk)+'</option>'; }); return o+_sfxCustomOpts(cur)+'</select></div>'; }
+function adCritFx(obj){ const cur=(obj&&obj.critFx)||''; let o='<div class="adField"><label>'+((obj&&obj.id==='overlordGordon')?t('admin.bossPillarFx'):t('admin.critFx'))+'</label><select data-k="critFx"><option value="">'+t('admin.fxDefault')+'</option>'; FX_PRESETS.forEach(function(pp){ o+='<option value="'+pp+'"'+(pp===cur?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select></div>'; }
+function adCritSfx(obj){ const cur=(obj&&obj.critSfx)||''; let o='<div class="adField"><label>'+((obj&&obj.id==='overlordGordon')?t('admin.bossPillarSfx'):t('admin.critSfx'))+'</label><select data-k="critSfx"><option value="">'+t('admin.sndDefault')+'</option>'; SFX_PRESET_KEYS.forEach(function(kk){ o+='<option value="'+kk+'"'+(kk===cur?' selected':'')+'>'+t('admin.snd_'+kk)+'</option>'; }); return o+_sfxCustomOpts(cur)+'</select></div>'; }
 function adNum(label,obj,key,step){
   return '<div class="adField"><label>'+label+'</label><input type="number" step="'+(step||1)+'" data-k="'+key+'" value="'+(obj[key]!=null?obj[key]:0)+'"></div>';
 }
