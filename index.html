@@ -2027,6 +2027,7 @@ function migrateFloorRanges(){
   if(typeof SWORD_KING!=='undefined' && SWORD_KING){ SWORD_KING.sMin=0; SWORD_KING.sMax=0; if(!(SWORD_KING.bMin>0)){ SWORD_KING.bMin=1; SWORD_KING.bMax=9; } }
 }
 migrateFloorRanges();
+const BASE_MON_IDS=MONSTERS.map(function(m){return m.id;}), BASE_BMON_IDS=BASEMENT_MONSTERS.map(function(m){return m.id;});   /* pristine build-default monster ids — lets the config merge tell NEW monsters apart from user-DELETED ones */
 function startCanPierce(foe){ return (START.atk+START.thrA) > (foe.def+foe.thrD); }
 
 /* ============================== Floor helpers ============================== */
@@ -2185,7 +2186,7 @@ function genFloorRaw(f){
   const isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };   // weaken / poison / true-damage / life-drain
   const _ALLMON=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);   // unified pool; each monster carries its own surface (sMin/sMax) + basement-depth (bMin/bMax) ranges (admin Monsters tab)
   let roster;
-  if(_realFloor>0){ const rf=_realFloor; roster=_ALLMON.filter(function(m){ return !m.b20 && (m.sMin|0)>0 && rf>=(m.sMin|0) && rf<=(m.sMax|0) && (rf>=15||!isDebuff(m)); }); }   // surface floor: monsters whose surface range covers it (special-effect mobs still gated < floor 15)
+  if(_realFloor>0){ const rf=_realFloor; roster=_ALLMON.filter(function(m){ return !m.b20 && (m.sMin|0)>0 && rf>=(m.sMin|0) && rf<=(m.sMax|0); }); }   // surface floor: monsters whose surface range covers it (special-effect mobs still gated < floor 15)
   else { const dp=-_realFloor; roster=_ALLMON.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }   // basement: monsters whose basement-depth range covers this depth
   { const _wl=(typeof FLOOR_WL!=='undefined'&&FLOOR_WL[_realFloor])?FLOOR_WL[_realFloor]:null; if(_wl&&_wl.length){ const _w=_ALLMON.filter(function(m){ return !m.b20 && _wl.indexOf(m.id)>=0; }); if(_w.length) roster=_w; } }   // per-floor whitelist (admin Map tab): if set, this floor spawns ONLY the listed monsters
   const weakRoster=roster.filter(function(m){return startCanPierce(scaleFoe(m,f));});
@@ -6440,6 +6441,8 @@ function snapshotConfig(){
     boss: _cp(BOSS),
     basementBoss: _cp(BASEMENT_BOSS),
     swordKing: _cp(SWORD_KING),
+    buildMonIds: (typeof BASE_MON_IDS!=='undefined'?BASE_MON_IDS.slice():MONSTERS.map(function(m){return m.id;})),
+    buildBMonIds: (typeof BASE_BMON_IDS!=='undefined'?BASE_BMON_IDS.slice():BASEMENT_MONSTERS.map(function(m){return m.id;})),
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
     map: { floors:FLOORS, grid:GRID, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },
     floorCfg: Object.assign({}, FLOOR_CFG),
@@ -6481,11 +6484,29 @@ function _migrateNameLoc(o){ if(o && o.name && (''+o.name).trim() && (!o.nameLoc
 function applyConfig(cfg){
   if(!cfg) return;
   if(Array.isArray(cfg.monsters) && cfg.monsters.length){
-    MONSTERS.length=0; cfg.monsters.forEach(function(m){ MONSTERS.push(Object.assign({}, m)); }); MONSTERS.forEach(_migrateNameLoc);
+    var _curDefM=MONSTERS.slice(), _byIdM={}, _seenM={}, _knownM=(Array.isArray(cfg.buildMonIds)?cfg.buildMonIds:null);
+    cfg.monsters.forEach(function(m){ if(m&&m.id) _byIdM[m.id]=m; });
+    MONSTERS.length=0;
+    _curDefM.forEach(function(def){ var sv=_byIdM[def.id];
+      if(sv){ MONSTERS.push(Object.assign({}, def, sv)); _seenM[def.id]=1; }
+      else if(_knownM && _knownM.indexOf(def.id)>=0){ /* this default existed when the user saved but is absent now → they deleted it, respect that */ }
+      else { MONSTERS.push(Object.assign({}, def)); _seenM[def.id]=1; }   /* a build monster the saved config never knew about (new) — or a legacy config with no manifest → restore it */
+    });
+    cfg.monsters.forEach(function(m){ if(m&&m.id&&!_seenM[m.id]) MONSTERS.push(Object.assign({}, m)); });   /* custom monsters that only exist in the cloud */
+    MONSTERS.forEach(_migrateNameLoc);
   }
   if(cfg.boss){ Object.assign(BOSS, cfg.boss); _migrateNameLoc(BOSS); }
   if(Array.isArray(cfg.basementMonsters) && cfg.basementMonsters.length){
-    BASEMENT_MONSTERS.length=0; cfg.basementMonsters.forEach(function(m){ BASEMENT_MONSTERS.push(Object.assign({}, m)); }); BASEMENT_MONSTERS.forEach(_migrateNameLoc);
+    var _curDefB=BASEMENT_MONSTERS.slice(), _byIdB={}, _seenB={}, _knownB=(Array.isArray(cfg.buildBMonIds)?cfg.buildBMonIds:null);
+    cfg.basementMonsters.forEach(function(m){ if(m&&m.id) _byIdB[m.id]=m; });
+    BASEMENT_MONSTERS.length=0;
+    _curDefB.forEach(function(def){ var sv=_byIdB[def.id];
+      if(sv){ BASEMENT_MONSTERS.push(Object.assign({}, def, sv)); _seenB[def.id]=1; }
+      else if(_knownB && _knownB.indexOf(def.id)>=0){ /* user-deleted basement monster → respect */ }
+      else { BASEMENT_MONSTERS.push(Object.assign({}, def)); _seenB[def.id]=1; }   /* new build basement monster (or legacy config) → restore */
+    });
+    cfg.basementMonsters.forEach(function(m){ if(m&&m.id&&!_seenB[m.id]) BASEMENT_MONSTERS.push(Object.assign({}, m)); });   /* cloud-only custom basement monsters */
+    BASEMENT_MONSTERS.forEach(_migrateNameLoc);
   }
   if(cfg.basementBoss){ Object.assign(BASEMENT_BOSS, cfg.basementBoss); _migrateNameLoc(BASEMENT_BOSS); }
   if(cfg.swordKing){ Object.assign(SWORD_KING, cfg.swordKing); _migrateNameLoc(SWORD_KING); }
@@ -6704,7 +6725,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·81 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·82 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6712,7 +6733,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·81 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·82 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -6870,7 +6891,7 @@ function _spawnRosterFor(rf){
   var isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };
   var ALL=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);
   var roster;
-  if(rf>0){ roster=ALL.filter(function(m){ return !m.b20 && (m.sMin|0)>0 && rf>=(m.sMin|0) && rf<=(m.sMax|0) && (rf>=15||!isDebuff(m)); }); }
+  if(rf>0){ roster=ALL.filter(function(m){ return !m.b20 && (m.sMin|0)>0 && rf>=(m.sMin|0) && rf<=(m.sMax|0); }); }
   else { var dp=-rf; roster=ALL.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }
   var wl=(typeof FLOOR_WL!=='undefined'&&FLOOR_WL[rf])?FLOOR_WL[rf]:null;
   if(wl&&wl.length){ var w=ALL.filter(function(m){ return !m.b20 && wl.indexOf(m.id)>=0; }); if(w.length) roster=w; }
