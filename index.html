@@ -139,6 +139,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .kc.y{background:#f4cf3a;color:#f4cf3a;} .kc.b{background:#4f8ef0;color:#4f8ef0;}
 .kc.r{background:#e0455e;color:#e0455e;} .kc.w{background:#e8dfc6;color:#e8dfc6;}
 .kc.p{background:#5fd6e6;color:#5fd6e6;box-shadow:0 0 9px #6fe0ec;}
+.kc.kcCustom{background-color:transparent!important;box-shadow:none!important;background-size:contain;background-repeat:no-repeat;background-position:center;}
+.kc.kcCustom::after{display:none!important;}
 
 /* ---- Map ---- */
 #mapWrap{flex:1;display:flex;flex-direction:column;min-width:0;gap:10px;}
@@ -1888,11 +1890,16 @@ let GLYPH_CFG={
   shop_old:{face:'🧓',img:null}, shop_older:{face:'👴',img:null},
   shop_healP:{face:'👵',img:null}, shop_healW:{face:'🤶',img:null},
   shop_keySell:{face:'🔑',img:null}, shop_keyBuy:{face:'💰',img:null}, shop_portal:{face:'👴',img:null}, shop_hint:{face:'🧙',img:null},
-  stair_up:{face:'🪜',img:null}, stair_down:{face:'🪜',img:null}, lava:{face:'',img:null}
+  stair_up:{face:'🪜',img:null}, stair_down:{face:'🪜',img:null}, lava:{face:'',img:null},
+  key_y:{face:'',img:null}, key_b:{face:'',img:null}, key_r:{face:'',img:null}, key_w:{face:'',img:null}, key_p:{face:'',img:null},
+  door_y:{face:'',img:null}, door_b:{face:'',img:null}, door_r:{face:'',img:null}, door_w:{face:'',img:null}, door_p:{face:'',img:null},
+  portal:{face:'🚪',img:null}
 };
-const GLYPH_ORDER=['shop_blue','shop_red','shop_old','shop_older','shop_healP','shop_healW','shop_keySell','shop_keyBuy','shop_portal','shop_hint','stair_up','stair_down','lava'];
+const GLYPH_ORDER=['shop_blue','shop_red','shop_old','shop_older','shop_healP','shop_healW','shop_keySell','shop_keyBuy','shop_portal','shop_hint','stair_up','stair_down','lava','key_y','key_b','key_r','key_w','key_p','door_y','door_b','door_r','door_w','door_p','portal'];
 function glyphImg(key){ const g=GLYPH_CFG[key]; return (g&&g.img)?g.img:null; }
 function _glyphImgEl(src){ const im=document.createElement('img'); im.className='entImgGlyph'; im.src=src; im.alt=''; return im; }
+function _kcSet(el,img,isPortal){ if(!el) return; img=img||''; if(el.dataset.kcimg===img) return; el.dataset.kcimg=img; if(img){ el.style.backgroundImage='url('+img+')'; el.classList.add('kcCustom'); if(isPortal) el.textContent=''; } else { el.style.backgroundImage=''; el.classList.remove('kcCustom'); if(isPortal) el.textContent='\ud83d\udeaa'; } }
+function _applyHudKeyGlyphs(){ try{ ['y','b','r','w','p'].forEach(function(c){ var im=glyphImg('key_'+c); var els=document.querySelectorAll('.keyCell .kc.'+c); for(var i=0;i<els.length;i++) _kcSet(els[i],im,false); }); var pe=document.querySelector('#portalKeyCell .kc'); _kcSet(pe, glyphImg('portal'), true); }catch(_e){} }
 const KEY_OF={y:'keyY',b:'keyB',r:'keyR',w:'keyW',p:'keyP'};
 
 const SKILLS=[
@@ -2867,7 +2874,9 @@ function renderMap(){
           if(ITEMS[e.item]&&ITEMS[e.item].img){
             const im=document.createElement('img'); im.className='entImgItem'; im.src=ITEMS[e.item].img; im.alt=''; cell.appendChild(im);
           }else if(ITEMS[e.item]&&ITEMS[e.item].key){
-            const k=document.createElement('div'); k.className='keyItem '+ITEMS[e.item].key; cell.appendChild(k);
+            const _kgl=glyphImg('key_'+ITEMS[e.item].key);
+            if(_kgl){ cell.appendChild(_glyphImgEl(_kgl)); }
+            else { const k=document.createElement('div'); k.className='keyItem '+ITEMS[e.item].key; cell.appendChild(k); }
           }else if(ITEMS[e.item]&&ITEMS[e.item].flask){
             cell.appendChild(flaskEl(ITEMS[e.item].flask));
           }else if(ITEMS[e.item]&&ITEMS[e.item].weap){
@@ -2882,7 +2891,9 @@ function renderMap(){
             cell.appendChild(gl);
           }
         }else if(e.kind==='door'){
-          const dr=document.createElement('div'); dr.className='door '+e.color; cell.appendChild(dr);
+          const _dgl=glyphImg('door_'+e.color);
+          if(_dgl){ cell.appendChild(_glyphImgEl(_dgl)); }
+          else { const dr=document.createElement('div'); dr.className='door '+e.color; cell.appendChild(dr); }
         }else if(e.kind==='mcircle'||e.kind==='secretExit'){
           const mc=document.createElement('div'); mc.className='mcircle'+(e.kind==='secretExit'?' secretExit':''); mc.innerHTML="<svg viewBox='0 0 40 40'><circle cx='20' cy='20' r='17'/><path d='M20 3L30 33.8L3.8 14.8L36.2 14.8L10 33.8Z'/></svg>"; mc.style.animationDelay='-'+((Date.now()-_lavaClock)%1800)+'ms'; cell.appendChild(mc);
         }else if(e.kind==='shop'){
@@ -2939,6 +2950,7 @@ function renderStats(){
   byId('keyY').textContent=pl.keys.y; byId('keyB').textContent=pl.keys.b;
   byId('keyR').textContent=pl.keys.r; byId('keyW').textContent=pl.keys.w; byId('keyP').textContent=pl.keys.p;
   { const _pc=byId('portalCnt'); if(_pc) _pc.textContent=(pl.portals||0); const _pk=byId('portalKeyCell'); if(_pk) _pk.style.display=pl.portalGot?'':'none'; }
+  try{ _applyHudKeyGlyphs(); }catch(_e){}
   state.hpRef=Math.max(state.hpRef,pl.hp); state.stRef=Math.max(state.stRef,pl.reserve);
   const chip=byId('statusChip'); chip.classList.remove('poison','weak');
   if(pl.status==='poison'){chip.classList.add('poison'); byId('statusText').textContent=t('status.poison');}
@@ -4857,8 +4869,12 @@ function newGame(opts){
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null;
-  state.secretFloor=3+(hashSeed(state.seed,777)%(FLOORS-3)); state.secretWall=null; state.secretReturn=null; state.secretLooted=false;   /* hidden 密室: one surface floor 3..FLOORS-1 hides the entry wall */
-  state.hintFloor=2+(hashSeed(state.seed,555)%(FLOORS-2)); if(state.hintFloor===state.secretFloor) state.hintFloor=(state.hintFloor>2?state.hintFloor-1:state.hintFloor+1);   /* the hint old man lives on a different surface floor */
+  { var _secPool=[]; for(var _spf=3; _spf<=FLOORS-1; _spf++) _secPool.push(_spf); for(var _spb=1; _spb<=BASEMENT-1; _spb++) _secPool.push(-_spb); if(!_secPool.length) _secPool=[Math.max(1,Math.min(FLOORS,3))];
+    state.secretFloor=_secPool[hashSeed(state.seed,777)%_secPool.length];
+    var _hintPool=[]; for(var _hpf=2; _hpf<=FLOORS-1; _hpf++) _hintPool.push(_hpf); for(var _hpb=1; _hpb<=BASEMENT-1; _hpb++) _hintPool.push(-_hpb); if(!_hintPool.length) _hintPool=[Math.max(1,Math.min(FLOORS,2))];
+    var _hpi=hashSeed(state.seed,555)%_hintPool.length; if(_hintPool[_hpi]===state.secretFloor && _hintPool.length>1) _hpi=(_hpi+1)%_hintPool.length;
+    state.hintFloor=_hintPool[_hpi]; }
+  state.secretWall=null; state.secretReturn=null; state.secretLooted=false;   /* 密室入口牆=地上 3~24F 或地下 B1~B19；提示老頭=地上 2~24F 或地下 B1~B19；兩者隨機且必不同層（密室入口避開 2F 任意門教學關）*/
   state.healPlaced={};
   { var _kf1=10+(hashSeed(state.seed,901)%7); if(_kf1===11) _kf1=12;   /* 避開 11F 的 staff3 白門，免得白鑰匙與白門同層 */                                  /* 18F 白門寶庫的白鑰匙 -> 放在 10~16F */
     var _kf2=-(1+(hashSeed(state.seed,902)%11));                               /* B12 白門寶庫的白鑰匙 -> 放在 B1~B11 */
@@ -6044,11 +6060,11 @@ const I18N_TS = {
  'en':{admin:{drainStam:'Stamina drain',critDrainStam:'Crit stamina drain'}}, 'ja':{admin:{drainStam:'スタミナ消耗',critDrainStam:'会心スタミナ消耗'}}, 'ko':{admin:{drainStam:'스태미나 소모',critDrainStam:'치명타 스태미나 소모'}}
 }; for(const L in S){ if(!I18N[L]) continue; for(const ns in S[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[L][ns]); } } })();
 (function mergeGlyphs(){ const S={
- 'zh-Hant':{admin:{glyphTitle:'地圖圖示',glyphHint:'替商店、NPC、樓梯上傳自訂圖片（留空＝用內建圖示）。改完按下方「儲存到雲端」。',gly_shop_blue:'商店(藍)',gly_shop_red:'商店(紅)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治療婆婆',gly_shop_healW:'治療婦人',gly_shop_keySell:'賣鑰匙',gly_shop_keyBuy:'買鑰匙',gly_shop_portal:'任意門老人',gly_stair_up:'上樓梯',gly_stair_down:'下樓梯',gly_lava:'岩漿'}},
- 'zh-Hans':{admin:{glyphTitle:'地图图示',glyphHint:'为商店、NPC、楼梯上传自定义图片（留空＝用内建图示）。改完按下方「保存到云端」。',gly_shop_blue:'商店(蓝)',gly_shop_red:'商店(红)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治疗婆婆',gly_shop_healW:'治疗妇人',gly_shop_keySell:'卖钥匙',gly_shop_keyBuy:'买钥匙',gly_shop_portal:'任意门老人',gly_stair_up:'上楼梯',gly_stair_down:'下楼梯',gly_lava:'岩浆'}},
- 'en':{admin:{glyphTitle:'Map glyphs',glyphHint:'Upload custom images for shops, NPCs and stairs (blank = built-in icons). Save to cloud below.',gly_shop_blue:'Shop (blue)',gly_shop_red:'Shop (red)',gly_shop_old:'Shopkeeper',gly_shop_older:'Shopkeeper (elder)',gly_shop_healP:'Healer (granny)',gly_shop_healW:'Healer (woman)',gly_shop_keySell:'Key seller',gly_shop_keyBuy:'Key buyer',gly_shop_portal:'Portal NPC',gly_stair_up:'Stairs up',gly_stair_down:'Stairs down',gly_lava:'Lava'}},
- 'ja':{admin:{glyphTitle:'マップ図示',glyphHint:'店・NPC・階段に画像をアップロード（空欄＝内蔵図示）。下の「クラウドに保存」を押してください。',gly_shop_blue:'店(青)',gly_shop_red:'店(赤)',gly_shop_old:'店主',gly_shop_older:'店主(翁)',gly_shop_healP:'治療(婆)',gly_shop_healW:'治療(婦)',gly_shop_keySell:'鍵売り',gly_shop_keyBuy:'鍵買い',gly_shop_portal:'任意門の人',gly_stair_up:'上り階段',gly_stair_down:'下り階段',gly_lava:'溶岩'}},
- 'ko':{admin:{glyphTitle:'맵 아이콘',glyphHint:'상점·NPC·계단에 커스텀 이미지를 업로드(비우면 내장 아이콘). 아래 「클라우드 저장」을 누르세요.',gly_shop_blue:'상점(파랑)',gly_shop_red:'상점(빨강)',gly_shop_old:'상점 노인',gly_shop_older:'상점 노옹',gly_shop_healP:'치료 할머니',gly_shop_healW:'치료 부인',gly_shop_keySell:'열쇠 판매',gly_shop_keyBuy:'열쇠 구매',gly_shop_portal:'포탈 NPC',gly_stair_up:'위 계단',gly_stair_down:'아래 계단',gly_lava:'용암'}}
+ 'zh-Hant':{admin:{glyphTitle:'地圖圖示',glyphHint:'替商店、NPC、樓梯上傳自訂圖片（留空＝用內建圖示）。改完按下方「儲存到雲端」。',gly_shop_blue:'商店(藍)',gly_shop_red:'商店(紅)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治療婆婆',gly_shop_healW:'治療婦人',gly_shop_keySell:'賣鑰匙',gly_shop_keyBuy:'買鑰匙',gly_shop_portal:'任意門老人',gly_stair_up:'上樓梯',gly_stair_down:'下樓梯',gly_lava:'岩漿',gly_key_y:'黃鑰匙',gly_key_b:'藍鑰匙',gly_key_r:'紅鑰匙',gly_key_w:'白鑰匙',gly_key_p:'白金鑰匙',gly_door_y:'黃門',gly_door_b:'藍門',gly_door_r:'紅門',gly_door_w:'白門',gly_door_p:'白金門',gly_portal:'任意門'}},
+ 'zh-Hans':{admin:{glyphTitle:'地图图示',glyphHint:'为商店、NPC、楼梯上传自定义图片（留空＝用内建图示）。改完按下方「保存到云端」。',gly_shop_blue:'商店(蓝)',gly_shop_red:'商店(红)',gly_shop_old:'商店老人',gly_shop_older:'商店老翁',gly_shop_healP:'治疗婆婆',gly_shop_healW:'治疗妇人',gly_shop_keySell:'卖钥匙',gly_shop_keyBuy:'买钥匙',gly_shop_portal:'任意门老人',gly_stair_up:'上楼梯',gly_stair_down:'下楼梯',gly_lava:'岩浆',gly_key_y:'黄钥匙',gly_key_b:'蓝钥匙',gly_key_r:'红钥匙',gly_key_w:'白钥匙',gly_key_p:'白金钥匙',gly_door_y:'黄门',gly_door_b:'蓝门',gly_door_r:'红门',gly_door_w:'白门',gly_door_p:'白金门',gly_portal:'任意门'}},
+ 'en':{admin:{glyphTitle:'Map glyphs',glyphHint:'Upload custom images for shops, NPCs and stairs (blank = built-in icons). Save to cloud below.',gly_shop_blue:'Shop (blue)',gly_shop_red:'Shop (red)',gly_shop_old:'Shopkeeper',gly_shop_older:'Shopkeeper (elder)',gly_shop_healP:'Healer (granny)',gly_shop_healW:'Healer (woman)',gly_shop_keySell:'Key seller',gly_shop_keyBuy:'Key buyer',gly_shop_portal:'Portal NPC',gly_stair_up:'Stairs up',gly_stair_down:'Stairs down',gly_lava:'Lava',gly_key_y:'Yellow key',gly_key_b:'Blue key',gly_key_r:'Red key',gly_key_w:'White key',gly_key_p:'Platinum key',gly_door_y:'Yellow door',gly_door_b:'Blue door',gly_door_r:'Red door',gly_door_w:'White door',gly_door_p:'Platinum door',gly_portal:'Portal'}},
+ 'ja':{admin:{glyphTitle:'マップ図示',glyphHint:'店・NPC・階段に画像をアップロード（空欄＝内蔵図示）。下の「クラウドに保存」を押してください。',gly_shop_blue:'店(青)',gly_shop_red:'店(赤)',gly_shop_old:'店主',gly_shop_older:'店主(翁)',gly_shop_healP:'治療(婆)',gly_shop_healW:'治療(婦)',gly_shop_keySell:'鍵売り',gly_shop_keyBuy:'鍵買い',gly_shop_portal:'任意門の人',gly_stair_up:'上り階段',gly_stair_down:'下り階段',gly_lava:'溶岩',gly_key_y:'黄の鍵',gly_key_b:'青の鍵',gly_key_r:'赤の鍵',gly_key_w:'白の鍵',gly_key_p:'白金の鍵',gly_door_y:'黄の扉',gly_door_b:'青の扉',gly_door_r:'赤の扉',gly_door_w:'白の扉',gly_door_p:'白金の扉',gly_portal:'任意の扉'}},
+ 'ko':{admin:{glyphTitle:'맵 아이콘',glyphHint:'상점·NPC·계단에 커스텀 이미지를 업로드(비우면 내장 아이콘). 아래 「클라우드 저장」을 누르세요.',gly_shop_blue:'상점(파랑)',gly_shop_red:'상점(빨강)',gly_shop_old:'상점 노인',gly_shop_older:'상점 노옹',gly_shop_healP:'치료 할머니',gly_shop_healW:'치료 부인',gly_shop_keySell:'열쇠 판매',gly_shop_keyBuy:'열쇠 구매',gly_shop_portal:'포탈 NPC',gly_stair_up:'위 계단',gly_stair_down:'아래 계단',gly_lava:'용암',gly_key_y:'노란 열쇠',gly_key_b:'파란 열쇠',gly_key_r:'빨간 열쇠',gly_key_w:'흰 열쇠',gly_key_p:'백금 열쇠',gly_door_y:'노란 문',gly_door_b:'파란 문',gly_door_r:'빨간 문',gly_door_w:'흰 문',gly_door_p:'백금 문',gly_portal:'임의의 문'}}
 }; for(const L in S){ if(!I18N[L]) continue; for(const ns in S[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, S[L][ns]); } } })();
 (function mergeItemGain(){ const S={
  'zh-Hant':{admin:{igTitle:'寶物得到數值',igHint:'設定每個寶物拾取時增加的數值（生命／攻擊／防禦／金幣／經驗）。'}},
@@ -6744,7 +6760,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·92 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·94 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6752,7 +6768,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·92 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·94 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
