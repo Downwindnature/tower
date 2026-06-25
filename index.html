@@ -3771,13 +3771,13 @@ function foeTurn(){
   const _myDef0 = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);
   const _foeCanDmg = foe.trueDmg ? (foe.atk>0) : (dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(_myDef0*0.5):_myDef0),pl.thrD)>0);   /* 對玩家造不成傷害就不發動爆擊 */
   const foeCrit = (c.foeEn>=100) && _foeCanDmg; let _critUsed=false;
-  let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); if(foe.id==='overlordGordon'){ _nHits = foeCrit ? 1 : 4; } }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
+  let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); if(foe.id==='overlordGordon'){ _nHits = 4; } }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
   const _seq=[];
   let _defBlocks = (def && def.div && def.div>1) ? 1 : 0;   // one defence cast mitigates only ONE incoming hit; multi-hit foes get the rest through
   for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
       let dmg;
-      const _thisCrit = foeCrit && !_critUsed; if(_thisCrit){ _critUsed=true; c.foeStam=clamp(c.foeStam-1,0,100); if((foe.critDrainStam||0)>0) c.meStam=clamp(c.meStam-foe.critDrainStam,0,100); }   /* 爆擊命中:怪物 -1 體力 + 可吸玩家體力 */
+      const _thisCrit = foeCrit && (foe.id==='overlordGordon' || !_critUsed); const _critFx = _thisCrit && !_critUsed; if(_thisCrit){ _critUsed=true; if(_critFx){ c.foeStam=clamp(c.foeStam-1,0,100); if((foe.critDrainStam||0)>0) c.meStam=clamp(c.meStam-foe.critDrainStam,0,100); } }   /* 爆擊命中:怪物 -1 體力 + 可吸玩家體力（古頓四發皆爆擊，體力/能量副作用只算一次）*/
       if(foe.trueDmg){ dmg=foe.atk; if(foe.master==='overlord') dmg=Math.max(1,Math.round(foe.atk*Math.pow(0.8,i))); if(foe.trueTriple && effDef(pl)<foe.atk){ dmg=dmg*3; } if(_thisCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2)); if(c.shendunHits>0) dmg=Math.max(0, dmg-(c.shendunBonus||0)); }   /* 神盾可抵擋部分真實傷害 */   // mages: fixed TRUE damage; 古頓: 4-hit decaying bounce
       else {
         const myDef = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);   // 神盾 buff while charges remain; 幻骨 lowers DEF
@@ -3785,7 +3785,7 @@ function foeTurn(){
         if(_thisCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2));
         if(c.halveNext){ dmg=Math.ceil(dmg/2); }
       }
-      if(foe.id==='overlordGordon' && !_thisCrit){ dmg=Math.round(dmg/4); }   /* 4道能量彈：一次傷害四等分，每道各自可 miss */
+      if(foe.id==='overlordGordon'){ dmg=Math.round(dmg/4); }   /* 4道能量彈：傷害四等分（爆擊時每發為 ¼×爆擊倍率），每道各自可 miss */
       if(c.shendunHits>0) c.shendunHits--;
       if(_useSkill){ dmg=Math.round(dmg*_skMult); }
       const before=dmg;
@@ -3793,13 +3793,13 @@ function foeTurn(){
       if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       taken+=dmg; anyHit=true; hits++;
-      var _vhl=0; if(hasAb(foe,'vampire')&&dmg>0){ _vhl=Math.round(dmg*((foe.vampPct||15)/100)); foe.hp=Math.min(foe.maxhp,foe.hp+_vhl); }
+      var _vhl=0; if(hasAb(foe,'vampire')&&dmg>0){ _vhl=Math.round(dmg*((foe.vampPct||15)/100)); }   /* 吸血量逐發記錄，於 _foeShowHits 每發各自回血（不再一次總和） */
       if(foe.drains && !_thisCrit){ const _ds=(typeof foe.drainStam==='number'?foe.drainStam:STAM_DRAIN); c.meStam=clamp(c.meStam-_ds,0,100); }   /* 普攻耗體；爆擊改走爆擊耗體量，不重複 */
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
       if(c.foe.noEnergy!=='all'){ pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100); }   /* charge on taking a hit (blocked by 全部不增能量) */
       if(foe.drainEn>0){ pl.en=clamp(pl.en-foe.drainEn,0,100); }   /* 吸取能量 */
-      if(_thisCrit && foe.critDrainEn>0){ pl.en=clamp(pl.en-foe.critDrainEn,0,100); }   /* 爆擊扣能量 */
-      if(foe.id==='overlordGordon' && _thisCrit && foe.pillarDrainEn>0){ pl.en=clamp(pl.en-foe.pillarDrainEn,0,100); }   /* 沖天柱：爆擊吸取玩家能量 */
+      if(_critFx && foe.critDrainEn>0){ pl.en=clamp(pl.en-foe.critDrainEn,0,100); }   /* 爆擊扣能量（每回合一次）*/
+      if(foe.id==='overlordGordon' && _critFx && foe.pillarDrainEn>0){ pl.en=clamp(pl.en-foe.pillarDrainEn,0,100); }   /* 沖天柱：爆擊吸取玩家能量（每回合一次）*/
       _seq.push({d:dmg, crit:_thisCrit, heal:_vhl});
       if(def && def.id==='enerdun'){ c.foeSkip=true; break; }   // 能量盾: cancel remaining hits + foe skips next round
     } else { _seq.push({miss:true}); }
@@ -3844,7 +3844,7 @@ function _foeShowHits(seq, foeCrit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('me','miss!','miss'); }
     else if(h){
-      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null); if(h.heal>0) floatDmg('foe','+'+h.heal,'heal');
+      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null); if(h.heal>0){ c2.foe.hp=Math.min(c2.foe.maxhp, c2.foe.hp+h.heal); floatDmg('foe','+'+h.heal,'heal'); }
       if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=h.crit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=h.crit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, h.crit, _fsnd); }catch(_e){} }
     }
     try{ renderCombat(); }catch(_e){}
@@ -6774,7 +6774,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·99 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·100 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6782,7 +6782,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·99 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·100 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
