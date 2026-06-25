@@ -3637,7 +3637,7 @@ function armCrit(){
 }
 function _foeSkArr(foe,a){ var L=a?foe.mAtkSkills:foe.mDefSkills; if(L&&L.length) return L; var s=a?foe.mAtkSkill:foe.mDefSkill; return s?[s]:[]; }
 function _pickFoeSk(c,list,a){ if(!list.length) return ''; var ord=(c.foe.skillOrder||'seq'); if(ord==='rand') return list[Math.floor(RAND()*list.length)]; if(ord==='ai'){ var best='',bv=-Infinity; for(var i=0;i<list.length;i++){ var s=SKILL_BY_ID[list[i]]; if(!s)continue; var v=a?(s.mult||0):(s.id==='healShield'?100:(s.div||0)); if(v>bv){bv=v;best=list[i];} } return best; } var k=a?'_skAi':'_skDi'; c[k]=(c[k]||0); var p=list[c[k]%list.length]; c[k]++; return p; }
-function _statMatch(){ var c=state.combat; if(!c||!c.foe) return; var foe=c.foe, pl=state.player, sm=foe.statMatch; if(c.fBuffA){ foe.atk-=c.fBuffA; c.fBuffA=0; } if(c.fBuffD){ foe.def-=c.fBuffD; c.fBuffD=0; } if(sm!=='A'&&sm!=='B'&&sm!=='C') return; var pa=effAtk(pl), pd=effDef(pl); var tA, tD; if(sm==='B'){ tA=null; tD=pa; } else if(sm==='C'){ tA=null; tD=null; if(pa>foe.def){ tA=pa; tD=pd; } } else { tA=pa; tD=pd; } /* 每幀先卸下上一次的鏡像增益再依當前狀態重算：玩家變弱或條件不成立時，怪物攻防自動回到原本數值（不再鎖死）。C：玩家攻擊 > 怪物原防禦時才同步為玩家攻防，皆只升不降 */ if(tA!=null && tA>foe.atk){ c.fBuffA=tA-foe.atk; foe.atk=tA; } if(tD!=null && tD>foe.def){ c.fBuffD=tD-foe.def; foe.def=tD; } }
+function _statMatch(){ var c=state.combat; if(!c||!c.foe) return; var foe=c.foe, pl=state.player, sm=foe.statMatch; if(c.fBuffA){ foe.atk-=c.fBuffA; c.fBuffA=0; } if(c.fBuffD){ foe.def-=c.fBuffD; c.fBuffD=0; } if(sm!=='A'&&sm!=='B'&&sm!=='C') return; var pa=effAtk(pl), pd=effDef(pl); var tA, tD; if(sm==='B'){ tA=null; tD=pa; } else if(sm==='C'){ tA=null; tD=null; if(pa>foe.def){ tA=pa; tD=pa; } } else { tA=pa; tD=pd; } /* 每幀先卸下上一次的鏡像增益再依當前狀態重算：玩家變弱或條件不成立時，怪物攻防自動回到原本數值（不再鎖死）。C：玩家攻擊 > 怪物原防禦時才同步為玩家攻防，皆只升不降 */ if(tA!=null && tA>foe.atk){ c.fBuffA=tA-foe.atk; foe.atk=tA; } if(tD!=null && tD>foe.def){ c.fBuffD=tD-foe.def; foe.def=tD; } }
 function renderCombat(){
   const c=state.combat, pl=state.player, foe=c.foe;
   _statMatch();
@@ -4894,7 +4894,7 @@ function newGame(opts){
     state.vaultKeys=[{f:_kf1,item:'keyW'},{f:_kf2,item:'keyW'},{f:_kf3,item:'keyP'}]; }
   state.busy=false; state.kills=0; state.over=false; state.finished=false;
   state.basementUnlocked=false; state.startTime=Date.now(); state.hintsSeen={};
-  state.feat={}; state._achWon=false; _achSet=new Set(); try{ localStorage.removeItem('mt_ach'); }catch(_e){}   /* 成就每局獨立：清空本局已取得成就、事件追蹤與勝利旗標，新局可重新取得 */
+  state.feat={}; state._achWon=false; _achSet=new Set(); _achQueue=[]; _achBusy=false; try{ localStorage.removeItem('mt_ach'); }catch(_e){}   /* 成就每局獨立：清空本局已取得成就、事件追蹤、勝利旗標與待播提示，新局可重新取得且不會殘留提示 */
   state.cheatActive=false; state.cheatSnap=null;
   state.player=freshPlayer();
   state.hpRef=state.player.hp; state.stRef=state.player.reserve;
@@ -5698,7 +5698,7 @@ function goStartScreen(){
   state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false;
   if(Net.worldId) Net.leaveWorld();
   ['combat','shop','manual','teleport','endScreen','lobby','mpPanel'].forEach(hide);
-  renderStartScreen(); show('startScreen'); renderMpButton();
+  renderStartScreen(); show('startScreen'); renderMpButton(); try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(e){}   /* 回主畫面時收起成就提示，回遊戲再續播 */
   try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){}
   try{ _bgmStopWA(); }catch(e){}
 }
@@ -6458,6 +6458,7 @@ let _achQueue=[], _achBusy=false;
 function achPopup(a){ _achQueue.push(a); if(!_achBusy) _achNext(); }
 function _achNext(){
   if(!_achQueue.length){ _achBusy=false; return; }
+  if(typeof inLobby==='function' && inLobby()){ _achBusy=true; setTimeout(_achNext, 600); return; }   /* 主畫面（標題）暫停成就提示，回到遊戲自動續播 */
   _achBusy=true; const a=_achQueue.shift(); const el=byId('achToast'); if(!el){ _achBusy=false; return; }
   byId('achToastIcon').textContent=a.icon; byId('achToastGot').textContent=t('ach.got'); byId('achToastName').textContent='\u300c'+achName(a)+'\u300d';
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
@@ -6635,7 +6636,7 @@ function restoreRun(s){
   state.noStairTrigger=(onDown||onUp)? {x:state.px,y:state.py} : null;   /* don't auto-change floor on a restored staircase tile */
   state.target=null; state.over=false; state.busy=false; state.combat=null;
   ['startScreen','authScreen','adminScreen','lobby'].forEach(function(id){ hide(id); });
-  try{ _achSet=new Set(Array.isArray(s.ach)?s.ach:[]); localStorage.setItem('mt_ach', JSON.stringify(Array.from(_achSet))); }catch(e){}   /* 還原本局已取得的成就（每局獨立；舊存檔無 ach 則為空，由下方靜默重算門檻型成就） */
+  try{ _achSet=new Set(Array.isArray(s.ach)?s.ach:[]); localStorage.setItem('mt_ach', JSON.stringify(Array.from(_achSet))); }catch(e){} _achQueue=[]; _achBusy=false;   /* 還原本局已取得的成就（每局獨立；舊存檔無 ach 則為空，由下方靜默重算門檻型成就）；清空待播提示，讀檔不重複跳成就 */
   try{ checkAchievements(true); }catch(e){}   /* silently record achievements this save already qualifies for -> no repeat popups on load */
   applyLang(); renderAll(); try{ updateBGM(true); }catch(e){}
   return true;
@@ -6774,7 +6775,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·101 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·102 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6782,7 +6783,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·101 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·102 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
