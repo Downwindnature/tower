@@ -3772,7 +3772,7 @@ function foeTurn(){
   const _myDef0 = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);
   const _foeCanDmg = foe.trueDmg ? (foe.atk>0) : (dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(_myDef0*0.5):_myDef0),pl.thrD)>0);   /* 對玩家造不成傷害就不發動爆擊 */
   const foeCrit = (c.foeEn>=100) && _foeCanDmg; let _critUsed=false;
-  let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); if(foe.id==='overlordGordon'){ _nHits = 4; } }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
+  let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); if(foe.id==='overlordGordon'){ _nHits = foeCrit ? 1 : 4; } }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
   const _seq=[];
   let _defBlocks = (def && def.div && def.div>1) ? 1 : 0;   // one defence cast mitigates only ONE incoming hit; multi-hit foes get the rest through
   for(let i=0;i<_nHits;i++){
@@ -3786,7 +3786,7 @@ function foeTurn(){
         if(_thisCrit) dmg=Math.round(dmg*((foe.critMult&&foe.critMult>0)?foe.critMult:2));
         if(c.halveNext){ dmg=Math.ceil(dmg/2); }
       }
-      if(foe.id==='overlordGordon'){ dmg=Math.round(dmg/4); }   /* 4道能量彈：傷害四等分（爆擊時每發為 ¼×爆擊倍率），每道各自可 miss */
+      if(foe.id==='overlordGordon' && !foeCrit){ dmg=Math.round(dmg/4); }   /* 普攻：4道能量彈傷害四等分，每道各自可 miss；爆擊：改為單發完整爆擊傷害（critMult×傷害，不分割） */
       if(c.shendunHits>0) c.shendunHits--;
       if(_useSkill){ dmg=Math.round(dmg*_skMult); }
       const before=dmg;
@@ -6776,7 +6776,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·103 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·104 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6784,7 +6784,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·103 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·104 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
