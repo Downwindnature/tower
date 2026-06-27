@@ -3703,7 +3703,7 @@ function playerAct(action){
   var _mdDiv=1, _mdId='', _mdBlocked=0;
   { var _dL=_foeSkArr(foe,false); if(_dL.length){ var _ordD=(foe.skillOrder||'seq'), _hpPd=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100; var _fireD=(_ordD==='ai')?(_hpPd<50):((foe.skillHpBelow>0 && _hpPd<=foe.skillHpBelow)||(foe.skillEveryN>0 && ((c.foeRounds||0)%foe.skillEveryN)===0)); if(_fireD){ _mdId=_pickFoeSk(c,_dL,false); var _ds0=SKILL_BY_ID[_mdId]; if(_ds0){ _mdDiv=(_ds0.id==='shendun')?2.5:(_ds0.div||1); try{ log('foe',fmt(t('msg.foeDefSkill'),{name:skillName(_mdId)})); }catch(e){} } } } }
   var _bsId='', _bsAbsorb=0, _bsReflect=0;
-  if(foe.id==='overlordGordon'){ var _rE=(foe.reflectEn!=null?foe.reflectEn:25), _rS=(foe.reflectStam!=null?foe.reflectStam:5), _bE=(foe.barrierEn!=null?foe.barrierEn:15), _bS=(foe.barrierStam!=null?foe.barrierStam:3); var _bhp=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100, _canR=(c.foeEn>=_rE&&c.foeStam>=_rS), _canB=(c.foeEn>=_bE&&c.foeStam>=_bS), _pthreat=dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)*(pl.atkc||1), _bigHit=(_pthreat>=foe.maxhp*0.06), _use=''; if(_bhp<40){ _use=_canR?'reflect':(_canB?'barrier':''); } else if(_bigHit){ _use=_canR?'reflect':(_canB?'barrier':''); } if(_use==='reflect'){ _bsId='reflect'; c.foeEn-=_rE; c.foeStam=clamp(c.foeStam-_rS,0,100); try{ log('foe',t('msg.bossReflShield')); }catch(e){} } else if(_use==='barrier'){ _bsId='barrier'; c.foeEn-=_bE; c.foeStam=clamp(c.foeStam-_bS,0,100); try{ log('foe',t('msg.bossBarrier')); }catch(e){} } }   /* 15c 防禦 AI：低血或面對大傷害時開盾(優先反射盾)，否則承受並蓄力沖天柱 */
+  if(foe.id==='overlordGordon'){ var _rE=(foe.reflectEn!=null?foe.reflectEn:25), _rS=(foe.reflectStam!=null?foe.reflectStam:5), _bE=(foe.barrierEn!=null?foe.barrierEn:15), _bS=(foe.barrierStam!=null?foe.barrierStam:3); var _bhp=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100, _canR=(c.foeEn>=_rE&&c.foeStam>=_rS), _canB=(c.foeEn>=_bE&&c.foeStam>=_bS), _pthreat=dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)*(pl.atkc||1), _bigHit=(_pthreat>=foe.maxhp*0.06), _use=''; if(_bhp<40){ _use=_canR?'reflect':(_canB?'barrier':''); } else if(_bigHit){ _use=_canR?'reflect':(_canB?'barrier':''); } if(_use==='reflect'){ _bsId='reflect'; c.foeStam=clamp(c.foeStam-_rS,0,100); try{ log('foe',t('msg.bossReflShield')); }catch(e){} } else if(_use==='barrier'){ _bsId='barrier'; c.foeStam=clamp(c.foeStam-_bS,0,100); try{ log('foe',t('msg.bossBarrier')); }catch(e){} } }   /* 15c 防禦 AI：低血或面對大傷害時開盾(優先反射盾)，否則承受並蓄力沖天柱 */
   for(let i=0;i<pl.atkc;i++){
     if(chance(hitChance(c.meStam))){
       let dmg=Math.round(dmgUp(aAtk,foe.def,pl.thrA)*mult); if(hasAb(foe,'solid')) dmg=Math.ceil(dmg/2); if(_shHalf) dmg=Math.ceil(dmg/2); if(dmg<0)dmg=0;
@@ -3722,9 +3722,9 @@ function playerAct(action){
   _meShowHits(_pseq, skill, crit, function(){
     if(!state.combat || state.combat.done) return;
     if(_shRefl && dealt>0){ const refl=Math.max(1,Math.round(dealt*0.25)); pl.hp-=refl; floatDmg('me','-'+refl,'crit'); log('foe',fmt(t('msg.msReflect'),{n:refl})); renderCombat(); if(pl.hp<=0){ if(_godClamp()){ renderCombat(); } else { pl.hp=0; renderCombat(); setTimeout(combatLose,240); return; } } }
-    if(_bsReflect>0){ pl.hp-=_bsReflect; try{ floatDmg('me','-'+_bsReflect,'crit'); }catch(e){} try{ renderStats(); }catch(e){} var _bh=Math.round(_bsReflect*((foe.reflectHealPct!=null?foe.reflectHealPct:30)/100)); foe.hp=Math.min(foe.maxhp, foe.hp+_bh); }
+    if(_bsReflect>0){ pl.hp-=_bsReflect; try{ floatDmg('me','-'+_bsReflect,'crit'); }catch(e){} try{ renderStats(); }catch(e){} var _bh=Math.round(_bsReflect*((foe.reflectHealPct!=null?foe.reflectHealPct:30)/100)); foe.hp=foe.hp+_bh; }
     if(_mdId==='counterdun' && _mdBlocked>0){ var _cr=Math.max(1,Math.round(_mdBlocked)); pl.hp-=_cr; try{ floatDmg('me','-'+_cr,'crit'); }catch(e){} try{ renderStats(); }catch(e){} }
-    if(_mdId==='healShield' && _mdBlocked>0){ foe.hp=Math.min(foe.maxhp, foe.hp+Math.round(_mdBlocked*0.6)); }
+    if(_mdId==='healShield' && _mdBlocked>0){ foe.hp=foe.hp+Math.round(_mdBlocked*0.6); }
     if(foe.hp<=0){ setTimeout(combatWin, 240); return; }
     setTimeout(foeTurn, 220);
   });
@@ -3736,7 +3736,7 @@ function applyAtkSkillEffect(skill, dealt, crit){
   } else if(skill.id==='tianti'){
     if(!crit){ const drained=Math.floor(c.foeEn/2); if(drained>0){ c.foeEn=clamp(c.foeEn-drained,0,100); if(c.foe.noEnergy!=='all') pl.en=clamp(pl.en+drained,0,100); log('me',fmt(t('msg.tiantiDrain'),{n:drained})); } }
   } else if(skill.id==='jinshi'){
-    const heal=Math.round(dealt*0.3); if(heal>0){ pl.hp+=heal; log('me',fmt(t('msg.jinshiHeal'),{n:heal})); }
+    const heal=Math.round(dealt*0.3); if(heal>0){ pl.hp+=heal; try{ floatDmg('me','+'+heal,'heal'); }catch(_e){} log('me',fmt(t('msg.jinshiHeal'),{n:heal})); }
   } else if(skill.id==='zhuanti'){
     c.foeStam=clamp(c.foeStam-40,0,100); log('me',t('msg.zhuantiDrain'));
   }
@@ -3749,7 +3749,7 @@ function applyMasterSkill(foe, taken){
     const k=c.mIdx%3;
     if(k===0){ c.meStam=clamp(c.meStam-12,0,100); log('foe',t('msg.msTian')); }
     else if(k===1){ pl.en=clamp(pl.en-20,0,100); log('foe',t('msg.msLiu')); }
-    else { if(taken>0){ const h=Math.max(1,Math.round(taken/5)); foe.hp=Math.min(foe.maxhp,foe.hp+h); log('foe',fmt(t('msg.msShen'),{n:h})); } }
+    else { if(taken>0){ const h=Math.max(1,Math.round(taken/5)); foe.hp=foe.hp+h; log('foe',fmt(t('msg.msShen'),{n:h})); } }
     c.mIdx=(c.mIdx+1)%3;
   } else if(foe.master==='shield'){    /* 靈盾之柏奇: 鏡膜盾 → 結晶盾 → 反射盾 */
     const k=c.mIdx%3;
@@ -3845,7 +3845,7 @@ function _foeShowHits(seq, foeCrit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('me','miss!','miss'); }
     else if(h){
-      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null); if(h.heal>0){ c2.foe.hp=Math.min(c2.foe.maxhp, c2.foe.hp+h.heal); floatDmg('foe','+'+h.heal,'heal'); }
+      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null); if(h.heal>0){ c2.foe.hp=c2.foe.hp+h.heal; floatDmg('foe','+'+h.heal,'heal'); }
       if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=h.crit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=h.crit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, h.crit, _fsnd); }catch(_e){} }
     }
     try{ renderCombat(); }catch(_e){}
@@ -3864,7 +3864,7 @@ function _meShowHits(seq, skill, crit, done){
     if(h && h.miss){ floatDmg('foe','miss!','miss'); }
     else if(h){
       c2.foe.hp-=h.d; if(c2.foe.atkFatigue>0){ c2.meStam=clamp(c2.meStam-c2.foe.atkFatigue,0,100); } if(h.d===0){ zeroDmgFx('foe'); }
-      else { const _pfx=(skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); try{ playAttackFx('foe', _pfx, crit, (skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); }catch(_e){} floatDmg('foe','-'+h.d, crit?'crit':null); }
+      else { const _isHg=(skill&&skill.id==='huangu'); const _pfx=(!_isHg&&skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); try{ playAttackFx('foe', _pfx, crit, (!_isHg&&skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); }catch(_e){} if(_isHg){ const _hg=FX_MAP.skill['huangu']; if(_hg){ try{ playAttackFx('me', _hg, false, (FX_MAP.skillSfx&&FX_MAP.skillSfx['huangu'])?FX_MAP.skillSfx['huangu']:null); }catch(_e){} } } floatDmg('foe','-'+h.d, crit?'crit':null); }
     }
     try{ renderCombat(); }catch(_e){}
     if(i<seq.length){ setTimeout(step, COMBO_STEP_MS); } else { if(done) done(); }
@@ -4096,7 +4096,7 @@ function renderManual(){
       '<div class="mstats">HP <span class="num">'+foe.maxhp+'</span> · '+t('cb.atk')+' <span class="num">'+foe.atk+'</span> · '+t('cb.def')+' <span class="num">'+foe.def+'</span>'+
       (((foe.atkc||1)>1||(foe.atkcMax||0)>0)?(' · '+t('ab.multi')):'')+' · '+t('shop.gold')+' <span class="num">'+foe.gold+'</span> · '+t('shop.exp')+' <span class="num">'+foe.exp+'</span></div></div>'+
       '<div class="dmgpred"><div class="k">'+(pred.killable?fmt(t('manual.kill'),{n:pred.rounds}):t('manual.cantHurt'))+'</div>'+
-      '<div class="v '+pred.cls+'">'+(pred.killable?('-'+pred.dmg):'—')+'</div>'+
+      '<div class="v '+pred.cls+'">'+(pred.killable?(''+pred.dmg):'—')+'</div>'+
       '<div class="k">'+t('manual.take')+'</div></div>';
     row.addEventListener('click',function(){ state.manualIdx=idx; state.manualDetail=true; renderManual(); });   /* mobile: tap a monster to view full info */
     body.appendChild(row);
@@ -4881,7 +4881,7 @@ function newGame(opts){
   state.mode = opts.mode || 'solo';
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
-  state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null;
+  state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
   { var _secPool=[]; for(var _spf=3; _spf<=FLOORS-1; _spf++) _secPool.push(_spf); for(var _spb=1; _spb<=BASEMENT-1; _spb++) _secPool.push(-_spb); if(!_secPool.length) _secPool=[Math.max(1,Math.min(FLOORS,3))];
     state.secretFloor=_secPool[hashSeed(state.seed,777)%_secPool.length];
     var _hintPool=[]; for(var _hpf=2; _hpf<=FLOORS-1; _hpf++) _hintPool.push(_hpf); for(var _hpb=1; _hpb<=BASEMENT-1; _hpb++) _hintPool.push(-_hpb); if(!_hintPool.length) _hintPool=[Math.max(1,Math.min(FLOORS,2))];
@@ -5696,7 +5696,7 @@ function computeRaceRank(){
 
 /* ---------------------------- start screen ---------------------------- */
 function goStartScreen(){
-  state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false;
+  state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false; state.portalAim=false; state.portalTarget=null;
   if(Net.worldId) Net.leaveWorld();
   ['combat','shop','manual','teleport','endScreen','lobby','mpPanel'].forEach(hide);
   renderStartScreen(); show('startScreen'); renderMpButton(); try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(e){}   /* 回主畫面時收起成就提示，回遊戲再續播 */
@@ -5711,7 +5711,7 @@ function renderStartScreen(){
   const rb=byId('tsResume'); if(rb) rb.style.display=(state.player && !state.over) ? '' : 'none';
   const nn=byId('ssNote'); if(nn) nn.textContent='';
 }
-function resumeGame(){ const r=byId('tsResume'); if(!state.player || state.over){ if(r) r.style.display='none'; return; } hide('startScreen'); renderAll(); }
+function resumeGame(){ const r=byId('tsResume'); if(!state.player || state.over){ if(r) r.style.display='none'; return; } state.portalAim=false; state.portalTarget=null; hide('startScreen'); renderAll(); }
 function startSolo(){ hide('startScreen'); newGame({mode:'solo'}); }
 function _esc(x){ return (''+x).replace(/[<>&"]/g,function(c){ return ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]; }); }
 function fmtMs(ms){ ms=ms||0; const s=Math.floor(ms/1000); const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; const mm=(h>0&&m<10)?('0'+m):(''+m); const sx=ss<10?('0'+ss):(''+ss); return (h>0?(h+':'):'')+mm+':'+sx; }
@@ -6776,7 +6776,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·105 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·109 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6784,7 +6784,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·105 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·109 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
