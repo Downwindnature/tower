@@ -3518,15 +3518,21 @@ function autoRoundTick(){
   if(combatPaused() || state.busy){ combatTimer=setTimeout(autoRoundTick,200); return; }
   playerAct('normal');   /* automatic normal attack */
 }
+/* admin mode: unlock every attack & defence skill book; reverts the instant admin mode is exited (logout). Player's genuinely-learned skills are never modified, so saves stay clean. */
+function _admSkAll(){ return (typeof Account!=='undefined' && !!Account.isAdmin); }
+function effAtkSkillIds(){ return _admSkAll() ? ATK_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.atkSkills)||[]); }
+function effDefSkillIds(){ return _admSkAll() ? DEF_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.defSkills)||[]); }
+function effSkillIds(kind){ return kind==='atk'?effAtkSkillIds():effDefSkillIds(); }
+function skLvOk(s){ return !!s && (_admSkAll() || (state.player&&state.player.lv>=s.lv)); }
 function refreshCombatButtons(){
   const c=state.combat, pl=state.player; if(!c||!pl) return; ensureSkills(pl);
-  const aS=pl.atkEquip?SKILL_BY_ID[pl.atkEquip]:null, aBtn=byId('cbAtkSkill');
+  const aS=(pl.atkEquip && effAtkSkillIds().indexOf(pl.atkEquip)>=0)?SKILL_BY_ID[pl.atkEquip]:null, aBtn=byId('cbAtkSkill');
   if(aS){ byId('cbAtkLab').textContent=skillName(pl.atkEquip); byId('cbAtkCost').textContent=aS.en+'E·'+aS.stam+t('cb.stamShort');
-    aBtn.disabled = state.busy || c.done || pl.lv<aS.lv || pl.en<aS.en || c.meStam<aS.stam; }
+    aBtn.disabled = state.busy || c.done || !skLvOk(aS) || pl.en<aS.en || c.meStam<aS.stam; }
   else { byId('cbAtkLab').textContent=t('cb.atkUse'); byId('cbAtkCost').textContent=''; aBtn.disabled=true; }
-  const dS=pl.defEquip?SKILL_BY_ID[pl.defEquip]:null, dBtn=byId('cbDefSkill');
+  const dS=(pl.defEquip && effDefSkillIds().indexOf(pl.defEquip)>=0)?SKILL_BY_ID[pl.defEquip]:null, dBtn=byId('cbDefSkill');
   if(dS){ byId('cbDefLab').textContent=skillName(pl.defEquip); byId('cbDefCost').textContent=dS.en+'E·'+dS.stam+t('cb.stamShort');
-    dBtn.disabled = state.busy || c.done || pl.lv<dS.lv || pl.en<dS.en || c.meStam<dS.stam;
+    dBtn.disabled = state.busy || c.done || !skLvOk(dS) || pl.en<dS.en || c.meStam<dS.stam;
     dBtn.classList.toggle('armed', c.defArmed===pl.defEquip || (pl.defEquip==='shendun' && c.shendunHits>0)); }
   else { byId('cbDefLab').textContent=t('cb.defUse'); byId('cbDefCost').textContent=''; dBtn.disabled=true; }
   { const _fB=byId('cbFlee'); if(_fB){ const _nf=!!(c.foe&&c.foe.noFlee); _fB.disabled=(_nf||state.busy||c.done); _fB.style.opacity=_nf?'0.45':''; } }
@@ -3535,8 +3541,8 @@ function refreshCombatButtons(){
 /* in-combat skill switching — pick among the attack/defence skills you already own */
 function cbSwitchSkill(kind, dir){
   const pl=state.player; if(!pl) return; ensureSkills(pl);
-  const all = kind==='atk'?pl.atkSkills:pl.defSkills;
-  const list = (all||[]).filter(function(id){ const s=SKILL_BY_ID[id]; return s && pl.lv>=s.lv; });   // cycle only skills you can actually equip
+  const all = effSkillIds(kind);
+  const list = (all||[]).filter(function(id){ const s=SKILL_BY_ID[id]; return skLvOk(s); });   // cycle only skills you can actually equip
   if(list.length<2) return;
   const cur = kind==='atk'?pl.atkEquip:pl.defEquip;
   let i=list.indexOf(cur); if(i<0) i=0;
@@ -3545,7 +3551,7 @@ function cbSwitchSkill(kind, dir){
   if(state.combat) state.combat.skCur=kind;
   refreshCombatButtons(); renderSkillSlots(); renderCombatSkillSwitch();
 }
-function _cbSkRows(pl){ var r=[]; if(pl.atkSkills&&pl.atkSkills.length)r.push('atk'); if(pl.defSkills&&pl.defSkills.length)r.push('def'); return r; }
+function _cbSkRows(pl){ var r=[]; if(effAtkSkillIds().length)r.push('atk'); if(effDefSkillIds().length)r.push('def'); return r; }
 function cbCursorRow(){
   var c=state.combat, pl=state.player; if(!c||c.ended||!pl) return; ensureSkills(pl);
   var rows=_cbSkRows(pl); if(!rows.length) return;
@@ -3561,9 +3567,9 @@ function cbCursorMove(dir){
 }
 function cbEquipSkill(kind, id){
   const pl=state.player; if(!pl) return; ensureSkills(pl);
-  const list = kind==='atk'?pl.atkSkills:pl.defSkills;
+  const list = effSkillIds(kind);
   if(!list || list.indexOf(id)<0) return;
-  const s=SKILL_BY_ID[id]; if(s && pl.lv<s.lv){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }   // locked until you reach the level
+  const s=SKILL_BY_ID[id]; if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }   // locked until you reach the level
   if(kind==='atk') pl.atkEquip=id; else pl.defEquip=id;
   if(state.combat) state.combat.skCur=kind;
   refreshCombatButtons(); renderSkillSlots(); renderCombatSkillSwitch();
@@ -3572,16 +3578,16 @@ function renderCombatSkillSwitch(){
   const c=state.combat, pl=state.player, box=byId('cbSwitch'); if(!box) return;
   if(!c || c.ended || !pl){ box.style.display='none'; box.innerHTML=''; return; }
   ensureSkills(pl);
-  { var _rows=[]; if(pl.atkSkills&&pl.atkSkills.length)_rows.push('atk'); if(pl.defSkills&&pl.defSkills.length)_rows.push('def'); if(_rows.length&&(!c.skCur||_rows.indexOf(c.skCur)<0))c.skCur=_rows[0]; }
+  { var _rows=[]; if(effAtkSkillIds().length)_rows.push('atk'); if(effDefSkillIds().length)_rows.push('def'); if(_rows.length&&(!c.skCur||_rows.indexOf(c.skCur)<0))c.skCur=_rows[0]; }
   function sec(kind){
-    const list = kind==='atk'?pl.atkSkills:pl.defSkills;
+    const list = effSkillIds(kind);
     if(!list || !list.length) return '';
-    const equippable = list.filter(function(id){ const s=SKILL_BY_ID[id]; return s && pl.lv>=s.lv; });
+    const equippable = list.filter(function(id){ const s=SKILL_BY_ID[id]; return skLvOk(s); });
     let cur = (kind==='atk'?pl.atkEquip:pl.defEquip);
-    if(!cur || (SKILL_BY_ID[cur] && pl.lv<SKILL_BY_ID[cur].lv)) cur = equippable[0] || list[0];
+    if(!cur || (SKILL_BY_ID[cur] && !skLvOk(SKILL_BY_ID[cur]))) cur = equippable[0] || list[0];
     const lab = kind==='atk'?t('cb.atkSkills'):t('cb.defSkills');
     let cards='';
-    for(let i=0;i<list.length;i++){ const id=list[i], s=SKILL_BY_ID[id], locked=(s && pl.lv<s.lv);
+    for(let i=0;i<list.length;i++){ const id=list[i], s=SKILL_BY_ID[id], locked=(s && !skLvOk(s));
       cards+='<button class="cbSwCard'+(id===cur?' sel':'')+(locked?' lock':'')+'" data-k="'+kind+'" data-id="'+id+'">'+skillName(id)+(locked?'<span class="cbSwLv">Lv'+s.lv+'</span>':'')+'</button>'; }
     const dis = equippable.length<2?' disabled':'';
     return '<div class="cbSwSec '+kind+(c.skCur===kind?' cursor':'')+'">'+
@@ -3602,17 +3608,17 @@ function renderCombatSkillSwitch(){
 }
 function combatAtkSkill(){
   const c=state.combat, pl=ensureSkills(state.player); if(!c||c.done||c.ended||state.busy) return;
-  const id=pl.atkEquip; if(!id||pl.atkSkills.indexOf(id)<0){ toast(t('cb.noAtkSkill')); return; }
+  const id=pl.atkEquip; if(!id||effAtkSkillIds().indexOf(id)<0){ toast(t('cb.noAtkSkill')); return; }
   const s=SKILL_BY_ID[id];
-  if(pl.lv<s.lv){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
+  if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
   if(pl.en<s.en||c.meStam<s.stam){ toast(t('cb.needEnStam')); return; }
   playerAct('atk:'+id);
 }
 function combatDefSkill(){
   const c=state.combat, pl=ensureSkills(state.player); if(!c||c.done||c.ended||state.busy) return;
-  const id=pl.defEquip; if(!id||pl.defSkills.indexOf(id)<0){ toast(t('cb.noDefSkill')); return; }
+  const id=pl.defEquip; if(!id||effDefSkillIds().indexOf(id)<0){ toast(t('cb.noDefSkill')); return; }
   const s=SKILL_BY_ID[id];
-  if(pl.lv<s.lv){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
+  if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
   if(pl.en<s.en||c.meStam<s.stam){ toast(t('cb.needEnStam')); return; }
   pl.en=clamp(pl.en-s.en,0,100); c.meStam=clamp(c.meStam-s.stam,0,100);
   if(id==='shendun'){ var _sdSk=SKILL_BY_ID['shendun']||{}; c.shendunBonus=Math.floor((pl.hp+pl.def)*pl.lv/100*(_sdSk.defMul!=null?_sdSk.defMul:1)); c.shendunHits=(_sdSk.hits!=null?_sdSk.hits:3); log('me',fmt(t('msg.skillCast'),{n:t('sk.shendun.name')})); }
@@ -4321,18 +4327,18 @@ function skillCostStr(s){ return s.en+' E · '+s.stam+' '+t('cb.stamShort'); }
 function renderSkillSlots(){
   const pl=ensureSkills(state.player); if(!pl) return;
   const row=byId('skillRow'); if(!row) return;
-  const any=(pl.atkSkills.length>0)||(pl.defSkills.length>0);
+  const any=(effAtkSkillIds().length>0)||(effDefSkillIds().length>0);
   row.style.display = any ? '' : 'none';
   const aBtn=byId('atkSlot'), dBtn=byId('defSlot');
-  aBtn.style.display = pl.atkSkills.length>0 ? '' : 'none';
-  dBtn.style.display = pl.defSkills.length>0 ? '' : 'none';
+  aBtn.style.display = effAtkSkillIds().length>0 ? '' : 'none';
+  dBtn.style.display = effDefSkillIds().length>0 ? '' : 'none';
   byId('atkSlotName').textContent = pl.atkEquip ? skillName(pl.atkEquip) : t('cb.none');
   byId('defSlotName').textContent = pl.defEquip ? skillName(pl.defEquip) : t('cb.none');
 }
 function openSkillPicker(kind){
   if(!inGame()) return;
   const pl=ensureSkills(state.player);
-  const found = (kind==='atk') ? pl.atkSkills : pl.defSkills;
+  const found = effSkillIds(kind);
   const all = (kind==='atk') ? ATK_SKILLS : DEF_SKILLS;
   const list = all.filter(function(s){ return found.indexOf(s.id)>=0; });
   state._pickKind=kind; state._pickList=list;
@@ -4350,7 +4356,7 @@ function renderSkillPicker(){
   const cur = (kind==='atk') ? pl.atkEquip : pl.defEquip;
   const box=byId('spkList'); box.innerHTML='';
   list.forEach(function(s,idx){
-    const b=document.createElement('button'); b.className='skillPickItem'+(idx===state._pickSel?' sel':'')+(s.id===cur?' cur':'')+((pl.lv<s.lv)?' lowlv':'');
+    const b=document.createElement('button'); b.className='skillPickItem'+(idx===state._pickSel?' sel':'')+(s.id===cur?' cur':'')+((!skLvOk(s))?' lowlv':'');
     b.innerHTML='<div class="sn"><span>'+skillName(s.id)+(s.id===cur?' ✓':'')+'</span><span class="cost">Lv'+s.lv+' · '+skillCostStr(s)+'</span></div>'+
                 '<div class="sd">'+t('sk.'+s.id+'.desc')+'</div>';
     b.addEventListener('click',function(){ state._pickSel=idx; renderSkillPicker(); });   // click only SELECTS (highlights); Enter / 確定 equips
@@ -4361,7 +4367,7 @@ function confirmSkillPick(){
   const pl=ensureSkills(state.player); const list=state._pickList||[]; const kind=state._pickKind;
   if(!list.length){ hide('skillPicker'); return; }
   const s=list[clamp(state._pickSel||0,0,list.length-1)];
-  if(pl.lv < s.lv){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }   // can't equip a skill book before reaching its level
+  if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }   // can't equip a skill book before reaching its level
   if(kind==='atk') pl.atkEquip=s.id; else pl.defEquip=s.id;
   renderSkillSlots(); hide('skillPicker'); toast(fmt(t('cb.equipped'),{n:skillName(s.id)}));
 }
@@ -4468,8 +4474,8 @@ function openHelp(){
   if(pl){ ensureSkills(pl);
     if(pl.hasManual) sc.push(t('help.kbManual'));
     if((pl.tpScrolls||0)>0) sc.push(t('help.kbTeleport'));
-    if(pl.atkSkills&&pl.atkSkills.length) sc.push(t('help.kbAtk'));
-    if(pl.defSkills&&pl.defSkills.length) sc.push(t('help.kbDef'));
+    if(effAtkSkillIds().length) sc.push(t('help.kbAtk'));
+    if(effDefSkillIds().length) sc.push(t('help.kbDef'));
   }
   if(sc.length){
     const head=document.createElement('div'); head.className='helpItem nohero kbHead'; head.innerHTML='<div><b>'+t('help.kbTitle')+'</b></div>'; list.appendChild(head);
@@ -5032,8 +5038,8 @@ function bindInput(){
       case 'e': case 'E': if(state.player&&state.player.hasManual){ openManual(); } else { used=false; } break;   // quick bestiary
       case 'p': case 'P': openAchPanel(); break;   // achievements
       case 'f': case 'F': if(state.mode==='solo'&&state.player&&((state.player.tpScrolls||0)>0||state.cheatActive)){ openTeleport(); } else { used=false; } break;   // quick teleport
-      case 'y': case 'Y': if(state.player && ensureSkills(state.player).atkSkills.length){ openSkillPicker('atk'); } else { used=false; } break;   // choose attack skill
-      case 'u': case 'U': if(state.player && ensureSkills(state.player).defSkills.length){ openSkillPicker('def'); } else { used=false; } break;   // choose defence skill
+      case 'y': case 'Y': if(state.player && effAtkSkillIds().length){ openSkillPicker('atk'); } else { used=false; } break;   // choose attack skill
+      case 'u': case 'U': if(state.player && effDefSkillIds().length){ openSkillPicker('def'); } else { used=false; } break;   // choose defence skill
       case 'b': case 'B': if(state.player){ openLoot(); } else { used=false; } break;   // loot / acquisitions record
       case 't': case 'T': if(state.player&&state.player.portalGot){ togglePortalAim(); } else { used=false; } break;   // 任意門瞄準
       default: used=false;
@@ -6440,7 +6446,7 @@ function achCtx(){
   const pl=(typeof state!=='undefined' && state.player)||{}; const keys=pl.keys||{};
   const maxKey=Math.max(keys.y||0,keys.b||0,keys.r||0,keys.w||0,keys.p||0);
   const colorsHeld=['y','b','r','w','p'].filter(function(c){ return (keys[c]||0)>0; }).length;
-  const books=((pl.atkSkills&&pl.atkSkills.length)||0)+((pl.defSkills&&pl.defSkills.length)||0);
+  const books=(effAtkSkillIds().length||0)+(effDefSkillIds().length||0);
   return { kills:(state&&state.kills)||0, lv:pl.lv||1, gold:pl.gold||0,
     floor:(state&&state.floor)||1, maxFloor:(state&&state.maxFloor)||1, minFloor:(state&&state.minFloor)||1,
     atk:(typeof effAtk==='function'?effAtk(pl):(pl.atk||0)), def:(typeof effDef==='function'?effDef(pl):(pl.def||0)), hp:pl.hp||0,
@@ -6776,7 +6782,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·110 ['+_dg+']'; }
+    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·111 ['+_dg+']'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6784,7 +6790,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·110 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·111 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
