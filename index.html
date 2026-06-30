@@ -115,6 +115,40 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .fill.st{background:linear-gradient(90deg,#7fe6e0,var(--teal));box-shadow:0 0 8px rgba(63,208,201,.45);}
 
 .adRow{display:flex;gap:8px;margin:2px 0 11px;}
+.aeWin{font-size:19px;font-weight:700;text-align:center;margin:2px 0;}
+.aeScore{font-size:28px;font-weight:800;text-align:center;letter-spacing:2px;margin:2px 0 12px;color:#f3ead2;}
+.aeList{display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow:auto;margin-bottom:12px;}
+.aeRow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,.06);border-radius:8px;font-size:14px;}
+.aeRow>.aeNm:first-child{text-align:right;}
+.aeRow>.aeNm:last-child{text-align:left;}
+.aeMid{opacity:.65;font-size:12px;text-align:center;white-space:nowrap;}
+.aeWinner{color:#7CFC9B;font-weight:700;}
+.aeLoser{opacity:.45;}
+.aeMid.aeDraw{color:#FFD479;opacity:1;font-weight:600;}
+.afField{ display:block !important; padding:0 !important; }
+#afCanvas{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+.afJoy{ position:absolute; left:24px; bottom:30px; width:108px; height:108px; border-radius:50%; background:rgba(0,0,0,.32); border:2px solid rgba(255,255,255,.22); touch-action:none; z-index:5; }
+.afJoyKnob{ position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; background:rgba(246,212,136,.85); box-shadow:0 2px 8px rgba(0,0,0,.4); }
+.afExitBtn{ position:absolute; right:18px; top:16px; z-index:5; padding:8px 14px; border-radius:9px; background:#3a2c55; color:#f3ead2; border:1.5px solid #c79a45; font-weight:700; cursor:pointer; }
+.afHint{ position:absolute; left:0; right:0; bottom:14px; text-align:center; color:#f6d488; font-size:12px; pointer-events:none; z-index:4; text-shadow:0 1px 3px #000; }
+.afPhase{ position:absolute; left:0; right:0; top:14px; text-align:center; color:#fff; font-size:18px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:4; text-shadow:0 1px 4px #000; }
+.afDuelBanner{ position:absolute; left:0; right:0; top:16px; text-align:center; color:#f6d488; font-size:20px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
+.afCount{ position:absolute; left:50%; top:42%; transform:translate(-50%,-50%); color:#fff; font-size:96px; font-weight:900; pointer-events:none; z-index:6; text-shadow:0 3px 14px #000,0 0 26px rgba(246,212,136,.7); }
+.afSkipBtn{ position:absolute; left:50%; top:46px; transform:translateX(-50%); z-index:5; padding:7px 16px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
+.afShopBtnUI{ position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:5; padding:10px 20px; border-radius:10px; background:#2e7d5b; color:#eafff3; border:1.5px solid #7cf0b0; font-weight:700; font-size:15px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.4); }
+.afTeamBar{ position:absolute; left:50%; top:78px; transform:translateX(-50%); z-index:5; display:flex; gap:8px; }
+.afTeamBtn{ padding:6px 12px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; border:2px solid transparent; opacity:.65; }
+.afTeamA{ background:#214a8c; color:#cfe0ff; }
+.afTeamB{ background:#8c2a2a; color:#ffd6d6; }
+.afTeamRand{ background:#3a2c55; color:#f3ead2; border-color:#c79a45; opacity:1; }
+.afTeamBtn.sel{ opacity:1; border-color:#fff; }
+#endScore{margin:14px auto 0;border:1px solid var(--gold-d);border-radius:10px;padding:10px 16px;background:rgba(20,16,34,.4);max-width:300px;}
+.esHead{text-align:center;color:var(--gold);font-weight:700;font-size:13px;margin-bottom:6px;letter-spacing:1px;}
+.esLine{display:flex;justify-content:space-between;gap:18px;font-size:14px;padding:3px 0;}
+.esLine .esK{color:var(--txt-dim);}
+.esLine .esV{font-weight:600;font-variant-numeric:tabular-nums;}
+.esLine.esTotal{border-top:1px solid var(--gold-d);margin-top:5px;padding-top:7px;font-size:16px;}
+.esLine.esTotal .esK,.esLine.esTotal .esV{color:var(--gold);font-weight:800;}
 .adCell{flex:1;border-radius:var(--r-s);padding:7px 6px;text-align:center;
   background:linear-gradient(180deg,var(--stone-l),var(--stone));border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);}
 .adCell .k{font-size:10px;letter-spacing:.05em;color:var(--txt-dim);margin-bottom:3px;}
@@ -151,8 +185,60 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   box-shadow:0 16px 50px rgba(0,0,0,.6),inset 0 0 0 2px rgba(0,0,0,.35),inset 0 0 60px rgba(120,80,200,.07);}
 #mapFrame::before{content:"";position:absolute;inset:5px;border-radius:10px;pointer-events:none;
   border:1px solid rgba(232,176,75,.14);}
-#grid{display:grid;gap:0;}
+#grid{display:grid;gap:0;position:relative;}
 .tile{position:relative;border-radius:0;display:grid;place-items:center;overflow:hidden;}
+.peerInd{position:absolute;transform:translate(-50%,-50%);min-width:20px;height:20px;padding:0 4px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,.85);box-shadow:0 1px 5px rgba(0,0,0,.65);pointer-events:none;z-index:6;opacity:.94;}
+.mpRoster{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:none;gap:5px;flex-wrap:wrap;justify-content:center;max-width:96%;z-index:7;pointer-events:none;}
+.mpRoster.show{display:flex;}
+.rosterChip{display:flex;align-items:center;gap:5px;padding:3px 9px 3px 4px;border-radius:13px;background:rgba(10,7,20,.74);border:2px solid #fff;font-size:11px;font-weight:700;color:#f3ead2;max-width:118px;pointer-events:auto;}
+.rosterChip.dead{border-color:#e0455e;opacity:.66;}
+.rosterChip.me{box-shadow:0 0 0 2px rgba(246,212,136,.55);}
+.rosterChip .dot{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex-shrink:0;}
+.rosterChip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.spectateBar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:5px 8px;border-radius:14px;background:rgba(10,7,20,.84);border:1px solid rgba(255,255,255,.16);z-index:8;}
+.apTeam{text-align:center;font-size:13px;color:#c9bfe0;margin:2px 0 10px;}
+.apGold{text-align:center;font-size:15px;font-weight:800;color:#f6d488;margin-bottom:12px;}
+.apRows{display:flex;flex-direction:column;gap:9px;margin-bottom:8px;}
+.apRow{display:flex;align-items:center;gap:10px;}
+.apStatName{width:52px;font-size:13px;color:#f3ead2;}
+.apStatVal{width:64px;text-align:right;font-size:16px;font-weight:800;color:#fff;}
+.apBuy{flex:1;font-size:12px;padding:7px 8px;border:1px solid #6b5fa8;border-radius:8px;background:#34306a;color:#f3ead2;cursor:pointer;}
+.apBuy:hover{background:#403a82;} .apBuy:disabled{opacity:.45;cursor:default;}
+.apNote{text-align:center;font-size:11px;color:#9ad49a;margin:8px 0;}
+.apReadyBtn{display:block;width:100%;margin-top:10px;padding:11px;font-size:15px;font-weight:800;border:none;border-radius:10px;background:linear-gradient(180deg,#f0c869,#d8a13e);color:#3a2a08;cursor:pointer;}
+.apReadyBtn:disabled{opacity:.5;cursor:default;}
+.apWait{text-align:center;font-size:12px;color:#f6d488;margin-top:8px;}
+.asScore{text-align:center;font-size:18px;font-weight:800;color:#f6d488;margin-bottom:14px;letter-spacing:2px;}
+.asVs{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;}
+.asSide{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:90px;}
+.asTeamTag{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;}
+.asSideA .asTeamTag{background:#d9534f;} .asSideB .asTeamTag{background:#4a78d8;}
+.asName{font-size:14px;font-weight:700;color:#f3ead2;text-align:center;max-width:100px;word-break:break-word;}
+.asVsMark{font-size:18px;font-weight:800;color:#c9bfe0;}
+.asCount{text-align:center;font-size:54px;font-weight:900;color:#fff;line-height:1.1;text-shadow:0 0 18px rgba(246,212,136,.6);margin:4px 0;}
+.asRole{text-align:center;font-size:14px;font-weight:700;color:#f6d488;margin-top:6px;}
+.adRole{text-align:center;font-size:13px;font-weight:700;color:#f6d488;margin-bottom:10px;}
+.adArena{display:flex;align-items:center;justify-content:center;gap:12px;}
+.adSide{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;max-width:160px;}
+.adName{font-size:14px;font-weight:800;text-align:center;word-break:break-word;}
+.adNameA{color:#f3a3a0;} .adNameB{color:#a8c3f0;}
+.adBar{width:100%;height:18px;border-radius:9px;background:rgba(0,0,0,.45);overflow:hidden;border:1px solid rgba(255,255,255,.18);}
+.adFill{height:100%;width:100%;border-radius:9px;transition:width .12s linear;}
+.adFillA{background:linear-gradient(180deg,#e36b67,#c0413d);} .adFillB{background:linear-gradient(180deg,#5e8be0,#3f63b8);}
+.adHp{font-size:14px;font-weight:800;color:#fff;}
+.adVs{font-size:18px;font-weight:900;color:#c9bfe0;}
+.adResult{text-align:center;font-size:24px;font-weight:900;color:#f6d488;margin-top:16px;text-shadow:0 0 14px rgba(246,212,136,.5);min-height:30px;}
+.adMine{margin-top:14px;border-top:1px solid rgba(255,255,255,.12);padding-top:10px;}
+.adEnStam{text-align:center;font-size:13px;font-weight:800;color:#f3ead2;margin-bottom:8px;}
+.adEnStam .adEnV{color:#7fc8ff;} .adEnStam .adStamV{color:#9ad49a;}
+.adSkills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:6px;}
+.adSkBtn{font-size:11px;padding:5px 8px;border:1px solid #6b5fa8;border-radius:7px;background:#34306a;color:#f3ead2;cursor:pointer;}
+.adSkBtn:hover{background:#403a82;} .adSkBtn:disabled{opacity:.4;cursor:default;}
+.adSkBtn.queued{background:#caa24a;color:#2a1f06;border-color:#e0bb5e;font-weight:800;}
+.spectateBar.show{display:flex;}
+.specNav{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#f3ead2;font-size:19px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.specNav:active{transform:scale(.92);}
+.specWho{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#f3ead2;min-width:84px;justify-content:center;}
 .tile.floor{background:
    linear-gradient(135deg,rgba(255,255,255,.02),rgba(0,0,0,.10)),
    #221a33;}
@@ -528,6 +614,11 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px;
   background:rgba(6,4,12,.74);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);}
 .overlay.show{display:flex;animation:fadeIn .2s ease;}
+.mpLoadBox{width:min(86vw,360px);text-align:center;}
+.mpLoadTitle{font-size:18px;font-weight:800;color:#f3ead2;margin-bottom:14px;letter-spacing:.04em;}
+.mpLoadTrack{width:100%;height:18px;background:#1a1430;border:1px solid rgba(255,255,255,.14);border-radius:10px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5);}
+.mpLoadFill{height:100%;width:0%;border-radius:10px;background:linear-gradient(180deg,#63d65d,#3fa83a);box-shadow:0 0 12px rgba(99,214,93,.5);transition:width .32s ease;}
+.mpLoadStage{margin-top:10px;font-size:13px;color:#c9bfe0;min-height:18px;}
 #startScreen{padding:0;z-index:90;}   /* below modal overlays (z-index 100) so the tutorial/leaderboard show ON TOP of the title screen */
 .titleScreen{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;
   background:radial-gradient(120% 80% at 50% -5%,rgba(70,56,112,.55),transparent 60%),linear-gradient(180deg,#1a1430 0%,#120e24 55%,#0c0918 100%);}
@@ -1120,6 +1211,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     <div id="mapWrap">
       <div class="floorBar" id="floorBar"><div id="cheatBadge"><span id="cheatBadgeLab">管理者模式</span><button id="cheatExit">退出</button></div><span class="v num" id="floorNum">1 樓</span></div>
       <div id="mapStage">
+        <div id="mpRoster" class="mpRoster"></div>
+        <div id="spectateBar" class="spectateBar"><button class="specNav" id="specPrev">‹</button><div class="specWho"><span class="specEye">👁</span><span id="specName"></span></div><button class="specNav" id="specNext">›</button></div>
         <div id="mapFrame"><div id="grid"></div></div>
         <div id="tipBubble"></div>
       </div>
@@ -1293,6 +1386,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   <h2 id="endTitle"></h2>
   <p class="desc" id="endDesc"></p>
   <div class="endStats" id="endStats"></div>
+  <div id="endScore" style="display:none"></div>
   <div id="endRankWrap" style="display:none;flex-direction:column;align-items:center;gap:8px;margin-top:14px"><input id="endRankName" type="text" maxlength="12" autocomplete="off" style="display:none;width:200px;max-width:80%;padding:8px 12px;border-radius:8px;border:1px solid var(--gold-d);background:rgba(20,16,34,.85);color:#f3ead2;text-align:center;font-size:14px"><button class="btn" id="endRankBtn"></button></div>
   <div class="closeRow" style="justify-content:center;gap:10px"><button class="btn" id="endHome"><span id="endHomeLab">回到主畫面</span></button><button class="btn gold" id="endRestart"><span id="endBtnLab">再次挑戰</span></button></div>
 </div></div>
@@ -1335,6 +1429,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   <div class="tsMenu">
     <button class="tsBtn tsStart" id="tsStart"><span id="tsStartLab">開始遊戲</span></button>
     <button class="tsBtn" id="tsResume" style="display:none"><span id="tsResumeLab">繼續遊戲</span></button>
+    <button class="tsBtn" id="tsMP"><span id="tsMPLab">多人遊戲</span></button>
     <button class="tsBtn" id="tsManual"><span id="tsManualLab">遊戲說明</span></button>
     <button class="tsBtn" id="tsRank"><span id="tsRankLab">排行榜</span></button>
   </div>
@@ -1383,6 +1478,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
       <div class="seg" id="lbModeSeg">
         <button class="segBtn sel" data-mode="coop"><span id="lbModeCoopLab">合作</span></button>
         <button class="segBtn" data-mode="race"><span id="lbModeRaceLab">競速</span></button>
+        <button class="segBtn" data-mode="arena"><span id="lbModeArenaLab">擂台</span></button>
       </div>
       <p class="lbHint" id="lbModeDesc"></p></div>
     <div class="lbField"><label id="lbMaxLab">人數上限</label>
@@ -1390,6 +1486,19 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
         <button class="segBtn" data-max="2">2</button>
         <button class="segBtn" data-max="3">3</button>
         <button class="segBtn sel" data-max="4">4</button>
+      </div></div>
+    <div class="lbField"><label id="lbMapLab">地圖大小</label>
+      <div class="seg" id="lbMapSeg">
+        <button class="segBtn" data-map="25">25</button>
+        <button class="segBtn sel" data-map="30">30</button>
+        <button class="segBtn" data-map="35">35</button>
+        <button class="segBtn" data-map="40">40</button>
+      </div></div>
+    <div class="lbField"><label id="lbViewLab">視野</label>
+      <div class="seg" id="lbViewSeg">
+        <button class="segBtn" data-view="9">9×9</button>
+        <button class="segBtn sel" data-view="11">11×11</button>
+        <button class="segBtn" data-view="13">13×13</button>
       </div></div>
     <button class="btn gold lbWide" id="lbCreate">建立房間</button>
     <div class="lbOr"><span></span><b>—</b><span></span></div>
@@ -1422,6 +1531,93 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   <div id="mpBody"></div>
   <div class="closeRow"><button class="btn gold" id="mpClose" data-close>關閉</button></div>
 </div></div>
+
+<!-- ===== Multiplayer loading ===== -->
+<div class="overlay" id="mpLoad"><div class="mpLoadBox">
+  <div class="mpLoadTitle" id="mpLoadTitle">載入中…</div>
+  <div class="mpLoadTrack"><div class="mpLoadFill" id="mpLoadFill"></div></div>
+  <div class="mpLoadStage" id="mpLoadStage"></div>
+</div></div>
+
+<!-- ===== Arena prep ===== -->
+<div class="overlay" id="arenaPrep"><div class="modal">
+  <h2 class="modalTitle" id="apTitle">賽前準備</h2>
+  <p class="apTeam" id="apTeam"></p>
+  <div class="apGold"><span id="apGoldL">金錢</span> <span id="apGold">1000</span></div>
+  <div class="apRows">
+    <div class="apRow"><span class="apStatName" id="apHpL">生命</span><span class="apStatVal" id="apHp">900</span><button class="apBuy" data-buy="hp">+200</button></div>
+    <div class="apRow"><span class="apStatName" id="apAtkL">攻擊</span><span class="apStatVal" id="apAtk">10</span><button class="apBuy" data-buy="atk">+2</button></div>
+    <div class="apRow"><span class="apStatName" id="apDefL">防禦</span><span class="apStatVal" id="apDef">10</span><button class="apBuy" data-buy="def">+2</button></div>
+  </div>
+  <p class="apNote" id="apNote">已持有全部攻擊與防禦技能書</p>
+  <button class="apReadyBtn" id="apReady">準備完成</button>
+  <button class="apReadyBtn" id="afPreviewBtn" style="background:#2c2350;margin-top:6px">預覽自由場地</button>
+  <p class="apWait" id="apWait" style="display:none">等待其他玩家…</p>
+</div></div>
+
+<!-- ===== Arena duel (1v1) ===== -->
+<div class="overlay" id="arenaDuel"><div class="modal">
+  <p class="adRole" id="adRole"></p>
+  <div class="adArena">
+    <div class="adSide"><div class="adName adNameA" id="adAName">—</div><div class="adBar"><div class="adFill adFillA" id="adAFill"></div></div><div class="adHp" id="adAHp">0</div></div>
+    <div class="adVs">VS</div>
+    <div class="adSide"><div class="adName adNameB" id="adBName">—</div><div class="adBar"><div class="adFill adFillB" id="adBFill"></div></div><div class="adHp" id="adBHp">0</div></div>
+  </div>
+  <div class="adResult" id="adResult" style="display:none"></div>
+  <div class="adMine" id="adMine" style="display:none">
+    <div class="adEnStam"><span id="adEnL">能量</span> <span class="adEnV" id="adEn">100</span> · <span id="adStamL">體力</span> <span class="adStamV" id="adStam">100</span></div>
+    <div class="adSkills" id="adSkillsAtk"></div>
+    <div class="adSkills" id="adSkillsDef"></div>
+  </div>
+</div></div>
+
+<!-- ===== Arena stage (matchup + countdown) ===== -->
+<div class="overlay" id="arenaStage"><div class="modal">
+  <h2 class="modalTitle" id="asTitle">對戰</h2>
+  <div class="asScore" id="asScore">0 : 0</div>
+  <div class="asVs">
+    <div class="asSide asSideA"><span class="asTeamTag">A</span><span class="asName" id="asA">—</span></div>
+    <div class="asVsMark">VS</div>
+    <div class="asSide asSideB"><span class="asTeamTag">B</span><span class="asName" id="asB">—</span></div>
+  </div>
+  <div class="asCount" id="asCount">10</div>
+  <p class="asRole" id="asRole"></p>
+  <button class="apReadyBtn" id="asBack" style="display:none">返回主畫面</button>
+</div></div>
+<div class="overlay" id="arenaEnd"><div class="modal">
+  <h2 class="modalTitle" id="aeTitle">結算</h2>
+  <div class="aeWin" id="aeWin"></div>
+  <div class="aeScore" id="aeScore">A 0 : 0 B</div>
+  <div class="aeList" id="aeList"></div>
+  <button class="apReadyBtn" id="aeBack">返回主畫面</button>
+</div></div>
+<div class="overlay" id="afShop"><div class="modal" style="max-width:300px">
+  <h2 class="modalTitle" id="afShopTitle">商店</h2>
+  <div class="apGold"><span id="afShopGoldL">金錢</span> <span id="afShopGold">0</span></div>
+  <div class="apRows">
+    <div class="apRow"><span class="apStatName" id="afShopHpL">生命</span><span class="apStatVal" id="afShopHp">0</span><button class="apBuy afShopBuy" data-buy="hp">+200</button></div>
+    <div class="apRow"><span class="apStatName" id="afShopAtkL">攻擊</span><span class="apStatVal" id="afShopAtk">0</span><button class="apBuy afShopBuy" data-buy="atk">+2</button></div>
+    <div class="apRow"><span class="apStatName" id="afShopDefL">防禦</span><span class="apStatVal" id="afShopDef">0</span><button class="apBuy afShopBuy" data-buy="def">+2</button></div>
+  </div>
+  <p class="apNote" id="afShopNote">已持有全部技能書</p>
+  <button class="apReadyBtn" id="afShopClose">離開商店</button>
+</div></div>
+<div class="overlay afField" id="arenaField">
+  <canvas id="afCanvas"></canvas>
+  <div class="afJoy" id="afJoy"><div class="afJoyKnob" id="afJoyKnob"></div></div>
+  <button class="afExitBtn" id="afExit">離開</button>
+  <div class="afPhase" id="afPhase"></div>
+  <button class="afSkipBtn" id="afSkip" style="display:none">跳過等待</button>
+  <button class="afShopBtnUI" id="afShopBtn" style="display:none">購買能力</button>
+  <div class="afTeamBar" id="afTeamBar" style="display:none">
+    <button class="afTeamBtn afTeamA" id="afTeamA" data-team="A">藍隊</button>
+    <button class="afTeamBtn afTeamB" id="afTeamB" data-team="B">紅隊</button>
+    <button class="afTeamBtn afTeamRand" id="afTeamRand" style="display:none">隨機分隊</button>
+  </div>
+  <div class="afDuelBanner" id="afDuelBanner" style="display:none"></div>
+  <div class="afCount" id="afCount" style="display:none"></div>
+  <div class="afHint" id="afHint"></div>
+</div>
 
 <!-- ===== Account / login ===== -->
 <div class="overlay" id="authScreen"><div class="modal">
@@ -1667,6 +1863,7 @@ const I18N = {
 
 /* ============================== Config ============================== */
 let FLOORS=25, GRID=11;          /* top floor (boss) = 25 */
+let MAP_N_SOLO=11;               /* single-player grid (admin 7..21); MP overrides GRID with the world's mapSize */
 const BASEMENT=20;               /* deepest basement = B20 (floor -20) */
 const SECRET_FLOOR=900;   /* sentinel floor id for the hidden 密室 (cross-holy-water vault) */
 let _realFloor=1;                /* real (possibly negative) floor of the level currently being generated */
@@ -2161,7 +2358,7 @@ function genFloorRaw(f){
     carveRoom(s.x,s.y, 2+(RAND()<0.45?1:0), 2+(RAND()<0.45?1:0)); roomsMade++;
   }
 
-  if(_realFloor===1){ /* hand-designed structured 1F terrain — replaces the random maze above (calm, symmetric starting floor) */
+  if(_realFloor===1 && GRID===11){ /* hand-designed 1F terrain — standard 11x11 ONLY; non-standard grids (MP large maps) keep the random maze generated above */
     var F1=["11111111111","10000000001","10000000001","10110001101","10110001101","10000000001","10110001101","10110001101","10000000001","10000000001","11111111111"];
     for(var fy=0;fy<GRID;fy++)for(var fx=0;fx<GRID;fx++){ wall[fy][fx]=(F1[fy].charAt(fx)==='1'); }
   }
@@ -2190,7 +2387,8 @@ function genFloorRaw(f){
 
   // monsters
   const _fdMul=(typeof FLOOR_CFG!=='undefined'&&FLOOR_CFG[_realFloor]!=null)?FLOOR_CFG[_realFloor]:1;   // per-floor density (admin Map tab)
-  const monCount=clamp(Math.round((3+Math.floor(f/4))*_fdMul),0,14);   // wandering mobs only; path/treasure guards are placed separately so the floor stays solvable
+  const _areaMul=(state.mode!=='solo')?Math.max(1,(GRID*GRID)/(11*11)):1;   // big MP floors get proportionally more wandering monsters (tunable later)
+  const monCount=clamp(Math.round((3+Math.floor(f/4))*_fdMul*_areaMul),0,Math.round(14*_areaMul));   // wandering mobs only; path/treasure guards are placed separately so the floor stays solvable
   const isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };   // weaken / poison / true-damage / life-drain
   const _ALLMON=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);   // unified pool; each monster carries its own surface (sMin/sMax) + basement-depth (bMin/bMax) ranges (admin Monsters tab)
   let roster;
@@ -2783,31 +2981,35 @@ function wingsPackage(pl,levels){
 }
 
 /* ============================== Rendering ============================== */
+/* camera-follow viewport: solo shows the whole map; MP shows a window centred on the player */
+function mpViewPref(){ try{ var v=parseInt(localStorage.getItem('mt_mpView'),10); if(v===9||v===11||v===13) return v; }catch(e){} return 11; }
+function viewSize(){ if(state.mode==='solo') return GRID; return Math.min(mpViewPref(), GRID); }
+function camOrigin(){ var V=viewSize(); var hx=V>>1; var cx=clamp((viewCX()||0)-hx,0,Math.max(0,GRID-V)); var cy=clamp((viewCY()||0)-hx,0,Math.max(0,GRID-V)); return {x:cx,y:cy,v:V}; }
 function sizeBoard(){
   const stage=byId('mapStage');
-  let tile;
+  let tile; const _V=viewSize();
   const mq=function(q){ return (typeof window.matchMedia==='function') ? window.matchMedia(q).matches : false; };
   const portrait = mq('(orientation:portrait)') || (window.innerHeight>=window.innerWidth);
   const coarse   = mq('(pointer:coarse)');
   if(window.innerWidth<=760 && portrait){
     /* PORTRAIT phone: one locked screen — fit the board to the SMALLER of the screen width and the leftover map height, so it never overflows onto the stats above or the d-pad below */
-    const wFit=Math.floor((window.innerWidth-42)/GRID);
-    const hAvail=stage.clientHeight, hFit=(hAvail>40)?Math.floor((hAvail-30)/GRID):wFit;
+    const wFit=Math.floor((window.innerWidth-42)/_V);
+    const hAvail=stage.clientHeight, hFit=(hAvail>40)?Math.floor((hAvail-30)/_V):wFit;
     tile=clamp(Math.min(wFit,hFit),18,46);
   } else if(coarse && !portrait){
     /* LANDSCAPE phone / tablet (touch): the d-pad sits BELOW the board, so fit the board into the stage HEIGHT (allow a smaller tile so it never overflows onto the d-pad) */
     const w=stage.clientWidth, h=stage.clientHeight;
     const avail=Math.min(w||320, h||220);
-    tile=clamp(Math.floor((avail-30)/GRID),14,56);
+    tile=clamp(Math.floor((avail-30)/_V),14,56);
   } else {
     /* DESKTOP: fit the board into the smaller of the stage's width/height */
     const w=stage.clientWidth, h=stage.clientHeight;
     const avail=Math.min(w||320,h||320);
-    tile=clamp(Math.floor((avail-30)/GRID),20,64);
+    tile=clamp(Math.floor((avail-30)/_V),20,64);
   }
   state.tile=tile;
   const g=byId('grid');
-  g.style.gridTemplateColumns='repeat('+GRID+', '+tile+'px)';
+  g.style.gridTemplateColumns='repeat('+_V+', '+tile+'px)';
   g.style.gridAutoRows=tile+'px';
   g.style.fontSize=tile+'px';
   const sp=byId('statsPanel');
@@ -2847,12 +3049,14 @@ function floorZone(f){ const ef=effFloor(f); return ef<=8?'cosmic':(ef<=15?'ston
 
 let _lavaClock=Date.now(); const LAVA_PERIOD=1200;   /* lava flash synced to a global clock so re-rendering each move doesn't restart it */
 function renderMap(){
-  const d=curFloor(); const g=byId('grid'); g.innerHTML='';
+  const d=viewFloorData(); const g=byId('grid'); g.innerHTML='';
   g.classList.remove('z-cosmic','z-stone','z-ember'); g.classList.add('z-'+floorZone(d.f));
   const frag=document.createDocumentFragment();
   const sealed=bossSealed(d);   /* on a boss floor, keep the exit stairs hidden until the boss falls */
-  for(let y=0;y<GRID;y++){
-    for(let x=0;x<GRID;x++){
+  const _cam=camOrigin(); const _V=_cam.v;
+  for(let sy=0;sy<_V;sy++){
+    for(let sx=0;sx<_V;sx++){
+      const x=_cam.x+sx, y=_cam.y+sy;
       const cell=document.createElement('div');
       cell.className='tile '+(d.wall[y][x]?'wall':'floor');
       if(d.wall[y][x] && wallBrick(d.f,x,y)) cell.classList.add('brick');
@@ -2923,7 +3127,7 @@ function renderMap(){
         const _pe=d.ent[y][x]; if((_pe&&_pe.kind==='barrier')||(d.wall[y][x]&&_isKeyWall(d,x,y))) cell.classList.add('portalAimOk');
       }
       if(state.portalTarget && state.portalTarget.x===x && state.portalTarget.y===y) cell.classList.add('portalAimOk');
-      if(x===state.px&&y===state.py){
+      if(!state.spectating && x===state.px&&y===state.py){
         const p=document.createElement('div'); p.className='player';
         if(PLAYER_IMG){ const im=document.createElement('img'); im.className='entImg'; im.src=PLAYER_IMG; im.alt=''; p.appendChild(im); }
         else { const pg=document.createElement('span'); pg.className='pg'; pg.textContent=(PLAYER_FACE||'🧝'); p.appendChild(pg); }
@@ -2934,6 +3138,19 @@ function renderMap(){
     }
   }
   g.appendChild(frag);
+  if(state.mode==='coop' && state.others){   /* off-screen teammate direction markers (large map) */
+    const _bV=_cam.v, _tp=state.tile||32, _bp=_bV*_tp, _hf=_bp/2, _mg=Math.min(16,_tp*0.5);
+    const _ccx=_cam.x+_bV/2, _ccy=_cam.y+_bV/2;
+    for(const _u in state.others){ const _o=state.others[_u];
+      if(!_o || _o.floor!==d.f || _o.over) continue;
+      if(_o.x>=_cam.x && _o.x<_cam.x+_bV && _o.y>=_cam.y && _o.y<_cam.y+_bV) continue;   /* already visible in the window */
+      let _dx=(_o.x+0.5)-_ccx, _dy=(_o.y+0.5)-_ccy; const _m=Math.max(Math.abs(_dx),Math.abs(_dy))||1;
+      const _ix=_hf+(_dx/_m)*(_hf-_mg), _iy=_hf+(_dy/_m)*(_hf-_mg);
+      const _ind=document.createElement('div'); _ind.className='peerInd';
+      _ind.style.left=_ix+'px'; _ind.style.top=_iy+'px'; _ind.style.background=playerColor(_u);
+      _ind.textContent=initialOf(_o.name); g.appendChild(_ind);
+    }
+  }
 }
 
 function renderStats(){
@@ -3813,6 +4030,9 @@ function foeTurn(){
   }
   if(foeCrit) c.foeEn=0;   // crit consumed: empty the gauge so it must fully recharge before the next crit
   if(_useSkill && _skId==='jinshi'){ var _fjH=Math.round(taken*(((SKILL_BY_ID['jinshi']||{}).healPct!=null?SKILL_BY_ID['jinshi'].healPct:30)/100)); if(_fjH>0){ foe.hp=foe.hp+_fjH; try{ floatDmg('foe','+'+_fjH,'heal'); }catch(e){} try{ log('foe',fmt(t('msg.jinshiHeal'),{n:_fjH})); }catch(e){} } }   /* 金石（攻擊技能書）：怪物使用時亦回血並顯示，與玩家一致 */
+  if(_useSkill && _skId==='tianti' && !foeCrit){ var _ften=Math.floor(pl.en*(((SKILL_BY_ID['tianti']||{}).drainPct!=null?SKILL_BY_ID['tianti'].drainPct:50)/100)); if(_ften>0){ pl.en=clamp(pl.en-_ften,0,100); c.foeEn=clamp(c.foeEn+_ften,0,100); } }   /* 天梯（怪物）：吸取玩家半數能量並回補自身，與玩家對等 */
+  if(_useSkill && _skId==='zhuanti'){ c.meStam=clamp(c.meStam-(((SKILL_BY_ID['zhuanti']||{}).stamCut!=null?SKILL_BY_ID['zhuanti'].stamCut:40)),0,100); }   /* 轉體（怪物）：削減玩家體力 */
+  if(_useSkill && _skId==='huangu' && taken>0){ var _fhg=Math.max(1,Math.floor(foe.def*(((SKILL_BY_ID['huangu']||{}).convPct!=null?SKILL_BY_ID['huangu'].convPct:5)/100))); foe.atk+=_fhg; foe.def=Math.max(0,foe.def-_fhg); }   /* 幻骨（怪物）：將自身防禦轉為攻擊（持續整場、可疊加），與玩家對等 */
   if(anyHit && foe.drainEn>0){ try{ playEventFx('me','ability','drainEn'); }catch(_e){} }   /* 吸能特效 */
   var _sdAP=(foe.statDownPct||0), _sdAN=(foe.statDownN||0), _sdDP=(foe.statDownDefPct!=null?foe.statDownDefPct:_sdAP), _sdDN=(foe.statDownDefN!=null?foe.statDownDefN:_sdAN); if(anyHit && (_sdAP>0||_sdAN>0||_sdDP>0||_sdDN>0)){ var _sdOA=pl.atk, _sdOD=pl.def; pl.atk=Math.max(1,Math.floor(pl.atk*(1-_sdAP/100))-_sdAN); pl.def=Math.max(0,Math.floor(pl.def*(1-_sdDP/100))-_sdDN); c.statDownAtk=(c.statDownAtk||0)+(_sdOA-pl.atk); c.statDownDef=(c.statDownDef||0)+(_sdOD-pl.def); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ playEventFx('me','ability','statDown'); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
   c.halveNext=false;
@@ -4575,7 +4795,19 @@ function tutNext(){ const _mS=t('tut.stepsM'); const _use=(!_isPC() && Array.isA
 function tutBack(){ if((state._tutI||0)>0){ state._tutI--; renderTutPage(); } }
 function tutSkip(){ hide('tutorial'); }
 function _godClamp(){ if(state.cheatActive && state.player){ if(state.player.hp<1) state.player.hp=1; return true; } return false; }
-function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } if(state.mode==='solo') endScreen(false); else endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } if(state.mode==='solo'){ endScreen(false); return; } state.over=true; state.busy=false; try{ mpPresence(true); }catch(e){} if(state.mode==='coop' && enterSpectate()) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function renderRunScore(won){
+  var el=byId('endScore'); if(!el) return;
+  var s=computeRunScore(won);
+  var row=function(k,v,cls){ return '<div class="esLine'+(cls?' '+cls:'')+'"><span class="esK">'+k+'</span><span class="esV">'+v+'</span></div>'; };
+  var h2='<div class="esHead">'+t('end.scoreTitle')+'</div>';
+  h2+=row(t('end.scoreAbility'), s.ability);
+  h2+=row(t('end.scoreMonster'), s.monster);
+  h2+=row(t('end.scoreTime'), s.time);
+  if(s.win>0) h2+=row(t('end.scoreWin'), '+'+s.win);
+  h2+=row(t('end.scoreTotal'), s.total, 'esTotal');
+  el.innerHTML=h2; el.style.display='';
+}
 function endScreen(win){
   state.over=true; state.busy=false;
   state._reloEnd=function(){ endScreen(win); };
@@ -4588,6 +4820,7 @@ function endScreen(win){
   const cell=function(k,v){return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';};
   es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv)+cell(t('end.kills'),state.kills)+
                cell(t('end.gold'),pl.gold)+cell(t('end.atk'),effAtk(pl))+cell(t('end.def'),effDef(pl));
+  try{ renderRunScore(win); }catch(e){}
   { const _rw=byId('endRankWrap'), _rb=byId('endRankBtn'), _ri=byId('endRankName');
     if(_rw&&_rb){ const _can = win && (typeof Net!=='undefined' && Net.db && Net.uid);
       _rw.style.display = _can ? 'flex' : 'none';
@@ -4711,7 +4944,7 @@ function genFloor(f){
 function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f)); try{ return genBossFloorRaw(f); } finally{ RAND=prev; } }
 function ensureFloor(f){ if(!state.floors[f]){ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } }
 function curFloor(){ return state.floors[state.floor]; }
-const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev'];
+const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev','arenaPrep','arenaStage','arenaDuel','arenaEnd','arenaField','afShop'];
 function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} let modalOpen=false; try{ const _ovs=document.querySelectorAll('.overlay.show'); for(let _i=0;_i<_ovs.length;_i++){ if(_ovs[_i].id!=='startScreen'){ modalOpen=true; break; } } }catch(e){} ae.style.display = (isAdmin && !open && onMenu && !modalOpen) ? '' : 'none'; }
 function show(id){
   /* only ONE modal overlay open at a time — close any other so windows never stack */
@@ -4886,6 +5119,7 @@ function relocalizeOpen(){
 function newGame(opts){
   opts=opts||{};
   state.mode = opts.mode || 'solo';
+  GRID = (state.mode==='solo') ? MAP_N_SOLO : clamp((opts.mapSize|0)||30, 20, 48);   /* MP large map; solo keeps its (admin) grid */
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
@@ -4900,7 +5134,7 @@ function newGame(opts){
     var _kf2=-(1+(hashSeed(state.seed,902)%11));                               /* B12 白門寶庫的白鑰匙 -> 放在 B1~B11 */
     var _kf3=-(1+(hashSeed(state.seed,903)%14)); if(_kf3===_kf2) _kf3=(_kf2>-14?_kf2-1:_kf2+1);   /* B15 白金門寶庫的白金鑰匙 -> 放在 B1~B14，避開 _kf2 */
     state.vaultKeys=[{f:_kf1,item:'keyW'},{f:_kf2,item:'keyW'},{f:_kf3,item:'keyP'}]; }
-  state.busy=false; state.kills=0; state.over=false; state.finished=false;
+  state.busy=false; state.kills=0; state.over=false; state.finished=false; state.spectating=false; state.specUid=null;
   state.basementUnlocked=false; state.startTime=Date.now(); state.hintsSeen={};
   state.feat={}; state._achWon=false; _achSet=new Set(); _achQueue=[]; _achBusy=false; try{ localStorage.removeItem('mt_ach'); }catch(_e){}   /* 成就每局獨立：清空本局已取得成就、事件追蹤、勝利旗標與待播提示，新局可重新取得且不會殘留提示 */
   state.cheatActive=false; state.cheatSnap=null;
@@ -5026,6 +5260,11 @@ function bindInput(){
     if(byId('portalDlg').classList.contains('show')){
       if(e.key==='Enter'){ e.preventDefault(); _portalDlgConfirm(); return; }
       if(e.key==='q'||e.key==='Q'||e.key==='Escape'){ e.preventDefault(); _portalDlgCancel(); return; }
+      return;
+    }
+    if(state.spectating){
+      if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){ e.preventDefault(); cycleSpectate(-1); }
+      else if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){ e.preventDefault(); cycleSpectate(1); }
       return;
     }
     if(anyOverlayOpen()) return;
@@ -5435,9 +5674,9 @@ const FIREBASE_CONFIG = {
 /* ---------- multiplayer i18n (merged into I18N for all 5 languages) ---------- */
 const I18N_MP = {
 'zh-Hant':{mp:{startSub:'選擇遊玩方式',modeSingle:'單機冒險',modeMulti:'多人連線',notConfigured:'尚未設定 Firebase，目前僅能單機遊玩',
-  lobbyTitle:'連線大廳',name:'玩家名稱',namePh:'輸入你的名稱',mode:'模式',race:'競速',coop:'合作',
-  raceDesc:'同一座塔、各自獨立，比誰先登頂。',coopDesc:'共享同一座塔，清掉的怪物與寶物會同步給隊友。',
-  maxPlayers:'人數上限',create:'建立房間',join:'加入',codePh:'輸入房間代碼',roomCode:'房間代碼',copy:'複製',copied:'已複製',
+  lobbyTitle:'連線大廳',name:'玩家名稱',namePh:'輸入你的名稱',mode:'模式',race:'競速',coop:'合作',arena:'擂台',
+  raceDesc:'同一座塔、各自獨立，比誰先登頂。',coopDesc:'共享同一座塔，清掉的怪物與寶物會同步給隊友。',arenaDesc:'同一張地圖的環形競技場，分兩隊抽籤 1v1，以勝場計分。',arenaPrep:'賽前準備',arenaTeam:'你的隊伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻擊與防禦技能書',arenaReady:'準備完成',arenaWait:'等待其他玩家…',arenaNoGold:'金幣不足',arenaReadyMsg:'已準備，等待其他玩家',arenaAllReady:'全員就緒，即將開始',arenaMatch:'對戰',arenaAI:'電腦',arenaYouFight:'你即將上場！',arenaWatching:'觀戰中',arenaFightSoon:'1v1 戰鬥即將登場（開發中）',arenaDoneSoon:'結算即將登場（開發中）',arenaWinner:'{name} 勝！',arenaDraw:'平手',arenaResult:'比賽結束',arenaTeamWin:'{team} 隊獲勝',arenaTie:'雙方平手',arenaBack:'返回主畫面',
+  maxPlayers:'人數上限',mapSizeLab:'地圖大小',viewLab:'視野',loadTitle:'載入中…',load1:'加載地圖中',load2:'加載怪物中',load3:'加載寶物中',load4:'加載玩家資料中',load5:'完成',create:'建立房間',join:'加入',codePh:'輸入房間代碼',roomCode:'房間代碼',copy:'複製',copied:'已複製',
   players:'玩家',host:'房主',you:'你',start:'開始遊戲',waiting:'等待房主開始…',leave:'離開房間',leaveConfirm:'確定要離開房間嗎？',
   started:'遊戲開始！',connecting:'連線中…',roomNotFound:'找不到該房間',roomFull:'房間已滿',alreadyStarted:'遊戲已經開始',
   noauth:'連線失敗，請稍後再試',createFail:'建立失敗',needName:'請先輸入名稱',
@@ -5446,9 +5685,9 @@ const I18N_MP = {
   bossBy:'{name} 擊敗了魔王，魔塔被攻略！',raceWinYou:'你第一個登頂！',raceRank:'第 {n} 名登頂',raceDoneDesc:'你成功登頂了！',
   coopWin:'你們合力攻略了魔塔！',backLobby:'返回大廳',tpDisabled:'多人模式停用樓層傳送',offline:'離線'}},
 'zh-Hans':{mp:{startSub:'选择游玩方式',modeSingle:'单机冒险',modeMulti:'多人联机',notConfigured:'尚未配置 Firebase，目前仅能单机游玩',
-  lobbyTitle:'联机大厅',name:'玩家名称',namePh:'输入你的名称',mode:'模式',race:'竞速',coop:'合作',
-  raceDesc:'同一座塔、各自独立，比谁先登顶。',coopDesc:'共享同一座塔，清掉的怪物与宝物会同步给队友。',
-  maxPlayers:'人数上限',create:'创建房间',join:'加入',codePh:'输入房间代码',roomCode:'房间代码',copy:'复制',copied:'已复制',
+  lobbyTitle:'联机大厅',name:'玩家名称',namePh:'输入你的名称',mode:'模式',race:'竞速',coop:'合作',arena:'擂台',
+  raceDesc:'同一座塔、各自独立，比谁先登顶。',coopDesc:'共享同一座塔，清掉的怪物与宝物会同步给队友。',arenaDesc:'同一张地图的环形竞技场，分两队抽签 1v1，以胜场计分。',arenaPrep:'赛前准备',arenaTeam:'你的队伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻击与防御技能书',arenaReady:'准备完成',arenaWait:'等待其他玩家…',arenaNoGold:'金币不足',arenaReadyMsg:'已准备，等待其他玩家',arenaAllReady:'全员就绪，即将开始',arenaMatch:'对战',arenaAI:'电脑',arenaYouFight:'你即将上场！',arenaWatching:'观战中',arenaFightSoon:'1v1 战斗即将登场（开发中）',arenaDoneSoon:'结算即将登场（开发中）',arenaWinner:'{name} 胜！',arenaDraw:'平手',arenaResult:'比赛结束',arenaTeamWin:'{team} 队获胜',arenaTie:'双方平手',arenaBack:'返回主画面',
+  maxPlayers:'人数上限',mapSizeLab:'地图大小',viewLab:'视野',loadTitle:'载入中…',load1:'加载地图中',load2:'加载怪物中',load3:'加载宝物中',load4:'加载玩家资料中',load5:'完成',create:'创建房间',join:'加入',codePh:'输入房间代码',roomCode:'房间代码',copy:'复制',copied:'已复制',
   players:'玩家',host:'房主',you:'你',start:'开始游戏',waiting:'等待房主开始…',leave:'离开房间',leaveConfirm:'确定要离开房间吗？',
   started:'游戏开始！',connecting:'连接中…',roomNotFound:'找不到该房间',roomFull:'房间已满',alreadyStarted:'游戏已经开始',
   noauth:'连接失败，请稍后再试',createFail:'创建失败',needName:'请先输入名称',
@@ -5457,9 +5696,9 @@ const I18N_MP = {
   bossBy:'{name} 击败了魔王，魔塔被攻略！',raceWinYou:'你第一个登顶！',raceRank:'第 {n} 名登顶',raceDoneDesc:'你成功登顶了！',
   coopWin:'你们合力攻略了魔塔！',backLobby:'返回大厅',tpDisabled:'多人模式停用楼层传送',offline:'离线'}},
 'en':{mp:{startSub:'Choose how to play',modeSingle:'Single-player',modeMulti:'Multiplayer',notConfigured:'Firebase is not configured — single-player only for now',
-  lobbyTitle:'Multiplayer Lobby',name:'Player name',namePh:'Enter your name',mode:'Mode',race:'Race',coop:'Co-op',
-  raceDesc:'Same tower, separate runs — first to the top wins.',coopDesc:'Share one tower — monsters and loot you clear sync to teammates.',
-  maxPlayers:'Max players',create:'Create room',join:'Join',codePh:'Enter room code',roomCode:'Room code',copy:'Copy',copied:'Copied',
+  lobbyTitle:'Multiplayer Lobby',name:'Player name',namePh:'Enter your name',mode:'Mode',race:'Race',coop:'Co-op',arena:'Arena',
+  raceDesc:'Same tower, separate runs — first to the top wins.',coopDesc:'Share one tower — monsters and loot you clear sync to teammates.',arenaDesc:'Ring arena on one map: two teams, lottery 1v1 duels, scored by wins.',arenaPrep:'Prep',arenaTeam:'Your team',arenaBuy:'+{inc} ({cost}g)',arenaBooks:'All attack & defense skill books owned',arenaReady:'Ready',arenaWait:'Waiting for others…',arenaNoGold:'Not enough gold',arenaReadyMsg:'Ready — waiting for others',arenaAllReady:'Everyone ready — starting',arenaMatch:'Match',arenaAI:'AI',arenaYouFight:'You\'re up next!',arenaWatching:'Watching',arenaFightSoon:'1v1 combat coming soon (WIP)',arenaDoneSoon:'Results coming soon (WIP)',arenaWinner:'{name} wins!',arenaDraw:'Draw',arenaResult:'Match over',arenaTeamWin:'Team {team} wins',arenaTie:'It\'s a tie',arenaBack:'Back to menu',
+  maxPlayers:'Max players',mapSizeLab:'Map size',viewLab:'View',loadTitle:'Loading…',load1:'Loading map',load2:'Loading monsters',load3:'Loading treasures',load4:'Loading player data',load5:'Done',create:'Create room',join:'Join',codePh:'Enter room code',roomCode:'Room code',copy:'Copy',copied:'Copied',
   players:'Players',host:'Host',you:'you',start:'Start game',waiting:'Waiting for host to start…',leave:'Leave room',leaveConfirm:'Leave this room?',
   started:'Game started!',connecting:'Connecting…',roomNotFound:'Room not found',roomFull:'Room is full',alreadyStarted:'Game already started',
   noauth:'Connection failed, try again',createFail:'Create failed',needName:'Enter a name first',
@@ -5468,9 +5707,9 @@ const I18N_MP = {
   bossBy:'{name} slew the boss — the tower is cleared!',raceWinYou:'You reached the top first!',raceRank:'Reached top: rank {n}',raceDoneDesc:'You reached the summit!',
   coopWin:'Together you cleared the tower!',backLobby:'Back to lobby',tpDisabled:'Teleport is disabled in multiplayer',offline:'offline'}},
 'ja':{mp:{startSub:'遊び方を選択',modeSingle:'ひとりで冒険',modeMulti:'マルチプレイ',notConfigured:'Firebase 未設定のため、現在はシングルのみ',
-  lobbyTitle:'ロビー',name:'プレイヤー名',namePh:'名前を入力',mode:'モード',race:'競争',coop:'協力',
-  raceDesc:'同じ塔・各自プレイ。先に頂上へ着いた人が勝ち。',coopDesc:'同じ塔を共有。倒した敵や取った宝が仲間と同期。',
-  maxPlayers:'最大人数',create:'部屋を作る',join:'参加',codePh:'部屋コードを入力',roomCode:'部屋コード',copy:'コピー',copied:'コピーしました',
+  lobbyTitle:'ロビー',name:'プレイヤー名',namePh:'名前を入力',mode:'モード',race:'競争',coop:'協力',arena:'闘技場',
+  raceDesc:'同じ塔・各自プレイ。先に頂上へ着いた人が勝ち。',coopDesc:'同じ塔を共有。倒した敵や取った宝が仲間と同期。',arenaDesc:'同じマップの円形闘技場。2チーム抽選1v1、勝利数で採点。',arenaPrep:'準備',arenaTeam:'あなたのチーム',arenaBuy:'+{inc}（{cost}金）',arenaBooks:'攻撃・防御スキル書をすべて所持',arenaReady:'準備完了',arenaWait:'他のプレイヤーを待っています…',arenaNoGold:'金貨が足りません',arenaReadyMsg:'準備完了、待機中',arenaAllReady:'全員準備完了、まもなく開始',arenaMatch:'対戦',arenaAI:'AI',arenaYouFight:'まもなく出場！',arenaWatching:'観戦中',arenaFightSoon:'1v1バトルは近日実装（開発中）',arenaDoneSoon:'結果は近日実装（開発中）',arenaWinner:'{name} の勝ち！',arenaDraw:'引き分け',arenaResult:'試合終了',arenaTeamWin:'{team} チームの勝利',arenaTie:'引き分け',arenaBack:'メニューに戻る',
+  maxPlayers:'最大人数',mapSizeLab:'マップサイズ',viewLab:'視野',loadTitle:'読み込み中…',load1:'マップ読込中',load2:'モンスター読込中',load3:'宝物読込中',load4:'プレイヤー読込中',load5:'完了',create:'部屋を作る',join:'参加',codePh:'部屋コードを入力',roomCode:'部屋コード',copy:'コピー',copied:'コピーしました',
   players:'プレイヤー',host:'ホスト',you:'あなた',start:'ゲーム開始',waiting:'ホストの開始を待っています…',leave:'退出',leaveConfirm:'部屋を出ますか？',
   started:'ゲーム開始！',connecting:'接続中…',roomNotFound:'部屋が見つかりません',roomFull:'満員です',alreadyStarted:'すでに開始済み',
   noauth:'接続に失敗しました',createFail:'作成に失敗',needName:'先に名前を入力してください',
@@ -5479,9 +5718,9 @@ const I18N_MP = {
   bossBy:'{name} がボスを倒し、塔を攻略！',raceWinYou:'一番乗りで頂上へ！',raceRank:'頂上到達 {n} 位',raceDoneDesc:'頂上に到達しました！',
   coopWin:'力を合わせて塔を攻略！',backLobby:'ロビーへ',tpDisabled:'マルチでは階層転送は無効',offline:'オフライン'}},
 'ko':{mp:{startSub:'플레이 방식 선택',modeSingle:'싱글 모험',modeMulti:'멀티플레이',notConfigured:'Firebase 미설정 — 현재는 싱글만 가능',
-  lobbyTitle:'멀티 로비',name:'플레이어 이름',namePh:'이름 입력',mode:'모드',race:'경쟁',coop:'협력',
-  raceDesc:'같은 탑·각자 플레이. 먼저 정상에 오르면 승리.',coopDesc:'같은 탑 공유. 처치한 몬스터·획득한 보물이 동료와 동기화.',
-  maxPlayers:'최대 인원',create:'방 만들기',join:'참가',codePh:'방 코드 입력',roomCode:'방 코드',copy:'복사',copied:'복사됨',
+  lobbyTitle:'멀티 로비',name:'플레이어 이름',namePh:'이름 입력',mode:'모드',race:'경쟁',coop:'협력',arena:'투기장',
+  raceDesc:'같은 탑·각자 플레이. 먼저 정상에 오르면 승리.',coopDesc:'같은 탑 공유. 처치한 몬스터·획득한 보물이 동료와 동기화.',arenaDesc:'같은 맵의 원형 투기장. 두 팀 추첨 1v1, 승수로 채점.',arenaPrep:'준비',arenaTeam:'내 팀',arenaBuy:'+{inc}（{cost}금）',arenaBooks:'공격·방어 스킬북 모두 보유',arenaReady:'준비 완료',arenaWait:'다른 플레이어 대기 중…',arenaNoGold:'금화 부족',arenaReadyMsg:'준비 완료, 대기 중',arenaAllReady:'전원 준비 완료, 곧 시작',arenaMatch:'대전',arenaAI:'AI',arenaYouFight:'곧 출전합니다!',arenaWatching:'관전 중',arenaFightSoon:'1v1 전투 곧 구현(개발 중)',arenaDoneSoon:'결산 곧 구현(개발 중)',arenaWinner:'{name} 승리!',arenaDraw:'무승부',arenaResult:'경기 종료',arenaTeamWin:'{team} 팀 승리',arenaTie:'무승부',arenaBack:'메뉴로',
+  maxPlayers:'최대 인원',mapSizeLab:'맵 크기',viewLab:'시야',loadTitle:'로딩 중…',load1:'맵 로딩 중',load2:'몬스터 로딩 중',load3:'보물 로딩 중',load4:'플레이어 로딩 중',load5:'완료',create:'방 만들기',join:'참가',codePh:'방 코드 입력',roomCode:'방 코드',copy:'복사',copied:'복사됨',
   players:'플레이어',host:'방장',you:'나',start:'게임 시작',waiting:'방장이 시작하기를 기다리는 중…',leave:'방 나가기',leaveConfirm:'방을 나갈까요?',
   started:'게임 시작!',connecting:'연결 중…',roomNotFound:'방을 찾을 수 없음',roomFull:'방이 가득 참',alreadyStarted:'이미 시작됨',
   noauth:'연결 실패, 다시 시도하세요',createFail:'생성 실패',needName:'먼저 이름을 입력하세요',
@@ -5495,7 +5734,7 @@ const I18N_MP = {
 /* ---------------------------- Net (Firebase) ---------------------------- */
 const Net = {
   app:null, auth:null, db:null, uid:null, ready:false,
-  worldId:null, worldRef:null, metaRef:null, membersRef:null, presRef:null, stateRef:null,
+  worldId:null, worldRef:null, metaRef:null, membersRef:null, presRef:null, stateRef:null, arenaRef:null,
   listeners:[],
   configured(){ return !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.databaseURL); },
   available(){ return typeof firebase!=='undefined' && this.configured(); },
@@ -5535,15 +5774,15 @@ const Net = {
   },
   detach(){ for(let i=0;i<this.listeners.length;i++){ try{ this.listeners[i].ref.off(this.listeners[i].ev,this.listeners[i].cb); }catch(e){} } this.listeners=[]; },
   track(ref,ev,cb){ ref.on(ev,cb); this.listeners.push({ref:ref,ev:ev,cb:cb}); },
-  createWorld(mode,maxPlayers,name){
+  createWorld(mode,maxPlayers,name,mapSize){
     const self=this;
     return this.ensureReady().then(function(ok){
       if(!ok) return {error:'noauth'};
       const id=self.code(); const seed=rngFreshSeed();
       const ref=self.db.ref('worlds/'+id);
-      return ref.child('meta').set({ seed:seed, mode:mode, maxPlayers:maxPlayers, host:self.uid, status:'lobby', createdAt:self.ts() })
+      return ref.child('meta').set({ seed:seed, mode:mode, maxPlayers:maxPlayers, mapSize:(mapSize||30), host:self.uid, status:'lobby', createdAt:self.ts() })
         .then(function(){ return ref.child('members/'+self.uid).set({ name:name, joinedAt:self.ts() }); })
-        .then(function(){ self._bind(id); return {id:id, seed:seed, mode:mode, host:true}; })
+        .then(function(){ self._bind(id); return {id:id, seed:seed, mode:mode, mapSize:(mapSize||30), host:true}; })
         .catch(function(e){ console.warn(e); return {error:'createfail'}; });
     });
   },
@@ -5576,25 +5815,28 @@ const Net = {
     this.membersRef=this.worldRef.child('members');
     this.presRef=this.worldRef.child('presence');
     this.stateRef=this.worldRef.child('state');
+    this.arenaRef=this.worldRef.child('arena');
     try{ this.presRef.child(this.uid).onDisconnect().remove(); }catch(e){}
     this.track(this.metaRef,'value',function(s){ onMetaUpdate(s.val()); });
     this.track(this.membersRef,'value',function(s){ onMembersUpdate(s.val()||{}); });
     this.track(this.presRef,'value',function(s){ onPresenceUpdate(s.val()||{}); });
     this.track(this.stateRef,'value',function(s){ onStateUpdate(s.val()||{}); });
+    this.track(this.arenaRef,'value',function(s){ onArenaUpdate(s.val()||{}); });
   },
   setPresence(p){ if(!this.presRef||!this.uid) return; p.lastSeen=this.ts(); this.presRef.child(this.uid).update(p); },
+  setArenaPlayer(d){ if(!this.arenaRef||!this.uid) return; d.lastSeen=this.ts(); this.arenaRef.child('players/'+this.uid).update(d); },
   startWorld(){ if(this.metaRef) this.metaRef.update({ status:'playing', startedAt:this.ts() }); },
   markCleared(f,x,y,type){ if(!this.stateRef) return; this.stateRef.child(f+'/'+x+'_'+y).set({ t:type, by:this.uid }); },
   setBossCleared(){ if(this.metaRef) this.metaRef.update({ clearedBoss:this.uid, clearedAt:this.ts() }); },
   leaveWorld(){
     try{ if(this.presRef&&this.uid) this.presRef.child(this.uid).remove(); }catch(e){}
     this.detach();
-    this.worldId=null; this.worldRef=this.metaRef=this.membersRef=this.presRef=this.stateRef=null;
+    this.worldId=null; this.worldRef=this.metaRef=this.membersRef=this.presRef=this.stateRef=this.arenaRef=null;
   }
 };
 
 /* ---------------------------- MP runtime state ---------------------------- */
-const MP = { meta:null, members:{}, mode:'solo', seed:0, host:false, myName:'', _lastPresence:{} };
+const MP = { meta:null, members:{}, mode:'solo', seed:0, mapSize:30, host:false, myName:'', _lastPresence:{}, arena:null };
 let __presTimer=null, __presDirty=false;
 
 function rngFreshSeed_exists(){}  /* rngFreshSeed defined in engine */
@@ -5603,7 +5845,7 @@ function rngFreshSeed_exists(){}  /* rngFreshSeed defined in engine */
 function mpOnNewGame(){
   renderMpButton();
   if(state.mode==='solo'){ return; }   /* no auto tutorial popup; the 遊戲說明 button on the title screen covers it. Item-pickup key hints (hintOnce) still fire. */
-  mpPresence(true);
+  mpPresence(true); renderRoster();
 }
 function mpPresence(force){
   if(state.mode==='solo' || !Net.presRef) return;
@@ -5632,8 +5874,8 @@ function onBossDefeated(){
   }
 }
 function coopVictory(byUid){
-  if(state.over) return;
-  state.over=true; state.busy=false;
+  state._coopWinShown=true; state.spectating=false; state.over=true; state.busy=false;
+  { const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
   const nm=(MP.members[byUid]&&MP.members[byUid].name)|| t('mp.you');
   endScreenMp(true,'coop',null,null,nm);
 }
@@ -5656,30 +5898,32 @@ function applyClearedToFloor(d){
 /* ---------------------------- listener callbacks ---------------------------- */
 function onMetaUpdate(meta){
   if(!meta) return;
-  MP.meta=meta; MP.mode=meta.mode; MP.seed=meta.seed; MP.host=(meta.host===Net.uid);
+  MP.meta=meta; MP.mode=meta.mode; MP.seed=meta.seed; MP.mapSize=meta.mapSize||30; MP.host=(meta.host===Net.uid);
   if(meta.status==='playing' && state._inLobby && !state.mpStarted){ state.mpStarted=true; startMpRun(); }
-  if(meta.clearedBoss && state.mode==='coop' && !state.over && !state._coopWinShown){ state._coopWinShown=true; coopVictory(meta.clearedBoss); }
+  if(meta.clearedBoss && state.mode==='coop' && !state._coopWinShown){ state._coopWinShown=true; coopVictory(meta.clearedBoss); }
   if(byId('lobby').classList.contains('show')) renderLobby();
   if(byId('mpPanel').classList.contains('show')) renderMpPanel();
 }
-function onMembersUpdate(m){ MP.members=m||{}; if(byId('lobby').classList.contains('show')) renderLobby(); if(byId('mpPanel').classList.contains('show')) renderMpPanel(); }
+function onMembersUpdate(m){ MP.members=m||{}; renderRoster(); if(byId('lobby').classList.contains('show')) renderLobby(); if(byId('mpPanel').classList.contains('show')) renderMpPanel(); }
 function onPresenceUpdate(p){
   MP._lastPresence=p||{};
   const others={}; for(const uid in p){ if(uid===Net.uid) continue; others[uid]=p[uid]; }
   state.others=others;
+  if(state.spectating) fixSpectate();
+  renderRoster(); renderSpectate();
   if(state.player && !state._inLobby) renderMap();
   if(byId('mpPanel').classList.contains('show')) renderMpPanel();
 }
 function onStateUpdate(s){
   state.cleared={};
   for(const f in s){ state.cleared[f]={}; for(const k in s[f]) state.cleared[f][k]=s[f][k]; }
-  if(state.mode==='coop' && state.player && !state._inLobby){ const d=curFloor(); if(d){ applyClearedToFloor(d); renderMap(); } }
+  if(state.mode==='coop' && state.player && !state._inLobby){ const d=viewFloorData(); if(d){ applyClearedToFloor(d); renderMap(); } }
 }
 
 /* ---------------------------- presence rendering helpers ---------------------------- */
 function othersAt(x,y){
   const out=[];
-  for(const uid in state.others){ const o=state.others[uid]; if(o && o.floor===state.floor && o.x===x && o.y===y && !o.over) out.push({uid:uid,name:o.name||''}); }
+  for(const uid in state.others){ const o=state.others[uid]; if(o && o.floor===viewFloor() && o.x===x && o.y===y && !o.over) out.push({uid:uid,name:o.name||''}); }
   return out;
 }
 function playerColor(uid){
@@ -5688,6 +5932,36 @@ function playerColor(uid){
   return pal[h%pal.length];
 }
 function initialOf(name){ name=(name||'?').trim(); return name? name.charAt(0).toUpperCase() : '?'; }
+function renderRoster(){
+  const host=byId('mpRoster'); if(!host) return;
+  if(state.mode==='solo' || state._inLobby || !state.player){ host.classList.remove('show'); host.innerHTML=''; return; }
+  const pres=MP._lastPresence||{}, members=MP.members||{};
+  const uids={}; for(const u in members) uids[u]=1; for(const u in pres) uids[u]=1; if(Net.uid) uids[Net.uid]=1;
+  host.innerHTML='';
+  for(const uid in uids){
+    const isMe=(uid===Net.uid);
+    const name=(members[uid]&&members[uid].name) || (pres[uid]&&pres[uid].name) || (isMe?(MP.myName||'?'):'?');
+    const over=isMe ? !!state.over : !!(pres[uid] && pres[uid].over);
+    const chip=document.createElement('div'); chip.className='rosterChip'+(over?' dead':'')+(isMe?' me':''); chip.dataset.uid=uid;
+    const dot=document.createElement('div'); dot.className='dot'; dot.style.background=playerColor(uid); dot.textContent=initialOf(name);
+    const nm=document.createElement('div'); nm.className='nm'; nm.textContent=name;
+    chip.appendChild(dot); chip.appendChild(nm); host.appendChild(chip);
+  }
+  host.classList.add('show');
+}
+/* ---------------------------- spectate (dead player follows alive teammates) ---------------------------- */
+function aliveTeammates(){ const pres=MP._lastPresence||{}, out=[]; for(const u in pres){ if(u===Net.uid) continue; const o=pres[u]; if(o && !o.over) out.push(u); } return out; }
+function specTarget(){ if(!state.spectating || !state.specUid) return null; const o=(MP._lastPresence||{})[state.specUid]; return (o && !o.over) ? o : null; }
+function viewFloor(){ const s=specTarget(); return s ? (s.floor|0) : state.floor; }
+function viewCX(){ const s=specTarget(); return s ? (s.x|0) : state.px; }
+function viewCY(){ const s=specTarget(); return s ? (s.y|0) : state.py; }
+function viewFloorData(){ const s=specTarget(); if(s){ ensureFloor(s.floor|0); return state.floors[s.floor|0]; } return curFloor(); }
+function renderSpectate(){ const bar=byId('spectateBar'); if(!bar) return; if(!state.spectating){ bar.classList.remove('show'); return; } const s=specTarget(); const nm=byId('specName'); if(nm) nm.textContent=s?(s.name||'?'):'?'; bar.classList.add('show'); }
+function enterSpectate(){ const alive=aliveTeammates(); if(!alive.length) return false; state.spectating=true; state.target=null; state.portalAim=false; state.portalTarget=null; if(!state.specUid || alive.indexOf(state.specUid)<0) state.specUid=alive[0]; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} return true; }
+function cycleSpectate(dir){ if(!state.spectating) return; const alive=aliveTeammates(); if(!alive.length){ endSpectateNoneLeft(); return; } let i=alive.indexOf(state.specUid); if(i<0) i=0; i=(i+(dir<0?-1:1)+alive.length)%alive.length; state.specUid=alive[i]; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} }
+function spectateWatch(uid){ if(!state.spectating) return; if(aliveTeammates().indexOf(uid)<0) return; state.specUid=uid; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} }
+function fixSpectate(){ if(!state.spectating) return; const alive=aliveTeammates(); if(!alive.length){ endSpectateNoneLeft(); return; } if(alive.indexOf(state.specUid)<0){ state.specUid=alive[0]; renderSpectate(); } }
+function endSpectateNoneLeft(){ state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(!state._coopWinShown) endScreenMp(false, state.mode, null, null, null); }
 
 /* ---------------------------- race ranking ---------------------------- */
 function computeRaceRank(){
@@ -5707,6 +5981,8 @@ function goStartScreen(){
   state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false; state.portalAim=false; state.portalTarget=null;
   if(Net.worldId) Net.leaveWorld();
   ['combat','shop','manual','teleport','endScreen','lobby','mpPanel'].forEach(hide);
+  { const _r=byId('mpRoster'); if(_r) _r.classList.remove('show'); const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
+  state.spectating=false; state.specUid=null;
   renderStartScreen(); show('startScreen'); renderMpButton(); try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(e){}   /* 回主畫面時收起成就提示，回遊戲再續播 */
   try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){}
   try{ _bgmStopWA(); }catch(e){}
@@ -5716,6 +5992,7 @@ function renderStartScreen(){
   const s2=byId('tsManualLab'); if(s2) s2.textContent=t('ts.manual');
   const s3=byId('tsRankLab'); if(s3) s3.textContent=t('ts.rank');
   const s4=byId('tsResumeLab'); if(s4) s4.textContent=t('ts.resume');
+  const s5=byId('tsMPLab'); if(s5) s5.textContent=t('ts.mp');
   const rb=byId('tsResume'); if(rb) rb.style.display=(state.player && !state.over) ? '' : 'none';
   const nn=byId('ssNote'); if(nn) nn.textContent='';
 }
@@ -5758,6 +6035,15 @@ function openLobbyScreen(){
 /* ---------------------------- lobby ---------------------------- */
 function lobbySelectedMode(){ const b=document.querySelector('#lbModeSeg .segBtn.sel'); return b? b.dataset.mode : 'coop'; }
 function lobbySelectedMax(){ const b=document.querySelector('#lbMaxSeg .segBtn.sel'); return b? (+b.dataset.max) : 4; }
+function lobbySelectedMapSize(){ const b=document.querySelector('#lbMapSeg .segBtn.sel'); return b? (+b.dataset.map) : 30; }   /* host room setting */
+function lobbySelectedView(){ const b=document.querySelector('#lbViewSeg .segBtn.sel'); return b? (+b.dataset.view) : 11; }    /* per-client view */
+function modeDescKey(m){ return m==='race'?'mp.raceDesc':(m==='arena'?'mp.arenaDesc':'mp.coopDesc'); }
+function modeLabelKey(m){ return m==='race'?'mp.race':(m==='arena'?'mp.arena':'mp.coop'); }
+function arenaTeams(){ /* deterministic split of joined members into two equal teams, AI-filled */
+  const ids=Object.keys(MP.members||{}); let n=Math.max(2, ids.length); if(n%2) n++; const per=n/2;
+  const A=[], B=[]; ids.forEach(function(id,i){ (i%2===0?A:B).push(id); });
+  let ai=1; while(A.length<per){ A.push('AI'+(ai++)); } while(B.length<per){ B.push('AI'+(ai++)); }
+  return {A:A, B:B, per:per}; }
 function getNameInput(){ let v=(byId('lbName').value||'').trim(); return v; }
 
 function renderLobby(){
@@ -5771,8 +6057,10 @@ function renderLobby(){
     byId('lbModeLab').textContent=t('mp.mode');
     byId('lbModeRaceLab').textContent=t('mp.race');
     byId('lbModeCoopLab').textContent=t('mp.coop');
-    byId('lbModeDesc').textContent = (lobbySelectedMode()==='race')? t('mp.raceDesc') : t('mp.coopDesc');
+    { const _a=byId('lbModeArenaLab'); if(_a) _a.textContent=t('mp.arena'); }
+    byId('lbModeDesc').textContent = t(modeDescKey(lobbySelectedMode()));
     byId('lbMaxLab').textContent=t('mp.maxPlayers');
+    { const _ml=byId('lbMapLab'); if(_ml) _ml.textContent=t('mp.mapSizeLab'); const _vl=byId('lbViewLab'); if(_vl) _vl.textContent=t('mp.viewLab'); }
     byId('lbCreate').textContent=t('mp.create');
     byId('lbJoin').textContent=t('mp.join');
     byId('lbCode').placeholder=t('mp.codePh');
@@ -5780,7 +6068,7 @@ function renderLobby(){
     byId('lbCodeLab').textContent=t('mp.roomCode');
     byId('lbCodeShow').textContent=Net.worldId;
     byId('lbCopy').textContent=t('mp.copy');
-    byId('lbModeShow').textContent = (MP.mode==='race'? t('mp.race') : t('mp.coop'));
+    byId('lbModeShow').textContent = t(modeLabelKey(MP.mode));
     byId('lbMembersLab').textContent=t('mp.players');
     const ml=byId('lbMembers'); ml.innerHTML='';
     for(const uid in MP.members){
@@ -5803,11 +6091,11 @@ function mpErr(code){ return t('mp.'+({noauth:'noauth',notfound:'roomNotFound',f
 
 function doCreate(){
   const name=getNameInput(); if(!name){ toast(t('mp.needName')); return; }
-  MP.myName=name; const mode=lobbySelectedMode(), maxP=lobbySelectedMax();
+  MP.myName=name; const mode=lobbySelectedMode(), maxP=lobbySelectedMax(), mapN=lobbySelectedMapSize();
   toast(t('mp.connecting'));
-  Net.createWorld(mode,maxP,name).then(function(r){
+  Net.createWorld(mode,maxP,name,mapN).then(function(r){
     if(!r||r.error){ toast(mpErr(r&&r.error)); return; }
-    MP.mode=r.mode; MP.seed=r.seed; MP.host=true; state._inLobby=true;
+    MP.mode=r.mode; MP.seed=r.seed; MP.mapSize=r.mapSize||30; MP.host=true; state._inLobby=true;
     renderLobby();
   });
 }
@@ -5821,10 +6109,612 @@ function doJoin(){
     renderLobby();
   });
 }
+function mpStartLoading(doWork, onDone){
+  const ov=byId('mpLoad'), fill=byId('mpLoadFill'), stg=byId('mpLoadStage'), ttl=byId('mpLoadTitle');
+  if(!ov){ try{ if(doWork) doWork(); }catch(e){} try{ if(onDone) onDone(); }catch(e){} return; }
+  if(ttl) ttl.textContent=t('mp.loadTitle');
+  const stages=[t('mp.load1'),t('mp.load2'),t('mp.load3'),t('mp.load4'),t('mp.load5')];
+  if(fill) fill.style.width='0%'; if(stg) stg.textContent='';
+  ov.classList.add('show');
+  let i=0, worked=false;
+  function step(){
+    if(i<stages.length){
+      if(stg) stg.textContent=stages[i];
+      if(fill) fill.style.width=Math.round((i+1)/stages.length*100)+'%';
+      if(i===0 && !worked){ worked=true; setTimeout(function(){ try{ if(doWork) doWork(); }catch(e){} }, 24); }   /* heavy work (map gen + render) behind the overlay */
+      i++; setTimeout(step, 340);
+    } else { setTimeout(function(){ ov.classList.remove('show'); try{ if(onDone) onDone(); }catch(e){} }, 280); }
+  }
+  step();
+}
+const ARENA_BUY={ hp:{inc:200,cost:100}, atk:{inc:2,cost:100}, def:{inc:2,cost:100} };
+let ARENA_GOLD=1000;
+const ARENA_AI_BUILD={ hp:1700, atk:16, def:16 };
+const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:420, liveMaxRounds:60 };
+function arenaApplyCfg(a){
+  if(!a) return;
+  if(a.gold!=null) ARENA_GOLD=a.gold;
+  if(a.hpInc!=null) ARENA_BUY.hp.inc=a.hpInc;   if(a.hpCost!=null) ARENA_BUY.hp.cost=a.hpCost;
+  if(a.atkInc!=null) ARENA_BUY.atk.inc=a.atkInc; if(a.atkCost!=null) ARENA_BUY.atk.cost=a.atkCost;
+  if(a.defInc!=null) ARENA_BUY.def.inc=a.defInc; if(a.defCost!=null) ARENA_BUY.def.cost=a.defCost;
+  if(a.aiHp!=null) ARENA_AI_BUILD.hp=a.aiHp; if(a.aiAtk!=null) ARENA_AI_BUILD.atk=a.aiAtk; if(a.aiDef!=null) ARENA_AI_BUILD.def=a.aiDef;
+  if(a.tickMs!=null) ARENA_DUEL.tickMs=Math.max(120,a.tickMs); if(a.maxRounds!=null) ARENA_DUEL.liveMaxRounds=Math.max(5,a.maxRounds);
+  if(typeof AF_PHASE!=='undefined'){ if(a.waitSec!=null) AF_PHASE.wait=Math.max(1,a.waitSec); if(a.shopSec!=null) AF_PHASE.shop=Math.max(1,a.shopSec); if(a.prepSec!=null) AF_PHASE.prep=Math.max(5,a.prepSec); }
+}
+function arenaSnapshotCfg(){
+  return { gold:ARENA_GOLD, hpInc:ARENA_BUY.hp.inc, hpCost:ARENA_BUY.hp.cost, atkInc:ARENA_BUY.atk.inc, atkCost:ARENA_BUY.atk.cost, defInc:ARENA_BUY.def.inc, defCost:ARENA_BUY.def.cost, aiHp:ARENA_AI_BUILD.hp, aiAtk:ARENA_AI_BUILD.atk, aiDef:ARENA_AI_BUILD.def, tickMs:ARENA_DUEL.tickMs, maxRounds:ARENA_DUEL.liveMaxRounds, waitSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.wait:60), shopSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.shop:120), prepSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.prep:15) };
+}
+const SCORE_CFG={ abAtk:1, abDef:1, abLv:20, monKill:12, monFloor:20, timeBase:6000, timeRate:3, winBonus:1000 };
+const SCORE_KEYS=['abAtk','abDef','abLv','monKill','monFloor','timeBase','timeRate','winBonus'];
+function scoreApplyCfg(s){ if(!s) return; SCORE_KEYS.forEach(function(k){ if(s[k]!=null) SCORE_CFG[k]=s[k]; }); }
+function scoreSnapshotCfg(){ return Object.assign({}, SCORE_CFG); }
+function computeRunScore(won){
+  var pl=(state&&state.player)||{};
+  var atk=(typeof effAtk==='function')?effAtk(pl):(pl.atk||0);
+  var def=(typeof effDef==='function')?effDef(pl):(pl.def||0);
+  var lv=pl.lv||1, kills=(state&&state.kills)||0, floor=(state&&(state.maxFloor||state.floor))||1;
+  var sec=Math.floor(((state&&state.startTime)?(Date.now()-state.startTime):0)/1000);
+  var ability=Math.round(atk*SCORE_CFG.abAtk + def*SCORE_CFG.abDef + lv*SCORE_CFG.abLv);
+  var monster=Math.round(kills*SCORE_CFG.monKill + floor*SCORE_CFG.monFloor);
+  var time=Math.max(0, Math.round(SCORE_CFG.timeBase - sec*SCORE_CFG.timeRate));
+  var win=won?SCORE_CFG.winBonus:0;
+  return { ability:ability, monster:monster, time:time, win:win, total:ability+monster+time+win, sec:sec };
+}
+const AF_CFG={ w:20, h:20, ringR:4, speed:7 };
+const AF_PHASE={ wait:60, shop:120, prep:15 };
+const AF_SHOPS=[{x:5,y:10},{x:15,y:10}];
+const AF_DUEL_POS={ A:{x:8,y:10}, B:{x:12,y:10} };
+let afPhaseTimer=null;
+let AField=null;
+function afInit(){
+  var face=(state&&state.player&&state.player.face) || (typeof START!=='undefined'&&START.face) || '@';
+  AField={ px:AF_CFG.w/2, py:AF_CFG.h-2.5, keys:{}, joy:null, cam:{x:AF_CFG.w/2, y:AF_CFG.h-2.5}, frozen:false, face:face, team:((typeof MP!=='undefined'&&MP.arena&&MP.arena.myTeam)||'A'), px2u:28, raf:null, last:0, lastSync:0 };
+  return AField;
+}
+function afStep(dt){
+  var f=AField; if(!f) return;
+  if(dt>0.05) dt=0.05; if(dt<0) dt=0;
+  var ix=0, iy=0;
+  if(f.joy){ ix=f.joy.x; iy=f.joy.y; }
+  else { if(f.keys.left)ix-=1; if(f.keys.right)ix+=1; if(f.keys.up)iy-=1; if(f.keys.down)iy+=1; }
+  var mag=Math.hypot(ix,iy); if(mag>1){ ix/=mag; iy/=mag; }
+  if(!f.frozen && !f.paused){
+    f.px=clamp(f.px+ix*AF_CFG.speed*dt, 0, AF_CFG.w);
+    f.py=clamp(f.py+iy*AF_CFG.speed*dt, 0, AF_CFG.h);
+  }
+  var tx=f.frozen?(AF_CFG.w/2):f.px, ty=f.frozen?(AF_CFG.h/2):f.py;
+  var k=Math.min(1, dt*10); f.cam.x += (tx-f.cam.x)*k; f.cam.y += (ty-f.cam.y)*k;
+}
+function afResize(){
+  var f=AField, cv=byId('afCanvas'), ov=byId('arenaField'); if(!f||!cv||!ov) return;
+  var w=ov.clientWidth||window.innerWidth||360, h=ov.clientHeight||window.innerHeight||540;
+  cv.width=w; cv.height=h; f.px2u=Math.max(14, Math.min(w,h)/12);
+}
+function afTeamColor(team){ return team==='A'?'#3a78ff':(team==='B'?'#ff5a5a':'#9a8fc0'); }
+function afDrawAvatar(ctx,x,y,PX,face,color,isSelf,name){
+  ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,PX*0.42,0,Math.PI*2); ctx.fill();
+  ctx.lineWidth=isSelf?3:2; ctx.strokeStyle=isSelf?'#fff':'rgba(255,255,255,.7)'; ctx.stroke();
+  ctx.font=Math.round(PX*0.6)+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#fff';
+  try{ ctx.fillText(face,x,y); }catch(e){}
+  if(name){ ctx.font='700 '+Math.round(PX*0.34)+'px sans-serif'; ctx.textBaseline='bottom'; ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.75)'; ctx.fillStyle=color; try{ ctx.strokeText(name,x,y-PX*0.52); ctx.fillText(name,x,y-PX*0.52); }catch(e){} }
+}
+function afSync(){
+  var f=AField; if(!f) return; if(!(typeof Net!=='undefined' && Net.arenaRef && Net.uid)) return;
+  var now=Date.now(); if(f.lastSync && now-f.lastSync<150) return; f.lastSync=now;
+  try{ Net.arenaRef.child('field/'+Net.uid).set({ px:Math.round(f.px*100)/100, py:Math.round(f.py*100)/100, team:f.team, face:f.face, name:((typeof MP!=='undefined'&&MP.myName)||''), t:(Net.ts?Net.ts():now) }); }catch(e){}
+}
+function afOnField(fieldData){
+  if(typeof MP==='undefined' || !MP.arena) return; var out={};
+  for(var uid in (fieldData||{})){ if(uid===Net.uid) continue; out[uid]=fieldData[uid]; }
+  MP.arena.fieldPlayers=out; afRenderTeamBar();
+}
+function afDraw(){
+  var f=AField, cv=byId('afCanvas'); if(!f||!cv) return;
+  var ctx; try{ ctx=cv.getContext('2d'); }catch(e){ return; } if(!ctx) return;
+  var W=cv.width, H=cv.height, PX=f.px2u;
+  var ox=W/2 - f.cam.x*PX, oy=H/2 - f.cam.y*PX;
+  function sx(wx){ return ox+wx*PX; } function sy(wy){ return oy+wy*PX; }
+  ctx.fillStyle='#15102a'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#241d3f'; ctx.fillRect(sx(0),sy(0),AF_CFG.w*PX,AF_CFG.h*PX);
+  ctx.fillStyle='rgba(255,255,255,.05)';
+  for(var gx=0;gx<=AF_CFG.w;gx++){ for(var gy=0;gy<=AF_CFG.h;gy++){ ctx.fillRect(sx(gx)-1,sy(gy)-1,2,2); } }
+  ctx.strokeStyle='#c79a45'; ctx.lineWidth=3; ctx.strokeRect(sx(0),sy(0),AF_CFG.w*PX,AF_CFG.h*PX);
+  var cxp=sx(AF_CFG.w/2), cyp=sy(AF_CFG.h/2), rr=AF_CFG.ringR*PX;
+  ctx.fillStyle='rgba(246,212,136,.07)'; ctx.beginPath(); ctx.arc(cxp,cyp,rr,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#f6d488'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(cxp,cyp,rr,0,Math.PI*2); ctx.stroke();
+  for(var _si=0;_si<AF_SHOPS.length;_si++){ var _s=AF_SHOPS[_si], _ssx=sx(_s.x), _ssy=sy(_s.y), _r=PX*0.6;
+    ctx.fillStyle='#2e7d5b'; ctx.fillRect(_ssx-_r,_ssy-_r,_r*2,_r*2);
+    ctx.strokeStyle='#7cf0b0'; ctx.lineWidth=2; ctx.strokeRect(_ssx-_r,_ssy-_r,_r*2,_r*2);
+    ctx.font='700 '+Math.round(PX*0.7)+'px sans-serif'; ctx.fillStyle='#eafff3'; ctx.textAlign='center'; ctx.textBaseline='middle'; try{ ctx.fillText('$',_ssx,_ssy); }catch(e){} }
+  var _oth=(typeof MP!=='undefined'&&MP.arena&&MP.arena.fieldPlayers)||{};
+  for(var _u in _oth){ var _o=_oth[_u]; if(_o&&typeof _o.px==='number'){ afDrawAvatar(ctx,sx(_o.px),sy(_o.py),PX,_o.face||'@',afTeamColor(_o.team),false,_o.name||''); } }
+  afDrawAvatar(ctx,sx(f.px),sy(f.py),PX,f.face,afTeamColor(f.team),true,(typeof MP!=='undefined'&&MP.myName)||'');
+}
+function afFrame(ts){
+  var f=AField; if(!f) return;
+  if(!f.last) f.last=ts; var dt=(ts-f.last)/1000; f.last=ts;
+  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); f.raf=requestAnimationFrame(afFrame);
+}
+function afKeyDown(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=true;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=true;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=true;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=true;} else return; if(e.preventDefault) e.preventDefault(); }
+function afKeyUp(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=false;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=false;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=false;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=false;} }
+function afJoyVec(cx2,cy2){ var j=byId('afJoy'); if(!j||!j.getBoundingClientRect) return null; var r=j.getBoundingClientRect(); if(!r.width) return null; var cx=r.left+r.width/2, cy=r.top+r.height/2; var dx=(cx2-cx)/(r.width/2), dy=(cy2-cy)/(r.height/2); var m=Math.hypot(dx,dy); if(m>1){ dx/=m; dy/=m; } return {x:dx,y:dy}; }
+function afJoyKnob(v){ var k=byId('afJoyKnob'); if(k) k.style.transform='translate('+(v.x*26)+'px,'+(v.y*26)+'px)'; }
+function afJoyStart(e){ var tt=(e.touches&&e.touches[0])||e; var v=afJoyVec(tt.clientX,tt.clientY); if(v&&AField){ AField.joy=v; afJoyKnob(v); } if(e.preventDefault) e.preventDefault(); }
+function afJoyMove(e){ if(!AField||!AField.joy) return; var tt=(e.touches&&e.touches[0])||e; var v=afJoyVec(tt.clientX,tt.clientY); if(v){ AField.joy=v; afJoyKnob(v); } if(e.preventDefault) e.preventDefault(); }
+function afJoyEnd(){ if(AField){ AField.joy=null; } afJoyKnob({x:0,y:0}); }
+function afJoyMoveMouse(e){ if(AField&&AField.joy){ afJoyMove(e); } }
+function afBind(){ document.addEventListener('keydown',afKeyDown); document.addEventListener('keyup',afKeyUp); var j=byId('afJoy'); if(j){ j.addEventListener('touchstart',afJoyStart,{passive:false}); j.addEventListener('touchmove',afJoyMove,{passive:false}); j.addEventListener('touchend',afJoyEnd); j.addEventListener('mousedown',afJoyStart); } window.addEventListener('mousemove',afJoyMoveMouse); window.addEventListener('mouseup',afJoyEnd); window.addEventListener('resize',afResize); }
+function afUnbind(){ document.removeEventListener('keydown',afKeyDown); document.removeEventListener('keyup',afKeyUp); window.removeEventListener('mousemove',afJoyMoveMouse); window.removeEventListener('mouseup',afJoyEnd); window.removeEventListener('resize',afResize); }
+function afOpen(){ afInit(); show('arenaField'); afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
+  afStartPhases(); afRenderPhaseBar(); afRenderTeamBar(); if(afPhaseTimer) clearInterval(afPhaseTimer); afPhaseTimer=setInterval(afPhaseTick,500); }
+function afClose(){ if(AField&&AField.raf){ try{ cancelAnimationFrame(AField.raf); }catch(e){} AField.raf=null; } if(afPhaseTimer){ clearInterval(afPhaseTimer); afPhaseTimer=null; } afUnbind(); AField=null; hide('arenaField'); }
+function afExitToPrep(){ afClose(); try{ show('arenaPrep'); }catch(e){} }
+function afShopNear(){ var f=AField; if(!f) return false; for(var i=0;i<AF_SHOPS.length;i++){ var s=AF_SHOPS[i]; if(Math.hypot(f.px-s.x,f.py-s.y)<=1.4) return true; } return false; }
+function afRenderShopBtn(){ var f=AField, btn=byId('afShopBtn'); if(!btn) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var near=!!(f && !f.paused && afShopNear()); btn.style.display=(near && ph==='shop')?'':'none'; if(near&&ph==='shop') btn.textContent=t('mp.afShopBtn'); }
+function afShopRender(){
+  var pl=state.player; if(!pl) return;
+  { var e=byId('afShopTitle'); if(e) e.textContent=t('mp.afShopTitle'); }
+  { var e=byId('afShopGoldL'); if(e) e.textContent=t('ui.gold'); }
+  { var e=byId('afShopGold'); if(e) e.textContent=pl.gold; }
+  { var e=byId('afShopHpL'); if(e) e.textContent=t('ui.hp'); }
+  { var e=byId('afShopAtkL'); if(e) e.textContent=t('ui.atk'); }
+  { var e=byId('afShopDefL'); if(e) e.textContent=t('ui.def'); }
+  { var e=byId('afShopHp'); if(e) e.textContent=pl.hp; }
+  { var e=byId('afShopAtk'); if(e) e.textContent=pl.atk; }
+  { var e=byId('afShopDef'); if(e) e.textContent=pl.def; }
+  document.querySelectorAll('#afShop .afShopBuy').forEach(function(b){ var s=b.dataset.buy, c=ARENA_BUY[s]; if(c){ b.textContent=t('mp.arenaBuy',{inc:c.inc,cost:c.cost}); b.disabled=(pl.gold<c.cost); } });
+  { var e=byId('afShopNote'); if(e) e.textContent=t('mp.arenaBooks'); }
+  { var e=byId('afShopClose'); if(e) e.textContent=t('mp.afShopClose'); }
+}
+function afShopOpen(){ var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(ph!=='shop') return; if(AField) AField.paused=true; afShopRender(); show('afShop'); }
+function afShopClose(){ if(AField) AField.paused=false; hide('afShop'); show('arenaField'); afResize(); }
+function afTeamCounts(){ var a=0,b=0; var my=(typeof MP!=='undefined'&&MP.arena&&MP.arena.myTeam)||'A'; if(my==='A')a++; else if(my==='B')b++; var fp=(typeof MP!=='undefined'&&MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')a++; else if(tm==='B')b++; } return {A:a,B:b}; }
+function afPickTeam(team){ var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(ph!=='wait'&&ph!=='shop') return; if(team!=='A'&&team!=='B') return; if(typeof MP!=='undefined'&&MP.arena) MP.arena.myTeam=team; if(AField){ AField.team=team; AField.lastSync=0; afSync(); } afRenderTeamBar(); }
+function afRandomTeams(){ if(!afIsHost()) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(ph!=='wait'&&ph!=='shop') return; var ids=[Net.uid]; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(u!==Net.uid) ids.push(u); } ids=arenaShuffle(ids); var map={}, half=Math.ceil(ids.length/2); for(var k=0;k<ids.length;k++){ map[ids[k]]=(k<half)?'A':'B'; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('teamAssign').set(map); }catch(e){} } afOnTeamAssign(map); }
+function afOnTeamAssign(map){ if(!map || typeof MP==='undefined' || !MP.arena) return; MP.arena.teamAssign=map; var mine=map[Net.uid]; if(mine==='A'||mine==='B'){ MP.arena.myTeam=mine; if(AField){ AField.team=mine; AField.lastSync=0; afSync(); } } afRenderTeamBar(); }
+function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var showBar=(ph==='wait'||ph==='shop'); bar.style.display=showBar?'flex':'none'; if(!showBar) return; var cnt=afTeamCounts(), my=(MP.arena&&MP.arena.myTeam)||'A'; var ba=byId('afTeamA'), bb=byId('afTeamB'), br=byId('afTeamRand'); if(ba){ ba.textContent=t('mp.afTeamA')+' ('+cnt.A+')'; ba.classList.toggle('sel',my==='A'); } if(bb){ bb.textContent=t('mp.afTeamB')+' ('+cnt.B+')'; bb.classList.toggle('sel',my==='B'); } if(br){ br.style.display=afIsHost()?'':'none'; br.textContent=t('mp.afTeamRand'); } }
+function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A')A.push(meUid); else if(my==='B')B.push(meUid); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')A.push(u); else if(tm==='B')B.push(u); } return {A:A,B:B}; }
+function afAllFieldUids(){ var ids=[Net.uid||'me']; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(ids.indexOf(u)<0) ids.push(u); } return ids; }
+function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myName||'你'); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; if(fp[uid]&&fp[uid].name) return fp[uid].name; var mem=MP.members||{}; if(mem[uid]&&mem[uid].name) return mem[uid].name; return uid; }
+function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+5000, fought:prev.slice() }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
+function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(Date.now()>=d.subEndsAt){ if(d.sub==='lottery'){ d.sub='count'; d.subEndsAt=Date.now()+10000; } else if(d.sub==='count'){ d.sub='fight'; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); } }
+function afOnDuel(d){ if(typeof MP==='undefined'||!MP.arena) return; MP.arena.afDuel=d; afRenderDuelOverlay(); }
+function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'){ f.frozen=false; return; } var meUid=Net.uid||'me'; if(meUid===d.a){ f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen=true; } }
+function afRenderDuelOverlay(){ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'); if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; return; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ var ids=afAllFieldUids(); var r1=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):na; var r2=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):nb; ban.textContent=t('mp.afLottery')+'  '+r1+'  VS  '+r2; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
+function afFinishField(){ if(typeof MP!=='undefined'&&MP.arena){ MP.arena.afDuel={sub:'done'}; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); }catch(e){} } } afRenderDuelOverlay(); }
+function afIsHost(){ return (typeof MP==='undefined') || !MP.arena || MP.host || !(typeof Net!=='undefined'&&Net.arenaRef); }
+function afNextPhase(cur){ return cur==='wait'?'shop':(cur==='shop'?'prep':(cur==='prep'?'duel':null)); }
+function afSetPhase(name){
+  var dur=AF_PHASE[name]||0; var endsAt=Date.now()+dur*1000;
+  if(typeof MP!=='undefined'&&MP.arena) MP.arena.phase={name:name, endsAt:endsAt};
+  if(typeof Net!=='undefined'&&Net.arenaRef && typeof MP!=='undefined'&&MP.arena&&MP.host){ try{ Net.arenaRef.child('phase').set({name:name, endsAt:endsAt, at:(Net.ts?Net.ts():Date.now())}); }catch(e){} }
+  afRenderPhaseBar();
+  if(name==='prep' && afIsHost()){ afStartDuelSequence(); }
+}
+function afStartPhases(){ if(afIsHost()){ afSetPhase('wait'); } }
+function afPhaseTick(){
+  var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase)||null; if(!ph){ afRenderPhaseBar(); return; }
+  if(afIsHost() && (ph.name==='wait'||ph.name==='shop') && Date.now()>=ph.endsAt){ var nx=afNextPhase(ph.name); if(nx) afSetPhase(nx); }
+  afDuelTick();
+  afRenderPhaseBar(); afRenderTeamBar();
+}
+function afOnPhase(ph){ if(typeof MP!=='undefined'&&MP.arena && ph){ MP.arena.phase=ph; afRenderPhaseBar(); } }
+function afPhaseSkip(){
+  var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase)||null; if(!ph||ph.name!=='wait') return;
+  if(afIsHost()){ afSetPhase('shop'); }
+  else if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('phaseSkip').set(Date.now()); }catch(e){} }
+}
+function afRenderPhaseBar(){
+  var bar=byId('afPhase'), sk=byId('afSkip'); var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase)||null;
+  if(!bar) return;
+  var _dd=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null;
+  if(_dd && _dd.sub && _dd.sub!=='done'){ bar.style.display='none'; if(sk) sk.style.display='none'; return; }
+  bar.style.display='';
+  if(!ph){ bar.textContent=''; if(sk) sk.style.display='none'; return; }
+  if(ph.name==='duel'){ bar.textContent=t('mp.afPhase_duel'); if(sk) sk.style.display='none'; return; }
+  var rem=Math.max(0, Math.ceil((ph.endsAt-Date.now())/1000)); var mm=Math.floor(rem/60), ss=rem%60;
+  bar.textContent=t('mp.afPhase_'+ph.name)+'  '+mm+':'+(ss<10?'0':'')+ss;
+  if(sk){ sk.style.display=(ph.name==='wait')?'':'none'; sk.textContent=t('mp.afSkip'); }
+  if(ph.name!=='shop'){ try{ if(byId('afShop')&&byId('afShop').classList.contains('show')) afShopClose(); }catch(e){} }
+}
+function arenaMyTeam(tt){ if(!tt) return 'A'; return tt.B.indexOf(Net.uid)>=0?'B':'A'; }
+function startArenaRun(){
+  state.mode='arena';
+  state.player=freshPlayer();
+  state.player.gold=ARENA_GOLD;
+  state.player.atkSkills=ATK_SKILLS.map(function(s){return s.id;});
+  state.player.defSkills=DEF_SKILLS.map(function(s){return s.id;});
+  const tt=arenaTeams();
+  MP.arena={ teams:tt, scoreA:0, scoreB:0, phase:'prep', ready:false, players:{} };
+  MP.arena.myTeam=arenaMyTeam(tt);
+  renderArenaPrep(); show('arenaPrep');
+}
+function renderArenaPrep(){
+  const pl=state.player, ar=MP.arena; if(!pl||!ar) return;
+  { const e=byId('apTitle'); if(e) e.textContent=t('mp.arenaPrep'); }
+  { const e=byId('apTeam'); if(e) e.textContent=t('mp.arenaTeam')+'：'+(ar.myTeam||'A'); }
+  { const e=byId('apGoldL'); if(e) e.textContent=t('ui.gold'); }
+  { const e=byId('apGold'); if(e) e.textContent=pl.gold; }
+  { const e=byId('apHpL'); if(e) e.textContent=t('ui.hp'); }
+  { const e=byId('apAtkL'); if(e) e.textContent=t('ui.atk'); }
+  { const e=byId('apDefL'); if(e) e.textContent=t('ui.def'); }
+  { const e=byId('apHp'); if(e) e.textContent=pl.hp; }
+  { const e=byId('apAtk'); if(e) e.textContent=pl.atk; }
+  { const e=byId('apDef'); if(e) e.textContent=pl.def; }
+  document.querySelectorAll('#arenaPrep .apBuy').forEach(function(b){ const s=b.dataset.buy, c=ARENA_BUY[s]; if(c){ b.textContent=t('mp.arenaBuy',{inc:c.inc,cost:c.cost}); b.disabled=!!ar.ready; } });
+  { const e=byId('apNote'); if(e) e.textContent=t('mp.arenaBooks'); }
+  { const e=byId('apReady'); if(e){ e.textContent=t('mp.arenaReady'); e.disabled=!!ar.ready; } }
+  { const w=byId('apWait'); if(w){ var ps=ar.players||{}, mem=MP.members||{}, ids=Object.keys(mem), rn=0; ids.forEach(function(id){ if(ps[id]&&ps[id].ready) rn++; }); var tot=ids.length||1; w.textContent=t('mp.arenaWait')+' ('+rn+'/'+tot+')'; w.style.display=ar.ready?'':'none'; } }
+}
+function arenaBuy(stat){
+  const pl=state.player, ar=MP.arena; if(!pl||!ar||ar.ready) return;
+  const c=ARENA_BUY[stat]; if(!c) return;
+  if(pl.gold<c.cost){ toast(t('mp.arenaNoGold')); return; }
+  pl.gold-=c.cost;
+  if(stat==='hp') pl.hp+=c.inc; else if(stat==='atk') pl.atk+=c.inc; else if(stat==='def') pl.def+=c.inc;
+  renderArenaPrep(); try{ if(byId('afShop')&&byId('afShop').classList.contains('show')) afShopRender(); }catch(e){}
+}
+function arenaReady(){
+  const ar=MP.arena, pl=state.player; if(!ar||ar.ready||!pl) return;
+  ar.ready=true; if(!ar.players) ar.players={};
+  const me=Net.uid||'me';
+  ar.players[me]={ ready:true, name:MP.myName||'', team:ar.myTeam, hp:pl.hp, atk:pl.atk, def:pl.def };
+  Net.setArenaPlayer({ ready:true, name:MP.myName||'', team:ar.myTeam, hp:pl.hp, atk:pl.atk, def:pl.def });
+  renderArenaPrep(); toast(t('mp.arenaReadyMsg'));
+  arenaCheckAllReady();
+}
+function onArenaUpdate(data){
+  if(!MP.arena) return;
+  MP.arena.players = (data&&data.players) || MP.arena.players || {};
+  { const ap=byId('arenaPrep'); if(ap && ap.classList.contains('show')) renderArenaPrep(); }
+  if(data && data.seq){ arenaOnSeq(data.seq); }
+  if(MP.host){ MP.arena._reqs=(data&&data.req)||{}; }
+  else if(data && data.match){ arenaOnMatch(data.match); }
+  if(data && data.field) afOnField(data.field);
+  if(!afIsHost() && data && data.phase) afOnPhase(data.phase);
+  if(data && data.teamAssign) afOnTeamAssign(data.teamAssign);
+  if(data && data.afDuel) afOnDuel(data.afDuel);
+  if(MP.host && data && data.phaseSkip && MP.arena && MP.arena.phase && MP.arena.phase.name==='wait'){ afSetPhase('shop'); try{ if(Net.arenaRef) Net.arenaRef.child('phaseSkip').remove(); }catch(e){} }
+  arenaCheckAllReady();
+}
+function arenaAllHumanReady(){
+  const ps=(MP.arena&&MP.arena.players)||{}, mem=MP.members||{}, ids=Object.keys(mem);
+  if(!ids.length) return false;
+  return ids.every(function(id){ return ps[id] && ps[id].ready; });
+}
+function arenaCheckAllReady(){
+  if(!MP.arena || MP.arena._started) return;
+  if(!arenaAllHumanReady()) return;
+  MP.arena._started=true;
+  arenaAllReady();
+}
+function arenaShuffle(a){ a=(a||[]).slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var x=a[i];a[i]=a[j];a[j]=x; } return a; }
+function arenaBuildSequence(teams){
+  var A=arenaShuffle(teams&&teams.A), B=arenaShuffle(teams&&teams.B);
+  var n=Math.min(A.length,B.length), pairs=[]; for(var i=0;i<n;i++) pairs.push([A[i],B[i]]); return pairs;
+}
+function arenaName(uid){
+  if(/^AI/.test(uid||'')) return t('mp.arenaAI');
+  var ps=(MP.arena&&MP.arena.players)||{}, mem=MP.members||{};
+  return (ps[uid]&&ps[uid].name) || (mem[uid]&&mem[uid].name) || uid || '?';
+}
+function arenaAllReady(){
+  if(!MP.arena) return;
+  if(MP.host && Net.arenaRef){
+    Net.arenaRef.child('seq').set({ pairs:arenaBuildSequence(MP.arena.teams), idx:0, scoreA:0, scoreB:0, phase:'countdown', at:Net.ts() });
+  } else if(!Net.arenaRef){
+    MP.arena.seq={ pairs:arenaBuildSequence(MP.arena.teams), idx:0, scoreA:0, scoreB:0, phase:'countdown' };
+    MP.arena._seqIdx=0; arenaEnterPairing();
+  }
+}
+function arenaOnSeq(seq){
+  MP.arena.seq=seq;
+  if(seq.phase==='done'){ if(!MP.arena._finished){ MP.arena._finished=true; arenaFinish(); } return; }
+  if(seq.phase==='countdown' && MP.arena._seqIdx!==seq.idx){ MP.arena._seqIdx=seq.idx; arenaEnterPairing(); }
+}
+function arenaEnterPairing(){
+  var ar=MP.arena, seq=ar&&ar.seq; if(!seq) return;
+  var pair=seq.pairs&&seq.pairs[seq.idx];
+  if(!pair){ arenaFinish(); return; }
+  ar.curPair=pair; ar.iAmFighter=(pair.indexOf(Net.uid)>=0);
+  renderArenaStage(); show('arenaStage'); arenaStartCountdown();
+}
+function renderArenaStage(){
+  var ar=MP.arena, seq=ar&&ar.seq, pair=ar&&ar.curPair; if(!seq||!pair) return;
+  { var e=byId('asTitle'); if(e) e.textContent=t('mp.arenaMatch'); }
+  { var e=byId('asA'); if(e) e.textContent=arenaName(pair[0]); }
+  { var e=byId('asB'); if(e) e.textContent=arenaName(pair[1]); }
+  { var e=byId('asScore'); if(e) e.textContent=(seq.scoreA||0)+' : '+(seq.scoreB||0); }
+  { var e=byId('asRole'); if(e) e.textContent = ar.iAmFighter ? t('mp.arenaYouFight') : t('mp.arenaWatching'); }
+  { var e=byId('asCount'); if(e) e.style.display=''; }
+  { var e=byId('asBack'); if(e) e.style.display='none'; }
+}
+function arenaSetCountdown(n){ var e=byId('asCount'); if(e) e.textContent=(n>0?n:0); }
+function arenaStartCountdown(){
+  var n=10; arenaSetCountdown(n);
+  if(MP.arena._cdTimer){ clearInterval(MP.arena._cdTimer); }
+  MP.arena._cdTimer=setInterval(function(){ n--; arenaSetCountdown(n); if(n<=0){ clearInterval(MP.arena._cdTimer); MP.arena._cdTimer=null; arenaBeginMatch(); } },1000);
+}
+function arenaFighterStats(uid){
+  if(/^AI/.test(uid||'')) return { uid:uid, name:t('mp.arenaAI'), hp:ARENA_AI_BUILD.hp, atk:ARENA_AI_BUILD.atk, def:ARENA_AI_BUILD.def, thrA:START.thrA, ai:true };
+  var pp=(MP.arena&&MP.arena.players&&MP.arena.players[uid])||{};
+  return { uid:uid, name:pp.name||uid, hp:pp.hp||START.hp, atk:pp.atk||START.atk, def:pp.def||START.def, thrA:START.thrA, ai:false };
+}
+function arenaDuelSim(fa,fb){
+  var aHp=fa.hp, bHp=fb.hp, rounds=[], R=ARENA_DUEL.maxRounds, result='draw';
+  var aDmg=dmgUp(fa.atk,fb.def,fa.thrA||10), bDmg=dmgUp(fb.atk,fa.def,fb.thrA||10);
+  if(aDmg<=0 && bDmg<=0){ return { rounds:[], result:'draw', aHp:aHp, bHp:bHp }; }
+  for(var r=0;r<R;r++){ aHp-=bDmg; bHp-=aDmg; rounds.push({ aHp:Math.max(0,aHp), bHp:Math.max(0,bHp) }); if(aHp<=0||bHp<=0) break; }
+  if(aHp<=0 && bHp<=0) result='draw';
+  else if(aHp<=0) result='B';
+  else if(bHp<=0) result='A';
+  else { result=arenaTieResult(aHp,fa.hp,bHp,fb.hp); }
+  return { rounds:rounds, result:result, aHp:Math.max(0,aHp), bHp:Math.max(0,bHp) };
+}
+function arenaDuelSetHp(ca,ma,cb,mb){
+  ca=Math.max(0,ca); cb=Math.max(0,cb);
+  { var e=byId('adAFill'); if(e) e.style.width=(ma>0?(100*ca/ma):0)+'%'; }
+  { var e=byId('adBFill'); if(e) e.style.width=(mb>0?(100*cb/mb):0)+'%'; }
+  { var e=byId('adAHp'); if(e) e.textContent=Math.round(ca); }
+  { var e=byId('adBHp'); if(e) e.textContent=Math.round(cb); }
+}
+function renderArenaDuel(fa,fb){
+  { var e=byId('adAName'); if(e) e.textContent=fa.name; }
+  { var e=byId('adBName'); if(e) e.textContent=fb.name; }
+  arenaDuelSetHp(fa.hp,fa.hp,fb.hp,fb.hp);
+  { var e=byId('adResult'); if(e){ e.textContent=''; e.style.display='none'; } }
+  { var e=byId('adRole'); if(e) e.textContent=(MP.arena&&MP.arena.iAmFighter)? t('mp.arenaYouFight') : t('mp.arenaWatching'); }
+}
+/* ===== Arena duel skill engine (faithful re-impl of single-player skill effects, fighter-vs-fighter) ===== */
+function arenaIsDef(id){ var s=SKILL_BY_ID[id]; return !!(s && s.div!=null); }
+function arenaCanUse(f,id){ var s=SKILL_BY_ID[id]; return !!(s && f.en>=(s.en||0) && f.stam>=(s.stam||0)); }
+function arenaNewFighter(st){ return { uid:st.uid, name:st.name, ai:!!st.ai, hp:st.hp, maxhp:st.hp, atk:st.atk, def:st.def, thrA:st.thrA||START.thrA, en:100, stam:100, lv:1, atkBuff:0, defDebuff:0, shieldBonus:0, shieldHits:0, skip:false }; }
+function arenaSideDmg(att,def,attAct,defAct){
+  var attSkill=(attAct && !arenaIsDef(attAct))?SKILL_BY_ID[attAct]:null;
+  var defSkill=(defAct && arenaIsDef(defAct))?SKILL_BY_ID[defAct]:null;
+  var mult=attSkill?(attSkill.mult||1):1;
+  var dEff=Math.max(0, def.def-(def.defDebuff||0)) + ((def.shieldHits>0)?(def.shieldBonus||0):0);
+  var raw=Math.round(dmgUp(att.atk+(att.atkBuff||0), dEff, att.thrA||10)*mult); if(raw<0) raw=0;
+  var blocked=0;
+  if(defSkill && defSkill.div>1){ var pre=raw; raw=Math.ceil(raw/defSkill.div); blocked=pre-raw; }
+  return { dmg:raw, blocked:blocked, attSkill:attSkill, defSkill:defSkill };
+}
+function arenaApplyAtkEffect(att,def,skill,dealt){
+  if(!skill) return;
+  if(skill.id==='huangu'){ if(dealt>= (att.lv||1)){ var gain=Math.max(1,Math.floor(att.def*((skill.convPct!=null?skill.convPct:5)/100))); att.atkBuff=(att.atkBuff||0)+gain; att.defDebuff=(att.defDebuff||0)+gain; } }
+  else if(skill.id==='tianti'){ var drained=Math.floor(def.en*((skill.drainPct!=null?skill.drainPct:50)/100)); if(drained>0){ def.en=clamp(def.en-drained,0,100); att.en=clamp(att.en+drained,0,100); } }
+  else if(skill.id==='jinshi'){ var heal=Math.round(dealt*((skill.healPct!=null?skill.healPct:30)/100)); if(heal>0) att.hp+=heal; }
+  else if(skill.id==='zhuanti'){ def.stam=clamp(def.stam-(skill.stamCut!=null?skill.stamCut:40),0,100); }
+  /* shenlei: non-lethal cap only (applied in arenaDuelRound) */
+}
+function arenaApplyDefEffect(defr,att,skill,blocked){
+  if(!skill) return;
+  if(skill.id==='counterdun'){ if(blocked>0){ var refl=Math.max(1,Math.round(blocked*((skill.reflectPct!=null?skill.reflectPct:100)/100))); att.hp-=refl; } }
+  else if(skill.id==='healShield'){ if(blocked>0){ var heal=Math.round(blocked*((skill.healPct!=null?skill.healPct:60)/100)); defr.hp+=heal; } }
+  else if(skill.id==='enerdun'){ att.skip=true; }
+  else if(skill.id==='shendun'){ defr.shieldBonus=Math.floor((defr.hp+defr.def)*(defr.lv||1)/100*(skill.defMul!=null?skill.defMul:1)); defr.shieldHits=(skill.hits!=null?skill.hits:3); }
+}
+function arenaDuelRound(D){
+  var A=D.A, B=D.B;
+  var aAct=A.skip?null:(D.aAct||null), bAct=B.skip?null:(D.bAct||null);
+  A.skip=false; B.skip=false; D.aAct=null; D.bAct=null;
+  if(aAct && !arenaCanUse(A,aAct)) aAct=null;
+  if(bAct && !arenaCanUse(B,bAct)) bAct=null;
+  var aShen=(aAct==='shendun'), bShen=(bAct==='shendun');
+  /* compute both directions from pre-round state (simultaneous) */
+  var ab=arenaSideDmg(A,B,aAct,bAct);   /* A -> B */
+  var ba=arenaSideDmg(B,A,bAct,aAct);   /* B -> A */
+  var aNon=ab.attSkill&&(ab.attSkill.id==='jinshi'||ab.attSkill.id==='shenlei');
+  var bNon=ba.attSkill&&(ba.attSkill.id==='jinshi'||ba.attSkill.id==='shenlei');
+  var dB=ab.dmg, dA=ba.dmg;
+  if(aNon && (B.hp-dB)<1) dB=Math.max(0,B.hp-1);
+  if(bNon && (A.hp-dA)<1) dA=Math.max(0,A.hp-1);
+  /* skill costs (deducted up front, like single-player) */
+  if(aAct){ var sa=SKILL_BY_ID[aAct]; if(sa){ A.en=clamp(A.en-(sa.en||0),0,100); A.stam=clamp(A.stam-(sa.stam||0),0,100); } }
+  if(bAct){ var sb=SKILL_BY_ID[bAct]; if(sb){ B.en=clamp(B.en-(sb.en||0),0,100); B.stam=clamp(B.stam-(sb.stam||0),0,100); } }
+  /* apply damage simultaneously */
+  B.hp-=dB; A.hp-=dA;
+  /* energy charge on landing a hit (faithful) */
+  if(dB>0) A.en=clamp(A.en+clamp(Math.round(dB*0.08)+2,2,13),0,100);
+  if(dA>0) B.en=clamp(B.en+clamp(Math.round(dA*0.08)+2,2,13),0,100);
+  /* attacker skill side-effects */
+  arenaApplyAtkEffect(A,B,ab.attSkill,dB);
+  arenaApplyAtkEffect(B,A,ba.attSkill,dA);
+  /* defender skill side-effects (reflect / heal-blocked / enerdun-skip / shendun-arm) */
+  arenaApplyDefEffect(B,A,ab.defSkill,ab.blocked);
+  arenaApplyDefEffect(A,B,ba.defSkill,ba.blocked);
+  /* count down shendun blocks for fighters not (re)casting it this round */
+  if(A.shieldHits>0 && !aShen) A.shieldHits--;
+  if(B.shieldHits>0 && !bShen) B.shieldHits--;
+  if(A.hp<0)A.hp=0; if(B.hp<0)B.hp=0;
+  return { dA:dA, dB:dB, aAct:aAct, bAct:bAct };
+}
+function arenaJudgeFighters(A,B){
+  if(A.hp<=0 && B.hp<=0) return 'draw';
+  if(A.hp<=0) return 'B';
+  if(B.hp<=0) return 'A';
+  return null;
+}
+function arenaTieResult(aHp,aMax,bHp,bMax){ var pA=(aMax>0?aHp/aMax:0), pB=(bMax>0?bHp/bMax:0); if(pA>pB)return 'A'; if(pB>pA)return 'B'; return 'draw'; }
+function arenaMySide(){ var ar=MP.arena; if(!ar||!ar.curPair) return null; if(Net.uid===ar.curPair[0]) return 'A'; if(Net.uid===ar.curPair[1]) return 'B'; return null; }
+function arenaAIPick(me,foe,D,side){
+  if((D.round%3)!==(side==='A'?0:1)) return null;   /* act ~every 3 rounds, A/B staggered */
+  var pool=(me.hp/me.maxhp<0.4) ? ['healShield','shendun','jinshi','counterdun'] : ['shenlei','zhuanti','tianti','huangu'];
+  for(var i=0;i<pool.length;i++){ if(arenaCanUse(me,pool[i])) return pool[i]; }
+  var all=ATK_SKILLS.concat(DEF_SKILLS);
+  for(var j=0;j<all.length;j++){ if(arenaCanUse(me,all[j].id)) return all[j].id; }
+  return null;
+}
+function arenaAITick(D){
+  if(D.A.ai) D.aAct=arenaAIPick(D.A,D.B,D,'A');
+  if(D.B.ai) D.bAct=arenaAIPick(D.B,D.A,D,'B');
+}
+function arenaStreamSnapshot(){
+  if(!(MP.host && Net.arenaRef)) return; var ar=MP.arena, D=ar&&ar.D; if(!D) return;
+  Net.arenaRef.child('match').set({ pairIdx:(ar.seq?ar.seq.idx:0), aHp:D.A.hp, aMax:D.A.maxhp, bHp:D.B.hp, bMax:D.B.maxhp, aEn:Math.round(D.A.en), aStam:Math.round(D.A.stam), bEn:Math.round(D.B.en), bStam:Math.round(D.B.stam), round:D.round||0, over:!!D.over, result:D.result||null, at:(Net.ts?Net.ts():Date.now()) });
+}
+function arenaOnMatch(match){
+  var ar=MP.arena; if(!ar||!match||MP.host) return;
+  if(ar.seq && match.pairIdx!=null && match.pairIdx!==ar.seq.idx) return;
+  if(!ar.D) return; var D=ar.D;
+  D.A.hp=match.aHp; if(match.aMax) D.A.maxhp=match.aMax; D.B.hp=match.bHp; if(match.bMax) D.B.maxhp=match.bMax;
+  if(match.aEn!=null) D.A.en=match.aEn; if(match.aStam!=null) D.A.stam=match.aStam;
+  if(match.bEn!=null) D.B.en=match.bEn; if(match.bStam!=null) D.B.stam=match.bStam;
+  D.over=!!match.over; D.result=match.result||null;
+  if(ar._lastMatchRound!=null && match.round!==ar._lastMatchRound) ar._myReq=null;
+  ar._lastMatchRound=match.round;
+  arenaRenderDuelLive(D);
+  if(match.over && !ar._dEnded){ ar._dEnded=true; arenaShowResult(match.result); }
+}
+function arenaApplyReqs(D){
+  var ar=MP.arena, reqs=ar._reqs||{}, pair=ar.curPair||[];
+  [['A',pair[0]],['B',pair[1]]].forEach(function(pp){
+    var sideKey=pp[0], uid=pp[1];
+    if(!uid || uid===Net.uid || /^AI/.test(uid)) return;
+    var r=reqs[uid];
+    if(r && r.skill){
+      var f=(sideKey==='A')?D.A:D.B;
+      if(arenaCanUse(f,r.skill)) D[(sideKey==='A')?'aAct':'bAct']=r.skill;
+      if(ar._reqs) ar._reqs[uid]=null;
+      try{ if(Net.arenaRef) Net.arenaRef.child('req/'+uid).remove(); }catch(e){}
+    }
+  });
+}
+function arenaBeginMatch(){
+  var ar=MP.arena, pair=ar&&ar.curPair; if(!pair) return;
+  var fa=arenaFighterStats(pair[0]), fb=arenaFighterStats(pair[1]);
+  ar.fa=fa; ar.fb=fb;
+  show('arenaDuel'); arenaStartDuel(fa,fb);
+}
+function arenaStartDuel(fa,fb){
+  var ar=MP.arena;
+  ar.D={ A:arenaNewFighter(fa), B:arenaNewFighter(fb), aAct:null, bAct:null, round:0, over:false, result:null };
+  ar._dEnded=false;
+  { var e=byId('adResult'); if(e){ e.textContent=''; e.style.display='none'; } }
+  arenaRenderDuelLive(ar.D);
+  if(MP.host || !Net.arenaRef){ if(ar._duelTimer) clearInterval(ar._duelTimer); ar._duelTimer=setInterval(function(){ arenaHostTick(); }, ARENA_DUEL.tickMs); }
+}
+function arenaHostTick(){
+  var ar=MP.arena, D=ar&&ar.D; if(!D||D.over) return;
+  arenaApplyReqs(D);
+  arenaAITick(D);
+  arenaDuelRound(D); D.round++;
+  var res=arenaJudgeFighters(D.A,D.B);
+  if(res===null && D.round>=ARENA_DUEL.liveMaxRounds) res=arenaTieResult(D.A.hp,D.A.maxhp,D.B.hp,D.B.maxhp);
+  if(res!==null){ D.over=true; D.result=res; }
+  arenaRenderDuelLive(D);
+  arenaStreamSnapshot();
+  if(D.over){ if(ar._duelTimer){ clearInterval(ar._duelTimer); ar._duelTimer=null; } arenaStreamSnapshot(); arenaDuelEnd({result:D.result}); }
+}
+function arenaRenderDuelLive(D){
+  var ar=MP.arena, fa=D.A, fb=D.B;
+  { var e=byId('adAName'); if(e) e.textContent=fa.name; }
+  { var e=byId('adBName'); if(e) e.textContent=fb.name; }
+  arenaDuelSetHp(fa.hp, fa.maxhp, fb.hp, fb.maxhp);
+  var side=arenaMySide(), me=(side==='A')?fa:((side==='B')?fb:null);
+  { var mn=byId('adMine'); if(mn) mn.style.display = me?'':'none'; }
+  if(me){
+    { var e=byId('adEnL'); if(e) e.textContent=t('cb.en'); }
+    { var e=byId('adStamL'); if(e) e.textContent=t('cb.st'); }
+    { var e=byId('adEn'); if(e) e.textContent=Math.round(me.en); }
+    { var e=byId('adStam'); if(e) e.textContent=Math.round(me.stam); }
+    arenaBuildSkillButtons(me, D, side);
+  }
+  { var e=byId('adRole'); if(e) e.textContent=(ar&&ar.iAmFighter)? t('mp.arenaYouFight') : t('mp.arenaWatching'); }
+}
+function arenaBuildSkillButtons(me, D, side){
+  var queued = (MP.host || !Net.arenaRef) ? D[(side==='A')?'aAct':'bAct'] : (MP.arena._myReq||null);
+  function rowBtns(cid, list){
+    var el=byId(cid); if(!el) return; el.innerHTML='';
+    list.forEach(function(s){
+      var b=document.createElement('button'); b.className='adSkBtn'+(queued===s.id?' queued':'');
+      b.textContent=skillName(s.id); b.disabled=(D.over || !arenaCanUse(me,s.id));
+      b.onclick=function(){ arenaSkillPress(s.id); };
+      el.appendChild(b);
+    });
+  }
+  rowBtns('adSkillsAtk', ATK_SKILLS); rowBtns('adSkillsDef', DEF_SKILLS);
+}
+function arenaSkillPress(id){
+  var ar=MP.arena, D=ar&&ar.D; if(!D||D.over) return;
+  var side=arenaMySide(); if(!side) return;
+  var me=(side==='A')?D.A:D.B;
+  if(!arenaCanUse(me,id)){ try{ toast(t('cb.needEnStam')); }catch(e){} return; }
+  if(MP.host || !Net.arenaRef){ D[(side==='A')?'aAct':'bAct']=id; }
+  else { try{ Net.arenaRef.child('req/'+Net.uid).set({ skill:id, round:(D.round||0), at:(Net.ts?Net.ts():Date.now()) }); }catch(e){} ar._myReq=id; }
+  arenaRenderDuelLive(D);
+}
+function arenaPlayDuel(fa,fb,sim){
+  var rounds=sim.rounds, R=rounds.length;
+  arenaDuelSetHp(fa.hp,fa.hp,fb.hp,fb.hp);
+  if(MP.arena._duelTimer){ clearInterval(MP.arena._duelTimer); MP.arena._duelTimer=null; }
+  if(R<=0){ arenaDuelEnd(sim); return; }
+  var FRAMES=Math.min(R, ARENA_DUEL.frames);
+  var dur=Math.min(ARENA_DUEL.durMax, Math.max(ARENA_DUEL.durMin, R*55));
+  var delay=Math.max(38, Math.round(dur/FRAMES)), f=0;
+  MP.arena._duelTimer=setInterval(function(){
+    f++;
+    if(f>=FRAMES){ clearInterval(MP.arena._duelTimer); MP.arena._duelTimer=null; var last=rounds[R-1]; arenaDuelSetHp(last.aHp,fa.hp,last.bHp,fb.hp); arenaDuelEnd(sim); return; }
+    var idx=Math.min(R-1, Math.floor(f*R/FRAMES)); var rd=rounds[idx]; arenaDuelSetHp(rd.aHp,fa.hp,rd.bHp,fb.hp);
+  }, delay);
+}
+function arenaShowResult(result){
+  var e=byId('adResult'); if(!e) return; var txt;
+  if(result==='draw') txt=t('mp.arenaDraw');
+  else { var pair=MP.arena.curPair, winUid=(result==='A')?pair[0]:pair[1]; txt=t('mp.arenaWinner',{name:arenaName(winUid)}); }
+  e.textContent=txt; e.style.display='';
+}
+function arenaDuelEnd(sim){
+  arenaShowResult(sim.result);
+  if(MP.host || !Net.arenaRef){ if(MP.arena._advTimer) clearTimeout(MP.arena._advTimer); MP.arena._advTimer=setTimeout(function(){ arenaAdvance(sim.result); }, ARENA_DUEL.resultMs); }
+}
+function arenaAdvance(result){
+  var ar=MP.arena, seq=ar&&ar.seq; if(!seq) return;
+  var sA=seq.scoreA||0, sB=seq.scoreB||0;
+  if(result==='A') sA++; else if(result==='B') sB++;
+  var results=(seq.results||[]).slice(); results[seq.idx]=result||'draw';
+  var nidx=seq.idx+1, done=nidx>=seq.pairs.length;
+  var ns={ pairs:seq.pairs, idx:nidx, scoreA:sA, scoreB:sB, results:results, phase:done?'done':'countdown', at:(Net.ts?Net.ts():Date.now()) };
+  if(Net.arenaRef && MP.host){ Net.arenaRef.child('seq').set(ns); } else { arenaOnSeq(ns); }
+}
+function arenaExit(){
+  if(MP.arena){ if(MP.arena._cdTimer)clearInterval(MP.arena._cdTimer); if(MP.arena._duelTimer)clearInterval(MP.arena._duelTimer); if(MP.arena._advTimer)clearTimeout(MP.arena._advTimer); }
+  MP.arena=null; try{ Net.leaveWorld(); }catch(e){} state.mpStarted=false;
+  hide('arenaStage'); hide('arenaDuel'); hide('arenaEnd'); goStartScreen();
+}
+function arenaFinish(){
+  var ar=MP.arena; if(ar){ if(ar._duelTimer){clearInterval(ar._duelTimer);ar._duelTimer=null;} if(ar._cdTimer){clearInterval(ar._cdTimer);ar._cdTimer=null;} }
+  renderArenaEnd();
+  show('arenaEnd');
+}
+function renderArenaEnd(){
+  var ar=MP.arena, seq=ar&&ar.seq; if(!seq) return;
+  var sA=seq.scoreA||0, sB=seq.scoreB||0, results=seq.results||[];
+  var winTxt=(sA>sB)? t('mp.arenaTeamWin',{team:'A'}) : (sB>sA? t('mp.arenaTeamWin',{team:'B'}) : t('mp.arenaTie'));
+  { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); }
+  { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } }
+  { var e=byId('aeScore'); if(e) e.textContent='A '+sA+' : '+sB+' B'; }
+  var list=byId('aeList'); if(list){ list.innerHTML='';
+    for(var i=0;i<seq.pairs.length;i++){
+      var pr=seq.pairs[i], r=results[i]||null;
+      var aw=(r==='A'), bw=(r==='B'), dr=(r==='draw');
+      var row=document.createElement('div'); row.className='aeRow';
+      var na=document.createElement('span'); na.className='aeNm'+(aw?' aeWinner':(bw?' aeLoser':'')); na.textContent=arenaName(pr[0])+(aw?'  ✓':'');
+      var mid=document.createElement('span'); mid.className='aeMid'+(dr?' aeDraw':''); mid.textContent=dr? t('mp.arenaDraw') : 'VS';
+      var nb=document.createElement('span'); nb.className='aeNm'+(bw?' aeWinner':(aw?' aeLoser':'')); nb.textContent=(bw?'✓  ':'')+arenaName(pr[1]);
+      row.appendChild(na); row.appendChild(mid); row.appendChild(nb); list.appendChild(row);
+    }
+  }
+  { var e=byId('aeBack'); if(e) e.textContent=t('mp.arenaBack'); }
+}
 function startMpRun(){
   state._inLobby=false; state.mpStarted=true; hide('lobby');
-  newGame({ mode:MP.mode, seed:MP.seed, worldId:Net.worldId });
-  toast(t('mp.started'));
+  if(MP.mode==='arena'){ startArenaRun(); return; }
+  try{ localStorage.setItem('mt_mpView', String(lobbySelectedView())); }catch(e){}   /* per-client viewport (camera-follow window) */
+  mpStartLoading(
+    function(){ newGame({ mode:MP.mode, seed:MP.seed, worldId:Net.worldId, mapSize:MP.mapSize }); },
+    function(){ toast(t('mp.started')); }
+  );
 }
 function leaveLobby(){ Net.leaveWorld(); state._inLobby=false; state.mpStarted=false; renderLobby(); }
 function copyCode(){
@@ -5886,7 +6776,7 @@ function renderMpPanel(){
 
 /* ---------------------------- MP end screen ---------------------------- */
 function endScreenMp(win, mode, myRank, rank, byName){
-  state.over=true; state.busy=false;
+  state.over=true; state.busy=false; state.spectating=false; { const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
   state._reloEnd=function(){ endScreenMp(win,mode,myRank,rank,byName); };
   const pl=state.player;
   byId('endBig').textContent = win? (mode==='coop'?'🏆':'🥇') : '💀';
@@ -5899,6 +6789,7 @@ function endScreenMp(win, mode, myRank, rank, byName){
   const es=byId('endStats');
   const cell=function(k,v){ return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; };
   es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv)+cell(t('end.kills'),state.kills)+cell(t('end.gold'),pl.gold);
+  try{ renderRunScore(win); }catch(e){}
   show('endScreen');
 }
 
@@ -5907,14 +6798,28 @@ function bindMpInput(){
   { const _ts=byId('tsStart'); if(_ts) _ts.addEventListener('click',startSolo);
     const _tm=byId('tsManual'); if(_tm) _tm.addEventListener('click',function(){ showTutorial(); });
     const _rs=byId('tsResume'); if(_rs) _rs.addEventListener('click',resumeGame);
+    const _mp=byId('tsMP'); if(_mp) _mp.addEventListener('click',openMpPanel);
     const _tr=byId('tsRank'); if(_tr) _tr.addEventListener('click',openLeaderboard); }
+  { document.querySelectorAll('#arenaPrep .apBuy').forEach(function(b){ b.addEventListener('click',function(){ arenaBuy(b.dataset.buy); }); });
+    const _ar=byId('apReady'); if(_ar) _ar.addEventListener('click',arenaReady);
+    const _afp=byId('afPreviewBtn'); if(_afp) _afp.addEventListener('click',afOpen);
+    const _afx=byId('afExit'); if(_afx) _afx.addEventListener('click',afExitToPrep);
+    const _afs=byId('afSkip'); if(_afs) _afs.addEventListener('click',afPhaseSkip);
+    const _afsb=byId('afShopBtn'); if(_afsb) _afsb.addEventListener('click',afShopOpen);
+    const _afsc=byId('afShopClose'); if(_afsc) _afsc.addEventListener('click',afShopClose);
+    const _afta=byId('afTeamA'); if(_afta) _afta.addEventListener('click',function(){ afPickTeam('A'); });
+    const _aftb=byId('afTeamB'); if(_aftb) _aftb.addEventListener('click',function(){ afPickTeam('B'); });
+    const _aftr=byId('afTeamRand'); if(_aftr) _aftr.addEventListener('click',afRandomTeams);
+    document.querySelectorAll('#afShop .afShopBuy').forEach(function(b){ b.addEventListener('click',function(){ arenaBuy(b.dataset.buy); }); });
+    const _ab=byId('asBack'); if(_ab) _ab.addEventListener('click',arenaExit);
+    const _aeb=byId('aeBack'); if(_aeb) _aeb.addEventListener('click',arenaExit); }
   const segs=document.querySelectorAll('.segBtn');
   for(let i=0;i<segs.length;i++){
     segs[i].addEventListener('click',function(ev){
       const seg=ev.currentTarget.parentNode;
       const sib=seg.querySelectorAll('.segBtn'); for(let j=0;j<sib.length;j++) sib[j].classList.remove('sel');
       ev.currentTarget.classList.add('sel');
-      if(seg.id==='lbModeSeg') byId('lbModeDesc').textContent=(lobbySelectedMode()==='race')? t('mp.raceDesc') : t('mp.coopDesc');
+      if(seg.id==='lbModeSeg') byId('lbModeDesc').textContent=t(modeDescKey(lobbySelectedMode()));
     });
   }
   const c=byId('lbCreate'); if(c) c.addEventListener('click',doCreate);
@@ -5924,6 +6829,9 @@ function bindMpInput(){
   const lv=byId('lbLeave'); if(lv) lv.addEventListener('click',leaveLobby);
   const mpb=byId('btnMP'); if(mpb) mpb.addEventListener('click',openMpPanel);
   const mrc=byId('mpRoomCopy'); if(mrc) mrc.addEventListener('click',copyCode);
+  const _sp=byId('specPrev'); if(_sp) _sp.addEventListener('click',function(){ cycleSpectate(-1); });
+  const _sn=byId('specNext'); if(_sn) _sn.addEventListener('click',function(){ cycleSpectate(1); });
+  const _ro=byId('mpRoster'); if(_ro) _ro.addEventListener('click',function(ev){ const c=ev.target&&ev.target.closest?ev.target.closest('.rosterChip'):null; if(c&&c.dataset.uid) spectateWatch(c.dataset.uid); });
 }
 
 /* ======================================================================
@@ -6070,11 +6978,11 @@ const I18N_ADMIN2 = {
 
 /* ---- title screen + leaderboard i18n ---- */
 const I18N_TS = {
-'zh-Hant':{ts:{start:'開始遊戲',manual:'遊戲說明',rank:'排行榜',resume:'繼續遊戲'},rank:{title:'排行榜',empty:'目前還沒有破關紀錄',noCloud:'排行榜需要登入雲端帳號',name:'玩家',time:'時間',kills:'擊殺',namePh:'輸入暱稱'}},
-'zh-Hans':{ts:{start:'开始游戏',manual:'游戏说明',rank:'排行榜',resume:'继续游戏'},rank:{title:'排行榜',empty:'目前还没有通关纪录',noCloud:'排行榜需要登录云端账号',name:'玩家',time:'时间',kills:'击杀',namePh:'输入昵称'}},
-'en':{ts:{start:'Start Game',manual:'How to Play',rank:'Ranking',resume:'Resume'},rank:{title:'Ranking',empty:'No clears recorded yet',noCloud:'Ranking needs a cloud account',name:'Player',time:'Time',kills:'Kills',namePh:'Enter a nickname'}},
-'ja':{ts:{start:'ゲーム開始',manual:'遊び方',rank:'ランキング',resume:'再開'},rank:{title:'ランキング',empty:'まだクリア記録がありません',noCloud:'ランキングはクラウドログインが必要です',name:'プレイヤー',time:'タイム',kills:'撃破',namePh:'ニックネームを入力'}},
-'ko':{ts:{start:'게임 시작',manual:'게임 설명',rank:'순위표',resume:'이어하기'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치',namePh:'닉네임 입력'}}
+'zh-Hant':{ts:{start:'開始遊戲',manual:'遊戲說明',rank:'排行榜',resume:'繼續遊戲',mp:'多人遊戲'},rank:{title:'排行榜',empty:'目前還沒有破關紀錄',noCloud:'排行榜需要登入雲端帳號',name:'玩家',time:'時間',kills:'擊殺',namePh:'輸入暱稱'}},
+'zh-Hans':{ts:{start:'开始游戏',manual:'游戏说明',rank:'排行榜',resume:'继续游戏',mp:'多人游戏'},rank:{title:'排行榜',empty:'目前还没有通关纪录',noCloud:'排行榜需要登录云端账号',name:'玩家',time:'时间',kills:'击杀',namePh:'输入昵称'}},
+'en':{ts:{start:'Start Game',manual:'How to Play',rank:'Ranking',resume:'Resume',mp:'Multiplayer'},rank:{title:'Ranking',empty:'No clears recorded yet',noCloud:'Ranking needs a cloud account',name:'Player',time:'Time',kills:'Kills',namePh:'Enter a nickname'}},
+'ja':{ts:{start:'ゲーム開始',manual:'遊び方',rank:'ランキング',resume:'再開',mp:'マルチプレイ'},rank:{title:'ランキング',empty:'まだクリア記録がありません',noCloud:'ランキングはクラウドログインが必要です',name:'プレイヤー',time:'タイム',kills:'撃破',namePh:'ニックネームを入力'}},
+'ko':{ts:{start:'게임 시작',manual:'게임 설명',rank:'순위표',resume:'이어하기',mp:'멀티플레이'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치',namePh:'닉네임 입력'}}
 };
 (function mergeTs(){ for(const L in I18N_TS){ if(!I18N[L]) continue; const o=I18N_TS[L]; for(const ns in o){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, o[ns]); } } })();
 (function mergeDrainStam(){ const S={
@@ -6142,6 +7050,70 @@ const I18N_CUST = {
 'en':{admin:{fxPlayerAtk:'Player attack FX (override)',fxUseWeapon:'Use weapon tier (default)',fxnCustom:'Custom FX',sndCustom:'Custom SFX',customFxTitle:'Custom attack FX (GIF / transparent PNG)',customSfxTitle:'Custom attack SFX (audio)',uploadFx:'+ Upload GIF / PNG',uploadSfx:'+ Upload audio',noCustomFx:'No custom FX yet — upload one.',noCustomSfx:'No custom SFX yet — upload one.',del:'Delete',customHint:'Media is uploaded together when you tap "Save to cloud", so it shows on other computers and phones too. Assign it to the player or a monster via the dropdowns above. Convert video to GIF before uploading and keep files small.',fxCompressing:'Compressing GIF…',fxTooBig:'GIF too large and could not be auto-compressed — use a smaller/shorter GIF or a transparent PNG.',audioBad:'Could not decode that audio — try another file.',audioAdded:'Custom sound added',fxAdded:'Custom effect added'}}
 };
 (function mergeCust(){ for(const L in I18N_CUST){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_CUST[L].admin); } })();
+const I18N_ARENA_CFG={
+ 'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合'}},
+ 'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合'}},
+ 'en':{admin:{arenaParams:'Arena',arGold:'Gold',arHpInc:'HP +',arHpCost:'HP cost',arAtkInc:'ATK +',arAtkCost:'ATK cost',arDefInc:'DEF +',arDefCost:'DEF cost',arAiHp:'AI HP',arAiAtk:'AI ATK',arAiDef:'AI DEF',arTickMs:'Tick ms',arMaxRd:'Max rounds'}},
+ 'ja':{admin:{arenaParams:'闘技場',arGold:'初期金',arHpInc:'HP+',arHpCost:'HP費用',arAtkInc:'攻+',arAtkCost:'攻費用',arDefInc:'防+',arDefCost:'防費用',arAiHp:'AI HP',arAiAtk:'AI攻',arAiDef:'AI防',arTickMs:'間隔ms',arMaxRd:'最大ラウンド'}},
+ 'ko':{admin:{arenaParams:'투기장',arGold:'시작 골드',arHpInc:'HP+',arHpCost:'HP비용',arAtkInc:'공+',arAtkCost:'공비용',arDefInc:'방+',arDefCost:'방비용',arAiHp:'AI HP',arAiAtk:'AI공',arAiDef:'AI방',arTickMs:'간격ms',arMaxRd:'최대 라운드'}}
+};
+(function mergeArenaCfg(){ for(const L in I18N_ARENA_CFG){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_ARENA_CFG[L].admin); } })();
+const I18N_SCORE={
+ 'zh-Hant':{ end:{scoreTitle:'本局得分',scoreAbility:'能力分',scoreMonster:'怪物分',scoreTime:'時間分',scoreWin:'通關獎勵',scoreTotal:'總分'}, admin:{scoreParams:'計分',scAbAtk:'攻×',scAbDef:'防×',scAbLv:'等級×',scMonKill:'擊殺×',scMonFloor:'樓層×',scTimeBase:'時間基底',scTimeRate:'每秒扣',scWinBonus:'通關獎勵'} },
+ 'zh-Hans':{ end:{scoreTitle:'本局得分',scoreAbility:'能力分',scoreMonster:'怪物分',scoreTime:'时间分',scoreWin:'通关奖励',scoreTotal:'总分'}, admin:{scoreParams:'计分',scAbAtk:'攻×',scAbDef:'防×',scAbLv:'等级×',scMonKill:'击杀×',scMonFloor:'楼层×',scTimeBase:'时间基底',scTimeRate:'每秒扣',scWinBonus:'通关奖励'} },
+ 'en':{ end:{scoreTitle:'Run score',scoreAbility:'Ability',scoreMonster:'Monsters',scoreTime:'Time',scoreWin:'Clear bonus',scoreTotal:'Total'}, admin:{scoreParams:'Score',scAbAtk:'ATK×',scAbDef:'DEF×',scAbLv:'Lv×',scMonKill:'Kill×',scMonFloor:'Floor×',scTimeBase:'Time base',scTimeRate:'Per sec',scWinBonus:'Clear bonus'} },
+ 'ja':{ end:{scoreTitle:'今回のスコア',scoreAbility:'能力点',scoreMonster:'魔物点',scoreTime:'時間点',scoreWin:'クリアボーナス',scoreTotal:'総合'}, admin:{scoreParams:'スコア',scAbAtk:'攻×',scAbDef:'防×',scAbLv:'Lv×',scMonKill:'撃破×',scMonFloor:'階×',scTimeBase:'時間基本',scTimeRate:'毎秒減',scWinBonus:'クリアボーナス'} },
+ 'ko':{ end:{scoreTitle:'이번 점수',scoreAbility:'능력점',scoreMonster:'몽스터점',scoreTime:'시간점',scoreWin:'클리어 보너스',scoreTotal:'총점'}, admin:{scoreParams:'점수',scAbAtk:'공×',scAbDef:'방×',scAbLv:'Lv×',scMonKill:'처치×',scMonFloor:'층×',scTimeBase:'시간 기본',scTimeRate:'초당 감소',scWinBonus:'클리어 보너스'} }
+};
+(function mergeScore(){ for(const L in I18N_SCORE){ if(!I18N[L]) continue; for(const ns in I18N_SCORE[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, I18N_SCORE[L][ns]); } } })();
+const I18N_MPTAB={
+ 'zh-Hant':{admin:{tabMp:'多人',mpNote:'多人模式（擂台、計分）相關參數。'}},
+ 'zh-Hans':{admin:{tabMp:'多人',mpNote:'多人模式（擂台、计分）相关参数。'}},
+ 'en':{admin:{tabMp:'Multiplayer',mpNote:'Multiplayer settings (arena & scoring).'}},
+ 'ja':{admin:{tabMp:'マルチ',mpNote:'マルチプレイ（闘技場・スコア）の設定。'}},
+ 'ko':{admin:{tabMp:'멀티',mpNote:'멀티플레이(투기장·점수) 설정.'}}
+};
+(function mergeMpTab(){ for(const L in I18N_MPTAB){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_MPTAB[L].admin); } })();
+const I18N_AFIELD={
+ 'zh-Hant':{mp:{afPreview:'預覽自由場地',afExit:'離開',afHint:'方向鍵 / WASD 或左下搖桿移動'}},
+ 'zh-Hans':{mp:{afPreview:'预览自由场地',afExit:'离开',afHint:'方向键 / WASD 或左下摇杆移动'}},
+ 'en':{mp:{afPreview:'Preview free field',afExit:'Leave',afHint:'Move with arrows / WASD or the joystick'}},
+ 'ja':{mp:{afPreview:'自由フィールドをプレビュー',afExit:'退出',afHint:'矢印 / WASD または左下のスティックで移動'}},
+ 'ko':{mp:{afPreview:'자유 필드 미리보기',afExit:'나가기',afHint:'방향키 / WASD 또는 조이스틱으로 이동'}}
+};
+(function mergeAField(){ for(const L in I18N_AFIELD){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFIELD[L].mp); } })();
+const I18N_AFPHASE={
+ 'zh-Hant':{ mp:{afPhase_wait:'等待中',afPhase_shop:'購買時間',afPhase_prep:'準備中',afPhase_duel:'對戰',afSkip:'跳過等待'}, admin:{arWait:'等待秒',arShop:'購買秒',arPrep:'準備秒'} },
+ 'zh-Hans':{ mp:{afPhase_wait:'等待中',afPhase_shop:'购买时间',afPhase_prep:'准备中',afPhase_duel:'对战',afSkip:'跳过等待'}, admin:{arWait:'等待秒',arShop:'购买秒',arPrep:'准备秒'} },
+ 'en':{ mp:{afPhase_wait:'Waiting',afPhase_shop:'Shopping',afPhase_prep:'Get ready',afPhase_duel:'Battle',afSkip:'Skip wait'}, admin:{arWait:'Wait s',arShop:'Shop s',arPrep:'Prep s'} },
+ 'ja':{ mp:{afPhase_wait:'待機中',afPhase_shop:'購入時間',afPhase_prep:'準備中',afPhase_duel:'対戦',afSkip:'待機をスキップ'}, admin:{arWait:'待機秒',arShop:'購入秒',arPrep:'準備秒'} },
+ 'ko':{ mp:{afPhase_wait:'대기 중',afPhase_shop:'구매 시간',afPhase_prep:'준비 중',afPhase_duel:'대전',afSkip:'대기 건너뛰기'}, admin:{arWait:'대기초',arShop:'구매초',arPrep:'준비초'} }
+};
+(function mergeAfPhase(){ for(const L in I18N_AFPHASE){ if(!I18N[L]) continue; for(const ns in I18N_AFPHASE[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, I18N_AFPHASE[L][ns]); } } })();
+const I18N_AFSHOP={
+ 'zh-Hant':{mp:{afShopTitle:'商店',afShopBtn:'購買能力',afShopClose:'離開商店'}},
+ 'zh-Hans':{mp:{afShopTitle:'商店',afShopBtn:'购买能力',afShopClose:'离开商店'}},
+ 'en':{mp:{afShopTitle:'Shop',afShopBtn:'Buy stats',afShopClose:'Leave shop'}},
+ 'ja':{mp:{afShopTitle:'ショップ',afShopBtn:'能力を購入',afShopClose:'ショップを出る'}},
+ 'ko':{mp:{afShopTitle:'상점',afShopBtn:'능력 구매',afShopClose:'상점 나가기'}}
+};
+(function mergeAfShop(){ for(const L in I18N_AFSHOP){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFSHOP[L].mp); } })();
+const I18N_AFTEAM={
+ 'zh-Hant':{mp:{afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
+ 'zh-Hans':{mp:{afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
+ 'en':{mp:{afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
+ 'ja':{mp:{afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
+ 'ko':{mp:{afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
+};
+(function mergeAfTeam(){ for(const L in I18N_AFTEAM){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFTEAM[L].mp); } })();
+const I18N_AFDUEL={
+ 'zh-Hant':{mp:{afLottery:'抽籤中'}},
+ 'zh-Hans':{mp:{afLottery:'抽签中'}},
+ 'en':{mp:{afLottery:'Drawing'}},
+ 'ja':{mp:{afLottery:'抽選中'}},
+ 'ko':{mp:{afLottery:'추첨 중'}}
+};
+(function mergeAfDuel(){ for(const L in I18N_AFDUEL){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFDUEL[L].mp); } })();
 /* ---- combat: first-strike message + victory popup (merged into all 5 languages) ---- */
 const I18N_COMBATX = {
  'zh-Hant':{msg:{foeFirst:'敵方先發制人！'}, cb:{winPopT:'🏆 戰勝 {name}',winPopR:'獲得 {g} 金幣　{e} 經驗'}},
@@ -6500,6 +7472,8 @@ function snapshotConfig(){
     swordKing: _cp(SWORD_KING),
     buildMonIds: (typeof BASE_MON_IDS!=='undefined'?BASE_MON_IDS.slice():MONSTERS.map(function(m){return m.id;})),
     buildBMonIds: (typeof BASE_BMON_IDS!=='undefined'?BASE_BMON_IDS.slice():BASEMENT_MONSTERS.map(function(m){return m.id;})),
+    arena: (typeof arenaSnapshotCfg==='function'?arenaSnapshotCfg():null),
+    score: (typeof scoreSnapshotCfg==='function'?scoreSnapshotCfg():null),
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
     map: { floors:FLOORS, grid:GRID, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },
     floorCfg: Object.assign({}, FLOOR_CFG),
@@ -6577,6 +7551,8 @@ function applyConfig(cfg){
   if(cfg.sounds) Object.assign(SFX_MAP, cfg.sounds);
   if(cfg.customMedia){ try{ var _cm=cfg.customMedia; if(_cm.cfx&&typeof _cm.cfx==='object') Object.assign(CUSTOM_FX,_cm.cfx); if(_cm.csfx&&typeof _cm.csfx==='object') Object.assign(CUSTOM_SFX,_cm.csfx); if(_cm.cfxn&&typeof _cm.cfxn==='object') Object.assign(CUSTOM_FX_NAME,_cm.cfxn); if(_cm.csfxn&&typeof _cm.csfxn==='object') Object.assign(CUSTOM_SFX_NAME,_cm.csfxn); if(typeof saveCustomMedia==='function') saveCustomMedia(); }catch(_e){} }   /* 自訂上傳的特效/音效素材也從雲端同步，換裝置/手機同樣顯示 */
   if(cfg.start){ Object.assign(START, cfg.start); if(cfg.start.face) PLAYER_FACE=cfg.start.face; if('img' in cfg.start){ let _hasLocal=false; try{ _hasLocal=!!((localStorage.getItem('mt_player_img')||'').trim()); }catch(e){} if(!_hasLocal) PLAYER_IMG = cfg.start.img||''; } }
+  if(cfg.arena && typeof arenaApplyCfg==='function') arenaApplyCfg(cfg.arena);
+  if(cfg.score && typeof scoreApplyCfg==='function') scoreApplyCfg(cfg.score);
   if(cfg.floorCfg){ FLOOR_CFG={}; for(const k in cfg.floorCfg){ const v=parseFloat(cfg.floorCfg[k]); if(!isNaN(v)) FLOOR_CFG[parseInt(k,10)]=v; } }
   if(cfg.floorWL){ FLOOR_WL={}; for(const k in cfg.floorWL){ if(Array.isArray(cfg.floorWL[k]) && cfg.floorWL[k].length) FLOOR_WL[parseInt(k,10)]=cfg.floorWL[k].slice(); } }
   if(cfg.floorTr){ FLOOR_TR={}; for(const k in cfg.floorTr){ const v=parseFloat(cfg.floorTr[k]); if(!isNaN(v)) FLOOR_TR[parseInt(k,10)]=v; } }
@@ -6584,7 +7560,7 @@ function applyConfig(cfg){
   if(cfg.glyphs){ for(const k in cfg.glyphs){ if(GLYPH_CFG[k]&&cfg.glyphs[k]){ if('img' in cfg.glyphs[k]) GLYPH_CFG[k].img=cfg.glyphs[k].img||null; if(cfg.glyphs[k].face) GLYPH_CFG[k].face=cfg.glyphs[k].face; } } }
   if(cfg.map){
     if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,1,99);
-    if(typeof cfg.map.grid==='number') GRID=clamp(cfg.map.grid|0,7,21);
+    if(typeof cfg.map.grid==='number'){ GRID=clamp(cfg.map.grid|0,7,21); MAP_N_SOLO=GRID; }
     if(typeof cfg.map.loopChance==='number') MAPCFG.loopChance=clamp(cfg.map.loopChance,0,0.6);
     if(typeof cfg.map.shopChance==='number') MAPCFG.shopChance=clamp(cfg.map.shopChance,0,1);
   }
@@ -6758,7 +7734,7 @@ function doCloudLoad(){
 
 /* ---- admin backend ---- */
 let adminDraft=null, adminTab='monsters', _admRenderLang='zh-Hant', _monSearch='', _collapse={surf:false,base:false}, _pinNext=null;
-const ADMIN_TABS=[['monsters','tabMon','mtTabMon'],['boss','tabBoss','mtTabBoss'],['player','tabPlayer','mtTabPlayer'],['map','tabMap','mtTabMap'],['spawns','tabSpawns','mtTabSpawns'],['fx','tabFx','mtTabFx'],['items','tabItems','mtTabItems'],['skills','tabSkills','mtTabSkills'],['sounds','tabSounds','mtTabSounds'],['data','tabData','mtTabData']];
+const ADMIN_TABS=[['monsters','tabMon','mtTabMon'],['boss','tabBoss','mtTabBoss'],['player','tabPlayer','mtTabPlayer'],['mp','tabMp','mtTabMp'],['map','tabMap','mtTabMap'],['spawns','tabSpawns','mtTabSpawns'],['fx','tabFx','mtTabFx'],['items','tabItems','mtTabItems'],['skills','tabSkills','mtTabSkills'],['sounds','tabSounds','mtTabSounds'],['data','tabData','mtTabData']];
 function buildAdminTabs(){
   let tb=document.querySelector('.adminTabs');
   if(!tb){
@@ -6768,7 +7744,7 @@ function buildAdminTabs(){
     else { const m=document.querySelector('.adminModal'); if(m) m.insertBefore(tb, m.children[1]||null); }
   }
   tb.style.cssText='display:block;width:100%;margin:0 0 12px;padding:7px;background:rgba(0,0,0,.28);border:1px solid var(--gold-d);border-radius:12px;box-sizing:border-box;font-size:0;';
-  const TAB_LBL={monsters:'怪物',boss:'魔王',player:'玩家',map:'地圖',spawns:'出怪表',fx:'特效',items:'寶物',skills:'技能',sounds:'聲音',data:'資料'};
+  const TAB_LBL={monsters:'怪物',boss:'魔王',player:'玩家',mp:'多人',map:'地圖',spawns:'出怪表',fx:'特效',items:'寶物',skills:'技能',sounds:'聲音',data:'資料'};
   let h='';
   ADMIN_TABS.forEach(function(pp){
     const sel=(pp[0]===adminTab);
@@ -6784,7 +7760,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    const _tb=document.querySelector('.adminTabs'); let _dg='tb=null'; if(_tb){ let _d=''; try{ _d=getComputedStyle(_tb).display; }catch(e){} _dg='n='+_tb.children.length+' d='+_d; } bt.textContent='build 0618·113 ['+_dg+']'; }
+    bt.textContent='build 0618·140'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -6792,7 +7768,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _tb=document.querySelector('.adminTabs'); const _bt=byId('adminBuildTag'); if(_tb&&_bt){ const _b0=_tb.firstElementChild; _bt.textContent='build 0618·113 [n='+_tb.children.length+' cw='+_tb.clientWidth+' bd='+(_b0?getComputedStyle(_b0).display:'-')+' bw='+(_b0?_b0.offsetWidth:'-')+' bh='+(_b0?_b0.offsetHeight:'-')+']'; } }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·140'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -7090,6 +8066,29 @@ function renderAdminBody(){
       adText(t('admin.icon'),s,'face')+adNum(t('ui.hp'),s,'hp')+adNum(t('ui.atk'),s,'atk')+adNum(t('ui.def'),s,'def')+
       adNum(t('ui.en'),s,'en')+adNum(t('ui.st'),s,'reserve')+adNum('thrA',s,'thrA')+adNum('thrD',s,'thrD')+'</div>';
     body.appendChild(row);
+  } else if(adminTab==='mp'){
+    { const _mn=document.createElement('p'); _mn.className='adNote'; _mn.textContent=t('admin.mpNote'); body.appendChild(_mn); }
+    if(!adminDraft.arena && typeof arenaSnapshotCfg==='function') adminDraft.arena=arenaSnapshotCfg();
+    { const a=adminDraft.arena||{};
+      const arow=document.createElement('div'); arow.className='adRowItem'; arow.dataset.arena='1';
+      arow.innerHTML='<div class="adName">⚔️ '+t('admin.arenaParams')+'</div><div class="adGrid">'+
+        adNum(t('admin.arGold'),a,'gold')+
+        adNum(t('admin.arHpInc'),a,'hpInc')+adNum(t('admin.arHpCost'),a,'hpCost')+
+        adNum(t('admin.arAtkInc'),a,'atkInc')+adNum(t('admin.arAtkCost'),a,'atkCost')+
+        adNum(t('admin.arDefInc'),a,'defInc')+adNum(t('admin.arDefCost'),a,'defCost')+
+        adNum(t('admin.arAiHp'),a,'aiHp')+adNum(t('admin.arAiAtk'),a,'aiAtk')+adNum(t('admin.arAiDef'),a,'aiDef')+
+        adNum(t('admin.arTickMs'),a,'tickMs')+adNum(t('admin.arMaxRd'),a,'maxRounds')+
+        adNum(t('admin.arWait'),a,'waitSec')+adNum(t('admin.arShop'),a,'shopSec')+adNum(t('admin.arPrep'),a,'prepSec')+'</div>';
+      body.appendChild(arow); }
+    if(!adminDraft.score && typeof scoreSnapshotCfg==='function') adminDraft.score=scoreSnapshotCfg();
+    { const sc=adminDraft.score||{};
+      const srow=document.createElement('div'); srow.className='adRowItem'; srow.dataset.score='1';
+      srow.innerHTML='<div class="adName">★ '+t('admin.scoreParams')+'</div><div class="adGrid">'+
+        adNum(t('admin.scAbAtk'),sc,'abAtk')+adNum(t('admin.scAbDef'),sc,'abDef')+adNum(t('admin.scAbLv'),sc,'abLv')+
+        adNum(t('admin.scMonKill'),sc,'monKill')+adNum(t('admin.scMonFloor'),sc,'monFloor')+
+        adNum(t('admin.scTimeBase'),sc,'timeBase')+adNum(t('admin.scTimeRate'),sc,'timeRate')+
+        adNum(t('admin.scWinBonus'),sc,'winBonus')+'</div>';
+      body.appendChild(srow); }
   } else if(adminTab==='map'){
     const m=adminDraft.map;
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.mapNote'); body.appendChild(n);
@@ -7446,6 +8445,8 @@ function collectAdminDraft(){
     const row=rows[i]; let target=null;
     if(row.dataset.boss) target=adminDraft.boss;
     else if(row.dataset.start) target=adminDraft.start;
+    else if(row.dataset.arena) target=adminDraft.arena;
+    else if(row.dataset.score) target=adminDraft.score;
     else if(row.dataset.map) target=adminDraft.map;
     else if(row.dataset.floordens){ const _fd=row.querySelectorAll('select[data-floormon]'); adminDraft.floorCfg={}; for(let i=0;i<_fd.length;i++){ const ff=parseInt(_fd[i].getAttribute('data-floormon'),10); const vv=parseFloat(_fd[i].value); if(!isNaN(ff)&&!isNaN(vv)&&Math.abs(vv-1)>0.001) adminDraft.floorCfg[ff]=vv; } continue; }
     else if(row.dataset.floortr){ const _ft=row.querySelectorAll('select[data-floortr]'); adminDraft.floorTr={}; for(let i=0;i<_ft.length;i++){ const ff=parseInt(_ft[i].getAttribute('data-floortr'),10); const vv=parseFloat(_ft[i].value); if(!isNaN(ff)&&!isNaN(vv)&&Math.abs(vv-1)>0.001) adminDraft.floorTr[ff]=vv; } continue; }
