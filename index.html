@@ -125,15 +125,31 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .aeWinner{color:#7CFC9B;font-weight:700;}
 .aeLoser{opacity:.45;}
 .aeMid.aeDraw{color:#FFD479;opacity:1;font-weight:600;}
-.afField{ display:block !important; padding:0 !important; }
+.afField{ padding:0 !important; }
+.lbSub{ margin-top:6px; }
+.segBtn:disabled{ opacity:.4; cursor:default; }
+.overlay.afField.show{ display:block; }
 #afCanvas{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
 .afJoy{ position:absolute; left:24px; bottom:30px; width:108px; height:108px; border-radius:50%; background:rgba(0,0,0,.32); border:2px solid rgba(255,255,255,.22); touch-action:none; z-index:5; }
 .afJoyKnob{ position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; background:rgba(246,212,136,.85); box-shadow:0 2px 8px rgba(0,0,0,.4); }
 .afExitBtn{ position:absolute; right:18px; top:16px; z-index:5; padding:8px 14px; border-radius:9px; background:#3a2c55; color:#f3ead2; border:1.5px solid #c79a45; font-weight:700; cursor:pointer; }
 .afHint{ position:absolute; left:0; right:0; bottom:14px; text-align:center; color:#f6d488; font-size:12px; pointer-events:none; z-index:4; text-shadow:0 1px 3px #000; }
 .afPhase{ position:absolute; left:0; right:0; top:14px; text-align:center; color:#fff; font-size:18px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:4; text-shadow:0 1px 4px #000; }
-.afDuelBanner{ position:absolute; left:0; right:0; top:16px; text-align:center; color:#f6d488; font-size:20px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
+.afDuelBanner{ position:absolute; left:0; right:0; top:44px; text-align:center; color:#f6d488; font-size:20px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
+.afScore{ position:absolute; left:0; right:0; top:16px; text-align:center; color:#fff; font-size:16px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
 .afCount{ position:absolute; left:50%; top:42%; transform:translate(-50%,-50%); color:#fff; font-size:96px; font-weight:900; pointer-events:none; z-index:6; text-shadow:0 3px 14px #000,0 0 26px rgba(246,212,136,.7); }
+.afFightPanel{ position:absolute; left:0; right:0; bottom:0; z-index:6; background:rgba(20,14,36,.85); border-top:1px solid #c79a45; padding:8px 12px 10px; color:#f3ead2; }
+.afpRow{ display:flex; align-items:center; gap:8px; font-size:13px; margin:3px 0; }
+.afpName{ min-width:74px; max-width:74px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.afpBar{ flex:1; height:12px; background:rgba(0,0,0,.55); border-radius:6px; overflow:hidden; }
+.afpBarFill{ display:block; height:100%; width:100%; background:#5fd06a; }
+.afpHp{ min-width:86px; text-align:right; font-size:12px; opacity:.92; }
+.afpRes{ font-size:12px; color:#f6d488; margin:5px 0 3px; }
+.afpSkills{ display:flex; flex-wrap:wrap; gap:5px; }
+.afpSkBtn{ padding:5px 9px; border-radius:7px; background:#3a2c55; color:#f3ead2; border:1px solid #6b5a8f; font-size:12px; font-weight:700; cursor:pointer; }
+.afpSkBtn.queued{ border-color:#f6d488; background:#4a3a6a; }
+.afpSkBtn:disabled{ opacity:.4; cursor:default; }
+.afSpectateBtn{ position:absolute; left:50%; bottom:128px; transform:translateX(-50%); z-index:7; padding:9px 18px; border-radius:10px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:14px; cursor:pointer; }
 .afSkipBtn{ position:absolute; left:50%; top:46px; transform:translateX(-50%); z-index:5; padding:7px 16px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
 .afShopBtnUI{ position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:5; padding:10px 20px; border-radius:10px; background:#2e7d5b; color:#eafff3; border:1.5px solid #7cf0b0; font-weight:700; font-size:15px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.4); }
 .afTeamBar{ position:absolute; left:50%; top:78px; transform:translateX(-50%); z-index:5; display:flex; gap:8px; }
@@ -236,6 +252,11 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .adSkBtn:hover{background:#403a82;} .adSkBtn:disabled{opacity:.4;cursor:default;}
 .adSkBtn.queued{background:#caa24a;color:#2a1f06;border-color:#e0bb5e;font-weight:800;}
 .spectateBar.show{display:flex;}
+.raceCountdown{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:5px 14px;border-radius:12px;background:rgba(10,7,20,.85);border:1px solid var(--gold-d);color:var(--gold);font-weight:800;font-size:14px;font-family:var(--mono);z-index:9;white-space:nowrap;}
+.raceCountdown.urgent{border-color:#ff6a6a;color:#ff9a9a;animation:cdPulse .8s infinite;}
+@keyframes cdPulse{0%,100%{opacity:1}50%{opacity:.55}}
+.specExit{margin-left:4px;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,120,120,.5);background:rgba(120,20,20,.5);color:#ffd7d7;font-size:14px;font-weight:800;line-height:1;cursor:pointer;}
+.specExit:hover{background:rgba(160,30,30,.7);}
 .specNav{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#f3ead2;font-size:19px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
 .specNav:active{transform:scale(.92);}
 .specWho{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#f3ead2;min-width:84px;justify-content:center;}
@@ -645,6 +666,19 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .rankRow{display:grid;grid-template-columns:34px 1fr 74px 42px 52px;gap:8px;align-items:center;padding:7px 8px;border-radius:8px;font-size:13px;}
 .rankRow:nth-child(even){background:rgba(255,255,255,.035);}
 .rankRow.rankHead{color:var(--gold);font-weight:700;background:none;}
+#mpStandings .rankRow{grid-template-columns:30px 1fr 72px 46px;}
+.rtTeamHead{margin:9px 0 4px;padding:5px 9px;border-radius:8px;border-left:4px solid;font-weight:800;font-size:13px;background:rgba(255,255,255,.045);}
+.tpTitle{font-size:12px;opacity:.75;margin-top:10px;font-weight:700;}
+.tpCols{display:flex;gap:8px;margin-top:6px;}
+.tpCol{flex:1;border:1px solid;border-radius:10px;padding:8px;background:rgba(255,255,255,.03);min-height:56px;}
+.tpHead{font-weight:800;font-size:13px;text-align:center;margin-bottom:5px;}
+.tpMem{font-size:12px;padding:2px 5px;border-radius:5px;}
+.tpMem.tpMe{background:rgba(255,255,255,.12);font-weight:700;}
+.tpJoin{margin-top:7px;width:100%;padding:5px;border-radius:8px;border:1px solid var(--gold-d);background:transparent;color:var(--gold);font-weight:700;cursor:pointer;font-size:12px;}
+.tpJoin.tpJoinOn{background:var(--gold-d);color:#1a1420;cursor:default;}
+.tpUn{font-size:11px;opacity:.6;margin-top:6px;text-align:center;}
+#mpStandings .rankRow.rtMem{grid-template-columns:1fr 46px 72px;}
+.rankRow.rankMe{background:rgba(212,175,55,.15);outline:1px solid var(--gold-d);}
 .rankRow .rt,.rankRow .rv{font-family:var(--mono);text-align:right;}
 .rankRow .rk{color:var(--txt-dim);text-align:center;}
 .rankRow .rn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -900,6 +934,9 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   background:linear-gradient(180deg,var(--stone-l),var(--stone));border:1px solid var(--line);box-shadow:0 2px 0 var(--stone-d);transition:.1s;}
 .segBtn.sel{color:#2a1c06;background:linear-gradient(180deg,#f6d488,var(--gold) 60%,var(--gold-d));border-color:var(--gold-d);box-shadow:0 2px 0 #6b4914;}
 .lbHint{font-size:11px;color:var(--txt-dim);margin:7px 0 0;line-height:1.5;}
+.cfgStep{display:flex;align-items:center;gap:14px;}
+.cfgStepBtn{min-width:46px;padding:8px 0;font-size:18px;font-weight:800;line-height:1;}
+.cfgStepVal{font-size:22px;font-weight:800;color:var(--gold);min-width:44px;text-align:center;}
 .lbWide{width:100%;margin-top:4px;}
 .lbOr{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--txt-faint);}
 .lbOr span{flex:1;height:1px;background:var(--line);}
@@ -1212,7 +1249,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
       <div class="floorBar" id="floorBar"><div id="cheatBadge"><span id="cheatBadgeLab">管理者模式</span><button id="cheatExit">退出</button></div><span class="v num" id="floorNum">1 樓</span></div>
       <div id="mapStage">
         <div id="mpRoster" class="mpRoster"></div>
-        <div id="spectateBar" class="spectateBar"><button class="specNav" id="specPrev">‹</button><div class="specWho"><span class="specEye">👁</span><span id="specName"></span></div><button class="specNav" id="specNext">›</button></div>
+        <div id="raceCountdown" class="raceCountdown" style="display:none"></div>
+        <div id="spectateBar" class="spectateBar"><button class="specNav" id="specPrev">‹</button><div class="specWho"><span class="specEye">👁</span><span id="specName"></span></div><button class="specNav" id="specNext">›</button><button class="specExit" id="specExit" style="display:none">✕</button></div>
         <div id="mapFrame"><div id="grid"></div></div>
         <div id="tipBubble"></div>
       </div>
@@ -1387,6 +1425,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   <p class="desc" id="endDesc"></p>
   <div class="endStats" id="endStats"></div>
   <div id="endScore" style="display:none"></div>
+  <div id="mpStandings" style="display:none;width:100%;margin-top:12px"></div>
   <div id="endRankWrap" style="display:none;flex-direction:column;align-items:center;gap:8px;margin-top:14px"><input id="endRankName" type="text" maxlength="12" autocomplete="off" style="display:none;width:200px;max-width:80%;padding:8px 12px;border-radius:8px;border:1px solid var(--gold-d);background:rgba(20,16,34,.85);color:#f3ead2;text-align:center;font-size:14px"><button class="btn" id="endRankBtn"></button></div>
   <div class="closeRow" style="justify-content:center;gap:10px"><button class="btn" id="endHome"><span id="endHomeLab">回到主畫面</span></button><button class="btn gold" id="endRestart"><span id="endBtnLab">再次挑戰</span></button></div>
 </div></div>
@@ -1475,10 +1514,17 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     <div class="lbField"><label id="lbNameLab">玩家名稱</label>
       <input type="text" id="lbName" maxlength="12" placeholder="輸入你的名稱" autocomplete="off"></div>
     <div class="lbField"><label id="lbModeLab">模式</label>
-      <div class="seg" id="lbModeSeg">
-        <button class="segBtn sel" data-mode="coop"><span id="lbModeCoopLab">合作</span></button>
-        <button class="segBtn" data-mode="race"><span id="lbModeRaceLab">競速</span></button>
-        <button class="segBtn" data-mode="arena"><span id="lbModeArenaLab">擂台</span></button>
+      <div class="seg" id="lbL1Seg">
+        <button class="segBtn sel" data-l1="tower"><span id="lbL1TowerLab">攻略魔塔</span></button>
+        <button class="segBtn" data-l1="arena"><span id="lbL1ArenaLab">自由競技場</span></button>
+      </div>
+      <div class="seg lbSub" id="lbL2Seg">
+        <button class="segBtn sel" data-l2="coop"><span id="lbL2CoopLab">組隊攻略</span></button>
+        <button class="segBtn" data-l2="race"><span id="lbL2RaceLab">競技攻略</span></button>
+      </div>
+      <div class="seg lbSub" id="lbL3Seg" style="display:none">
+        <button class="segBtn sel" data-l3="solo"><span id="lbL3SoloLab">個人</span></button>
+        <button class="segBtn" data-l3="team"><span id="lbL3TeamLab">分隊</span></button>
       </div>
       <p class="lbHint" id="lbModeDesc"></p></div>
     <div class="lbField"><label id="lbMaxLab">人數上限</label>
@@ -1514,7 +1560,9 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
       <button class="btn" id="lbCopy">複製</button>
     </div>
     <div class="roomModeTag" id="lbModeShow"></div>
+    <div id="lbCfg"></div>
     <div class="lbField"><label id="lbMembersLab">玩家</label><div class="memberList" id="lbMembers"></div></div>
+    <div id="lbTeamPick" style="display:none"></div>
     <button class="btn gold lbWide" id="lbStart">開始遊戲</button>
     <p class="lbHint" id="lbWaiting" style="display:none;text-align:center">等待房主開始…</p>
     <div class="closeRow" style="justify-content:center"><button class="btn" id="lbLeave">離開房間</button></div>
@@ -1614,8 +1662,15 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     <button class="afTeamBtn afTeamB" id="afTeamB" data-team="B">紅隊</button>
     <button class="afTeamBtn afTeamRand" id="afTeamRand" style="display:none">隨機分隊</button>
   </div>
+  <div class="afScore" id="afScore" style="display:none"></div>
   <div class="afDuelBanner" id="afDuelBanner" style="display:none"></div>
   <div class="afCount" id="afCount" style="display:none"></div>
+  <div class="afFightPanel" id="afFightPanel" style="display:none">
+    <div class="afpRow"><span class="afpName" id="afpAName"></span><span class="afpBar"><span class="afpBarFill" id="afpABar"></span></span><span class="afpHp" id="afpAHp"></span></div>
+    <div class="afpRow"><span class="afpName" id="afpBName"></span><span class="afpBar"><span class="afpBarFill" id="afpBBar"></span></span><span class="afpHp" id="afpBHp"></span></div>
+    <div class="afpMine" id="afpMine" style="display:none"><div class="afpRes" id="afpRes"></div><div class="afpSkills" id="afpSkills"></div></div>
+  </div>
+  <button class="afSpectateBtn" id="afSpectateBtn" style="display:none">自由活動</button>
   <div class="afHint" id="afHint"></div>
 </div>
 
@@ -1862,7 +1917,7 @@ const I18N = {
 };
 
 /* ============================== Config ============================== */
-let FLOORS=25, GRID=11;          /* top floor (boss) = 25 */
+let FLOORS=25, ADMIN_FLOORS=25, GRID=11;          /* solo: top floor = final boss (original). MP tower modes add an empty summit ABOVE the boss (see hasSummit) */
 let MAP_N_SOLO=11;               /* single-player grid (admin 7..21); MP overrides GRID with the world's mapSize */
 const BASEMENT=20;               /* deepest basement = B20 (floor -20) */
 const SECRET_FLOOR=900;   /* sentinel floor id for the hidden 密室 (cross-holy-water vault) */
@@ -1872,11 +1927,16 @@ let FLOOR_WL={};                 /* per-floor monster whitelist (array of ids), 
 let _wlFloor=1;                  /* floor currently being edited in the whitelist picker */
 let FLOOR_TR={};                 /* per-floor loose-pickup (treasure) density multiplier, keyed by real floor (admin Map tab). absent = 1x */
 function hasUp(f){ return f<FLOORS && f!==SECRET_FLOOR; }
+function isSummitMode(m){ return m==='coop'||m==='race'||m==='raceteam'; }
+function diffRank(d){ var r={easy:0,normal:1,hard:2,hell:3}; return (r[d]!=null)?r[d]:1; }
+function diffFactor(d){ var f={easy:1.30,normal:1.0,hard:0.65,hell:0.45}; return f[d]||1.0; }   /* multiplies each monster's min floor: <1 pulls late-game mobs earlier (harder), >1 pushes them later (easier) */
+function curDifficulty(){ return state.difficulty || 'normal'; }   /* solo is always 'normal' (baseline / original) */
+function hasSummit(){ return isSummitMode(state.mode); }   /* MP tower modes: final boss on FLOORS-1 + an empty summit on FLOORS (登頂). Solo keeps the ORIGINAL layout: boss on the top floor = clear. */
 function hasDown(f){ return f>-BASEMENT && f!==SECRET_FLOOR; }
 function bossSealed(d){ if(!d||!d.boss||state.cheatActive) return false; for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ const e=d.ent[y]&&d.ent[y][x]; if(e&&e.isBoss) return true; } return false; }   /* boss floor with its boss still present -> no exit (until defeated); admin bypasses */
 function upFloor(f){ const n=f+1; return n===0?1:n; }     /* skip the non-existent 0F */
 function downFloor(f){ const n=f-1; return n===0?-1:n; }
-function effFloor(f){ return f>0 ? f : clamp(19+(-f),20,FLOORS-1); }  /* basements draw from the toughest floor-20+ roster (B1->20 ... B5+->24) */
+function effFloor(f){ if(f>0){ var ct=FLOORS-2; if(ct<=24) return f; return clamp(Math.round(f*24/ct),1,24); } return clamp(19+(-f),20,24); }  /* content floors 1..(FLOORS-2) map onto the base 24-floor roster; basements draw from the top tier (B1->20 ... B5+->24) */
 function floorTag(f){ if(f===SECRET_FLOOR) return ({'zh-Hant':'密室','zh-Hans':'密室','en':'Secret','ja':'隠し部屋','ko':'비밀의 방'})[state.lang]||'密室'; return f>0 ? String(f) : ('B'+(-f)); }
 function floorTitle(f){ var L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(typeof f!=='number'||!f) f=1;
   if(f===SECRET_FLOOR) return ({'zh-Hant':'密室','zh-Hans':'密室','en':'Secret Room','ja':'隠し部屋','ko':'비밀의 방'})[L]||'密室';
@@ -2392,8 +2452,13 @@ function genFloorRaw(f){
   const isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };   // weaken / poison / true-damage / life-drain
   const _ALLMON=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);   // unified pool; each monster carries its own surface (sMin/sMax) + basement-depth (bMin/bMax) ranges (admin Monsters tab)
   let roster;
-  if(_realFloor>0){ const rf=_realFloor; roster=_ALLMON.filter(function(m){ return !m.b20 && (m.sMin|0)>0 && rf>=(m.sMin|0) && rf<=(m.sMax|0); }); }   // surface floor: monsters whose surface range covers it (special-effect mobs still gated < floor 15)
-  else { const dp=-_realFloor; roster=_ALLMON.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }   // basement: monsters whose basement-depth range covers this depth
+  if(_realFloor>0){ const rf=f; const _dd=curDifficulty(); roster=_ALLMON.filter(function(m){
+      if(m.b20 || (m.sMin|0)<=0) return false;
+      if(diffRank(_dd) < diffRank(m.minDiff||'easy')) return false;                       // per-monster minDiff gate: only appears at/above its required difficulty
+      var emin=clamp(Math.round((m.sMin|0)*diffFactor(_dd)),1,(m.sMax|0));                 // difficulty shifts the lower bound (harder = tough mobs earlier)
+      return rf>=emin && rf<=(m.sMax|0);
+    }); }   // surface floor: difficulty-adjusted roster for the DESIGN floor (content floors remap onto the base 24-floor roster on tall towers)
+  else { const dp=-_realFloor; const _dd=curDifficulty(); roster=_ALLMON.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && diffRank(_dd)>=diffRank(m.minDiff||'easy') && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }   // basement: monsters whose basement-depth range covers this depth (minDiff gate applies; depth-based, no floor shift)
   { const _wl=(typeof FLOOR_WL!=='undefined'&&FLOOR_WL[_realFloor])?FLOOR_WL[_realFloor]:null; if(_wl&&_wl.length){ const _w=_ALLMON.filter(function(m){ return !m.b20 && _wl.indexOf(m.id)>=0; }); if(_w.length) roster=_w; } }   // per-floor whitelist (admin Map tab): if set, this floor spawns ONLY the listed monsters
   const weakRoster=roster.filter(function(m){return startCanPierce(scaleFoe(m,f));});
   // (wandering-monster placement moved below, to AFTER the 3x3 vaults — so a vault carves on an empty maze and spawns reliably; monsters then fill the remaining free cells around it)
@@ -2926,18 +2991,19 @@ function genFloorRaw(f){
 function genBossFloorRaw(f){
   _realFloor=f;   // boss floor is real floor 25 — keep basement scaling from leaking into its mobs
   const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}   // all walls: a NARROW arena, not an open plaza
-  const start=stairPos(downFloor(FLOORS));   // arrive aligned with 24F's up-stairs (top region, row 2)
+  const start=stairPos(downFloor(f));   // arrive aligned with the floor-below's up-stairs (top region, row 2)
   const cx=5;
   for(let x=Math.min(start.x,cx); x<=Math.max(start.x,cx); x++) wall[2][x]=false;   // top passage: arrival -> central column
   for(let y=2; y<=7; y++) wall[y][cx]=false;                                        // central 1-wide gauntlet corridor
   for(let y=8; y<=9; y++) for(let x=cx-1; x<=cx+1; x++) wall[y][x]=false;            // small boss chamber at the bottom
   wall[start.y][start.x]=false;
-  const stairs={x:cx,y:1};   // dummy — the boss floor has no up-stairs
+  const stairs={x:cx,y:9};   // up-stairs to the summit, sitting under the boss — revealed only after the boss is beaten (bossSealed blocks it until then)
   const data={f:f,wall:wall,start:{x:start.x,y:start.y},stairs:{x:stairs.x,y:stairs.y},ent:emptyEnt(),lava:emptyLava(),explored:false,boss:true};
   data.ent[9][cx]={kind:'monster',foe:makeBoss(),isBoss:true};                      // boss waits at the very bottom
   // gauntlet: several STRONG floor-24-tier mobs filling the 1-wide corridor — beaten in order, no way around
-  const tough=MONSTERS.filter(function(m){return m.maxF>=FLOORS-1;});
-  const gFoe=function(){ return scaleFoe(weightedMonster(tough.length?tough:MONSTERS, FLOORS-1), FLOORS-1); };
+  const _topD=effFloor(f-1);   // design floor just below the boss floor (solo: effFloor(FLOORS-1); MP: effFloor(FLOORS-2)) = 24
+  const tough=MONSTERS.filter(function(m){return m.maxF>=_topD;});
+  const gFoe=function(){ return scaleFoe(weightedMonster(tough.length?tough:MONSTERS, _topD), _topD); };
   data.ent[3][cx]={kind:'monster',foe:gFoe()};
   data.ent[5][cx]={kind:'monster',foe:gFoe()};
   data.ent[7][cx]={kind:'monster',foe:gFoe()};
@@ -2948,6 +3014,14 @@ function genBossFloorRaw(f){
   return data;
 }
 
+function genSummitFloorRaw(f){
+  _realFloor=f;
+  const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}
+  const cx=(GRID>>1), cy=(GRID>>1);
+  for(let y=cy-1;y<=cy+1;y++)for(let x=cx-1;x<=cx+1;x++){ if(x>=0&&y>=0&&x<GRID&&y<GRID) wall[y][x]=false; }   // a small open summit chamber
+  const data={f:f,wall:wall,start:{x:cx,y:cy},stairs:{x:cx,y:cy},ent:emptyEnt(),lava:emptyLava(),explored:true,summit:true};
+  return data;   // reaching this floor = 登頂 (handled in ascend())
+}
 function genBasementBossFloorRaw(f){
   _realFloor=f;   // B20 — a basement boss arena (player descends in at the bottom, fights up to the boss)
   const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}   // all walls: narrow arena
@@ -3061,7 +3135,7 @@ function renderMap(){
       cell.className='tile '+(d.wall[y][x]?'wall':'floor');
       if(d.wall[y][x] && wallBrick(d.f,x,y)) cell.classList.add('brick');
       if(!d.wall[y][x] && d.lava && d.lava[y][x]){ cell.classList.add('lava'); const _lv=glyphImg('lava'); if(_lv){ cell.classList.add('lavaCustom'); cell.style.backgroundImage='url('+_lv+')'; } else { cell.style.animationDelay='-'+((Date.now()-_lavaClock)%LAVA_PERIOD)+'ms'; } }
-      const isStairs=(x===d.stairs.x&&y===d.stairs.y)&&!d.boss&&hasUp(d.f);
+      const isStairs=(x===d.stairs.x&&y===d.stairs.y)&&hasUp(d.f)&&(!d.boss||!bossSealed(d));   /* boss floor: up-stairs to summit appear once the boss is beaten */
       if(isStairs){ cell.classList.add('stairs'); const _gu=glyphImg('stair_up'); cell.appendChild(_gu?_glyphImgEl(_gu):stairEl('up')); }
       const isDown=hasDown(d.f)&&(x===d.start.x&&y===d.start.y)&&!sealed;
       if(isDown){ const hidden=(downFloor(d.f)<0)&&!state.basementUnlocked;   // basement stairs are invisible until revealed, but the tile stays passable
@@ -3488,6 +3562,7 @@ function ascend(){
   state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
   state.target=null; poisonReset();
   renderAll(); mpPresence();
+  if(hasSummit() && nf===FLOORS) onSummitReached();      /* MP tower: reached the summit = 登頂. Solo has no summit (FLOORS is the boss floor). */
 }
 function descend(){
   if(!hasDown(state.floor)) return;
@@ -4795,7 +4870,7 @@ function tutNext(){ const _mS=t('tut.stepsM'); const _use=(!_isPC() && Array.isA
 function tutBack(){ if((state._tutI||0)>0){ state._tutI--; renderTutPage(); } }
 function tutSkip(){ hide('tutorial'); }
 function _godClamp(){ if(state.cheatActive && state.player){ if(state.player.hp<1) state.player.hp=1; return true; } return false; }
-function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } if(state.mode==='solo'){ endScreen(false); return; } state.over=true; state.busy=false; try{ mpPresence(true); }catch(e){} if(state.mode==='coop' && enterSpectate()) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } if(state.mode==='solo'){ endScreen(false); return; } state.over=true; state.busy=false; try{ mpPresence(true); }catch(e){} if(isSummitMode(state.mode) && enterSpectate()) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
 function renderRunScore(won){
   var el=byId('endScore'); if(!el) return;
   var s=computeRunScore(won);
@@ -4929,7 +5004,12 @@ function genFloor(f){
   const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f));
   try{
     if(f===SECRET_FLOOR) return genSecretRoom();
-    if(f===FLOORS) return genBossFloorRaw(f);
+    if(hasSummit()){                                       // MP tower modes: final boss on FLOORS-1, empty summit on FLOORS
+      if(f===FLOORS-1) return genBossFloorRaw(f);
+      if(f===FLOORS) return genSummitFloorRaw(f);
+    } else {                                                // solo (ORIGINAL): boss sits on the top floor = clear, no summit
+      if(f===FLOORS) return genBossFloorRaw(f);
+    }
     if(f===-BASEMENT) return genBasementBossFloorRaw(f);   // deepest basement is a boss floor too
     _realFloor=f;
     const d=genFloorRaw(effFloor(f));   /* basements & normal floors scale by effective floor */
@@ -5119,10 +5199,12 @@ function relocalizeOpen(){
 function newGame(opts){
   opts=opts||{};
   state.mode = opts.mode || 'solo';
+  state.difficulty = opts.difficulty || 'normal';   /* solo -> normal (baseline); MP tower modes pass the room's difficulty */
   GRID = (state.mode==='solo') ? MAP_N_SOLO : clamp((opts.mapSize|0)||30, 20, 48);   /* MP large map; solo keeps its (admin) grid */
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
+  state.raceEndsAt=0; state._raceCdEnded=false; try{ stopRaceCountdown(); }catch(e){}
   { var _secPool=[]; for(var _spf=3; _spf<=FLOORS-1; _spf++) _secPool.push(_spf); for(var _spb=1; _spb<=BASEMENT-1; _spb++) _secPool.push(-_spb); if(!_secPool.length) _secPool=[Math.max(1,Math.min(FLOORS,3))];
     state.secretFloor=_secPool[hashSeed(state.seed,777)%_secPool.length];
     var _hintPool=[]; for(var _hpf=2; _hpf<=FLOORS-1; _hpf++) _hintPool.push(_hpf); for(var _hpb=1; _hpb<=BASEMENT-1; _hpb++) _hintPool.push(-_hpb); if(!_hintPool.length) _hintPool=[Math.max(1,Math.min(FLOORS,2))];
@@ -5388,8 +5470,10 @@ const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm
 function bgmKeyForFloor(f){
   if(f===SECRET_FLOOR) return 'secret';        // 密室專屬 BGM（進去這首，出去依所在樓層切回）
   if(f===1) return 'floor1';                 // 1F
-  if(f>=2 && f<=24) return 'upper';          // 2F-24F
-  if(f===FLOORS) return 'topBoss';           // 25F boss
+  var _bf=hasSummit()?FLOORS-1:FLOORS;        // boss floor (MP: FLOORS-1; solo: FLOORS)
+  if(f===_bf) return 'topBoss';              // final boss floor
+  if(hasSummit() && f===FLOORS) return 'upper';   // summit (calm)
+  if(f>=2 && f<_bf) return 'upper';          // content floors
   if(f===-BASEMENT) return 'deepBoss';       // B20 boss
   if(f<0) return 'basement';                 // B1-B19
   return 'upper';
@@ -5622,6 +5706,7 @@ function wireAudioPanel(){
   const tb=byId('audioTest'); if(tb) tb.addEventListener('click', testSfx);
 }
 function boot(){
+  try{ ['arenaField','afShop'].forEach(function(_id){ var _e=byId(_id); if(_e) _e.classList.remove('show'); }); }catch(e){}
   bindInput();
   bgmInit();
   { const bm=byId('btnMute'); if(bm) bm.addEventListener('click', openAudio); }
@@ -5677,7 +5762,7 @@ const I18N_MP = {
   lobbyTitle:'連線大廳',name:'玩家名稱',namePh:'輸入你的名稱',mode:'模式',race:'競速',coop:'合作',arena:'擂台',
   raceDesc:'同一座塔、各自獨立，比誰先登頂。',coopDesc:'共享同一座塔，清掉的怪物與寶物會同步給隊友。',arenaDesc:'同一張地圖的環形競技場，分兩隊抽籤 1v1，以勝場計分。',arenaPrep:'賽前準備',arenaTeam:'你的隊伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻擊與防禦技能書',arenaReady:'準備完成',arenaWait:'等待其他玩家…',arenaNoGold:'金幣不足',arenaReadyMsg:'已準備，等待其他玩家',arenaAllReady:'全員就緒，即將開始',arenaMatch:'對戰',arenaAI:'電腦',arenaYouFight:'你即將上場！',arenaWatching:'觀戰中',arenaFightSoon:'1v1 戰鬥即將登場（開發中）',arenaDoneSoon:'結算即將登場（開發中）',arenaWinner:'{name} 勝！',arenaDraw:'平手',arenaResult:'比賽結束',arenaTeamWin:'{team} 隊獲勝',arenaTie:'雙方平手',arenaBack:'返回主畫面',
   maxPlayers:'人數上限',mapSizeLab:'地圖大小',viewLab:'視野',loadTitle:'載入中…',load1:'加載地圖中',load2:'加載怪物中',load3:'加載寶物中',load4:'加載玩家資料中',load5:'完成',create:'建立房間',join:'加入',codePh:'輸入房間代碼',roomCode:'房間代碼',copy:'複製',copied:'已複製',
-  players:'玩家',host:'房主',you:'你',start:'開始遊戲',waiting:'等待房主開始…',leave:'離開房間',leaveConfirm:'確定要離開房間嗎？',
+  players:'玩家',host:'房主',you:'你',start:'開始遊戲',waiting:'等待房主開始…',leave:'離開房間',specExit:'離開觀戰',stScore:'分數',stStatus:'狀態',stFloor:'{n}樓',raceCdBanner:'結算倒數 {s}s',rtTeamA:'藍隊',rtTeamB:'紅隊',rtWinTeam:'{team}獲勝！',rtTie:'雙方平手',rtSummits:'{n}人登頂',rtWinDesc:'你的隊伍勝出！',rtLoseDesc:'對手隊伍勝出',rtTieDesc:'兩隊不分高下',teamPickTitle:'選擇你的隊伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未選擇',leaveConfirm:'確定要離開房間嗎？',cfgFloors:'樓層數',cfgDifficulty:'難度',cfgCountdown:'登頂倒數',cfgTeamMethod:'分隊方式',diffEasy:'簡單',diffNormal:'普通',diffHard:'困難',diffHell:'地獄',cdOn:'開',cdOff:'關',teamRandom:'隨機',teamPick:'自選',cfgHostOnly:'由房主設定',
   started:'遊戲開始！',connecting:'連線中…',roomNotFound:'找不到該房間',roomFull:'房間已滿',alreadyStarted:'遊戲已經開始',
   noauth:'連線失敗，請稍後再試',createFail:'建立失敗',needName:'請先輸入名稱',
   panelTitle:'多人資訊',soloNote:'你目前正在單機遊玩。',goMulti:'前往多人連線',ladder:'進度排行',teammates:'隊友',
@@ -5688,7 +5773,7 @@ const I18N_MP = {
   lobbyTitle:'联机大厅',name:'玩家名称',namePh:'输入你的名称',mode:'模式',race:'竞速',coop:'合作',arena:'擂台',
   raceDesc:'同一座塔、各自独立，比谁先登顶。',coopDesc:'共享同一座塔，清掉的怪物与宝物会同步给队友。',arenaDesc:'同一张地图的环形竞技场，分两队抽签 1v1，以胜场计分。',arenaPrep:'赛前准备',arenaTeam:'你的队伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻击与防御技能书',arenaReady:'准备完成',arenaWait:'等待其他玩家…',arenaNoGold:'金币不足',arenaReadyMsg:'已准备，等待其他玩家',arenaAllReady:'全员就绪，即将开始',arenaMatch:'对战',arenaAI:'电脑',arenaYouFight:'你即将上场！',arenaWatching:'观战中',arenaFightSoon:'1v1 战斗即将登场（开发中）',arenaDoneSoon:'结算即将登场（开发中）',arenaWinner:'{name} 胜！',arenaDraw:'平手',arenaResult:'比赛结束',arenaTeamWin:'{team} 队获胜',arenaTie:'双方平手',arenaBack:'返回主画面',
   maxPlayers:'人数上限',mapSizeLab:'地图大小',viewLab:'视野',loadTitle:'载入中…',load1:'加载地图中',load2:'加载怪物中',load3:'加载宝物中',load4:'加载玩家资料中',load5:'完成',create:'创建房间',join:'加入',codePh:'输入房间代码',roomCode:'房间代码',copy:'复制',copied:'已复制',
-  players:'玩家',host:'房主',you:'你',start:'开始游戏',waiting:'等待房主开始…',leave:'离开房间',leaveConfirm:'确定要离开房间吗？',
+  players:'玩家',host:'房主',you:'你',start:'开始游戏',waiting:'等待房主开始…',leave:'离开房间',specExit:'离开观战',stScore:'分数',stStatus:'状态',stFloor:'{n}楼',raceCdBanner:'结算倒计时 {s}s',rtTeamA:'蓝队',rtTeamB:'红队',rtWinTeam:'{team}获胜！',rtTie:'双方平手',rtSummits:'{n}人登顶',rtWinDesc:'你的队伍胜出！',rtLoseDesc:'对手队伍胜出',rtTieDesc:'两队不分高下',teamPickTitle:'选择你的队伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未选择',leaveConfirm:'确定要离开房间吗？',cfgFloors:'楼层数',cfgDifficulty:'难度',cfgCountdown:'登顶倒数',cfgTeamMethod:'分队方式',diffEasy:'简单',diffNormal:'普通',diffHard:'困难',diffHell:'地狱',cdOn:'开',cdOff:'关',teamRandom:'随机',teamPick:'自选',cfgHostOnly:'由房主设定',
   started:'游戏开始！',connecting:'连接中…',roomNotFound:'找不到该房间',roomFull:'房间已满',alreadyStarted:'游戏已经开始',
   noauth:'连接失败，请稍后再试',createFail:'创建失败',needName:'请先输入名称',
   panelTitle:'多人信息',soloNote:'你目前正在单机游玩。',goMulti:'前往多人联机',ladder:'进度排行',teammates:'队友',
@@ -5699,7 +5784,7 @@ const I18N_MP = {
   lobbyTitle:'Multiplayer Lobby',name:'Player name',namePh:'Enter your name',mode:'Mode',race:'Race',coop:'Co-op',arena:'Arena',
   raceDesc:'Same tower, separate runs — first to the top wins.',coopDesc:'Share one tower — monsters and loot you clear sync to teammates.',arenaDesc:'Ring arena on one map: two teams, lottery 1v1 duels, scored by wins.',arenaPrep:'Prep',arenaTeam:'Your team',arenaBuy:'+{inc} ({cost}g)',arenaBooks:'All attack & defense skill books owned',arenaReady:'Ready',arenaWait:'Waiting for others…',arenaNoGold:'Not enough gold',arenaReadyMsg:'Ready — waiting for others',arenaAllReady:'Everyone ready — starting',arenaMatch:'Match',arenaAI:'AI',arenaYouFight:'You\'re up next!',arenaWatching:'Watching',arenaFightSoon:'1v1 combat coming soon (WIP)',arenaDoneSoon:'Results coming soon (WIP)',arenaWinner:'{name} wins!',arenaDraw:'Draw',arenaResult:'Match over',arenaTeamWin:'Team {team} wins',arenaTie:'It\'s a tie',arenaBack:'Back to menu',
   maxPlayers:'Max players',mapSizeLab:'Map size',viewLab:'View',loadTitle:'Loading…',load1:'Loading map',load2:'Loading monsters',load3:'Loading treasures',load4:'Loading player data',load5:'Done',create:'Create room',join:'Join',codePh:'Enter room code',roomCode:'Room code',copy:'Copy',copied:'Copied',
-  players:'Players',host:'Host',you:'you',start:'Start game',waiting:'Waiting for host to start…',leave:'Leave room',leaveConfirm:'Leave this room?',
+  players:'Players',host:'Host',you:'you',start:'Start game',waiting:'Waiting for host to start…',leave:'Leave room',specExit:'Exit spectating',stScore:'Score',stStatus:'Status',stFloor:'F{n}',raceCdBanner:'Final results in {s}s',rtTeamA:'Blue',rtTeamB:'Red',rtWinTeam:'{team} team wins!',rtTie:'Draw',rtSummits:'{n} summited',rtWinDesc:'Your team wins!',rtLoseDesc:'The other team wins',rtTieDesc:'Both teams are even',teamPickTitle:'Pick your team',teamJoin:'Join',teamJoined:'Joined',teamUnassigned:'Unassigned',leaveConfirm:'Leave this room?',cfgFloors:'Floors',cfgDifficulty:'Difficulty',cfgCountdown:'Summit countdown',cfgTeamMethod:'Team method',diffEasy:'Easy',diffNormal:'Normal',diffHard:'Hard',diffHell:'Hell',cdOn:'On',cdOff:'Off',teamRandom:'Random',teamPick:'Pick',cfgHostOnly:'Set by the host',
   started:'Game started!',connecting:'Connecting…',roomNotFound:'Room not found',roomFull:'Room is full',alreadyStarted:'Game already started',
   noauth:'Connection failed, try again',createFail:'Create failed',needName:'Enter a name first',
   panelTitle:'Multiplayer',soloNote:'You are playing single-player.',goMulti:'Go to multiplayer',ladder:'Progress',teammates:'Teammates',
@@ -5710,7 +5795,7 @@ const I18N_MP = {
   lobbyTitle:'ロビー',name:'プレイヤー名',namePh:'名前を入力',mode:'モード',race:'競争',coop:'協力',arena:'闘技場',
   raceDesc:'同じ塔・各自プレイ。先に頂上へ着いた人が勝ち。',coopDesc:'同じ塔を共有。倒した敵や取った宝が仲間と同期。',arenaDesc:'同じマップの円形闘技場。2チーム抽選1v1、勝利数で採点。',arenaPrep:'準備',arenaTeam:'あなたのチーム',arenaBuy:'+{inc}（{cost}金）',arenaBooks:'攻撃・防御スキル書をすべて所持',arenaReady:'準備完了',arenaWait:'他のプレイヤーを待っています…',arenaNoGold:'金貨が足りません',arenaReadyMsg:'準備完了、待機中',arenaAllReady:'全員準備完了、まもなく開始',arenaMatch:'対戦',arenaAI:'AI',arenaYouFight:'まもなく出場！',arenaWatching:'観戦中',arenaFightSoon:'1v1バトルは近日実装（開発中）',arenaDoneSoon:'結果は近日実装（開発中）',arenaWinner:'{name} の勝ち！',arenaDraw:'引き分け',arenaResult:'試合終了',arenaTeamWin:'{team} チームの勝利',arenaTie:'引き分け',arenaBack:'メニューに戻る',
   maxPlayers:'最大人数',mapSizeLab:'マップサイズ',viewLab:'視野',loadTitle:'読み込み中…',load1:'マップ読込中',load2:'モンスター読込中',load3:'宝物読込中',load4:'プレイヤー読込中',load5:'完了',create:'部屋を作る',join:'参加',codePh:'部屋コードを入力',roomCode:'部屋コード',copy:'コピー',copied:'コピーしました',
-  players:'プレイヤー',host:'ホスト',you:'あなた',start:'ゲーム開始',waiting:'ホストの開始を待っています…',leave:'退出',leaveConfirm:'部屋を出ますか？',
+  players:'プレイヤー',host:'ホスト',you:'あなた',start:'ゲーム開始',waiting:'ホストの開始を待っています…',leave:'退出',specExit:'観戦をやめる',stScore:'スコア',stStatus:'状態',stFloor:'{n}階',raceCdBanner:'結果まで {s}s',rtTeamA:'青チーム',rtTeamB:'赤チーム',rtWinTeam:'{team}の勝利！',rtTie:'引き分け',rtSummits:'{n}人登頂',rtWinDesc:'あなたのチームの勝ち！',rtLoseDesc:'相手チームの勝ち',rtTieDesc:'両チーム互角',teamPickTitle:'チームを選択',teamJoin:'参加',teamJoined:'参加済み',teamUnassigned:'未選択',leaveConfirm:'部屋を出ますか？',cfgFloors:'階層数',cfgDifficulty:'難易度',cfgCountdown:'登頂カウントダウン',cfgTeamMethod:'チーム分け',diffEasy:'かんたん',diffNormal:'ふつう',diffHard:'むずかしい',diffHell:'地獄',cdOn:'オン',cdOff:'オフ',teamRandom:'ランダム',teamPick:'自分で選ぶ',cfgHostOnly:'ホストが設定',
   started:'ゲーム開始！',connecting:'接続中…',roomNotFound:'部屋が見つかりません',roomFull:'満員です',alreadyStarted:'すでに開始済み',
   noauth:'接続に失敗しました',createFail:'作成に失敗',needName:'先に名前を入力してください',
   panelTitle:'マルチ情報',soloNote:'現在シングルでプレイ中です。',goMulti:'マルチへ',ladder:'進行度',teammates:'仲間',
@@ -5721,7 +5806,7 @@ const I18N_MP = {
   lobbyTitle:'멀티 로비',name:'플레이어 이름',namePh:'이름 입력',mode:'모드',race:'경쟁',coop:'협력',arena:'투기장',
   raceDesc:'같은 탑·각자 플레이. 먼저 정상에 오르면 승리.',coopDesc:'같은 탑 공유. 처치한 몬스터·획득한 보물이 동료와 동기화.',arenaDesc:'같은 맵의 원형 투기장. 두 팀 추첨 1v1, 승수로 채점.',arenaPrep:'준비',arenaTeam:'내 팀',arenaBuy:'+{inc}（{cost}금）',arenaBooks:'공격·방어 스킬북 모두 보유',arenaReady:'준비 완료',arenaWait:'다른 플레이어 대기 중…',arenaNoGold:'금화 부족',arenaReadyMsg:'준비 완료, 대기 중',arenaAllReady:'전원 준비 완료, 곧 시작',arenaMatch:'대전',arenaAI:'AI',arenaYouFight:'곧 출전합니다!',arenaWatching:'관전 중',arenaFightSoon:'1v1 전투 곧 구현(개발 중)',arenaDoneSoon:'결산 곧 구현(개발 중)',arenaWinner:'{name} 승리!',arenaDraw:'무승부',arenaResult:'경기 종료',arenaTeamWin:'{team} 팀 승리',arenaTie:'무승부',arenaBack:'메뉴로',
   maxPlayers:'최대 인원',mapSizeLab:'맵 크기',viewLab:'시야',loadTitle:'로딩 중…',load1:'맵 로딩 중',load2:'몬스터 로딩 중',load3:'보물 로딩 중',load4:'플레이어 로딩 중',load5:'완료',create:'방 만들기',join:'참가',codePh:'방 코드 입력',roomCode:'방 코드',copy:'복사',copied:'복사됨',
-  players:'플레이어',host:'방장',you:'나',start:'게임 시작',waiting:'방장이 시작하기를 기다리는 중…',leave:'방 나가기',leaveConfirm:'방을 나갈까요?',
+  players:'플레이어',host:'방장',you:'나',start:'게임 시작',waiting:'방장이 시작하기를 기다리는 중…',leave:'방 나가기',specExit:'관전 종료',stScore:'점수',stStatus:'상태',stFloor:'{n}층',raceCdBanner:'결과까지 {s}s',rtTeamA:'블루팀',rtTeamB:'레드팀',rtWinTeam:'{team} 승리!',rtTie:'무승부',rtSummits:'{n}명 등정',rtWinDesc:'우리 팀 승리!',rtLoseDesc:'상대 팀 승리',rtTieDesc:'두 팀 막상막하',teamPickTitle:'팀 선택',teamJoin:'참가',teamJoined:'참가함',teamUnassigned:'미선택',leaveConfirm:'방을 나갈까요?',cfgFloors:'층수',cfgDifficulty:'난이도',cfgCountdown:'등정 카운트다운',cfgTeamMethod:'팀 편성',diffEasy:'쉬움',diffNormal:'보통',diffHard:'어려움',diffHell:'지옥',cdOn:'켜기',cdOff:'끄기',teamRandom:'랜덤',teamPick:'직접 선택',cfgHostOnly:'방장이 설정',
   started:'게임 시작!',connecting:'연결 중…',roomNotFound:'방을 찾을 수 없음',roomFull:'방이 가득 참',alreadyStarted:'이미 시작됨',
   noauth:'연결 실패, 다시 시도하세요',createFail:'생성 실패',needName:'먼저 이름을 입력하세요',
   panelTitle:'멀티 정보',soloNote:'현재 싱글로 플레이 중입니다.',goMulti:'멀티로 이동',ladder:'진행도',teammates:'동료',
@@ -5759,11 +5844,23 @@ const Net = {
     }catch(e){ console.warn('firebase init failed', e); }
   },
   loadConfig(){
-    if(!this.db) return;
+    var self=this;
+    function _fin(){ self._cfgDone=true; if(self._cfgReadyResolve){ self._cfgReadyResolve(); self._cfgReadyResolve=null; } }
+    if(!this.db){ _fin(); return; }
     this.db.ref('gameConfig').once('value').then(function(snap){
       const cfg=snap.val();
       if(cfg && typeof applyConfig==='function'){ applyConfig(cfg); try{ localStorage.setItem('mt_gameConfig', JSON.stringify(cfg)); }catch(e){} try{ refreshEntityIcons(); }catch(e){} if(state.player) renderAll(); }
-    }).catch(function(e){ /* rules may block; ignore */ });
+    }).catch(function(e){ /* rules may block; ignore */ }).then(_fin);
+  },
+  ensureConfigLoaded(timeoutMs){
+    var self=this;
+    if(self._cfgDone) return Promise.resolve();
+    if(!self.db && !self._cfgLoaded) return Promise.resolve();   /* no cloud configured -> nothing to wait for */
+    if(!self._cfgReady){ self._cfgReady=new Promise(function(res){ self._cfgReadyResolve=res; }); }
+    return new Promise(function(res){
+      var done=false, tid=setTimeout(function(){ if(!done){ done=true; res(); } }, timeoutMs||4000);   /* fallback: never hang the UI */
+      self._cfgReady.then(function(){ if(!done){ done=true; clearTimeout(tid); res(); } });
+    });
   },
   ts(){ try{ return firebase.database.ServerValue.TIMESTAMP; }catch(e){ return Date.now(); } },
   code(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=c.charAt(Math.floor(Math.random()*c.length)); return s; },
@@ -5780,7 +5877,7 @@ const Net = {
       if(!ok) return {error:'noauth'};
       const id=self.code(); const seed=rngFreshSeed();
       const ref=self.db.ref('worlds/'+id);
-      return ref.child('meta').set({ seed:seed, mode:mode, maxPlayers:maxPlayers, mapSize:(mapSize||30), host:self.uid, status:'lobby', createdAt:self.ts() })
+      return ref.child('meta').set({ seed:seed, mode:mode, maxPlayers:maxPlayers, mapSize:(mapSize||30), host:self.uid, status:'lobby', createdAt:self.ts(), cfg:(typeof defaultRoomCfg==='function'?defaultRoomCfg():{floors:26,difficulty:'normal',countdown:true,teamMethod:'random'}) })
         .then(function(){ return ref.child('members/'+self.uid).set({ name:name, joinedAt:self.ts() }); })
         .then(function(){ self._bind(id); return {id:id, seed:seed, mode:mode, mapSize:(mapSize||30), host:true}; })
         .catch(function(e){ console.warn(e); return {error:'createfail'}; });
@@ -5825,9 +5922,13 @@ const Net = {
   },
   setPresence(p){ if(!this.presRef||!this.uid) return; p.lastSeen=this.ts(); this.presRef.child(this.uid).update(p); },
   setArenaPlayer(d){ if(!this.arenaRef||!this.uid) return; d.lastSeen=this.ts(); this.arenaRef.child('players/'+this.uid).update(d); },
-  startWorld(){ if(this.metaRef) this.metaRef.update({ status:'playing', startedAt:this.ts() }); },
+  startWorld(teams){ if(this.metaRef) this.metaRef.update(Object.assign({ status:'playing', startedAt:this.ts() }, teams?{teams:teams}:{})); },
+  setTeams(teams){ if(this.metaRef) this.metaRef.update({ teams: teams }); },
+  pickTeam(team){ if(this.metaRef && this.uid) this.metaRef.update((function(o){ o['teams/'+Net.uid]=team; return o; })({})); },
   markCleared(f,x,y,type){ if(!this.stateRef) return; this.stateRef.child(f+'/'+x+'_'+y).set({ t:type, by:this.uid }); },
   setBossCleared(){ if(this.metaRef) this.metaRef.update({ clearedBoss:this.uid, clearedAt:this.ts() }); },
+  setRoomCfg(cfg){ if(this.metaRef) this.metaRef.update({ cfg: cfg }); },
+  setRaceEndsAt(ts){ if(this.metaRef) this.metaRef.update({ raceEndsAt: ts }); },
   leaveWorld(){
     try{ if(this.presRef&&this.uid) this.presRef.child(this.uid).remove(); }catch(e){}
     this.detach();
@@ -5859,19 +5960,48 @@ function flushPresence(){
   if(state.mode==='solo' || !Net.presRef || !state.player) return;
   Net.setPresence({ name:MP.myName||'', floor:state.floor, x:state.px, y:state.py,
     hp:state.player.hp, maxFloor:state.maxFloor, kills:state.kills,
-    finished:!!state.finished, finishTime:state.finishTime||0, over:!!state.over });
+    finished:!!state.finished, finishTime:state.finishTime||0, over:!!state.over,
+    score:(typeof computeRunScore==='function'?computeRunScore(!!state.finished).total:0) });
 }
 function mpClear(f,x,y,type){ if(state.mode==='coop' && Net.stateRef) Net.markCleared(f,x,y,type); }
 
 function onBossDefeated(){
+  if(!hasSummit()){ towerCleared(); return; }   // solo (ORIGINAL): beating the top-floor boss clears the tower
+  /* MP tower modes: the boss sits on FLOORS-1. Beating it only unseals the floor and reveals the up-stairs to the summit;
+     登頂 (the real win / finish) fires when the player reaches the summit (FLOORS), in onSummitReached(). */
+  try{ toast(({'zh-Hant':'魔王倒下，通往頂層的階梯浮現了！','zh-Hans':'魔王倒下，通往顶层的阶梯浮现了！','en':'The boss falls — the stairs to the summit appear!','ja':'ボスを倒した！頂上への階段が現れた！','ko':'보스를 물리쳤다! 정상으로 가는 계단이 나타났다!'})[state.lang]||'…'); }catch(e){}
+  try{ renderAll(); }catch(e){}
+  try{ mpPresence(true); }catch(e){}   // broadcast progress (boss cleared) to the room
+}
+function onSummitReached(){
   if(state.mode==='solo'){ towerCleared(); return; }
-  if(state.mode==='race'){
+  if(state.mode==='coop'){                                              // coop: the team wins only once EVERY surviving player has summited
     state.finished=true; state.finishTime=Date.now(); mpPresence(true);
+    if(coopAllSummited()){ Net.setBossCleared(); state._coopWinShown=true; coopVictory(Net.uid); }
+    else coopSummitWait();
+    return;
+  }
+  /* race or raceteam */
+  state.finished=true; state.finishTime=Date.now(); mpPresence(true);
+  if(roomCfg().countdown){
+    if(!raceCountdownActive()){ var _end=Date.now()+60000; Net.setRaceEndsAt(_end); startRaceCountdown(_end); }   /* first summiter opens the 60s window (shared) */
+    raceFinishWait();                                                                                           /* you finished — watch the rest race the clock; result when it ends */
+  } else if(state.mode==='race'){
     const rank=computeRaceRank(); let myRank=1; for(let i=0;i<rank.length;i++){ if(rank[i].uid===Net.uid){ myRank=i+1; break; } }
     endScreenMp(true,'race',myRank,rank,null);
-  } else { // coop
-    Net.setBossCleared(); state._coopWinShown=true; coopVictory(Net.uid);
+  } else {                                                              /* raceteam, no countdown: wait, team result once everyone is done */
+    raceFinishWait(); rtCheckAllDone();
   }
+}
+function coopAllSummited(){
+  var pres=MP._lastPresence||{}, anyFin=false, allFin=true;
+  if(!state.over){ if(state.finished) anyFin=true; else allFin=false; }                         /* self counts as a survivor unless dead */
+  for(var u in pres){ if(u===Net.uid) continue; var o=pres[u]; if(!o||o.over) continue; if(o.finished) anyFin=true; else allFin=false; }
+  return anyFin && allFin;
+}
+function coopSummitWait(){
+  try{ toast(({'zh-Hant':'登頂成功！等待其他隊友…','zh-Hans':'登顶成功！等待其他队友…','en':'Summit reached! Waiting for teammates…','ja':'登頂成功！仲間を待っています…','ko':'정상 도착! 팀원을 기다리는 중…'})[state.lang]||'…'); }catch(e){}
+  enterSpectate();                                                                              /* watch the teammates still climbing */
 }
 function coopVictory(byUid){
   state._coopWinShown=true; state.spectating=false; state.over=true; state.busy=false;
@@ -5901,6 +6031,7 @@ function onMetaUpdate(meta){
   MP.meta=meta; MP.mode=meta.mode; MP.seed=meta.seed; MP.mapSize=meta.mapSize||30; MP.host=(meta.host===Net.uid);
   if(meta.status==='playing' && state._inLobby && !state.mpStarted){ state.mpStarted=true; startMpRun(); }
   if(meta.clearedBoss && state.mode==='coop' && !state._coopWinShown){ state._coopWinShown=true; coopVictory(meta.clearedBoss); }
+  if(meta.raceEndsAt && (state.mode==='race'||state.mode==='raceteam') && !state._raceCdEnded){ startRaceCountdown(meta.raceEndsAt); }
   if(byId('lobby').classList.contains('show')) renderLobby();
   if(byId('mpPanel').classList.contains('show')) renderMpPanel();
 }
@@ -5909,6 +6040,8 @@ function onPresenceUpdate(p){
   MP._lastPresence=p||{};
   const others={}; for(const uid in p){ if(uid===Net.uid) continue; others[uid]=p[uid]; }
   state.others=others;
+  if(state.mode==='coop' && state.mpStarted && !state._coopWinShown && !state.over && coopAllSummited()){ Net.setBossCleared(); state._coopWinShown=true; coopVictory(Net.uid); }
+  if(state.mode==='raceteam' && state.mpStarted && !state._raceCdEnded) rtCheckAllDone();
   if(state.spectating) fixSpectate();
   renderRoster(); renderSpectate();
   if(state.player && !state._inLobby) renderMap();
@@ -5943,7 +6076,7 @@ function renderRoster(){
     const name=(members[uid]&&members[uid].name) || (pres[uid]&&pres[uid].name) || (isMe?(MP.myName||'?'):'?');
     const over=isMe ? !!state.over : !!(pres[uid] && pres[uid].over);
     const chip=document.createElement('div'); chip.className='rosterChip'+(over?' dead':'')+(isMe?' me':''); chip.dataset.uid=uid;
-    const dot=document.createElement('div'); dot.className='dot'; dot.style.background=playerColor(uid); dot.textContent=initialOf(name);
+    const dot=document.createElement('div'); dot.className='dot'; dot.style.background=(state.mode==='raceteam')?afTeamColor(rtTeamOf(uid)):playerColor(uid); dot.textContent=initialOf(name);
     const nm=document.createElement('div'); nm.className='nm'; nm.textContent=name;
     chip.appendChild(dot); chip.appendChild(nm); host.appendChild(chip);
   }
@@ -5956,21 +6089,123 @@ function viewFloor(){ const s=specTarget(); return s ? (s.floor|0) : state.floor
 function viewCX(){ const s=specTarget(); return s ? (s.x|0) : state.px; }
 function viewCY(){ const s=specTarget(); return s ? (s.y|0) : state.py; }
 function viewFloorData(){ const s=specTarget(); if(s){ ensureFloor(s.floor|0); return state.floors[s.floor|0]; } return curFloor(); }
-function renderSpectate(){ const bar=byId('spectateBar'); if(!bar) return; if(!state.spectating){ bar.classList.remove('show'); return; } const s=specTarget(); const nm=byId('specName'); if(nm) nm.textContent=s?(s.name||'?'):'?'; bar.classList.add('show'); }
+function renderSpectate(){ const bar=byId('spectateBar'); if(!bar) return; if(!state.spectating){ bar.classList.remove('show'); return; } const s=specTarget(); const nm=byId('specName'); if(nm) nm.textContent=s?(s.name||'?'):'?'; const ex=byId('specExit'); if(ex){ ex.title=t('mp.specExit'); ex.style.display=(state.mode==='race'||state.mode==='raceteam')?'':'none'; } bar.classList.add('show'); }
 function enterSpectate(){ const alive=aliveTeammates(); if(!alive.length) return false; state.spectating=true; state.target=null; state.portalAim=false; state.portalTarget=null; if(!state.specUid || alive.indexOf(state.specUid)<0) state.specUid=alive[0]; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} return true; }
 function cycleSpectate(dir){ if(!state.spectating) return; const alive=aliveTeammates(); if(!alive.length){ endSpectateNoneLeft(); return; } let i=alive.indexOf(state.specUid); if(i<0) i=0; i=(i+(dir<0?-1:1)+alive.length)%alive.length; state.specUid=alive[i]; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} }
 function spectateWatch(uid){ if(!state.spectating) return; if(aliveTeammates().indexOf(uid)<0) return; state.specUid=uid; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} }
 function fixSpectate(){ if(!state.spectating) return; const alive=aliveTeammates(); if(!alive.length){ endSpectateNoneLeft(); return; } if(alive.indexOf(state.specUid)<0){ state.specUid=alive[0]; renderSpectate(); } }
-function endSpectateNoneLeft(){ state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(!state._coopWinShown) endScreenMp(false, state.mode, null, null, null); }
+function endSpectateNoneLeft(){ state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(!state._coopWinShown) endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function spectateExit(){ if(!state.spectating) return; state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(state._coopWinShown) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }   /* dead race/team player bails out of spectating to see their result */
 
 /* ---------------------------- race ranking ---------------------------- */
+var __raceCdTimer=null;
+function raceCountdownActive(){ return !!(MP.meta && MP.meta.raceEndsAt); }
+function startRaceCountdown(endsAt){
+  state.raceEndsAt=endsAt;
+  if(__raceCdTimer) return;
+  __raceCdTimer=setInterval(raceCountdownTick,250);
+  raceCountdownTick();
+}
+function stopRaceCountdown(){ if(__raceCdTimer){ clearInterval(__raceCdTimer); __raceCdTimer=null; } var el=byId('raceCountdown'); if(el) el.style.display='none'; }
+function raceCountdownTick(){
+  var el=byId('raceCountdown');
+  if(!state.raceEndsAt || state._raceCdEnded){ stopRaceCountdown(); return; }
+  var rem=state.raceEndsAt-Date.now();
+  if(rem<=0){ raceCountdownEnd(); return; }
+  if(el){ var s=Math.ceil(rem/1000); el.textContent=fmt(t('mp.raceCdBanner'),{s:s}); el.className='raceCountdown'+(s<=10?' urgent':''); el.style.display=''; }
+}
+function raceCountdownEnd(){
+  if(state._raceCdEnded) return; state._raceCdEnded=true; stopRaceCountdown();
+  state.spectating=false; { var _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
+  if(state.mode==='raceteam'){ rtShowResult(); return; }
+  var rank=computeRaceRank(); var myRank=1; for(var i=0;i<rank.length;i++){ if(rank[i].uid===Net.uid){ myRank=i+1; break; } }
+  endScreenMp(!!state.finished, state.mode, myRank, rank, null);
+}
+function raceFinishWait(){
+  try{ toast(({'zh-Hant':'登頂成功！結算倒數開始…','zh-Hans':'登顶成功！结算倒计时开始…','en':'Summit reached! Final countdown started…','ja':'登頂成功！最終カウントダウン開始…','ko':'정상 도착! 최종 카운트다운 시작…'})[state.lang]||'…'); }catch(e){}
+  enterSpectate();
+}
+/* ---------------------------- raceteam (team tower race) ---------------------------- */
+function rtTeamOf(uid){ return (MP.meta && MP.meta.teams && MP.meta.teams[uid]==='B') ? 'B' : 'A'; }
+function rtMyTeam(){ return rtTeamOf(Net.uid); }
+function rtBalancedTeams(){ var ids=[], m=MP.members||{}; for(var u in m) ids.push(u); if(Net.uid && ids.indexOf(Net.uid)<0) ids.push(Net.uid); shuffle(ids); var t={}; for(var i=0;i<ids.length;i++) t[ids[i]]=(i%2===0)?'A':'B'; return t; }
+function rtFinalTeams(){
+  var members=MP.members||{}, picks=(MP.meta&&MP.meta.teams)||{}, ids=[];
+  for(var u in members) ids.push(u); if(Net.uid && ids.indexOf(Net.uid)<0) ids.push(Net.uid); ids.sort();
+  var A=[], B=[], un=[];
+  ids.forEach(function(u){ var tm=picks[u]; if(tm==='A') A.push(u); else if(tm==='B') B.push(u); else un.push(u); });
+  un.forEach(function(u){ if(A.length<=B.length) A.push(u); else B.push(u); });   /* unpicked fill the smaller side */
+  while(A.length-B.length>1) B.push(A.pop());                                     /* rebalance to within 1 */
+  while(B.length-A.length>1) A.push(B.pop());
+  var out={}; A.forEach(function(u){ out[u]='A'; }); B.forEach(function(u){ out[u]='B'; }); return out;
+}
+function rtTeamCol(tm, list, myTeam){
+  var col=afTeamColor(tm), nm=t(tm==='A'?'mp.rtTeamA':'mp.rtTeamB'), joined=(myTeam===tm);
+  var hh='<div class="tpCol" style="border-color:'+col+'"><div class="tpHead" style="color:'+col+'">'+nm+' ('+list.length+')</div>';
+  list.forEach(function(x){ var me=(x.uid===Net.uid)?' tpMe':''; hh+='<div class="tpMem'+me+'">'+_esc(x.nm)+'</div>'; });
+  hh+='<button class="tpJoin'+(joined?' tpJoinOn':'')+'" data-join="'+tm+'"'+(joined?' disabled':'')+'>'+(joined?t('mp.teamJoined'):t('mp.teamJoin'))+'</button></div>';
+  return hh;
+}
+function renderTeamPick(){
+  var box=byId('lbTeamPick'); if(!box) return;
+  if(!(MP.mode==='raceteam' && roomCfg().teamMethod==='pick')){ box.style.display='none'; box.innerHTML=''; return; }
+  box.style.display='';
+  var teams=(MP.meta&&MP.meta.teams)||{}, members=MP.members||{}, A=[], B=[], un=[];
+  for(var uid in members){ var nm=(members[uid]&&members[uid].name)||'?', tm=teams[uid]; if(tm==='A') A.push({uid:uid,nm:nm}); else if(tm==='B') B.push({uid:uid,nm:nm}); else un.push({uid:uid,nm:nm}); }
+  var myTeam=teams[Net.uid];
+  var hh='<div class="tpTitle">'+t('mp.teamPickTitle')+'</div><div class="tpCols">'+rtTeamCol('A',A,myTeam)+rtTeamCol('B',B,myTeam)+'</div>';
+  if(un.length) hh+='<div class="tpUn">'+t('mp.teamUnassigned')+'：'+un.map(function(x){ return _esc(x.nm); }).join('、')+'</div>';
+  box.innerHTML=hh;
+  Array.prototype.forEach.call(box.querySelectorAll('[data-join]'), function(btn){ btn.addEventListener('click', function(){ Net.pickTeam(btn.getAttribute('data-join')); }); });
+}
+function rtAllPlayers(){
+  var out=[{ uid:Net.uid, name:MP.myName||t('mp.you'), finished:!!state.finished, finishTime:state.finishTime||0, maxFloor:state.maxFloor||1, score:(typeof computeRunScore==='function'?computeRunScore(!!state.finished).total:0), me:true }];
+  for(var u in state.others){ var o=state.others[u]; out.push({ uid:u, name:o.name||'?', finished:!!o.finished, finishTime:o.finishTime||0, maxFloor:o.maxFloor||1, score:o.score||0 }); }
+  return out;
+}
+function rtStandings(){
+  var startedAt=(MP.meta&&MP.meta.startedAt)||0, T={A:{summits:0,score:0,timeSum:0,members:[]},B:{summits:0,score:0,timeSum:0,members:[]}};
+  rtAllPlayers().forEach(function(pp){ var tm=rtTeamOf(pp.uid), s=T[tm]; pp.team=tm; s.members.push(pp); s.score+=(pp.score||0); if(pp.finished){ s.summits++; s.timeSum+=Math.max(0,(pp.finishTime||0)-startedAt); } });
+  return T;
+}
+function rtWinner(){ var T=rtStandings(); if(T.A.summits!==T.B.summits) return T.A.summits>T.B.summits?'A':'B'; if(T.A.score!==T.B.score) return T.A.score>T.B.score?'A':'B'; if(T.A.timeSum!==T.B.timeSum) return T.A.timeSum<T.B.timeSum?'A':'B'; return 'tie'; }
+function rtAllDone(){ var pres=MP._lastPresence||{}; if(!(state.over||state.finished)) return false; for(var u in pres){ if(u===Net.uid) continue; var o=pres[u]; if(!o) continue; if(!o.over && !o.finished) return false; } return true; }
+function rtCheckAllDone(){ if(state.mode!=='raceteam' || state._raceCdEnded) return; if(rtAllDone()){ state._raceCdEnded=true; rtShowResult(); } }
+function rtRenderStandings(){
+  var box=byId('mpStandings'); if(!box) return;
+  var T=rtStandings(), win=rtWinner();
+  function block(tm){
+    var s=T[tm], col=afTeamColor(tm), nm=t(tm==='A'?'mp.rtTeamA':'mp.rtTeamB'), wm=(win===tm)?' 🏆':'';
+    var hh='<div class="rtTeamHead" style="border-color:'+col+';color:'+col+'">'+nm+wm+'　'+fmt(t('mp.rtSummits'),{n:s.summits})+' · '+s.score+'</div>';
+    s.members.sort(function(a,b){ if(a.finished!==b.finished) return a.finished?-1:1; return (b.score||0)-(a.score||0); });
+    s.members.forEach(function(pp){ var status=pp.finished?'🏁':fmt(t('mp.stFloor'),{n:(pp.maxFloor||1)}); var me=(pp.uid===Net.uid)?' rankMe':''; hh+='<div class="rankRow rtMem'+me+'"><span class="rn">'+_esc(pp.name||'-')+'</span><span class="rv">'+status+'</span><span class="rt">'+(pp.score||0)+'</span></div>'; });
+    return hh;
+  }
+  box.innerHTML=block('A')+block('B'); box.style.display='';
+}
+function rtShowResult(){
+  state._raceCdEnded=true; stopRaceCountdown();
+  state.over=true; state.busy=false; state.spectating=false; { var _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
+  state._reloEnd=function(){ rtShowResult(); };
+  var win=rtWinner(), myTeam=rtMyTeam(), iWon=(win!=='tie' && win===myTeam);
+  byId('endBig').textContent=(win==='tie')?'🤝':(iWon?'🏆':'💔');
+  var ttl=byId('endTitle'); ttl.textContent=(win==='tie')? t('mp.rtTie') : fmt(t('mp.rtWinTeam'),{team:t(win==='A'?'mp.rtTeamA':'mp.rtTeamB')}); ttl.className=iWon?'vctry':'';
+  byId('endDesc').textContent=(win==='tie')? t('mp.rtTieDesc') : (iWon? t('mp.rtWinDesc') : t('mp.rtLoseDesc'));
+  var pl=state.player||{}, es=byId('endStats'), cell=function(k,v){ return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; };
+  es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv||1)+cell(t('end.kills'),state.kills||0)+cell(t('end.gold'),pl.gold||0);
+  try{ renderRunScore(!!state.finished); }catch(e){}
+  try{ rtRenderStandings(); }catch(e){}
+  byId('endBtnLab').textContent=t('mp.backLobby');
+  show('endScreen');
+}
 function computeRaceRank(){
-  const all=[{ uid:Net.uid, name:MP.myName||t('mp.you'), maxFloor:state.maxFloor, finished:!!state.finished, finishTime:state.finishTime||0, me:true }];
-  for(const uid in state.others){ const o=state.others[uid]; all.push({ uid:uid, name:o.name||'?', maxFloor:o.maxFloor||1, finished:!!o.finished, finishTime:o.finishTime||0 }); }
+  var myScore=(typeof computeRunScore==='function'?computeRunScore(!!state.finished).total:0);
+  const all=[{ uid:Net.uid, name:MP.myName||t('mp.you'), maxFloor:state.maxFloor, finished:!!state.finished, finishTime:state.finishTime||0, score:myScore, me:true }];
+  for(const uid in state.others){ const o=state.others[uid]; all.push({ uid:uid, name:o.name||'?', maxFloor:o.maxFloor||1, finished:!!o.finished, finishTime:o.finishTime||0, score:o.score||0 }); }
   all.sort(function(a,b){
-    if(a.finished&&b.finished) return a.finishTime-b.finishTime;
-    if(a.finished) return -1; if(b.finished) return 1;
-    return (b.maxFloor||0)-(a.maxFloor||0);
+    if(a.finished!==b.finished) return a.finished?-1:1;                                       /* 登頂者 always ahead of 未登頂者 */
+    if(a.finished){ if(b.score!==a.score) return b.score-a.score; return (a.finishTime||0)-(b.finishTime||0); }   /* 登頂者: 分數↓, 平手看用時↑ (cross-platform-fair) */
+    return b.score-a.score;                                                                    /* 未登頂者: 分數↓ only (no summit time) */
   });
   return all;
 }
@@ -5982,6 +6217,7 @@ function goStartScreen(){
   if(Net.worldId) Net.leaveWorld();
   ['combat','shop','manual','teleport','endScreen','lobby','mpPanel'].forEach(hide);
   { const _r=byId('mpRoster'); if(_r) _r.classList.remove('show'); const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
+  try{ stopRaceCountdown(); }catch(e){} state.raceEndsAt=0; state._raceCdEnded=false;
   state.spectating=false; state.specUid=null;
   renderStartScreen(); show('startScreen'); renderMpButton(); try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(e){}   /* 回主畫面時收起成就提示，回遊戲再續播 */
   try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){}
@@ -5997,7 +6233,7 @@ function renderStartScreen(){
   const nn=byId('ssNote'); if(nn) nn.textContent='';
 }
 function resumeGame(){ const r=byId('tsResume'); if(!state.player || state.over){ if(r) r.style.display='none'; return; } state.portalAim=false; state.portalTarget=null; hide('startScreen'); renderAll(); }
-function startSolo(){ hide('startScreen'); newGame({mode:'solo'}); }
+function startSolo(){ hide('startScreen'); Net.ensureConfigLoaded().then(function(){ FLOORS=ADMIN_FLOORS; newGame({mode:'solo'}); }); }
 function _esc(x){ return (''+x).replace(/[<>&"]/g,function(c){ return ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]; }); }
 function fmtMs(ms){ ms=ms||0; const s=Math.floor(ms/1000); const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; const mm=(h>0&&m<10)?('0'+m):(''+m); const sx=ss<10?('0'+ss):(''+ss); return (h>0?(h+':'):'')+mm+':'+sx; }
 function _lbName(){ let n=''; try{ n=(localStorage.getItem('mt_name')||'').trim(); }catch(e){} if(!n && typeof Account!=='undefined' && Account.user && Account.user.email) n=(''+Account.user.email).split('@')[0]; return n||t('rank.name'); }
@@ -6033,12 +6269,13 @@ function openLobbyScreen(){
 }
 
 /* ---------------------------- lobby ---------------------------- */
-function lobbySelectedMode(){ const b=document.querySelector('#lbModeSeg .segBtn.sel'); return b? b.dataset.mode : 'coop'; }
+function lobbySelectedMode(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; if(l1==='arena') return 'arena'; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l2==='coop') return 'coop'; var l3b=document.querySelector('#lbL3Seg .segBtn.sel'), l3=l3b?l3b.dataset.l3:'solo'; return (l3==='team')?'raceteam':'race'; }
+function lobbyUpdateModeMenu(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; var l2seg=byId('lbL2Seg'), l3seg=byId('lbL3Seg'); if(l1==='tower'){ if(l2seg) l2seg.style.display=''; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l3seg) l3seg.style.display=(l2==='race')?'':'none'; } else { if(l2seg) l2seg.style.display='none'; if(l3seg) l3seg.style.display='none'; } var d=byId('lbModeDesc'); if(d) d.textContent=t(modeDescKey(lobbySelectedMode())); }
 function lobbySelectedMax(){ const b=document.querySelector('#lbMaxSeg .segBtn.sel'); return b? (+b.dataset.max) : 4; }
 function lobbySelectedMapSize(){ const b=document.querySelector('#lbMapSeg .segBtn.sel'); return b? (+b.dataset.map) : 30; }   /* host room setting */
 function lobbySelectedView(){ const b=document.querySelector('#lbViewSeg .segBtn.sel'); return b? (+b.dataset.view) : 11; }    /* per-client view */
 function modeDescKey(m){ return m==='race'?'mp.raceDesc':(m==='arena'?'mp.arenaDesc':'mp.coopDesc'); }
-function modeLabelKey(m){ return m==='race'?'mp.race':(m==='arena'?'mp.arena':'mp.coop'); }
+function modeLabelKey(m){ return m==='race'?'mp.modeRaceTower':(m==='arena'?'mp.modeFreeArena':'mp.modeCoopTower'); }
 function arenaTeams(){ /* deterministic split of joined members into two equal teams, AI-filled */
   const ids=Object.keys(MP.members||{}); let n=Math.max(2, ids.length); if(n%2) n++; const per=n/2;
   const A=[], B=[]; ids.forEach(function(id,i){ (i%2===0?A:B).push(id); });
@@ -6046,6 +6283,31 @@ function arenaTeams(){ /* deterministic split of joined members into two equal t
   return {A:A, B:B, per:per}; }
 function getNameInput(){ let v=(byId('lbName').value||'').trim(); return v; }
 
+function defaultRoomCfg(){ return { floors:26, difficulty:'normal', countdown:true, teamMethod:'random' }; }
+function roomCfg(){ var d=defaultRoomCfg(), c=(MP.meta&&MP.meta.cfg)?MP.meta.cfg:null; if(!c) return d;
+  return { floors:clamp((c.floors!=null?c.floors:d.floors)|0,26,51),
+           difficulty:(['easy','normal','hard','hell'].indexOf(c.difficulty)>=0?c.difficulty:d.difficulty),
+           countdown:(c.countdown!=null?!!c.countdown:d.countdown),
+           teamMethod:(['random','pick'].indexOf(c.teamMethod)>=0?c.teamMethod:d.teamMethod) }; }
+function renderRoomCfg(){
+  var box=byId('lbCfg'); if(!box) return;
+  var mode=MP.mode; box.innerHTML='';
+  if(!isSummitMode(mode)){ box.style.display='none'; return; }   /* arena has no tower config */
+  box.style.display='';
+  var host=!!(MP.meta && MP.meta.host===Net.uid), c=roomCfg();
+  function commit(k,v){ var nc=roomCfg(); nc[k]=v; if(MP.meta) MP.meta.cfg=nc; if(typeof Net!=='undefined'&&Net.setRoomCfg) Net.setRoomCfg(nc); renderRoomCfg(); }
+  function field(key){ var f=document.createElement('div'); f.className='lbField'; var l=document.createElement('label'); l.textContent=t('mp.'+key); f.appendChild(l); box.appendChild(f); return f; }
+  function seg(f,opts,cur,pick){ var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; if(host){ b.addEventListener('click',function(){ pick(o.val); }); } else { b.disabled=true; } s.appendChild(b); }); f.appendChild(s); }
+  var ff=field('cfgFloors'), st=document.createElement('div'); st.className='cfgStep';
+  if(host){ var mn=document.createElement('button'); mn.className='btn cfgStepBtn'; mn.textContent='-'; mn.addEventListener('click',function(){ commit('floors',clamp(c.floors-1,26,51)); }); st.appendChild(mn); }
+  var vv=document.createElement('span'); vv.className='cfgStepVal'; vv.textContent=c.floors; st.appendChild(vv);
+  if(host){ var pl=document.createElement('button'); pl.className='btn cfgStepBtn'; pl.textContent='+'; pl.addEventListener('click',function(){ commit('floors',clamp(c.floors+1,26,51)); }); st.appendChild(pl); }
+  ff.appendChild(st);
+  seg(field('cfgDifficulty'),[{val:'easy',lab:t('mp.diffEasy')},{val:'normal',lab:t('mp.diffNormal')},{val:'hard',lab:t('mp.diffHard')},{val:'hell',lab:t('mp.diffHell')}],c.difficulty,function(v){ commit('difficulty',v); });
+  if(mode==='race'||mode==='raceteam') seg(field('cfgCountdown'),[{val:true,lab:t('mp.cdOn')},{val:false,lab:t('mp.cdOff')}],!!c.countdown,function(v){ commit('countdown',v); });
+  if(mode==='raceteam') seg(field('cfgTeamMethod'),[{val:'random',lab:t('mp.teamRandom')},{val:'pick',lab:t('mp.teamPick')}],c.teamMethod,function(v){ commit('teamMethod',v); });
+  if(!host){ var hh=document.createElement('p'); hh.className='lbHint'; hh.textContent=t('mp.cfgHostOnly'); box.appendChild(hh); }
+}
 function renderLobby(){
   const joined=!!Net.worldId;
   byId('lobbyTitle').textContent=t('mp.lobbyTitle');
@@ -6055,9 +6317,8 @@ function renderLobby(){
     byId('lbNameLab').textContent=t('mp.name');
     byId('lbName').placeholder=t('mp.namePh');
     byId('lbModeLab').textContent=t('mp.mode');
-    byId('lbModeRaceLab').textContent=t('mp.race');
-    byId('lbModeCoopLab').textContent=t('mp.coop');
-    { const _a=byId('lbModeArenaLab'); if(_a) _a.textContent=t('mp.arena'); }
+    { var _ml; _ml=byId('lbL1TowerLab'); if(_ml) _ml.textContent=t('mp.modeTower'); _ml=byId('lbL1ArenaLab'); if(_ml) _ml.textContent=t('mp.modeFreeArena'); _ml=byId('lbL2CoopLab'); if(_ml) _ml.textContent=t('mp.modeCoopTower'); _ml=byId('lbL2RaceLab'); if(_ml) _ml.textContent=t('mp.modeRaceTower'); _ml=byId('lbL3SoloLab'); if(_ml) _ml.textContent=t('mp.modeSolo'); _ml=byId('lbL3TeamLab'); if(_ml) _ml.textContent=t('mp.modeTeam'); }
+    lobbyUpdateModeMenu();
     byId('lbModeDesc').textContent = t(modeDescKey(lobbySelectedMode()));
     byId('lbMaxLab').textContent=t('mp.maxPlayers');
     { const _ml=byId('lbMapLab'); if(_ml) _ml.textContent=t('mp.mapSizeLab'); const _vl=byId('lbViewLab'); if(_vl) _vl.textContent=t('mp.viewLab'); }
@@ -6069,6 +6330,8 @@ function renderLobby(){
     byId('lbCodeShow').textContent=Net.worldId;
     byId('lbCopy').textContent=t('mp.copy');
     byId('lbModeShow').textContent = t(modeLabelKey(MP.mode));
+    renderRoomCfg();
+    renderTeamPick();
     byId('lbMembersLab').textContent=t('mp.players');
     const ml=byId('lbMembers'); ml.innerHTML='';
     for(const uid in MP.members){
@@ -6201,7 +6464,7 @@ function afDrawAvatar(ctx,x,y,PX,face,color,isSelf,name){
 function afSync(){
   var f=AField; if(!f) return; if(!(typeof Net!=='undefined' && Net.arenaRef && Net.uid)) return;
   var now=Date.now(); if(f.lastSync && now-f.lastSync<150) return; f.lastSync=now;
-  try{ Net.arenaRef.child('field/'+Net.uid).set({ px:Math.round(f.px*100)/100, py:Math.round(f.py*100)/100, team:f.team, face:f.face, name:((typeof MP!=='undefined'&&MP.myName)||''), t:(Net.ts?Net.ts():now) }); }catch(e){}
+  try{ Net.arenaRef.child('field/'+Net.uid).set({ px:Math.round(f.px*100)/100, py:Math.round(f.py*100)/100, team:f.team, face:f.face, name:((typeof MP!=='undefined'&&MP.myName)||''), hp:((state.player&&state.player.hp)||0), atk:((state.player&&state.player.atk)||0), def:((state.player&&state.player.def)||0), t:(Net.ts?Net.ts():now) }); }catch(e){}
 }
 function afOnField(fieldData){
   if(typeof MP==='undefined' || !MP.arena) return; var out={};
@@ -6229,11 +6492,13 @@ function afDraw(){
   var _oth=(typeof MP!=='undefined'&&MP.arena&&MP.arena.fieldPlayers)||{};
   for(var _u in _oth){ var _o=_oth[_u]; if(_o&&typeof _o.px==='number'){ afDrawAvatar(ctx,sx(_o.px),sy(_o.py),PX,_o.face||'@',afTeamColor(_o.team),false,_o.name||''); } }
   afDrawAvatar(ctx,sx(f.px),sy(f.py),PX,f.face,afTeamColor(f.team),true,(typeof MP!=='undefined'&&MP.myName)||'');
+  var _fh=afFightHp();
+  if(_fh){ var _hb=function(wx,wy,cur,mx){ var bx=sx(wx)-PX*0.62, by=sy(wy)-PX*1.0, bw=PX*1.24, bh=Math.max(4,PX*0.16); ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(bx,by,bw,bh); var fr=mx>0?Math.max(0,Math.min(1,cur/mx)):0; ctx.fillStyle=fr>0.3?'#5fd06a':'#e0563f'; ctx.fillRect(bx,by,bw*fr,bh); ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=1; ctx.strokeRect(bx,by,bw,bh); }; _hb(AF_DUEL_POS.A.x,AF_DUEL_POS.A.y,_fh.ahp,_fh.amax); _hb(AF_DUEL_POS.B.x,AF_DUEL_POS.B.y,_fh.bhp,_fh.bmax); }
 }
 function afFrame(ts){
   var f=AField; if(!f) return;
   if(!f.last) f.last=ts; var dt=(ts-f.last)/1000; f.last=ts;
-  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); f.raf=requestAnimationFrame(afFrame);
+  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); f.raf=requestAnimationFrame(afFrame);
 }
 function afKeyDown(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=true;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=true;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=true;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=true;} else return; if(e.preventDefault) e.preventDefault(); }
 function afKeyUp(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=false;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=false;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=false;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=false;} }
@@ -6247,7 +6512,7 @@ function afBind(){ document.addEventListener('keydown',afKeyDown); document.addE
 function afUnbind(){ document.removeEventListener('keydown',afKeyDown); document.removeEventListener('keyup',afKeyUp); window.removeEventListener('mousemove',afJoyMoveMouse); window.removeEventListener('mouseup',afJoyEnd); window.removeEventListener('resize',afResize); }
 function afOpen(){ afInit(); show('arenaField'); afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
   afStartPhases(); afRenderPhaseBar(); afRenderTeamBar(); if(afPhaseTimer) clearInterval(afPhaseTimer); afPhaseTimer=setInterval(afPhaseTick,500); }
-function afClose(){ if(AField&&AField.raf){ try{ cancelAnimationFrame(AField.raf); }catch(e){} AField.raf=null; } if(afPhaseTimer){ clearInterval(afPhaseTimer); afPhaseTimer=null; } afUnbind(); AField=null; hide('arenaField'); }
+function afClose(){ if(AField&&AField.raf){ try{ cancelAnimationFrame(AField.raf); }catch(e){} AField.raf=null; } if(afPhaseTimer){ clearInterval(afPhaseTimer); afPhaseTimer=null; } try{ if(MP.arena&&MP.arena._afTimer){ clearInterval(MP.arena._afTimer); MP.arena._afTimer=null; } }catch(e){} afUnbind(); AField=null; hide('arenaField'); }
 function afExitToPrep(){ afClose(); try{ show('arenaPrep'); }catch(e){} }
 function afShopNear(){ var f=AField; if(!f) return false; for(var i=0;i<AF_SHOPS.length;i++){ var s=AF_SHOPS[i]; if(Math.hypot(f.px-s.x,f.py-s.y)<=1.4) return true; } return false; }
 function afRenderShopBtn(){ var f=AField, btn=byId('afShopBtn'); if(!btn) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var near=!!(f && !f.paused && afShopNear()); btn.style.display=(near && ph==='shop')?'':'none'; if(near&&ph==='shop') btn.textContent=t('mp.afShopBtn'); }
@@ -6276,12 +6541,26 @@ function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(
 function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A')A.push(meUid); else if(my==='B')B.push(meUid); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')A.push(u); else if(tm==='B')B.push(u); } return {A:A,B:B}; }
 function afAllFieldUids(){ var ids=[Net.uid||'me']; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(ids.indexOf(u)<0) ids.push(u); } return ids; }
 function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myName||'你'); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; if(fp[uid]&&fp[uid].name) return fp[uid].name; var mem=MP.members||{}; if(mem[uid]&&mem[uid].name) return mem[uid].name; return uid; }
-function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+5000, fought:prev.slice() }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
-function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(Date.now()>=d.subEndsAt){ if(d.sub==='lottery'){ d.sub='count'; d.subEndsAt=Date.now()+10000; } else if(d.sub==='count'){ d.sub='fight'; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); } }
+function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+5000, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
+function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(d.sub==='result'){ if(Date.now()>=(d.resEndsAt||0)) afAdvanceMatch(); return; } if(Date.now()>=d.subEndsAt){ var started=false; if(d.sub==='lottery'){ d.sub='count'; d.subEndsAt=Date.now()+10000; } else if(d.sub==='count'){ d.sub='fight'; started=true; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } if(started) afFightStart(); afRenderDuelOverlay(); } }
 function afOnDuel(d){ if(typeof MP==='undefined'||!MP.arena) return; MP.arena.afDuel=d; afRenderDuelOverlay(); }
-function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'){ f.frozen=false; return; } var meUid=Net.uid||'me'; if(meUid===d.a){ f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen=true; } }
-function afRenderDuelOverlay(){ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'); if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; return; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ var ids=afAllFieldUids(); var r1=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):na; var r2=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):nb; ban.textContent=t('mp.afLottery')+'  '+r1+'  VS  '+r2; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
-function afFinishField(){ if(typeof MP!=='undefined'&&MP.arena){ MP.arena.afDuel={sub:'done'}; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); }catch(e){} } } afRenderDuelOverlay(); }
+function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'){ f.frozen=false; f.spectateFree=false; return; } var meUid=Net.uid||'me'; if(meUid===d.a){ f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
+function afRenderDuelOverlay(){ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; if(scoreEl) scoreEl.style.display='none'; return; } if(scoreEl){ if(d.sub==='count'||d.sub==='fight'||d.sub==='result'){ scoreEl.style.display=''; scoreEl.textContent=t('mp.afTeamA')+' '+(d.scoreA||0)+' : '+(d.scoreB||0)+' '+t('mp.afTeamB'); } else scoreEl.style.display='none'; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ var ids=afAllFieldUids(); var r1=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):na; var r2=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):nb; ban.textContent=t('mp.afLottery')+'  '+r1+'  VS  '+r2; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
+function afFinishField(){ var ar=MP.arena; if(!ar) return; ar.afDuel={sub:'done'}; var sA=ar.scoreA||0, sB=ar.scoreB||0, results=ar.afResults||[]; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); Net.arenaRef.child('afEnd').set({scoreA:sA, scoreB:sB, results:results}); }catch(e){} } afShowEnd(sA,sB,results); }
+function afFighterStats(uid){ if(/^AI/.test(uid||'')) return arenaFighterStats(uid); if(uid===Net.uid){ var pl=state.player; return { uid:uid, name:(MP.myName||'你'), hp:pl.hp, atk:pl.atk, def:pl.def, thrA:START.thrA, ai:false }; } var fp=(MP.arena&&MP.arena.fieldPlayers)||{}, f=fp[uid]||{}; return { uid:uid, name:f.name||uid, hp:f.hp||START.hp, atk:f.atk||START.atk, def:f.def||START.def, thrA:START.thrA, ai:false }; }
+function afFightStart(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; if(ar.afD) return; ar.curPair=[d.a,d.b]; ar.afD={ A:arenaNewFighter(afFighterStats(d.a)), B:arenaNewFighter(afFighterStats(d.b)), aAct:null, bAct:null, round:0, over:false, result:null }; afFightStream(); if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ if(ar._afTimer) clearInterval(ar._afTimer); ar._afTimer=setInterval(afFightTick, ARENA_DUEL.tickMs); } }
+function afFightTick(){ var ar=MP.arena, D=ar&&ar.afD; if(!D||D.over) return; arenaApplyReqs(D); arenaAITick(D); arenaDuelRound(D); D.round++; var res=arenaJudgeFighters(D.A,D.B); if(res===null && D.round>=ARENA_DUEL.liveMaxRounds) res=arenaTieResult(D.A.hp,D.A.maxhp,D.B.hp,D.B.maxhp); if(res!==null){ D.over=true; D.result=res; } afFightStream(); if(D.over){ if(ar._afTimer){ clearInterval(ar._afTimer); ar._afTimer=null; } afFightStream(); afFightEnd(res); } }
+function afFightStream(){ var ar=MP.arena, D=ar&&ar.afD; if(!D) return; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afFight').set({ ahp:Math.round(D.A.hp), amax:D.A.maxhp, bhp:Math.round(D.B.hp), bmax:D.B.maxhp, aname:D.A.name, bname:D.B.name, aen:Math.round(D.A.en), astam:Math.round(D.A.stam), ben:Math.round(D.B.en), bstam:Math.round(D.B.stam), round:D.round, over:!!D.over, result:D.result||null, t:(Net.ts?Net.ts():Date.now()) }); }catch(e){} } }
+function afOnFight(snap){ if(typeof MP!=='undefined'&&MP.arena) MP.arena.afFightView=snap; }
+function afFightHp(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null; if(!ar) return null; var d=ar.afDuel; if(!d||(d.sub!=='fight'&&d.sub!=='result')) return null; var _amF=(d.a===Net.uid||d.b===Net.uid); if(!_amF && AField && AField.spectateFree) return null; if(MP.host && ar.afD) return {ahp:ar.afD.A.hp,amax:ar.afD.A.maxhp,bhp:ar.afD.B.hp,bmax:ar.afD.B.maxhp}; if(ar.afFightView){ var v=ar.afFightView; return {ahp:v.ahp,amax:v.amax,bhp:v.bhp,bmax:v.bmax}; } return null; }
+function afFightEnd(res){ var ar=MP.arena; if(!ar||!ar.afDuel) return; if(res==='A') ar.scoreA=(ar.scoreA||0)+1; else if(res==='B') ar.scoreB=(ar.scoreB||0)+1; ar.afResults=ar.afResults||[]; ar.afResults.push({ a:ar.afDuel.a, b:ar.afDuel.b, an:afDuelName(ar.afDuel.a), bn:afDuelName(ar.afDuel.b), result:res }); ar.afDuel.result=res; ar.afDuel.sub='result'; ar.afDuel.resEndsAt=Date.now()+3500; ar.afDuel.scoreA=ar.scoreA||0; ar.afDuel.scoreB=ar.scoreB||0; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set(ar.afDuel); }catch(e){} } afRenderDuelOverlay(); }
+function afAdvanceMatch(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d) return; d.fought=(d.fought||[]).concat([d.a,d.b]); ar.afD=null; ar.afFightView=null; afStartDuelSequence(); }
+function afShowEnd(sA,sB,results){ if(typeof MP!=='undefined'&&MP.arena){ if(MP.arena._afEnded) return; MP.arena._afEnded=true; } var winTxt=(sA>sB)? t('mp.arenaTeamWin',{team:'A'}) : (sB>sA? t('mp.arenaTeamWin',{team:'B'}) : t('mp.arenaTie')); { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); } { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } } { var e=byId('aeScore'); if(e) e.textContent='A '+sA+' : '+sB+' B'; } var list=byId('aeList'); if(list){ list.innerHTML=''; for(var i=0;i<results.length;i++){ var r=results[i], aw=(r.result==='A'), bw=(r.result==='B'), dr=(r.result==='draw'); var row=document.createElement('div'); row.className='aeRow'; var na=document.createElement('span'); na.className='aeNm'+(aw?' aeWinner':(bw?' aeLoser':'')); na.textContent=(r.an||afDuelName(r.a))+(aw?'  ✓':''); var mid=document.createElement('span'); mid.className='aeMid'+(dr?' aeDraw':''); mid.textContent=dr? t('mp.arenaDraw') : 'VS'; var nb=document.createElement('span'); nb.className='aeNm'+(bw?' aeWinner':(aw?' aeLoser':'')); nb.textContent=(bw?'✓  ':'')+(r.bn||afDuelName(r.b)); row.appendChild(na); row.appendChild(mid); row.appendChild(nb); list.appendChild(row); } } { var e=byId('aeBack'); if(e) e.textContent=t('mp.arenaBack'); } afClose(); show('arenaEnd'); }
+function afOnEnd(end){ if(end) afShowEnd(end.scoreA||0, end.scoreB||0, end.results||[]); }
+function afSkillPress(id){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; var side=(Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); if(!side) return; if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ var D=ar.afD; if(!D) return; var me=(side==='A')?D.A:D.B; if(!arenaCanUse(me,id)){ try{ toast(t('cb.needEnStam')); }catch(e){} return; } D[(side==='A')?'aAct':'bAct']=id; } else { try{ Net.arenaRef.child('req/'+Net.uid).set({ skill:id, round:(ar.afFightView&&ar.afFightView.round)||0, at:(Net.ts?Net.ts():Date.now()) }); }catch(e){} ar._myReq=id; } afFightPanelRender(); }
+function afToggleSpectate(){ if(AField){ AField.spectateFree=!AField.spectateFree; afFightPanelRender(); } }
+function afpBuildSkills(side){ var ar=MP.arena, D=ar&&ar.afD, host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef)), me=(host&&D)?(side==='A'?D.A:D.B):null; var el=byId('afpSkills'); if(!el) return; el.innerHTML=''; ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ var b=document.createElement('button'); b.className='afpSkBtn'; var queued=(host&&D)?(D[(side==='A')?'aAct':'bAct']===s.id):(ar._myReq===s.id); if(queued) b.className+=' queued'; b.textContent=skillName(s.id); if(host&&me) b.disabled=!arenaCanUse(me,s.id); b.onclick=(function(_id){ return function(){ afSkillPress(_id); }; })(s.id); el.appendChild(b); }); }
+function afFightPanelRender(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel, panel=byId('afFightPanel'), spec=byId('afSpectateBtn'); if(!panel) return; var inFight=d&&(d.sub==='fight'||d.sub==='result'); if(!inFight){ panel.style.display='none'; if(spec) spec.style.display='none'; return; } var meUid=Net.uid, amF=(d.a===meUid||d.b===meUid), side=(d.a===meUid)?'A':((d.b===meUid)?'B':null); var free=AField&&AField.spectateFree; if(spec){ if(!amF && d.sub==='fight'){ spec.style.display=''; spec.textContent= free? t('mp.afWatch') : t('mp.afRoam'); } else spec.style.display='none'; } if(!amF && free){ panel.style.display='none'; return; } panel.style.display=''; var hp=afFightHp()||{ahp:0,amax:1,bhp:0,bmax:1}; { var e=byId('afpAName'); if(e) e.textContent=afDuelName(d.a); } { var e=byId('afpBName'); if(e) e.textContent=afDuelName(d.b); } { var e=byId('afpABar'); if(e) e.style.width=(hp.amax>0?Math.max(0,Math.min(100,100*hp.ahp/hp.amax)):0)+'%'; } { var e=byId('afpBBar'); if(e) e.style.width=(hp.bmax>0?Math.max(0,Math.min(100,100*hp.bhp/hp.bmax)):0)+'%'; } { var e=byId('afpAHp'); if(e) e.textContent=Math.max(0,Math.round(hp.ahp))+'/'+hp.amax; } { var e=byId('afpBHp'); if(e) e.textContent=Math.max(0,Math.round(hp.bhp))+'/'+hp.bmax; } var mine=byId('afpMine'); if(amF && d.sub==='fight'){ if(mine) mine.style.display=''; var host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef)), D=ar.afD, en, stam; if(host&&D){ var me=(side==='A')?D.A:D.B; en=Math.round(me.en); stam=Math.round(me.stam); } else { var v=ar.afFightView||{}; en=Math.round((side==='A')?(v.aen||0):(v.ben||0)); stam=Math.round((side==='A')?(v.astam||0):(v.bstam||0)); } { var e=byId('afpRes'); if(e) e.textContent=t('cb.en')+' '+en+'   '+t('cb.st')+' '+stam; } afpBuildSkills(side); } else { if(mine) mine.style.display='none'; } }
 function afIsHost(){ return (typeof MP==='undefined') || !MP.arena || MP.host || !(typeof Net!=='undefined'&&Net.arenaRef); }
 function afNextPhase(cur){ return cur==='wait'?'shop':(cur==='shop'?'prep':(cur==='prep'?'duel':null)); }
 function afSetPhase(name){
@@ -6327,7 +6606,8 @@ function startArenaRun(){
   const tt=arenaTeams();
   MP.arena={ teams:tt, scoreA:0, scoreB:0, phase:'prep', ready:false, players:{} };
   MP.arena.myTeam=arenaMyTeam(tt);
-  renderArenaPrep(); show('arenaPrep');
+  MP.arena.scoreA=0; MP.arena.scoreB=0; MP.arena.afResults=[]; MP.arena._afEnded=false;
+  afOpen();
 }
 function renderArenaPrep(){
   const pl=state.player, ar=MP.arena; if(!pl||!ar) return;
@@ -6374,6 +6654,8 @@ function onArenaUpdate(data){
   if(!afIsHost() && data && data.phase) afOnPhase(data.phase);
   if(data && data.teamAssign) afOnTeamAssign(data.teamAssign);
   if(data && data.afDuel) afOnDuel(data.afDuel);
+  if(data && data.afFight) afOnFight(data.afFight);
+  if(data && data.afEnd) afOnEnd(data.afEnd);
   if(MP.host && data && data.phaseSkip && MP.arena && MP.arena.phase && MP.arena.phase.name==='wait'){ afSetPhase('shop'); try{ if(Net.arenaRef) Net.arenaRef.child('phaseSkip').remove(); }catch(e){} }
   arenaCheckAllReady();
 }
@@ -6709,10 +6991,13 @@ function renderArenaEnd(){
 }
 function startMpRun(){
   state._inLobby=false; state.mpStarted=true; hide('lobby');
-  if(MP.mode==='arena'){ startArenaRun(); return; }
+  Net.ensureConfigLoaded().then(_startMpRunGo);   /* wait for the cloud monster roster so all clients generate identical maps */
+}
+function _startMpRunGo(){
+  if(MP.mode==='arena'){ try{ localStorage.setItem('mt_mpView', String(lobbySelectedView())); }catch(e){} mpStartLoading(function(){}, function(){ startArenaRun(); }); return; }
   try{ localStorage.setItem('mt_mpView', String(lobbySelectedView())); }catch(e){}   /* per-client viewport (camera-follow window) */
   mpStartLoading(
-    function(){ newGame({ mode:MP.mode, seed:MP.seed, worldId:Net.worldId, mapSize:MP.mapSize }); },
+    function(){ if(isSummitMode(MP.mode)) FLOORS=clamp(roomCfg().floors|0,26,51); newGame({ mode:MP.mode, seed:MP.seed, worldId:Net.worldId, mapSize:MP.mapSize, difficulty:(isSummitMode(MP.mode)?roomCfg().difficulty:'normal') }); },
     function(){ toast(t('mp.started')); }
   );
 }
@@ -6775,6 +7060,17 @@ function renderMpPanel(){
 }
 
 /* ---------------------------- MP end screen ---------------------------- */
+function renderMpStandings(rank){
+  var box=byId('mpStandings'); if(!box) return;
+  if(!rank || !rank.length){ box.style.display='none'; box.innerHTML=''; return; }
+  var h='<div class="rankRow rankHead"><span class="rk">#</span><span class="rn">'+t('rank.name')+'</span><span class="rt">'+t('mp.stScore')+'</span><span class="rv">'+t('mp.stStatus')+'</span></div>';
+  rank.slice(0,50).forEach(function(r,i){
+    var status=r.finished?'🏁':fmt(t('mp.stFloor'),{n:(r.maxFloor||1)});
+    var me=(r.uid===Net.uid)?' rankMe':'';
+    h+='<div class="rankRow'+me+'"><span class="rk">'+(i+1)+'</span><span class="rn">'+_esc(r.name||'-')+'</span><span class="rt">'+(r.score||0)+'</span><span class="rv">'+status+'</span></div>';
+  });
+  box.innerHTML=h; box.style.display='';
+}
 function endScreenMp(win, mode, myRank, rank, byName){
   state.over=true; state.busy=false; state.spectating=false; { const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
   state._reloEnd=function(){ endScreenMp(win,mode,myRank,rank,byName); };
@@ -6790,6 +7086,7 @@ function endScreenMp(win, mode, myRank, rank, byName){
   const cell=function(k,v){ return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; };
   es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv)+cell(t('end.kills'),state.kills)+cell(t('end.gold'),pl.gold);
   try{ renderRunScore(win); }catch(e){}
+  try{ if((mode==='race'||mode==='raceteam') && rank && rank.length){ renderMpStandings(rank); } else { var _st=byId('mpStandings'); if(_st){ _st.style.display='none'; _st.innerHTML=''; } } }catch(e){}
   show('endScreen');
 }
 
@@ -6810,6 +7107,7 @@ function bindMpInput(){
     const _afta=byId('afTeamA'); if(_afta) _afta.addEventListener('click',function(){ afPickTeam('A'); });
     const _aftb=byId('afTeamB'); if(_aftb) _aftb.addEventListener('click',function(){ afPickTeam('B'); });
     const _aftr=byId('afTeamRand'); if(_aftr) _aftr.addEventListener('click',afRandomTeams);
+    const _afsp=byId('afSpectateBtn'); if(_afsp) _afsp.addEventListener('click',afToggleSpectate);
     document.querySelectorAll('#afShop .afShopBuy').forEach(function(b){ b.addEventListener('click',function(){ arenaBuy(b.dataset.buy); }); });
     const _ab=byId('asBack'); if(_ab) _ab.addEventListener('click',arenaExit);
     const _aeb=byId('aeBack'); if(_aeb) _aeb.addEventListener('click',arenaExit); }
@@ -6819,18 +7117,19 @@ function bindMpInput(){
       const seg=ev.currentTarget.parentNode;
       const sib=seg.querySelectorAll('.segBtn'); for(let j=0;j<sib.length;j++) sib[j].classList.remove('sel');
       ev.currentTarget.classList.add('sel');
-      if(seg.id==='lbModeSeg') byId('lbModeDesc').textContent=t(modeDescKey(lobbySelectedMode()));
+      if(seg.id==='lbL1Seg'||seg.id==='lbL2Seg'||seg.id==='lbL3Seg') lobbyUpdateModeMenu();
     });
   }
   const c=byId('lbCreate'); if(c) c.addEventListener('click',doCreate);
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
-  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ Net.startWorld(); });
+  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ Net.startWorld(MP.mode==='raceteam'?(roomCfg().teamMethod==='pick'?rtFinalTeams():rtBalancedTeams()):null); });
   const lv=byId('lbLeave'); if(lv) lv.addEventListener('click',leaveLobby);
   const mpb=byId('btnMP'); if(mpb) mpb.addEventListener('click',openMpPanel);
   const mrc=byId('mpRoomCopy'); if(mrc) mrc.addEventListener('click',copyCode);
   const _sp=byId('specPrev'); if(_sp) _sp.addEventListener('click',function(){ cycleSpectate(-1); });
   const _sn=byId('specNext'); if(_sn) _sn.addEventListener('click',function(){ cycleSpectate(1); });
+  const _sx=byId('specExit'); if(_sx) _sx.addEventListener('click',function(){ spectateExit(); });
   const _ro=byId('mpRoster'); if(_ro) _ro.addEventListener('click',function(ev){ const c=ev.target&&ev.target.closest?ev.target.closest('.rosterChip'):null; if(c&&c.dataset.uid) spectateWatch(c.dataset.uid); });
 }
 
@@ -6851,15 +7150,15 @@ const ADMIN_EMAILS = [
 /* ---- extra i18n (accounts + admin), merged into all 5 languages ---- */
 const I18N_ADMIN = {
 'zh-Hant':{acct:{title:'登入帳號',desc:'登入後即可把遊戲進度儲存到雲端。',emailLab:'電子郵件',passLab:'密碼',login:'登入',register:'註冊',logout:'登出',save:'立即儲存進度',load:'載入雲端進度',whoLab:'目前登入',adminBtn:'進入後台',adminLoginTitle:'管理員登入',cancel:'取消',adminOk:'管理員已登入',voiceRetry:'請重新操作一次',accountLab:'登入 / 帳號',close:'關閉',guestOnly:'未設定雲端，僅能本機遊玩',noFirebase:'尚未設定 Firebase，無法登入',needBoth:'請輸入電子郵件與密碼',working:'處理中…',ok:'成功！',fail:'失敗，請重試',loaded:'已載入雲端進度',noSave:'雲端沒有存檔',notAdmin:'你不是管理員',saved:'進度已儲存',adminHere:'你已經在管理員後台了'},
-  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值。出現樓層分「地上」「地下」兩段，各填最低~最高層；該段填 0＝不在那裡生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',spawnW:'生成機率',drains:'耗體',role:'生成角色',role_any:'一般（預設）',role_wander:'只遊蕩',role_block:'擋路守衛',role_treasure:'守護寶物',abTrue:'真實傷害',abStatus:'異常狀態',abTag:'特性標籤',abCrit:'爆擊倍率',abNone:'無',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值',monDensity:'每層怪物數量',monDensityHint:'調整每層的遊蕩怪物數量（守衛怪物不受影響，地圖仍可破關）。',monWhitelist:'每層怪物白名單',monWhitelistHint:'先選一層樓，再勾選要在那層出現的怪物。不勾任何＝該層用預設（依各怪的樓層範圍）；勾選後該層只生成勾選的怪物。',wlFloorPick:'選擇樓層',wlActive:'白名單啟用',wlDefault:'預設（未限制）',trDensity:'每層寶物數量',trDensityHint:'調整每層散落的拾取物（藥水）數量。武器、技能書、寶石、金幣等關鍵寶物仍依固定規則擺放、不受影響。',surfaceFloors:'地上樓層',basementFloors:'地下樓層',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
+  admin:{title:'管理員後台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地圖',tabData:'資料',apply:'套用到本機',saveCloud:'儲存到雲端',reset:'還原預設',monNote:'調整每種怪物的數值。出現樓層分「地上」「地下」兩段，各填最低~最高層；該段填 0＝不在那裡生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',spawnW:'生成機率',drains:'耗體',role:'生成角色',role_any:'一般（預設）',role_wander:'只遊蕩',role_block:'擋路守衛',role_treasure:'守護寶物',minDiff:'難度門檻',md_all:'全部難度',md_normal:'普通以上',md_hard:'困難以上',md_hell:'僅地獄',abTrue:'真實傷害',abStatus:'異常狀態',abTag:'特性標籤',abCrit:'爆擊倍率',abNone:'無',playerNote:'玩家的初始數值。',startStats:'初始數值',mapNote:'地圖與生成邏輯參數。',mapParams:'地圖參數',floors:'總樓層',grid:'格子數',loop:'迴路比例',shop:'商店機率',dataNote:'雲端上的玩家存檔總覽。',dataPermErr:'此頁列出雲端所有玩家的存檔進度；目前帳號沒有讀取權限（需在 Firebase 規則開放管理員讀取 /players）。',account:'帳號',progress:'進度',kills:'擊殺',noData:'目前沒有資料',applied:'已套用到本機（新樓層生效）',savedCloud:'已儲存到雲端並套用',saveFail:'儲存失敗',resetDone:'已還原為預設值',monDensity:'每層怪物數量',monDensityHint:'調整每層的遊蕩怪物數量（守衛怪物不受影響，地圖仍可破關）。',monWhitelist:'每層怪物白名單',monWhitelistHint:'先選一層樓，再勾選要在那層出現的怪物。不勾任何＝該層用預設（依各怪的樓層範圍）；勾選後該層只生成勾選的怪物。',wlFloorPick:'選擇樓層',wlActive:'白名單啟用',wlDefault:'預設（未限制）',trDensity:'每層寶物數量',trDensityHint:'調整每層散落的拾取物（藥水）數量。武器、技能書、寶石、金幣等關鍵寶物仍依固定規則擺放、不受影響。',surfaceFloors:'地上樓層',basementFloors:'地下樓層',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'zh-Hans':{acct:{title:'登录账号',desc:'登录后即可把游戏进度保存到云端。',emailLab:'电子邮件',passLab:'密码',login:'登录',register:'注册',logout:'登出',save:'立即保存进度',load:'载入云端进度',whoLab:'当前登录',adminBtn:'进入后台',adminLoginTitle:'管理员登录',cancel:'取消',adminOk:'管理员已登录',voiceRetry:'请重新操作一次',accountLab:'登录 / 账号',close:'关闭',guestOnly:'未配置云端，仅能本机游玩',noFirebase:'尚未配置 Firebase，无法登录',needBoth:'请输入电子邮件与密码',working:'处理中…',ok:'成功！',fail:'失败，请重试',loaded:'已载入云端进度',noSave:'云端没有存档',notAdmin:'你不是管理员',saved:'进度已保存',adminHere:'你已经在管理员后台了'},
-  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值。出现楼层分「地上」「地下」两段，各填最低~最高层；该段填 0＝不在那里生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',spawnW:'生成機率',drains:'耗体',role:'生成角色',role_any:'一般（默认）',role_wander:'只游荡',role_block:'挡路守卫',role_treasure:'守护宝物',abTrue:'真实伤害',abStatus:'异常状态',abTag:'特性标签',abCrit:'爆击倍率',abNone:'无',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值',monDensity:'每层怪物数量',monDensityHint:'调整每层的游荡怪物数量（守卫怪物不受影响，地图仍可通关）。',monWhitelist:'每层怪物白名单',monWhitelistHint:'先选一层楼，再勾选要在那层出现的怪物。不勾任何＝该层用默认（依各怪的楼层范围）；勾选后该层只生成勾选的怪物。',wlFloorPick:'选择楼层',wlActive:'白名单启用',wlDefault:'默认（未限制）',trDensity:'每层宝物数量',trDensityHint:'调整每层散落的拾取物（药水）数量。武器、技能书、宝石、金币等关键宝物仍依固定规则摆放、不受影响。',surfaceFloors:'地上楼层',basementFloors:'地下楼层',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
+  admin:{title:'管理员后台',tabMon:'怪物',tabBoss:'魔王',tabPlayer:'玩家',tabMap:'地图',tabData:'数据',apply:'应用到本机',saveCloud:'保存到云端',reset:'还原默认',monNote:'调整每种怪物的数值。出现楼层分「地上」「地下」两段，各填最低~最高层；该段填 0＝不在那里生成。',surfMin:'地上最低',surfMax:'地上最高',baseMin:'地下最低',baseMax:'地下最高',spawnW:'生成機率',drains:'耗体',role:'生成角色',role_any:'一般（默认）',role_wander:'只游荡',role_block:'挡路守卫',role_treasure:'守护宝物',minDiff:'难度门槛',md_all:'全部难度',md_normal:'普通以上',md_hard:'困难以上',md_hell:'仅地狱',abTrue:'真实伤害',abStatus:'异常状态',abTag:'特性标签',abCrit:'爆击倍率',abNone:'无',playerNote:'玩家的初始数值。',startStats:'初始数值',mapNote:'地图与生成逻辑参数。',mapParams:'地图参数',floors:'总楼层',grid:'格子数',loop:'回路比例',shop:'商店概率',dataNote:'云端上的玩家存档总览。',dataPermErr:'此页列出云端所有玩家的存档进度；当前账号没有读取权限（需在 Firebase 规则开放管理员读取 /players）。',account:'账号',progress:'进度',kills:'击杀',noData:'目前没有数据',applied:'已应用到本机（新楼层生效）',savedCloud:'已保存到云端并应用',saveFail:'保存失败',resetDone:'已还原为默认值',monDensity:'每层怪物数量',monDensityHint:'调整每层的游荡怪物数量（守卫怪物不受影响，地图仍可通关）。',monWhitelist:'每层怪物白名单',monWhitelistHint:'先选一层楼，再勾选要在那层出现的怪物。不勾任何＝该层用默认（依各怪的楼层范围）；勾选后该层只生成勾选的怪物。',wlFloorPick:'选择楼层',wlActive:'白名单启用',wlDefault:'默认（未限制）',trDensity:'每层宝物数量',trDensityHint:'调整每层散落的拾取物（药水）数量。武器、技能书、宝石、金币等关键宝物仍依固定规则摆放、不受影响。',surfaceFloors:'地上楼层',basementFloors:'地下楼层',densVeryFew:'很少',densFew:'少',densNormal:'正常',densMany:'多',densVeryMany:'很多'}},
 'en':{acct:{title:'Sign in',desc:'Sign in to save your progress to the cloud.',emailLab:'Email',passLab:'Password',login:'Log in',register:'Register',logout:'Log out',save:'Save progress now',load:'Load cloud save',whoLab:'Signed in',adminBtn:'Open admin',adminLoginTitle:'Admin sign-in',cancel:'Cancel',adminOk:'Admin signed in',voiceRetry:'Please try again',accountLab:'Sign in / Account',close:'Close',guestOnly:'Cloud not set up — local play only',noFirebase:'Firebase not configured — cannot sign in',needBoth:'Enter email and password',working:'Working…',ok:'Success!',fail:'Failed, try again',loaded:'Cloud save loaded',noSave:'No cloud save found',notAdmin:'You are not an admin',saved:'Progress saved',adminHere:'You are already in the admin console'},
-  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster. Spawn floors split into Surface and Basement ranges (min-max each); set a range to 0 to skip that area.',surfMin:'Surf min',surfMax:'Surf max',baseMin:'Base min',baseMax:'Base max',spawnW:'Spawn Wt',drains:'Saps',role:'Spawn role',role_any:'Any (default)',role_wander:'Wander only',role_block:'Path blocker',role_treasure:'Treasure guard',abTrue:'True dmg',abStatus:'Ailment',abTag:'Trait',abCrit:'Crit \u00d7',abNone:'None',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults',monDensity:'Monsters per floor',monDensityHint:'Tune the wandering-monster count per floor (guards are unaffected, so floors stay solvable).',monWhitelist:'Per-floor monster whitelist',monWhitelistHint:'Pick a floor, then check the monsters allowed there. None checked = that floor uses defaults (per-monster ranges); checked = only those monsters spawn on that floor.',wlFloorPick:'Pick floor',wlActive:'Whitelist active',wlDefault:'Default (no limit)',trDensity:'Treasure per floor',trDensityHint:'Tune the loose pickups (potions) scattered per floor. Key treasures (weapons, skill books, gems, gold) keep their fixed placement and are unaffected.',surfaceFloors:'Surface floors',basementFloors:'Basement floors',densVeryFew:'Very few',densFew:'Few',densNormal:'Normal',densMany:'Many',densVeryMany:'Very many'}},
+  admin:{title:'Admin Console',tabMon:'Monsters',tabBoss:'Boss',tabPlayer:'Player',tabMap:'Map',tabData:'Data',apply:'Apply locally',saveCloud:'Save to cloud',reset:'Reset defaults',monNote:'Tune each monster. Spawn floors split into Surface and Basement ranges (min-max each); set a range to 0 to skip that area.',surfMin:'Surf min',surfMax:'Surf max',baseMin:'Base min',baseMax:'Base max',spawnW:'Spawn Wt',drains:'Saps',role:'Spawn role',role_any:'Any (default)',role_wander:'Wander only',role_block:'Path blocker',role_treasure:'Treasure guard',minDiff:'Min difficulty',md_all:'All difficulties',md_normal:'Normal+',md_hard:'Hard+',md_hell:'Hell only',abTrue:'True dmg',abStatus:'Ailment',abTag:'Trait',abCrit:'Crit \u00d7',abNone:'None',playerNote:'Player starting stats.',startStats:'Start stats',mapNote:'Map & generation parameters.',mapParams:'Map params',floors:'Floors',grid:'Grid',loop:'Loop ratio',shop:'Shop chance',dataNote:'Overview of cloud player saves.',dataPermErr:'Lists every cloud player save and progress; this account lacks read access — grant admins read on /players in your Firebase rules.',account:'Account',progress:'Progress',kills:'kills ',noData:'No data yet',applied:'Applied locally (new floors)',savedCloud:'Saved to cloud & applied',saveFail:'Save failed',resetDone:'Reset to defaults',monDensity:'Monsters per floor',monDensityHint:'Tune the wandering-monster count per floor (guards are unaffected, so floors stay solvable).',monWhitelist:'Per-floor monster whitelist',monWhitelistHint:'Pick a floor, then check the monsters allowed there. None checked = that floor uses defaults (per-monster ranges); checked = only those monsters spawn on that floor.',wlFloorPick:'Pick floor',wlActive:'Whitelist active',wlDefault:'Default (no limit)',trDensity:'Treasure per floor',trDensityHint:'Tune the loose pickups (potions) scattered per floor. Key treasures (weapons, skill books, gems, gold) keep their fixed placement and are unaffected.',surfaceFloors:'Surface floors',basementFloors:'Basement floors',densVeryFew:'Very few',densFew:'Few',densNormal:'Normal',densMany:'Many',densVeryMany:'Very many'}},
 'ja':{acct:{title:'ログイン',desc:'ログインすると進行状況をクラウドに保存できます。',emailLab:'メール',passLab:'パスワード',login:'ログイン',register:'登録',logout:'ログアウト',save:'今すぐ保存',load:'クラウドから読込',whoLab:'ログイン中',adminBtn:'管理画面へ',adminLoginTitle:'管理者ログイン',cancel:'キャンセル',adminOk:'管理者としてログイン',voiceRetry:'もう一度操作してください',accountLab:'ログイン / アカウント',close:'閉じる',guestOnly:'クラウド未設定 — ローカルのみ',noFirebase:'Firebase 未設定のためログイン不可',needBoth:'メールとパスワードを入力',working:'処理中…',ok:'成功！',fail:'失敗、再試行',loaded:'クラウドから読み込みました',noSave:'クラウドにデータなし',notAdmin:'管理者ではありません',saved:'保存しました',adminHere:'すでに管理画面にいます'},
-  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値を調整。出現階は「地上」「地下」の2レンジ（各 最小~最大）。0 にするとその領域に出現しません。',surfMin:'地上 最小',surfMax:'地上 最大',baseMin:'地下 最小',baseMax:'地下 最大',spawnW:'出現重み',drains:'消耗',role:'生成の役割',role_any:'通常（既定）',role_wander:'徘徊のみ',role_block:'道塞ぎ',role_treasure:'宝の守護',abTrue:'防御無視',abStatus:'状態異常',abTag:'特性',abCrit:'会心倍率',abNone:'なし',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました',monDensity:'階ごとのモンスター数',monDensityHint:'各階の徘徊モンスター数を調整（ガード役は影響なし、攻略可能性は維持）。',monWhitelist:'階ごとのモンスター許可リスト',monWhitelistHint:'階を選び、その階に出すモンスターにチェック。未チェック＝既定（各モンスターの出現階）。チェックした場合、その階はチェックしたモンスターのみ出現。',wlFloorPick:'階を選択',wlActive:'許可リスト有効',wlDefault:'既定（制限なし）',trDensity:'階ごとのアイテム数',trDensityHint:'各階に散らばる拾得アイテム（ポーション）の数を調整。武器・スキル書・宝石・ゴールドなどの重要アイテムは固定配置で影響を受けません。',surfaceFloors:'地上階',basementFloors:'地下階',densVeryFew:'とても少ない',densFew:'少ない',densNormal:'普通',densMany:'多い',densVeryMany:'とても多い'}},
+  admin:{title:'管理者画面',tabMon:'モンスター',tabBoss:'ボス',tabPlayer:'プレイヤー',tabMap:'マップ',tabData:'データ',apply:'ローカルに適用',saveCloud:'クラウドに保存',reset:'初期値に戻す',monNote:'各モンスターの数値を調整。出現階は「地上」「地下」の2レンジ（各 最小~最大）。0 にするとその領域に出現しません。',surfMin:'地上 最小',surfMax:'地上 最大',baseMin:'地下 最小',baseMax:'地下 最大',spawnW:'出現重み',drains:'消耗',role:'生成の役割',role_any:'通常（既定）',role_wander:'徘徊のみ',role_block:'道塞ぎ',role_treasure:'宝の守護',minDiff:'難易度制限',md_all:'すべて',md_normal:'ふつう以上',md_hard:'むずかしい以上',md_hell:'地獄のみ',abTrue:'防御無視',abStatus:'状態異常',abTag:'特性',abCrit:'会心倍率',abNone:'なし',playerNote:'プレイヤーの初期値。',startStats:'初期値',mapNote:'マップと生成パラメータ。',mapParams:'マップ設定',floors:'総階数',grid:'マス数',loop:'ループ率',shop:'店確率',dataNote:'クラウド上のセーブ一覧。',dataPermErr:'クラウド全プレイヤーの進行状況を表示します。現在のアカウントには読み取り権限がありません（Firebaseルールで管理者に /players の読み取りを許可してください）。',account:'アカウント',progress:'進行',kills:'撃破',noData:'データなし',applied:'ローカルに適用（新しい階）',savedCloud:'クラウドに保存・適用',saveFail:'保存失敗',resetDone:'初期値に戻しました',monDensity:'階ごとのモンスター数',monDensityHint:'各階の徘徊モンスター数を調整（ガード役は影響なし、攻略可能性は維持）。',monWhitelist:'階ごとのモンスター許可リスト',monWhitelistHint:'階を選び、その階に出すモンスターにチェック。未チェック＝既定（各モンスターの出現階）。チェックした場合、その階はチェックしたモンスターのみ出現。',wlFloorPick:'階を選択',wlActive:'許可リスト有効',wlDefault:'既定（制限なし）',trDensity:'階ごとのアイテム数',trDensityHint:'各階に散らばる拾得アイテム（ポーション）の数を調整。武器・スキル書・宝石・ゴールドなどの重要アイテムは固定配置で影響を受けません。',surfaceFloors:'地上階',basementFloors:'地下階',densVeryFew:'とても少ない',densFew:'少ない',densNormal:'普通',densMany:'多い',densVeryMany:'とても多い'}},
 'ko':{acct:{title:'로그인',desc:'로그인하면 진행 상황을 클라우드에 저장할 수 있습니다.',emailLab:'이메일',passLab:'비밀번호',login:'로그인',register:'가입',logout:'로그아웃',save:'지금 저장',load:'클라우드 불러오기',whoLab:'로그인됨',adminBtn:'관리자 페이지',adminLoginTitle:'관리자 로그인',cancel:'취소',adminOk:'관리자 로그인됨',voiceRetry:'다시 시도해 주세요',accountLab:'로그인 / 계정',close:'닫기',guestOnly:'클라우드 미설정 — 로컬만 가능',noFirebase:'Firebase 미설정 — 로그인 불가',needBoth:'이메일과 비밀번호를 입력',working:'처리 중…',ok:'성공!',fail:'실패, 다시 시도',loaded:'클라우드 저장을 불러왔습니다',noSave:'클라우드 저장 없음',notAdmin:'관리자가 아닙니다',saved:'진행 저장됨',adminHere:'이미 관리자 콘솔에 있습니다'},
-  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치 조정. 출현 층은 지상/지하 두 범위(각 최소~최대); 0으로 두면 해당 영역에 출현하지 않음.',surfMin:'지상 최소',surfMax:'지상 최대',baseMin:'지하 최소',baseMax:'지하 최대',spawnW:'생성 확률',drains:'소모',role:'생성 역할',role_any:'일반(기본)',role_wander:'배회만',role_block:'길막이',role_treasure:'보물 수호',abTrue:'방어 무시',abStatus:'상태이상',abTag:'특성',abCrit:'치명 배율',abNone:'없음',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원',monDensity:'층별 몬스터 수',monDensityHint:'각 층의 배회 몬스터 수를 조정(가드 몬스터는 영향 없음, 클리어 가능 유지).',monWhitelist:'층별 몬스터 화이트리스트',monWhitelistHint:'층을 선택한 뒤 그 층에 나올 몬스터를 체크. 미체크＝기본값(각 몬스터 범위); 체크 시 그 층은 체크한 몬스터만 출현.',wlFloorPick:'층 선택',wlActive:'화이트리스트 적용',wlDefault:'기본값(제한 없음)',trDensity:'층별 아이템 수',trDensityHint:'각 층에 흩어진 습득물(물약) 수를 조정. 무기·스킬북·보석·골드 등 핵심 보물은 고정 배치로 영향받지 않음.',surfaceFloors:'지상층',basementFloors:'지하층',densVeryFew:'아주 적음',densFew:'적음',densNormal:'보통',densMany:'많음',densVeryMany:'아주 많음'}}
+  admin:{title:'관리자 콘솔',tabMon:'몬스터',tabBoss:'보스',tabPlayer:'플레이어',tabMap:'맵',tabData:'데이터',apply:'로컬 적용',saveCloud:'클라우드 저장',reset:'기본값 복원',monNote:'각 몬스터 수치 조정. 출현 층은 지상/지하 두 범위(각 최소~최대); 0으로 두면 해당 영역에 출현하지 않음.',surfMin:'지상 최소',surfMax:'지상 최대',baseMin:'지하 최소',baseMax:'지하 최대',spawnW:'생성 확률',drains:'소모',role:'생성 역할',role_any:'일반(기본)',role_wander:'배회만',role_block:'길막이',role_treasure:'보물 수호',minDiff:'난이도 제한',md_all:'모든 난이도',md_normal:'보통 이상',md_hard:'어려움 이상',md_hell:'지옥만',abTrue:'방어 무시',abStatus:'상태이상',abTag:'특성',abCrit:'치명 배율',abNone:'없음',playerNote:'플레이어 시작 수치.',startStats:'시작 수치',mapNote:'맵·생성 매개변수.',mapParams:'맵 설정',floors:'총 층',grid:'격자',loop:'루프 비율',shop:'상점 확률',dataNote:'클라우드 저장 개요.',dataPermErr:'클라우드 모든 플레이어의 진행 상황을 표시합니다. 현재 계정은 읽기 권한이 없습니다(Firebase 규칙에서 관리자에게 /players 읽기를 허용하세요).',account:'계정',progress:'진행',kills:'처치',noData:'데이터 없음',applied:'로컬 적용됨(새 층)',savedCloud:'클라우드 저장·적용됨',saveFail:'저장 실패',resetDone:'기본값으로 복원',monDensity:'층별 몬스터 수',monDensityHint:'각 층의 배회 몬스터 수를 조정(가드 몬스터는 영향 없음, 클리어 가능 유지).',monWhitelist:'층별 몬스터 화이트리스트',monWhitelistHint:'층을 선택한 뒤 그 층에 나올 몬스터를 체크. 미체크＝기본값(각 몬스터 범위); 체크 시 그 층은 체크한 몬스터만 출현.',wlFloorPick:'층 선택',wlActive:'화이트리스트 적용',wlDefault:'기본값(제한 없음)',trDensity:'층별 아이템 수',trDensityHint:'각 층에 흩어진 습득물(물약) 수를 조정. 무기·스킬북·보석·골드 등 핵심 보물은 고정 배치로 영향받지 않음.',surfaceFloors:'지상층',basementFloors:'지하층',densVeryFew:'아주 적음',densFew:'적음',densNormal:'보통',densMany:'많음',densVeryMany:'아주 많음'}}
 };
 (function mergeAdminI18n(){ for(const L in I18N_ADMIN){ if(!I18N[L]) continue; for(const ns in I18N_ADMIN[L]){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, I18N_ADMIN[L][ns]); } } })();
 
@@ -7114,6 +7413,30 @@ const I18N_AFDUEL={
  'ko':{mp:{afLottery:'추첨 중'}}
 };
 (function mergeAfDuel(){ for(const L in I18N_AFDUEL){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFDUEL[L].mp); } })();
+const I18N_AFWIN={
+ 'zh-Hant':{mp:{afWin:'獲勝',afDraw:'平手'}},
+ 'zh-Hans':{mp:{afWin:'获胜',afDraw:'平局'}},
+ 'en':{mp:{afWin:'wins',afDraw:'Draw'}},
+ 'ja':{mp:{afWin:'勝利',afDraw:'引き分け'}},
+ 'ko':{mp:{afWin:'승리',afDraw:'무승부'}}
+};
+(function mergeAfWin(){ for(const L in I18N_AFWIN){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFWIN[L].mp); } })();
+const I18N_AFSPEC={
+ 'zh-Hant':{mp:{afRoam:'自由活動',afWatch:'繼續觀戰'}},
+ 'zh-Hans':{mp:{afRoam:'自由活动',afWatch:'继续观战'}},
+ 'en':{mp:{afRoam:'Roam freely',afWatch:'Resume watching'}},
+ 'ja':{mp:{afRoam:'自由行動',afWatch:'観戦に戻る'}},
+ 'ko':{mp:{afRoam:'자유 이동',afWatch:'관전으로'}}
+};
+(function mergeAfSpec(){ for(const L in I18N_AFSPEC){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFSPEC[L].mp); } })();
+const I18N_MODEMENU={
+ 'zh-Hant':{mp:{modeTower:'攻略魔塔',modeFreeArena:'自由競技場',modeCoopTower:'組隊攻略',modeRaceTower:'競技攻略',modeSolo:'個人',modeTeam:'分隊'}},
+ 'zh-Hans':{mp:{modeTower:'攻略魔塔',modeFreeArena:'自由竞技场',modeCoopTower:'组队攻略',modeRaceTower:'竞技攻略',modeSolo:'个人',modeTeam:'分队'}},
+ 'en':{mp:{modeTower:'Tower',modeFreeArena:'Free Arena',modeCoopTower:'Co-op',modeRaceTower:'Competitive',modeSolo:'Solo',modeTeam:'Teams'}},
+ 'ja':{mp:{modeTower:'塔の攻略',modeFreeArena:'自由アリーナ',modeCoopTower:'協力攻略',modeRaceTower:'競技攻略',modeSolo:'個人',modeTeam:'チーム分け'}},
+ 'ko':{mp:{modeTower:'마탑 공략',modeFreeArena:'자유 투기장',modeCoopTower:'협동 공략',modeRaceTower:'경쟁 공략',modeSolo:'개인',modeTeam:'팀전'}}
+};
+(function mergeModeMenu(){ for(const L in I18N_MODEMENU){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_MODEMENU[L].mp); } })();
 /* ---- combat: first-strike message + victory popup (merged into all 5 languages) ---- */
 const I18N_COMBATX = {
  'zh-Hant':{msg:{foeFirst:'敵方先發制人！'}, cb:{winPopT:'🏆 戰勝 {name}',winPopR:'獲得 {g} 金幣　{e} 經驗'}},
@@ -7559,7 +7882,8 @@ function applyConfig(cfg){
   if(cfg.itemGain){ for(const k in cfg.itemGain){ const v=parseFloat(cfg.itemGain[k]); if(!isNaN(v)) ITEM_GAIN[k]=v; } }
   if(cfg.glyphs){ for(const k in cfg.glyphs){ if(GLYPH_CFG[k]&&cfg.glyphs[k]){ if('img' in cfg.glyphs[k]) GLYPH_CFG[k].img=cfg.glyphs[k].img||null; if(cfg.glyphs[k].face) GLYPH_CFG[k].face=cfg.glyphs[k].face; } } }
   if(cfg.map){
-    if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,1,99);
+    if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,3,99);
+    ADMIN_FLOORS=FLOORS;   /* solo / admin floor count; MP tower modes override FLOORS from the room config at start */
     if(typeof cfg.map.grid==='number'){ GRID=clamp(cfg.map.grid|0,7,21); MAP_N_SOLO=GRID; }
     if(typeof cfg.map.loopChance==='number') MAPCFG.loopChance=clamp(cfg.map.loopChance,0,0.6);
     if(typeof cfg.map.shopChance==='number') MAPCFG.shopChance=clamp(cfg.map.shopChance,0,1);
@@ -7617,7 +7941,7 @@ function restoreRun(s){
   state.px=(s.px!=null)? s.px : d.start.x;
   state.py=(s.py!=null)? s.py : d.start.y;
   const onDown=(hasDown(d.f) && state.px===d.start.x && state.py===d.start.y);
-  const onUp=(!d.boss && state.px===d.stairs.x && state.py===d.stairs.y);
+  const onUp=((!d.boss||!bossSealed(d)) && state.px===d.stairs.x && state.py===d.stairs.y);
   state.noStairTrigger=(onDown||onUp)? {x:state.px,y:state.py} : null;   /* don't auto-change floor on a restored staircase tile */
   state.target=null; state.over=false; state.busy=false; state.combat=null;
   ['startScreen','authScreen','adminScreen','lobby'].forEach(function(id){ hide(id); });
@@ -7760,7 +8084,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·140'; }
+    bt.textContent='build 0618·156'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -7768,7 +8092,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·140'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·156'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -8001,7 +8325,7 @@ function renderAdminBody(){
         adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+adCritFx(m)+adCritSfx(m)+
         adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+
         adNum(t('end.gold'),m,'gold')+adNum(t('ui.exp'),m,'exp')+
-        adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+adNum(t('admin.spawnW'),{spawnW:(m.spawnW!=null?m.spawnW:1)},'spawnW')+
+        adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+adNum(t('admin.spawnW'),{spawnW:(m.spawnW!=null?m.spawnW:1)},'spawnW')+adMinDiff(m)+
         adMonAbilities(m)+
         '</div>';
       body.appendChild(row);
@@ -8299,6 +8623,7 @@ function _dtToggle(cb){
   if(cb.checked){ var seg=box.querySelector('[data-dtseg]'); var type=(seg&&seg.getAttribute('data-curtype'))||'ice'; _dtMode(box.querySelector('[data-dtbtn="'+type+'"]')); }
   else { var inp=box.querySelector('[data-k="deathTerrain"]'); if(inp) inp.value=''; }
 }
+function adMinDiff(m){ var cur=(m&&m.minDiff)||''; var opts=[['',t('admin.md_all')],['normal',t('admin.md_normal')],['hard',t('admin.md_hard')],['hell',t('admin.md_hell')]]; var o='<div class="adField"><label>'+t('admin.minDiff')+'</label><select data-k="minDiff">'; opts.forEach(function(op){ o+='<option value="'+op[0]+'"'+((cur===op[0])?' selected':'')+'>'+op[1]+'</option>'; }); return o+'</select></div>'; }
 function adMonAbilities(m){
   var h='<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
   h+='<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:9px 15px;padding:3px 0;align-items:center">';
@@ -8467,7 +8792,7 @@ function collectAdminDraft(){
       if(k==='drains'){ target.drains = fields[j].value==='1'; }
       else if(k==='id'){ const vv=(fields[j].value||'').trim(); if(vv) target.id=vv; }
       else if(k==='face'||k==='name'){ target[k] = (fields[j].value||'').trim(); }
-      else if(k==='atkFx'||k==='atkSfx'||k==='critFx'||k==='critSfx'||k==='role'||k==='ability'||k==='deathTerrain'||k==='noEnergy'||k==='statMatch'||k==='reviveInto'||k==='mAtkSkill'||k==='mDefSkill'||k==='skillOrder'){ target[k] = fields[j].value||''; }
+      else if(k==='atkFx'||k==='atkSfx'||k==='critFx'||k==='critSfx'||k==='role'||k==='ability'||k==='deathTerrain'||k==='noEnergy'||k==='statMatch'||k==='reviveInto'||k==='mAtkSkill'||k==='mDefSkill'||k==='skillOrder'||k==='minDiff'){ target[k] = fields[j].value||''; }
       else { const num=parseFloat(fields[j].value); target[k]= isNaN(num)?0:num; }
     }
     { const _abx=row.querySelectorAll('input[data-ab]'); if(_abx.length){ const _aba=[]; for(let _j=0;_j<_abx.length;_j++){ if(_abx[_j].checked) _aba.push(_abx[_j].getAttribute('data-ab')); } target.ab=_aba; } }
