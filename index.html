@@ -941,6 +941,17 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .lbOr{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--txt-faint);}
 .lbOr span{flex:1;height:1px;background:var(--line);}
 .lbJoinRow{display:flex;gap:8px;}
+.lbBrowse{margin-top:14px;}
+.lbBrowseHead{font-size:13px;font-weight:800;color:var(--gold);margin-bottom:6px;letter-spacing:.03em;}
+.lbRoomList{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto;}
+.lbRoomEmpty{font-size:12px;opacity:.55;text-align:center;padding:14px 0;}
+.lbRoomRow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.03);}
+.lbRoomInfo{min-width:0;flex:1;}
+.lbRoomMode{font-size:13px;font-weight:700;color:#f3ead2;}
+.lbRoomMeta{font-size:11px;opacity:.72;margin-top:2px;}
+.lbRoomBtn{padding:6px 14px;font-size:12px;flex-shrink:0;}
+.lbRoomBtn.lbRoomFull{opacity:.45;cursor:not-allowed;}
+.lbRoomBtn.lbRoomSpec{background:#2c2350;color:#d9c7ec;border:1px solid #6a5a9a;}
 .lbJoinRow #lbCode{flex:1;letter-spacing:.2em;font-family:var(--mono);}
 .roomCodeBox{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-radius:11px;
   background:var(--stone-d);border:1px solid var(--line);margin-bottom:12px;}
@@ -1552,6 +1563,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
       <input type="text" id="lbCode" maxlength="5" placeholder="輸入房間代碼" autocomplete="off" style="text-transform:uppercase">
       <button class="btn" id="lbJoin">加入</button>
     </div>
+    <div class="lbBrowse"><div class="lbBrowseHead"><span id="lbBrowseTitle">公開房間</span></div><div id="lbRoomList" class="lbRoomList"></div></div>
   </div>
   <!-- joined room -->
   <div id="lbRoom" style="display:none">
@@ -5762,7 +5774,7 @@ const I18N_MP = {
   lobbyTitle:'連線大廳',name:'玩家名稱',namePh:'輸入你的名稱',mode:'模式',race:'競速',coop:'合作',arena:'擂台',
   raceDesc:'同一座塔、各自獨立，比誰先登頂。',coopDesc:'共享同一座塔，清掉的怪物與寶物會同步給隊友。',arenaDesc:'同一張地圖的環形競技場，分兩隊抽籤 1v1，以勝場計分。',arenaPrep:'賽前準備',arenaTeam:'你的隊伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻擊與防禦技能書',arenaReady:'準備完成',arenaWait:'等待其他玩家…',arenaNoGold:'金幣不足',arenaReadyMsg:'已準備，等待其他玩家',arenaAllReady:'全員就緒，即將開始',arenaMatch:'對戰',arenaAI:'電腦',arenaYouFight:'你即將上場！',arenaWatching:'觀戰中',arenaFightSoon:'1v1 戰鬥即將登場（開發中）',arenaDoneSoon:'結算即將登場（開發中）',arenaWinner:'{name} 勝！',arenaDraw:'平手',arenaResult:'比賽結束',arenaTeamWin:'{team} 隊獲勝',arenaTie:'雙方平手',arenaBack:'返回主畫面',
   maxPlayers:'人數上限',mapSizeLab:'地圖大小',viewLab:'視野',loadTitle:'載入中…',load1:'加載地圖中',load2:'加載怪物中',load3:'加載寶物中',load4:'加載玩家資料中',load5:'完成',create:'建立房間',join:'加入',codePh:'輸入房間代碼',roomCode:'房間代碼',copy:'複製',copied:'已複製',
-  players:'玩家',host:'房主',you:'你',start:'開始遊戲',waiting:'等待房主開始…',leave:'離開房間',specExit:'離開觀戰',stScore:'分數',stStatus:'狀態',stFloor:'{n}樓',raceCdBanner:'結算倒數 {s}s',rtTeamA:'藍隊',rtTeamB:'紅隊',rtWinTeam:'{team}獲勝！',rtTie:'雙方平手',rtSummits:'{n}人登頂',rtWinDesc:'你的隊伍勝出！',rtLoseDesc:'對手隊伍勝出',rtTieDesc:'兩隊不分高下',teamPickTitle:'選擇你的隊伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未選擇',leaveConfirm:'確定要離開房間嗎？',cfgFloors:'樓層數',cfgDifficulty:'難度',cfgCountdown:'登頂倒數',cfgTeamMethod:'分隊方式',diffEasy:'簡單',diffNormal:'普通',diffHard:'困難',diffHell:'地獄',cdOn:'開',cdOff:'關',teamRandom:'隨機',teamPick:'自選',cfgHostOnly:'由房主設定',
+  players:'玩家',host:'房主',you:'你',start:'開始遊戲',waiting:'等待房主開始…',leave:'離開房間',specExit:'離開觀戰',stScore:'分數',stStatus:'狀態',stFloor:'{n}樓',raceCdBanner:'結算倒數 {s}s',rtTeamA:'藍隊',rtTeamB:'紅隊',rtWinTeam:'{team}獲勝！',rtTie:'雙方平手',rtSummits:'{n}人登頂',rtWinDesc:'你的隊伍勝出！',rtLoseDesc:'對手隊伍勝出',rtTieDesc:'兩隊不分高下',teamPickTitle:'選擇你的隊伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未選擇',browseTitle:'公開房間',noRooms:'目前沒有公開房間',roomWaiting:'等待中',roomPlaying:'遊戲中',roomJoin:'加入',roomFull:'已滿',roomSpectate:'觀戰',specWatching:'觀戰中…',specArenaSoon:'競技場觀戰即將推出',leaveConfirm:'確定要離開房間嗎？',cfgFloors:'樓層數',cfgDifficulty:'難度',cfgCountdown:'登頂倒數',cfgTeamMethod:'分隊方式',diffEasy:'簡單',diffNormal:'普通',diffHard:'困難',diffHell:'地獄',cdOn:'開',cdOff:'關',teamRandom:'隨機',teamPick:'自選',cfgHostOnly:'由房主設定',
   started:'遊戲開始！',connecting:'連線中…',roomNotFound:'找不到該房間',roomFull:'房間已滿',alreadyStarted:'遊戲已經開始',
   noauth:'連線失敗，請稍後再試',createFail:'建立失敗',needName:'請先輸入名稱',
   panelTitle:'多人資訊',soloNote:'你目前正在單機遊玩。',goMulti:'前往多人連線',ladder:'進度排行',teammates:'隊友',
@@ -5773,7 +5785,7 @@ const I18N_MP = {
   lobbyTitle:'联机大厅',name:'玩家名称',namePh:'输入你的名称',mode:'模式',race:'竞速',coop:'合作',arena:'擂台',
   raceDesc:'同一座塔、各自独立，比谁先登顶。',coopDesc:'共享同一座塔，清掉的怪物与宝物会同步给队友。',arenaDesc:'同一张地图的环形竞技场，分两队抽签 1v1，以胜场计分。',arenaPrep:'赛前准备',arenaTeam:'你的队伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻击与防御技能书',arenaReady:'准备完成',arenaWait:'等待其他玩家…',arenaNoGold:'金币不足',arenaReadyMsg:'已准备，等待其他玩家',arenaAllReady:'全员就绪，即将开始',arenaMatch:'对战',arenaAI:'电脑',arenaYouFight:'你即将上场！',arenaWatching:'观战中',arenaFightSoon:'1v1 战斗即将登场（开发中）',arenaDoneSoon:'结算即将登场（开发中）',arenaWinner:'{name} 胜！',arenaDraw:'平手',arenaResult:'比赛结束',arenaTeamWin:'{team} 队获胜',arenaTie:'双方平手',arenaBack:'返回主画面',
   maxPlayers:'人数上限',mapSizeLab:'地图大小',viewLab:'视野',loadTitle:'载入中…',load1:'加载地图中',load2:'加载怪物中',load3:'加载宝物中',load4:'加载玩家资料中',load5:'完成',create:'创建房间',join:'加入',codePh:'输入房间代码',roomCode:'房间代码',copy:'复制',copied:'已复制',
-  players:'玩家',host:'房主',you:'你',start:'开始游戏',waiting:'等待房主开始…',leave:'离开房间',specExit:'离开观战',stScore:'分数',stStatus:'状态',stFloor:'{n}楼',raceCdBanner:'结算倒计时 {s}s',rtTeamA:'蓝队',rtTeamB:'红队',rtWinTeam:'{team}获胜！',rtTie:'双方平手',rtSummits:'{n}人登顶',rtWinDesc:'你的队伍胜出！',rtLoseDesc:'对手队伍胜出',rtTieDesc:'两队不分高下',teamPickTitle:'选择你的队伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未选择',leaveConfirm:'确定要离开房间吗？',cfgFloors:'楼层数',cfgDifficulty:'难度',cfgCountdown:'登顶倒数',cfgTeamMethod:'分队方式',diffEasy:'简单',diffNormal:'普通',diffHard:'困难',diffHell:'地狱',cdOn:'开',cdOff:'关',teamRandom:'随机',teamPick:'自选',cfgHostOnly:'由房主设定',
+  players:'玩家',host:'房主',you:'你',start:'开始游戏',waiting:'等待房主开始…',leave:'离开房间',specExit:'离开观战',stScore:'分数',stStatus:'状态',stFloor:'{n}楼',raceCdBanner:'结算倒计时 {s}s',rtTeamA:'蓝队',rtTeamB:'红队',rtWinTeam:'{team}获胜！',rtTie:'双方平手',rtSummits:'{n}人登顶',rtWinDesc:'你的队伍胜出！',rtLoseDesc:'对手队伍胜出',rtTieDesc:'两队不分高下',teamPickTitle:'选择你的队伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未选择',browseTitle:'公开房间',noRooms:'目前没有公开房间',roomWaiting:'等待中',roomPlaying:'游戏中',roomJoin:'加入',roomFull:'已满',roomSpectate:'观战',specWatching:'观战中…',specArenaSoon:'竞技场观战即将推出',leaveConfirm:'确定要离开房间吗？',cfgFloors:'楼层数',cfgDifficulty:'难度',cfgCountdown:'登顶倒数',cfgTeamMethod:'分队方式',diffEasy:'简单',diffNormal:'普通',diffHard:'困难',diffHell:'地狱',cdOn:'开',cdOff:'关',teamRandom:'随机',teamPick:'自选',cfgHostOnly:'由房主设定',
   started:'游戏开始！',connecting:'连接中…',roomNotFound:'找不到该房间',roomFull:'房间已满',alreadyStarted:'游戏已经开始',
   noauth:'连接失败，请稍后再试',createFail:'创建失败',needName:'请先输入名称',
   panelTitle:'多人信息',soloNote:'你目前正在单机游玩。',goMulti:'前往多人联机',ladder:'进度排行',teammates:'队友',
@@ -5784,7 +5796,7 @@ const I18N_MP = {
   lobbyTitle:'Multiplayer Lobby',name:'Player name',namePh:'Enter your name',mode:'Mode',race:'Race',coop:'Co-op',arena:'Arena',
   raceDesc:'Same tower, separate runs — first to the top wins.',coopDesc:'Share one tower — monsters and loot you clear sync to teammates.',arenaDesc:'Ring arena on one map: two teams, lottery 1v1 duels, scored by wins.',arenaPrep:'Prep',arenaTeam:'Your team',arenaBuy:'+{inc} ({cost}g)',arenaBooks:'All attack & defense skill books owned',arenaReady:'Ready',arenaWait:'Waiting for others…',arenaNoGold:'Not enough gold',arenaReadyMsg:'Ready — waiting for others',arenaAllReady:'Everyone ready — starting',arenaMatch:'Match',arenaAI:'AI',arenaYouFight:'You\'re up next!',arenaWatching:'Watching',arenaFightSoon:'1v1 combat coming soon (WIP)',arenaDoneSoon:'Results coming soon (WIP)',arenaWinner:'{name} wins!',arenaDraw:'Draw',arenaResult:'Match over',arenaTeamWin:'Team {team} wins',arenaTie:'It\'s a tie',arenaBack:'Back to menu',
   maxPlayers:'Max players',mapSizeLab:'Map size',viewLab:'View',loadTitle:'Loading…',load1:'Loading map',load2:'Loading monsters',load3:'Loading treasures',load4:'Loading player data',load5:'Done',create:'Create room',join:'Join',codePh:'Enter room code',roomCode:'Room code',copy:'Copy',copied:'Copied',
-  players:'Players',host:'Host',you:'you',start:'Start game',waiting:'Waiting for host to start…',leave:'Leave room',specExit:'Exit spectating',stScore:'Score',stStatus:'Status',stFloor:'F{n}',raceCdBanner:'Final results in {s}s',rtTeamA:'Blue',rtTeamB:'Red',rtWinTeam:'{team} team wins!',rtTie:'Draw',rtSummits:'{n} summited',rtWinDesc:'Your team wins!',rtLoseDesc:'The other team wins',rtTieDesc:'Both teams are even',teamPickTitle:'Pick your team',teamJoin:'Join',teamJoined:'Joined',teamUnassigned:'Unassigned',leaveConfirm:'Leave this room?',cfgFloors:'Floors',cfgDifficulty:'Difficulty',cfgCountdown:'Summit countdown',cfgTeamMethod:'Team method',diffEasy:'Easy',diffNormal:'Normal',diffHard:'Hard',diffHell:'Hell',cdOn:'On',cdOff:'Off',teamRandom:'Random',teamPick:'Pick',cfgHostOnly:'Set by the host',
+  players:'Players',host:'Host',you:'you',start:'Start game',waiting:'Waiting for host to start…',leave:'Leave room',specExit:'Exit spectating',stScore:'Score',stStatus:'Status',stFloor:'F{n}',raceCdBanner:'Final results in {s}s',rtTeamA:'Blue',rtTeamB:'Red',rtWinTeam:'{team} team wins!',rtTie:'Draw',rtSummits:'{n} summited',rtWinDesc:'Your team wins!',rtLoseDesc:'The other team wins',rtTieDesc:'Both teams are even',teamPickTitle:'Pick your team',teamJoin:'Join',teamJoined:'Joined',teamUnassigned:'Unassigned',browseTitle:'Public Rooms',noRooms:'No public rooms right now',roomWaiting:'Waiting',roomPlaying:'In game',roomJoin:'Join',roomFull:'Full',roomSpectate:'Watch',specWatching:'Spectating…',specArenaSoon:'Arena spectating coming soon',leaveConfirm:'Leave this room?',cfgFloors:'Floors',cfgDifficulty:'Difficulty',cfgCountdown:'Summit countdown',cfgTeamMethod:'Team method',diffEasy:'Easy',diffNormal:'Normal',diffHard:'Hard',diffHell:'Hell',cdOn:'On',cdOff:'Off',teamRandom:'Random',teamPick:'Pick',cfgHostOnly:'Set by the host',
   started:'Game started!',connecting:'Connecting…',roomNotFound:'Room not found',roomFull:'Room is full',alreadyStarted:'Game already started',
   noauth:'Connection failed, try again',createFail:'Create failed',needName:'Enter a name first',
   panelTitle:'Multiplayer',soloNote:'You are playing single-player.',goMulti:'Go to multiplayer',ladder:'Progress',teammates:'Teammates',
@@ -5795,7 +5807,7 @@ const I18N_MP = {
   lobbyTitle:'ロビー',name:'プレイヤー名',namePh:'名前を入力',mode:'モード',race:'競争',coop:'協力',arena:'闘技場',
   raceDesc:'同じ塔・各自プレイ。先に頂上へ着いた人が勝ち。',coopDesc:'同じ塔を共有。倒した敵や取った宝が仲間と同期。',arenaDesc:'同じマップの円形闘技場。2チーム抽選1v1、勝利数で採点。',arenaPrep:'準備',arenaTeam:'あなたのチーム',arenaBuy:'+{inc}（{cost}金）',arenaBooks:'攻撃・防御スキル書をすべて所持',arenaReady:'準備完了',arenaWait:'他のプレイヤーを待っています…',arenaNoGold:'金貨が足りません',arenaReadyMsg:'準備完了、待機中',arenaAllReady:'全員準備完了、まもなく開始',arenaMatch:'対戦',arenaAI:'AI',arenaYouFight:'まもなく出場！',arenaWatching:'観戦中',arenaFightSoon:'1v1バトルは近日実装（開発中）',arenaDoneSoon:'結果は近日実装（開発中）',arenaWinner:'{name} の勝ち！',arenaDraw:'引き分け',arenaResult:'試合終了',arenaTeamWin:'{team} チームの勝利',arenaTie:'引き分け',arenaBack:'メニューに戻る',
   maxPlayers:'最大人数',mapSizeLab:'マップサイズ',viewLab:'視野',loadTitle:'読み込み中…',load1:'マップ読込中',load2:'モンスター読込中',load3:'宝物読込中',load4:'プレイヤー読込中',load5:'完了',create:'部屋を作る',join:'参加',codePh:'部屋コードを入力',roomCode:'部屋コード',copy:'コピー',copied:'コピーしました',
-  players:'プレイヤー',host:'ホスト',you:'あなた',start:'ゲーム開始',waiting:'ホストの開始を待っています…',leave:'退出',specExit:'観戦をやめる',stScore:'スコア',stStatus:'状態',stFloor:'{n}階',raceCdBanner:'結果まで {s}s',rtTeamA:'青チーム',rtTeamB:'赤チーム',rtWinTeam:'{team}の勝利！',rtTie:'引き分け',rtSummits:'{n}人登頂',rtWinDesc:'あなたのチームの勝ち！',rtLoseDesc:'相手チームの勝ち',rtTieDesc:'両チーム互角',teamPickTitle:'チームを選択',teamJoin:'参加',teamJoined:'参加済み',teamUnassigned:'未選択',leaveConfirm:'部屋を出ますか？',cfgFloors:'階層数',cfgDifficulty:'難易度',cfgCountdown:'登頂カウントダウン',cfgTeamMethod:'チーム分け',diffEasy:'かんたん',diffNormal:'ふつう',diffHard:'むずかしい',diffHell:'地獄',cdOn:'オン',cdOff:'オフ',teamRandom:'ランダム',teamPick:'自分で選ぶ',cfgHostOnly:'ホストが設定',
+  players:'プレイヤー',host:'ホスト',you:'あなた',start:'ゲーム開始',waiting:'ホストの開始を待っています…',leave:'退出',specExit:'観戦をやめる',stScore:'スコア',stStatus:'状態',stFloor:'{n}階',raceCdBanner:'結果まで {s}s',rtTeamA:'青チーム',rtTeamB:'赤チーム',rtWinTeam:'{team}の勝利！',rtTie:'引き分け',rtSummits:'{n}人登頂',rtWinDesc:'あなたのチームの勝ち！',rtLoseDesc:'相手チームの勝ち',rtTieDesc:'両チーム互角',teamPickTitle:'チームを選択',teamJoin:'参加',teamJoined:'参加済み',teamUnassigned:'未選択',browseTitle:'公開ルーム',noRooms:'公開ルームはありません',roomWaiting:'待機中',roomPlaying:'ゲーム中',roomJoin:'参加',roomFull:'満員',roomSpectate:'観戦',specWatching:'観戦中…',specArenaSoon:'アリーナ観戦は近日公開',leaveConfirm:'部屋を出ますか？',cfgFloors:'階層数',cfgDifficulty:'難易度',cfgCountdown:'登頂カウントダウン',cfgTeamMethod:'チーム分け',diffEasy:'かんたん',diffNormal:'ふつう',diffHard:'むずかしい',diffHell:'地獄',cdOn:'オン',cdOff:'オフ',teamRandom:'ランダム',teamPick:'自分で選ぶ',cfgHostOnly:'ホストが設定',
   started:'ゲーム開始！',connecting:'接続中…',roomNotFound:'部屋が見つかりません',roomFull:'満員です',alreadyStarted:'すでに開始済み',
   noauth:'接続に失敗しました',createFail:'作成に失敗',needName:'先に名前を入力してください',
   panelTitle:'マルチ情報',soloNote:'現在シングルでプレイ中です。',goMulti:'マルチへ',ladder:'進行度',teammates:'仲間',
@@ -5806,7 +5818,7 @@ const I18N_MP = {
   lobbyTitle:'멀티 로비',name:'플레이어 이름',namePh:'이름 입력',mode:'모드',race:'경쟁',coop:'협력',arena:'투기장',
   raceDesc:'같은 탑·각자 플레이. 먼저 정상에 오르면 승리.',coopDesc:'같은 탑 공유. 처치한 몬스터·획득한 보물이 동료와 동기화.',arenaDesc:'같은 맵의 원형 투기장. 두 팀 추첨 1v1, 승수로 채점.',arenaPrep:'준비',arenaTeam:'내 팀',arenaBuy:'+{inc}（{cost}금）',arenaBooks:'공격·방어 스킬북 모두 보유',arenaReady:'준비 완료',arenaWait:'다른 플레이어 대기 중…',arenaNoGold:'금화 부족',arenaReadyMsg:'준비 완료, 대기 중',arenaAllReady:'전원 준비 완료, 곧 시작',arenaMatch:'대전',arenaAI:'AI',arenaYouFight:'곧 출전합니다!',arenaWatching:'관전 중',arenaFightSoon:'1v1 전투 곧 구현(개발 중)',arenaDoneSoon:'결산 곧 구현(개발 중)',arenaWinner:'{name} 승리!',arenaDraw:'무승부',arenaResult:'경기 종료',arenaTeamWin:'{team} 팀 승리',arenaTie:'무승부',arenaBack:'메뉴로',
   maxPlayers:'최대 인원',mapSizeLab:'맵 크기',viewLab:'시야',loadTitle:'로딩 중…',load1:'맵 로딩 중',load2:'몬스터 로딩 중',load3:'보물 로딩 중',load4:'플레이어 로딩 중',load5:'완료',create:'방 만들기',join:'참가',codePh:'방 코드 입력',roomCode:'방 코드',copy:'복사',copied:'복사됨',
-  players:'플레이어',host:'방장',you:'나',start:'게임 시작',waiting:'방장이 시작하기를 기다리는 중…',leave:'방 나가기',specExit:'관전 종료',stScore:'점수',stStatus:'상태',stFloor:'{n}층',raceCdBanner:'결과까지 {s}s',rtTeamA:'블루팀',rtTeamB:'레드팀',rtWinTeam:'{team} 승리!',rtTie:'무승부',rtSummits:'{n}명 등정',rtWinDesc:'우리 팀 승리!',rtLoseDesc:'상대 팀 승리',rtTieDesc:'두 팀 막상막하',teamPickTitle:'팀 선택',teamJoin:'참가',teamJoined:'참가함',teamUnassigned:'미선택',leaveConfirm:'방을 나갈까요?',cfgFloors:'층수',cfgDifficulty:'난이도',cfgCountdown:'등정 카운트다운',cfgTeamMethod:'팀 편성',diffEasy:'쉬움',diffNormal:'보통',diffHard:'어려움',diffHell:'지옥',cdOn:'켜기',cdOff:'끄기',teamRandom:'랜덤',teamPick:'직접 선택',cfgHostOnly:'방장이 설정',
+  players:'플레이어',host:'방장',you:'나',start:'게임 시작',waiting:'방장이 시작하기를 기다리는 중…',leave:'방 나가기',specExit:'관전 종료',stScore:'점수',stStatus:'상태',stFloor:'{n}층',raceCdBanner:'결과까지 {s}s',rtTeamA:'블루팀',rtTeamB:'레드팀',rtWinTeam:'{team} 승리!',rtTie:'무승부',rtSummits:'{n}명 등정',rtWinDesc:'우리 팀 승리!',rtLoseDesc:'상대 팀 승리',rtTieDesc:'두 팀 막상막하',teamPickTitle:'팀 선택',teamJoin:'참가',teamJoined:'참가함',teamUnassigned:'미선택',browseTitle:'공개 방',noRooms:'공개 방이 없습니다',roomWaiting:'대기 중',roomPlaying:'게임 중',roomJoin:'참가',roomFull:'가득 참',roomSpectate:'관전',specWatching:'관전 중…',specArenaSoon:'아레나 관전 곧 제공',leaveConfirm:'방을 나갈까요?',cfgFloors:'층수',cfgDifficulty:'난이도',cfgCountdown:'등정 카운트다운',cfgTeamMethod:'팀 편성',diffEasy:'쉬움',diffNormal:'보통',diffHard:'어려움',diffHell:'지옥',cdOn:'켜기',cdOff:'끄기',teamRandom:'랜덤',teamPick:'직접 선택',cfgHostOnly:'방장이 설정',
   started:'게임 시작!',connecting:'연결 중…',roomNotFound:'방을 찾을 수 없음',roomFull:'방이 가득 참',alreadyStarted:'이미 시작됨',
   noauth:'연결 실패, 다시 시도하세요',createFail:'생성 실패',needName:'먼저 이름을 입력하세요',
   panelTitle:'멀티 정보',soloNote:'현재 싱글로 플레이 중입니다.',goMulti:'멀티로 이동',ladder:'진행도',teammates:'동료',
@@ -5879,7 +5891,8 @@ const Net = {
       const ref=self.db.ref('worlds/'+id);
       return ref.child('meta').set({ seed:seed, mode:mode, maxPlayers:maxPlayers, mapSize:(mapSize||30), host:self.uid, status:'lobby', createdAt:self.ts(), cfg:(typeof defaultRoomCfg==='function'?defaultRoomCfg():{floors:26,difficulty:'normal',countdown:true,teamMethod:'random'}) })
         .then(function(){ return ref.child('members/'+self.uid).set({ name:name, joinedAt:self.ts() }); })
-        .then(function(){ self._bind(id); return {id:id, seed:seed, mode:mode, mapSize:(mapSize||30), host:true}; })
+        .then(function(){ try{ self.db.ref('lobby/'+id).set({ mode:mode, host:name, count:1, max:maxPlayers, status:'lobby', createdAt:self.ts(), updatedAt:self.ts(), floors:((typeof defaultRoomCfg==='function'?defaultRoomCfg():{}).floors||26), diff:((typeof defaultRoomCfg==='function'?defaultRoomCfg():{}).difficulty||'normal') }); }catch(e){}
+                        self._bind(id); return {id:id, seed:seed, mode:mode, mapSize:(mapSize||30), host:true}; })
         .catch(function(e){ console.warn(e); return {error:'createfail'}; });
     });
   },
@@ -5904,8 +5917,37 @@ const Net = {
       }).catch(function(e){ console.warn(e); return {error:'noauth'}; });
     });
   },
+  spectateWorld(id){
+    var self=this;
+    return this.ensureReady().then(function(ok){
+      if(!ok) return {error:'noauth'};
+      id=(id||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+      var ref=self.db.ref('worlds/'+id);
+      return ref.child('meta').once('value').then(function(s){
+        var meta=s.val(); if(!meta) return {error:'notfound'};
+        self._bindSpectate(id);
+        return { id:id, seed:meta.seed, mode:meta.mode, mapSize:(meta.mapSize||30) };
+      }).catch(function(e){ console.warn(e); return {error:'noauth'}; });
+    });
+  },
+  _bindSpectate(id){
+    this.detach(); this.spectator=true; this.worldId=id;
+    this.worldRef=this.db.ref('worlds/'+id);
+    this.metaRef=this.worldRef.child('meta');
+    this.membersRef=this.worldRef.child('members');
+    this.presRef=this.worldRef.child('presence');
+    this.stateRef=this.worldRef.child('state');
+    this.arenaRef=this.worldRef.child('arena');
+    /* pure observer: never writes membership / presence / onDisconnect / heartbeat */
+    this.track(this.metaRef,'value',function(s){ onMetaUpdate(s.val()); });
+    this.track(this.membersRef,'value',function(s){ onMembersUpdate(s.val()||{}); });
+    this.track(this.presRef,'value',function(s){ onPresenceUpdate(s.val()||{}); });
+    this.track(this.stateRef,'value',function(s){ onStateUpdate(s.val()||{}); });
+    this.track(this.arenaRef,'value',function(s){ onArenaUpdate(s.val()||{}); });
+  },
   _bind(id){
     this.detach();
+    this.spectator=false;
     this.worldId=id;
     this.worldRef=this.db.ref('worlds/'+id);
     this.metaRef=this.worldRef.child('meta');
@@ -5914,6 +5956,8 @@ const Net = {
     this.stateRef=this.worldRef.child('state');
     this.arenaRef=this.worldRef.child('arena');
     try{ this.presRef.child(this.uid).onDisconnect().remove(); }catch(e){}
+    try{ this.membersRef.child(this.uid).onDisconnect().remove(); }catch(e){}
+    var _selfHb=this; if(this._lobbyHb){ clearInterval(this._lobbyHb); } this._lobbyHb=setInterval(function(){ try{ _selfHb.pushLobby(); }catch(e){} }, 12000);
     this.track(this.metaRef,'value',function(s){ onMetaUpdate(s.val()); });
     this.track(this.membersRef,'value',function(s){ onMembersUpdate(s.val()||{}); });
     this.track(this.presRef,'value',function(s){ onPresenceUpdate(s.val()||{}); });
@@ -5929,9 +5973,27 @@ const Net = {
   setBossCleared(){ if(this.metaRef) this.metaRef.update({ clearedBoss:this.uid, clearedAt:this.ts() }); },
   setRoomCfg(cfg){ if(this.metaRef) this.metaRef.update({ cfg: cfg }); },
   setRaceEndsAt(ts){ if(this.metaRef) this.metaRef.update({ raceEndsAt: ts }); },
+  pushLobby(){
+    if(this.spectator) return;
+    var id=this.worldId; if(!id) return;
+    var m=MP.meta||{}, mem=MP.members||{}, cnt=Object.keys(mem).length||1;
+    var hostName=(m.host && mem[m.host] && mem[m.host].name) || MP.myName || '';
+    try{ this.db.ref('lobby/'+id).update({ mode:(m.mode||MP.mode||'coop'), host:hostName, count:cnt, max:(m.maxPlayers||4), status:(m.status||'lobby'), createdAt:(m.createdAt||this.ts()), updatedAt:this.ts(), floors:((m.cfg&&m.cfg.floors)||26), diff:((m.cfg&&m.cfg.difficulty)||'normal') }); }catch(e){}
+  },
+  watchLobby(cb){
+    var self=this; try{ this._lobbyBrowseRef=this.db.ref('lobby'); }catch(e){ return; }
+    this._lobbyBrowseCb=function(s){ try{ cb(lobbyRoomsFromSnap(s.val()||{}, Date.now())); }catch(e){} };
+    this._lobbyBrowseRef.on('value', this._lobbyBrowseCb);
+  },
+  unwatchLobby(){ if(this._lobbyBrowseRef&&this._lobbyBrowseCb){ try{ this._lobbyBrowseRef.off('value', this._lobbyBrowseCb); }catch(e){} } this._lobbyBrowseRef=null; this._lobbyBrowseCb=null; },
   leaveWorld(){
+    var id=this.worldId, self=this;
+    if(this._lobbyHb){ clearInterval(this._lobbyHb); this._lobbyHb=null; }
     try{ if(this.presRef&&this.uid) this.presRef.child(this.uid).remove(); }catch(e){}
+    try{ if(this.membersRef&&this.uid) this.membersRef.child(this.uid).remove(); }catch(e){}
+    if(id){ try{ this.db.ref('worlds/'+id+'/members').once('value').then(function(s){ var m=s.val()||{}, others=Object.keys(m).filter(function(u){ return u!==self.uid; }); if(others.length===0){ try{ self.db.ref('lobby/'+id).remove(); }catch(e){} try{ self.db.ref('worlds/'+id).remove(); }catch(e){} } else { /* someone stays: they keep the index fresh */ } }); }catch(e){} }
     this.detach();
+    this.spectator=false;
     this.worldId=null; this.worldRef=this.metaRef=this.membersRef=this.presRef=this.stateRef=this.arenaRef=null;
   }
 };
@@ -5949,7 +6011,7 @@ function mpOnNewGame(){
   mpPresence(true); renderRoster();
 }
 function mpPresence(force){
-  if(state.mode==='solo' || !Net.presRef) return;
+  if(state.mode==='solo' || !Net.presRef || Net.spectator) return;
   __presDirty=true;
   if(force){ flushPresence(); return; }
   if(__presTimer) return;
@@ -5957,7 +6019,7 @@ function mpPresence(force){
 }
 function flushPresence(){
   __presTimer=null; if(!__presDirty) return; __presDirty=false;
-  if(state.mode==='solo' || !Net.presRef || !state.player) return;
+  if(state.mode==='solo' || !Net.presRef || !state.player || Net.spectator) return;
   Net.setPresence({ name:MP.myName||'', floor:state.floor, x:state.px, y:state.py,
     hp:state.player.hp, maxFloor:state.maxFloor, kills:state.kills,
     finished:!!state.finished, finishTime:state.finishTime||0, over:!!state.over,
@@ -6034,12 +6096,14 @@ function onMetaUpdate(meta){
   if(meta.raceEndsAt && (state.mode==='race'||state.mode==='raceteam') && !state._raceCdEnded){ startRaceCountdown(meta.raceEndsAt); }
   if(byId('lobby').classList.contains('show')) renderLobby();
   if(byId('mpPanel').classList.contains('show')) renderMpPanel();
+  try{ if(Net.worldId) Net.pushLobby(); }catch(e){}
 }
-function onMembersUpdate(m){ MP.members=m||{}; renderRoster(); if(byId('lobby').classList.contains('show')) renderLobby(); if(byId('mpPanel').classList.contains('show')) renderMpPanel(); }
+function onMembersUpdate(m){ MP.members=m||{}; renderRoster(); try{ if(Net.worldId) Net.pushLobby(); }catch(e){} if(byId('lobby').classList.contains('show')) renderLobby(); if(byId('mpPanel').classList.contains('show')) renderMpPanel(); }
 function onPresenceUpdate(p){
   MP._lastPresence=p||{};
   const others={}; for(const uid in p){ if(uid===Net.uid) continue; others[uid]=p[uid]; }
   state.others=others;
+  if(Net.spectator && state.mpStarted && !state.spectating && !state.over){ try{ enterSpectate(); }catch(e){} }
   if(state.mode==='coop' && state.mpStarted && !state._coopWinShown && !state.over && coopAllSummited()){ Net.setBossCleared(); state._coopWinShown=true; coopVictory(Net.uid); }
   if(state.mode==='raceteam' && state.mpStarted && !state._raceCdEnded) rtCheckAllDone();
   if(state.spectating) fixSpectate();
@@ -6089,13 +6153,13 @@ function viewFloor(){ const s=specTarget(); return s ? (s.floor|0) : state.floor
 function viewCX(){ const s=specTarget(); return s ? (s.x|0) : state.px; }
 function viewCY(){ const s=specTarget(); return s ? (s.y|0) : state.py; }
 function viewFloorData(){ const s=specTarget(); if(s){ ensureFloor(s.floor|0); return state.floors[s.floor|0]; } return curFloor(); }
-function renderSpectate(){ const bar=byId('spectateBar'); if(!bar) return; if(!state.spectating){ bar.classList.remove('show'); return; } const s=specTarget(); const nm=byId('specName'); if(nm) nm.textContent=s?(s.name||'?'):'?'; const ex=byId('specExit'); if(ex){ ex.title=t('mp.specExit'); ex.style.display=(state.mode==='race'||state.mode==='raceteam')?'':'none'; } bar.classList.add('show'); }
+function renderSpectate(){ const bar=byId('spectateBar'); if(!bar) return; if(!state.spectating){ bar.classList.remove('show'); return; } const s=specTarget(); const nm=byId('specName'); if(nm) nm.textContent=s?(s.name||'?'):'?'; const ex=byId('specExit'); if(ex){ ex.title=t('mp.specExit'); ex.style.display=(Net.spectator||state.mode==='race'||state.mode==='raceteam')?'':'none'; } bar.classList.add('show'); }
 function enterSpectate(){ const alive=aliveTeammates(); if(!alive.length) return false; state.spectating=true; state.target=null; state.portalAim=false; state.portalTarget=null; if(!state.specUid || alive.indexOf(state.specUid)<0) state.specUid=alive[0]; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} return true; }
 function cycleSpectate(dir){ if(!state.spectating) return; const alive=aliveTeammates(); if(!alive.length){ endSpectateNoneLeft(); return; } let i=alive.indexOf(state.specUid); if(i<0) i=0; i=(i+(dir<0?-1:1)+alive.length)%alive.length; state.specUid=alive[i]; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} }
 function spectateWatch(uid){ if(!state.spectating) return; if(aliveTeammates().indexOf(uid)<0) return; state.specUid=uid; renderSpectate(); renderRoster(); try{ renderAll(); }catch(e){} }
 function fixSpectate(){ if(!state.spectating) return; const alive=aliveTeammates(); if(!alive.length){ endSpectateNoneLeft(); return; } if(alive.indexOf(state.specUid)<0){ state.specUid=alive[0]; renderSpectate(); } }
-function endSpectateNoneLeft(){ state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(!state._coopWinShown) endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
-function spectateExit(){ if(!state.spectating) return; state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(state._coopWinShown) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }   /* dead race/team player bails out of spectating to see their result */
+function endSpectateNoneLeft(){ state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(Net.spectator){ goStartScreen(); return; } if(!state._coopWinShown) endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function spectateExit(){ if(!state.spectating) return; state.spectating=false; const bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); if(Net.spectator){ goStartScreen(); return; } if(state._coopWinShown) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }   /* dead race/team player bails out of spectating to see their result */
 
 /* ---------------------------- race ranking ---------------------------- */
 var __raceCdTimer=null;
@@ -6218,6 +6282,7 @@ function goStartScreen(){
   ['combat','shop','manual','teleport','endScreen','lobby','mpPanel','arenaField','afShop','arenaPrep','arenaStage','arenaDuel','arenaEnd'].forEach(hide);
   { const _r=byId('mpRoster'); if(_r) _r.classList.remove('show'); const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
   try{ stopRaceCountdown(); }catch(e){} state.raceEndsAt=0; state._raceCdEnded=false;
+  try{ Net.unwatchLobby(); }catch(e){} state._spectator=false;
   state.spectating=false; state.specUid=null;
   renderStartScreen(); show('startScreen'); renderMpButton(); try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(e){}   /* 回主畫面時收起成就提示，回遊戲再續播 */
   try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){}
@@ -6266,7 +6331,7 @@ function openLeaderboard(){
 function openLobbyScreen(){
   if(!Net.configured()){ toast(t('mp.notConfigured')); return; }
   state.mpStarted=false; state._inLobby=false;
-  hide('startScreen'); renderLobby(); show('lobby');
+  hide('startScreen'); renderLobby(); show('lobby'); try{ Net.watchLobby(renderLobbyList); }catch(e){}
 }
 
 /* ---------------------------- lobby ---------------------------- */
@@ -6326,6 +6391,7 @@ function renderLobby(){
     byId('lbCreate').textContent=t('mp.create');
     byId('lbJoin').textContent=t('mp.join');
     byId('lbCode').placeholder=t('mp.codePh');
+    renderLobbyList();
   }else{
     byId('lbCodeLab').textContent=t('mp.roomCode');
     byId('lbCodeShow').textContent=Net.worldId;
@@ -6371,6 +6437,70 @@ function doJoin(){
     if(!r||r.error){ toast(mpErr(r&&r.error)); return; }
     MP.mode=r.mode; MP.seed=r.seed; MP.host=r.host; state._inLobby=true;
     renderLobby();
+  });
+}
+/* ---------------------------- public room browser ---------------------------- */
+function lobbyRoomsFromSnap(v, now){
+  var rooms=[];
+  for(var code in v){
+    var r=v[code]; if(!r) continue;
+    if((r.count||0)<=0) continue;                          /* empty rooms */
+    if((now-(r.updatedAt||0))>60000) continue;             /* abandoned rooms fade out (~60s without a heartbeat) */
+    rooms.push({ code:code, mode:r.mode||'coop', host:r.host||'', count:r.count||0, max:r.max||4, status:r.status||'lobby', createdAt:r.createdAt||0, floors:r.floors||26, diff:r.diff||'normal' });
+  }
+  rooms.sort(function(a,b){ if((a.status==='lobby')!==(b.status==='lobby')) return a.status==='lobby'?-1:1; return (b.createdAt||0)-(a.createdAt||0); });   /* joinable rooms first, then newest */
+  return rooms;
+}
+function roomModeLabel(m){ if(m==='arena') return t('mp.modeFreeArena'); if(m==='raceteam') return t('mp.modeRaceTower')+' · '+t('mp.modeTeam'); if(m==='race') return t('mp.modeRaceTower')+' · '+t('mp.modeSolo'); return t('mp.modeCoopTower'); }
+var _lobbyRooms=[];
+function renderLobbyList(rooms){
+  if(rooms) _lobbyRooms=rooms;
+  var tt=byId('lbBrowseTitle'); if(tt) tt.textContent=t('mp.browseTitle');
+  var box=byId('lbRoomList'); if(!box) return;
+  var list=_lobbyRooms||[]; box.innerHTML='';
+  if(!list.length){ var e=document.createElement('div'); e.className='lbRoomEmpty'; e.textContent=t('mp.noRooms'); box.appendChild(e); return; }
+  list.forEach(function(r){
+    var row=document.createElement('div'); row.className='lbRoomRow';
+    var info=document.createElement('div'); info.className='lbRoomInfo';
+    var a=document.createElement('div'); a.className='lbRoomMode'; a.textContent=roomModeLabel(r.mode);
+    var playing=(r.status==='playing'), full=(r.count>=r.max);
+    var b=document.createElement('div'); b.className='lbRoomMeta';
+    b.textContent=(r.host?_esc(r.host)+'　':'')+'👥 '+r.count+'/'+r.max+'　'+(playing?t('mp.roomPlaying'):t('mp.roomWaiting'));
+    info.appendChild(a); info.appendChild(b);
+    var btn=document.createElement('button'); btn.className='btn lbRoomBtn';
+    if(playing){ btn.textContent=t('mp.roomSpectate'); btn.classList.add('lbRoomSpec'); btn.addEventListener('click',function(){ spectateRoom(r.code); }); }
+    else if(full){ btn.textContent=t('mp.roomFull'); btn.disabled=true; btn.classList.add('lbRoomFull'); }
+    else { btn.textContent=t('mp.roomJoin'); btn.classList.add('gold'); btn.addEventListener('click',function(){ joinRoom(r.code); }); }
+    row.appendChild(info); row.appendChild(btn); box.appendChild(row);
+  });
+}
+function joinRoom(code){
+  var name=getNameInput(); if(!name){ toast(t('mp.needName')); return; }
+  MP.myName=name; toast(t('mp.connecting'));
+  Net.joinWorld(code,name).then(function(r){
+    if(!r||r.error){ toast(mpErr(r&&r.error)); return; }
+    MP.mode=r.mode; MP.seed=r.seed; MP.host=r.host; state._inLobby=true;
+    renderLobby();
+  });
+}
+function spectateRoom(code){
+  MP.myName=getNameInput()||MP.myName||''; toast(t('mp.connecting'));
+  Net.spectateWorld(code).then(function(r){
+    if(!r||r.error){ toast(mpErr(r&&r.error)); return; }
+    MP.mode=r.mode; MP.seed=r.seed; MP.mapSize=r.mapSize||30; MP.host=false; state._inLobby=false;
+    if(r.mode==='arena'){ try{ Net.leaveWorld(); }catch(e){} toast(t('mp.specArenaSoon')); return; }   /* arena spectate: follow-up */
+    startTowerSpectate();
+  });
+}
+function startTowerSpectate(){
+  hide('lobby'); state.mpStarted=true; state._spectator=true;
+  Net.ensureConfigLoaded().then(function(){
+    if(isSummitMode(MP.mode)) FLOORS=clamp(((MP.meta&&MP.meta.cfg&&MP.meta.cfg.floors)|0)||26,26,51);
+    newGame({ mode:MP.mode, seed:MP.seed, worldId:Net.worldId, mapSize:MP.mapSize, difficulty:(isSummitMode(MP.mode)?((MP.meta&&MP.meta.cfg&&MP.meta.cfg.difficulty)||'normal'):'normal') });
+    state._spectator=true;
+    try{ onPresenceUpdate(MP._lastPresence||{}); }catch(e){}                 /* rebuild peer list from the cached snapshot */
+    if(enterSpectate()){ try{ toast(t('mp.specWatching')); }catch(e){} return; }
+    var tries=0; (function waitPeers(){ if(state.spectating||!Net.spectator) return; try{ onPresenceUpdate(MP._lastPresence||{}); }catch(e){} if(enterSpectate()){ try{ toast(t('mp.specWatching')); }catch(e){} return; } if(++tries<40) setTimeout(waitPeers,150); else { toast(t('mp.noRooms')); goStartScreen(); } })();
   });
 }
 function mpStartLoading(doWork, onDone){
@@ -8085,7 +8215,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·157'; }
+    bt.textContent='build 0618·158'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -8093,7 +8223,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·157'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·158'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
