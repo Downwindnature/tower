@@ -7151,7 +7151,7 @@ function renderMpPanelSolo(){
   const body=byId('mpBody'); body.innerHTML='';
   const p=document.createElement('p'); p.className='desc'; p.textContent=t('mp.soloNote'); body.appendChild(p);
   const btn=document.createElement('button'); btn.className='btn gold'; btn.textContent=t('mp.goMulti');
-  btn.addEventListener('click',function(){ hide('mpPanel'); goStartScreen(); });
+  btn.addEventListener('click',function(){ hide('mpPanel'); openLobbyScreen(); });
   body.appendChild(btn);
 }
 function renderMpPanel(){
@@ -8215,7 +8215,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·158'; }
+    bt.textContent='build 0618·159'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -8223,7 +8223,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·158'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·159'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
