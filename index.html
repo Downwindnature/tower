@@ -125,7 +125,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .aeWinner{color:#7CFC9B;font-weight:700;}
 .aeLoser{opacity:.45;}
 .aeMid.aeDraw{color:#FFD479;opacity:1;font-weight:600;}
-.afField{ padding:0 !important; }
+.afField{ padding:0 !important; background:#0a0714 !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
 .lbSub{ margin-top:6px; }
 .segBtn:disabled{ opacity:.4; cursor:default; }
 .overlay.afField.show{ display:block; }
@@ -6215,7 +6215,7 @@ function goStartScreen(){
   try{ clearTimeout(combatTimer); }catch(e){} state.combat=null; state.busy=false; state.target=null;   /* 退出回主畫面：強制中止戰鬥——取消回合排程，並把 state.combat 設為 null，逐發動畫/音效迴圈下一步即自停 */
   state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false; state.portalAim=false; state.portalTarget=null;
   if(Net.worldId) Net.leaveWorld();
-  ['combat','shop','manual','teleport','endScreen','lobby','mpPanel'].forEach(hide);
+  ['combat','shop','manual','teleport','endScreen','lobby','mpPanel','arenaField','afShop','arenaPrep','arenaStage','arenaDuel','arenaEnd'].forEach(hide);
   { const _r=byId('mpRoster'); if(_r) _r.classList.remove('show'); const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
   try{ stopRaceCountdown(); }catch(e){} state.raceEndsAt=0; state._raceCdEnded=false;
   state.spectating=false; state.specUid=null;
@@ -6224,6 +6224,7 @@ function goStartScreen(){
   try{ _bgmStopWA(); }catch(e){}
 }
 function renderStartScreen(){
+  try{ ['arenaField','afShop','arenaPrep','arenaStage','arenaDuel','arenaEnd'].forEach(function(_id){ var _e=byId(_id); if(_e) _e.classList.remove('show'); }); }catch(e){}   /* safety: the main menu is never shown behind a stuck arena overlay */
   const s1=byId('tsStartLab'); if(s1) s1.textContent=t('ts.start');
   const s2=byId('tsManualLab'); if(s2) s2.textContent=t('ts.manual');
   const s3=byId('tsRankLab'); if(s3) s3.textContent=t('ts.rank');
@@ -6510,10 +6511,10 @@ function afJoyEnd(){ if(AField){ AField.joy=null; } afJoyKnob({x:0,y:0}); }
 function afJoyMoveMouse(e){ if(AField&&AField.joy){ afJoyMove(e); } }
 function afBind(){ document.addEventListener('keydown',afKeyDown); document.addEventListener('keyup',afKeyUp); var j=byId('afJoy'); if(j){ j.addEventListener('touchstart',afJoyStart,{passive:false}); j.addEventListener('touchmove',afJoyMove,{passive:false}); j.addEventListener('touchend',afJoyEnd); j.addEventListener('mousedown',afJoyStart); } window.addEventListener('mousemove',afJoyMoveMouse); window.addEventListener('mouseup',afJoyEnd); window.addEventListener('resize',afResize); }
 function afUnbind(){ document.removeEventListener('keydown',afKeyDown); document.removeEventListener('keyup',afKeyUp); window.removeEventListener('mousemove',afJoyMoveMouse); window.removeEventListener('mouseup',afJoyEnd); window.removeEventListener('resize',afResize); }
-function afOpen(){ afInit(); show('arenaField'); afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
+function afOpen(){ afInit(); show('arenaField'); { var _ss=byId('startScreen'); if(_ss) _ss.classList.remove('show'); var _lb=byId('lobby'); if(_lb) _lb.classList.remove('show'); } afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
   afStartPhases(); afRenderPhaseBar(); afRenderTeamBar(); if(afPhaseTimer) clearInterval(afPhaseTimer); afPhaseTimer=setInterval(afPhaseTick,500); }
 function afClose(){ if(AField&&AField.raf){ try{ cancelAnimationFrame(AField.raf); }catch(e){} AField.raf=null; } if(afPhaseTimer){ clearInterval(afPhaseTimer); afPhaseTimer=null; } try{ if(MP.arena&&MP.arena._afTimer){ clearInterval(MP.arena._afTimer); MP.arena._afTimer=null; } }catch(e){} afUnbind(); AField=null; hide('arenaField'); }
-function afExitToPrep(){ afClose(); try{ show('arenaPrep'); }catch(e){} }
+function afExitToPrep(){ afClose(); if(typeof Net!=='undefined' && Net.worldId){ try{ show('lobby'); renderLobby(); return; }catch(e){} } goStartScreen(); }
 function afShopNear(){ var f=AField; if(!f) return false; for(var i=0;i<AF_SHOPS.length;i++){ var s=AF_SHOPS[i]; if(Math.hypot(f.px-s.x,f.py-s.y)<=1.4) return true; } return false; }
 function afRenderShopBtn(){ var f=AField, btn=byId('afShopBtn'); if(!btn) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var near=!!(f && !f.paused && afShopNear()); btn.style.display=(near && ph==='shop')?'':'none'; if(near&&ph==='shop') btn.textContent=t('mp.afShopBtn'); }
 function afShopRender(){
@@ -8084,7 +8085,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·156'; }
+    bt.textContent='build 0618·157'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -8092,7 +8093,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·156'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·157'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
