@@ -84,6 +84,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .setRow .setIcon{width:34px;text-align:center;font-size:15px;flex:0 0 auto;}
 .setRow.langRow{padding-top:6px;margin-top:4px;border-top:1px solid var(--line);cursor:default;}
 .langRow select.langsel{flex:1;height:32px;}
+.setViewSeg{display:flex;gap:4px;margin-left:auto;}
+.setViewSeg .segBtn{padding:3px 9px;font-size:12px;min-width:28px;}
 
 /* ============ Main ============ */
 .main{flex:1;display:flex;gap:12px;min-height:0;}
@@ -196,7 +198,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 /* ---- Map ---- */
 #mapWrap{flex:1;display:flex;flex-direction:column;min-width:0;gap:10px;}
 #mapStage{flex:1;display:grid;place-items:start center;min-height:0;position:relative;}
-#mapFrame{position:relative;padding:12px;border-radius:14px;
+#mapFrame{position:relative;padding:12px;border-radius:14px;overflow:hidden;
   background:linear-gradient(180deg,#1c1530,#120c20);
   border:1px solid var(--line);
   box-shadow:0 16px 50px rgba(0,0,0,.6),inset 0 0 0 2px rgba(0,0,0,.35),inset 0 0 60px rgba(120,80,200,.07);}
@@ -205,7 +207,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 #grid{display:grid;gap:0;position:relative;}
 .tile{position:relative;border-radius:0;display:grid;place-items:center;overflow:hidden;}
 .peerInd{position:absolute;transform:translate(-50%,-50%);min-width:20px;height:20px;padding:0 4px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,.85);box-shadow:0 1px 5px rgba(0,0,0,.65);pointer-events:none;z-index:6;opacity:.94;}
-.mpRoster{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:none;gap:5px;flex-wrap:wrap;justify-content:center;max-width:96%;z-index:7;pointer-events:none;}
+.mpRoster{display:none;gap:5px;flex-wrap:wrap;justify-content:center;max-width:96%;align-self:center;margin:2px 0 0;pointer-events:none;}
 .mpRoster.show{display:flex;}
 .rosterChip{display:flex;align-items:center;gap:5px;padding:3px 9px 3px 4px;border-radius:13px;background:rgba(10,7,20,.74);border:2px solid #fff;font-size:11px;font-weight:700;color:#f3ead2;max-width:118px;pointer-events:auto;}
 .rosterChip.dead{border-color:#e0455e;opacity:.66;}
@@ -1219,6 +1221,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
         <div class="setRow"><button class="iconbtn" id="btnHelp" title="說明">❓</button><span class="setLab" id="setHelpLab">遊戲說明</span></div>
         <div class="setRow"><button class="iconbtn" id="btnNew" title="重新開始">🔄</button><span class="setLab" id="setNewLab">重新開始</span></div>
         <div class="setRow"><button class="iconbtn" id="btnHome" title="主畫面">🏠</button><span class="setLab" id="setHomeLab">主畫面</span></div>
+        <div class="setRow" id="setViewRow" style="display:none"><span class="setIcon">🔭</span><span class="setLab" id="setViewLab">視野</span><div class="seg setViewSeg" id="setViewSeg"><button class="segBtn" data-sv="9">9</button><button class="segBtn" data-sv="11">11</button><button class="segBtn" data-sv="13">13</button></div></div>
         <div class="setRow" id="setMpRow" style="display:none"><button class="iconbtn" id="btnMP" title="多人連線">👥</button><span class="setLab" id="setMpLab">多人連線</span></div>
         <div class="setRow langRow"><span class="setIcon">🌐</span><select class="langsel" id="langSel">
           <option value="zh-Hant">繁體中文</option>
@@ -1253,7 +1256,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
         <div class="statRow"><span class="k" id="goldLabel">金錢</span><span class="v num" id="goldVal">0</span></div>
       </div>
       </div>
-      <div class="keysBox keysCard panel" id="keysBox">
+      <div class="keysBox keysCard panel open" id="keysBox">
         <button class="keysToggle" id="keysToggle"><span><span id="keysLab">鑰匙</span></span><span class="arr">▾</span></button>
         <div class="keysGrid">
           <div class="keyCell"><div class="kc y"></div><div class="cnt num" id="keyY">0</div></div>
@@ -1269,8 +1272,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     <!-- MAP -->
     <div id="mapWrap">
       <div class="floorBar" id="floorBar"><div id="cheatBadge"><span id="cheatBadgeLab">管理者模式</span><button id="cheatExit">退出</button></div><span class="v num" id="floorNum">1 樓</span></div>
+      <div id="mpRoster" class="mpRoster"></div>
       <div id="mapStage">
-        <div id="mpRoster" class="mpRoster"></div>
         <div id="raceCountdown" class="raceCountdown" style="display:none"></div>
         <div id="spectateBar" class="spectateBar"><button class="specNav" id="specPrev">‹</button><div class="specWho"><span class="specEye">👁</span><span id="specName"></span></div><button class="specNav" id="specNext">›</button><button class="specExit" id="specExit" style="display:none">✕</button></div>
         <div id="mapFrame"><div id="grid"></div></div>
@@ -1561,8 +1564,18 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   <h2><span class="ic">🌐</span><span id="lobbyTitle">連線大廳</span></h2>
   <!-- create / join form -->
   <div id="lbForm">
+    <div id="lbLanding">
     <button class="btn gold lbWide" id="lbNewRoomBtn"><span id="lbNewRoomLab">建立房間</span></button>
+    <div class="lbOr"><span></span><b>—</b><span></span></div>
+    <div class="lbJoinRow">
+      <input type="text" id="lbCode" maxlength="5" placeholder="輸入房間代碼" autocomplete="off" style="text-transform:uppercase">
+      <button class="btn" id="lbJoin">加入</button>
+    </div>
+    <div class="lbBrowse"><div class="lbBrowseHead"><span id="lbBrowseTitle">公開房間</span></div><div id="lbRoomList" class="lbRoomList"></div></div>
+    <div class="closeRow" style="justify-content:center"><button class="btn" id="lbBackHome"><span id="lbBackHomeLab">返回主畫面</span></button></div>
+    </div>
     <div id="lbCreatePanel" style="display:none">
+    <div class="closeRow" style="justify-content:flex-start;margin-bottom:8px"><button class="btn" id="lbCreateBack"><span id="lbCreateBackLab">← 返回</span></button></div>
     <div class="lbField"><label id="lbRoomNameLab">房間名稱</label>
       <input type="text" id="lbRoomName" maxlength="16" placeholder="房間名稱（選填）" autocomplete="off"></div>
     <div class="lbField"><label id="lbRoomPassLab">房間密碼</label>
@@ -1590,25 +1603,11 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
         <button class="segBtn" data-map="35">35</button>
         <button class="segBtn" data-map="40">40</button>
       </div></div>
-    <div class="lbField"><label id="lbViewLab">視野</label>
-      <div class="seg" id="lbViewSeg">
-        <button class="segBtn" data-view="9">9×9</button>
-        <button class="segBtn sel" data-view="11">11×11</button>
-        <button class="segBtn" data-view="13">13×13</button>
-      </div></div>
     <div id="lbCreateCfg"></div>
     <button class="btn gold lbWide" id="lbCreate">確定建立</button>
     </div>
-    <div class="lbOr"><span></span><b>—</b><span></span></div>
-    <div class="lbJoinRow">
-      <input type="text" id="lbCode" maxlength="5" placeholder="輸入房間代碼" autocomplete="off" style="text-transform:uppercase">
-      <input type="text" id="lbJoinPass" maxlength="16" placeholder="密碼" autocomplete="off" style="max-width:96px">
-      <button class="btn" id="lbJoin">加入</button>
-    </div>
-    <div class="lbBrowse"><div class="lbBrowseHead"><span id="lbBrowseTitle">公開房間</span></div><div id="lbRoomList" class="lbRoomList"></div></div>
-    <div class="closeRow" style="justify-content:center"><button class="btn" id="lbBackHome"><span id="lbBackHomeLab">返回主畫面</span></button></div>
   </div>
-  <!-- joined room -->
+    <!-- joined room -->
   <div id="lbRoom" style="display:none">
     <div class="roomCodeBox">
       <div><div class="rcLab" id="lbCodeLab">房間代碼</div><div class="rcCode" id="lbCodeShow">-----</div></div>
@@ -1969,6 +1968,7 @@ function hasUp(f){ return f<FLOORS && f!==SECRET_FLOOR; }
 function isSummitMode(m){ return m==='coop'||m==='race'||m==='raceteam'; }
 function diffRank(d){ var r={easy:0,normal:1,hard:2,hell:3}; return (r[d]!=null)?r[d]:1; }
 function diffFactor(d){ var f={easy:1.30,normal:1.0,hard:0.65,hell:0.45}; return f[d]||1.0; }   /* multiplies each monster's min floor: <1 pulls late-game mobs earlier (harder), >1 pushes them later (easier) */
+function diffCountMul(d){ var m={easy:0.7,normal:1.0,hard:1.3,hell:1.6}; return m[d]||1.0; }   /* 怪物數量隨難度調整：越難怪越多（單機恆為 normal = x1，不受影響） */
 function curDifficulty(){ return state.difficulty || 'normal'; }   /* solo is always 'normal' (baseline / original) */
 function hasSummit(){ return isSummitMode(state.mode); }   /* MP tower modes: final boss on FLOORS-1 + an empty summit on FLOORS (登頂). Solo keeps the ORIGINAL layout: boss on the top floor = clear. */
 function hasDown(f){ return f>-BASEMENT && f!==SECRET_FLOOR; }
@@ -2515,7 +2515,8 @@ function genFloorRaw(f){
   // monsters
   const _fdMul=(typeof FLOOR_CFG!=='undefined'&&FLOOR_CFG[_realFloor]!=null)?FLOOR_CFG[_realFloor]:1;   // per-floor density (admin Map tab)
   const _areaMul=(state.mode!=='solo')?Math.max(1,(GRID*GRID)/(11*11)):1;   // big MP floors get proportionally more wandering monsters (tunable later)
-  const monCount=clamp(Math.round((3+Math.floor(f/4))*_fdMul*_areaMul),0,Math.round(14*_areaMul));   // wandering mobs only; path/treasure guards are placed separately so the floor stays solvable
+  const _dcm=diffCountMul(curDifficulty());   // 怪物數量隨難度調整（越難越多；單機 normal = x1）
+  const monCount=clamp(Math.round((3+Math.floor(f/4))*_fdMul*_areaMul*_dcm),0,Math.round(14*_areaMul*_dcm));   // wandering mobs only; path/treasure guards are placed separately so the floor stays solvable
   const isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };   // weaken / poison / true-damage / life-drain
   const _ALLMON=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);   // unified pool; each monster carries its own surface (sMin/sMax) + basement-depth (bMin/bMax) ranges (admin Monsters tab)
   let roster;
@@ -2976,7 +2977,7 @@ function genFloorRaw(f){
       placed++; lastIdx=i;
     }
   }
-  if(_realFloor===1){ for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ data.ent[y][x]=null; } }   // 1F: a calm, empty starting floor — no monsters AND no treasure (everything begins on 2F)
+  if(_realFloor===1 && state.mode==='solo'){ for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ data.ent[y][x]=null; } }   // 單機 1F：平靜無怪的起始層；多人模式 1F 正常生成怪物與寶物
   ensureStairsRoute();   // final guarantee after guards & doors (main tower only)
   // final sweep on the FINISHED board (after shops & wall carves): a door must never cut off a staircase, and must open onto treasure, never a mob
   for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ const e=data.ent[y][x]; if(!(e&&e.kind==='door')) continue;
@@ -3212,6 +3213,7 @@ function wallBrick(f,x,y){ return (hashSeed(state.seed, (f*733)+((y>>1)*31)+((x>
 function floorZone(f){ const ef=effFloor(f); return ef<=8?'cosmic':(ef<=15?'stone':'ember'); }
 
 let _lavaClock=Date.now(); const LAVA_PERIOD=1200;   /* lava flash synced to a global clock so re-rendering each move doesn't restart it */
+var _prevCam=null;
 function renderMap(){
   const d=viewFloorData(); const g=byId('grid'); g.innerHTML='';
   g.classList.remove('z-cosmic','z-stone','z-ember'); g.classList.add('z-'+floorZone(d.f));
@@ -3315,6 +3317,21 @@ function renderMap(){
       _ind.textContent=initialOf(_o.name); g.appendChild(_ind);
     }
   }
+  // --- smooth single-step camera pan: slide the grid one tile instead of snapping (only when the camera scrolls, i.e. MP viewports) ---
+  try{
+    var _pc=_prevCam;
+    if(_pc && _pc.f===d.f && _pc.x!=null){
+      var _pdx=_cam.x-_pc.x, _pdy=_cam.y-_pc.y;
+      if(_pdx===0 && _pdy===0){ /* camera unchanged — leave any running pan animation alone */ }
+      else if(Math.abs(_pdx)<=1 && Math.abs(_pdy)<=1){
+        g.style.transition='none';
+        g.style.transform='translate('+(_pdx*100/_V)+'%,'+(_pdy*100/_V)+'%)';
+        void g.offsetWidth;                                   /* commit the pre-offset, then animate back to 0 next frame */
+        requestAnimationFrame(function(){ g.style.transition='transform .12s ease-out'; g.style.transform='translate(0,0)'; });
+      } else { g.style.transition='none'; g.style.transform='none'; }
+    }
+    _prevCam={f:d.f, x:_cam.x, y:_cam.y};
+  }catch(_e){}
 }
 
 function renderStats(){
@@ -5274,6 +5291,7 @@ function applyLang(){
     _st('setHelpLab', _lab('遊戲說明','游戏说明','How to Play','遊び方','게임 설명'));
     _st('setNewLab', t('ui.newGame'));
     _st('setHomeLab', _lab('主畫面','主画面','Home','ホーム','홈'));
+    _st('setViewLab', _lab('視野','视野','View','視野','시야'));
     _st('setMpLab', t('mp.modeMulti'));
     { const _bs=byId('btnSettings'); if(_bs) _bs.title=_lab('設定','设置','Settings','設定','설정'); }
   }
@@ -5363,6 +5381,7 @@ function toggleSettingsMenu(){
     var _soloGame=!!(typeof inGame==='function' && inGame() && state && state.mode==='solo');
     var _hb=byId('btnHome'); if(_hb){ var _hr=_hb.closest('.setRow'); if(_hr) _hr.style.display=_mpLive?'none':''; }   /* 主畫面／回到主畫面：多人遊戲進行中隱藏（此鈕為單機用） */
     var _nb=byId('btnNew');  if(_nb){ var _nr=_nb.closest('.setRow'); if(_nr) _nr.style.display=_soloGame?'':'none'; }   /* 重新開始：僅單機遊戲中顯示（大廳/主畫面/多人皆隱藏） */
+    var _vr=byId('setViewRow'); if(_vr){ _vr.style.display=_mpLive?'':'none'; if(_mpLive){ var _cur=mpViewPref(); var _vbs=_vr.querySelectorAll('.segBtn'); for(var _i=0;_i<_vbs.length;_i++){ _vbs[_i].classList.toggle('sel',(+_vbs[_i].dataset.sv)===_cur); } } }   /* 視野：每位玩家自行調整（僅多人遊戲中，單機為全圖） */
   }catch(_e){}
 }
 function bindInput(){
@@ -5554,6 +5573,7 @@ function bindInput(){
   { const _eh=byId('endHome'); if(_eh) _eh.addEventListener('click',goStartScreen); }
 
   byId('keysToggle').addEventListener('click',function(){ byId('keysBox').classList.toggle('open'); });
+  { var _vseg=byId('setViewSeg'); if(_vseg){ _vseg.querySelectorAll('.segBtn').forEach(function(b){ b.addEventListener('click',function(){ var v=+this.dataset.sv; if(v!==9&&v!==11&&v!==13) return; try{ localStorage.setItem('mt_mpView',String(v)); }catch(_e){} var sib=this.parentNode.querySelectorAll('.segBtn'); for(var i=0;i<sib.length;i++) sib[i].classList.toggle('sel',sib[i]===this); try{ renderMap(); }catch(_e2){} }); }); } }
 
   { const _bSet=byId('btnSettings'); const _menu=byId('settingsMenu');
     if(_bSet && _menu){
@@ -5588,18 +5608,23 @@ function requestRestart(){
 }
 
 /* ============================== Background music (per-floor, no overlap) ============================== */
-const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3', secret:'bgm-secret.mp3' };
+const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3', secret:'bgm-secret.mp3', mp_floor1:'bgm-mp-floor1.mp3', mp_upper:'bgm-mp-upper.mp3', mp_topBoss:'bgm-mp-top-boss.mp3', mp_secret:'bgm-mp-secret.mp3' };   /* 多人無地下層，故無 mp_basement / mp_deepBoss；密室保留 */
 function bgmKeyForFloor(f){
-  if(f===SECRET_FLOOR) return 'secret';        // 密室專屬 BGM（進去這首，出去依所在樓層切回）
-  if(f===1) return 'floor1';                 // 1F
-  var _bf=hasSummit()?FLOORS-1:FLOORS;        // boss floor (MP: FLOORS-1; solo: FLOORS)
-  if(f===_bf) return 'topBoss';              // final boss floor
-  if(hasSummit() && f===FLOORS) return 'upper';   // summit (calm)
-  if(f>=2 && f<_bf) return 'upper';          // content floors
-  if(f===-BASEMENT) return 'deepBoss';       // B20 boss
-  if(f<0) return 'basement';                 // B1-B19
-  return 'upper';
+  var base;
+  if(f===SECRET_FLOOR) base='secret';                     // 密室專屬 BGM（進去這首，出去依所在樓層切回）
+  else { var _bf=hasSummit()?FLOORS-1:FLOORS;             // boss floor (MP: FLOORS-1; solo: FLOORS)
+    if(f===1) base='floor1';                              // 1F
+    else if(f===_bf) base='topBoss';                      // final boss floor
+    else if(hasSummit() && f===FLOORS) base='upper';      // summit (calm)
+    else if(f>=2 && f<_bf) base='upper';                  // content floors
+    else if(f===-BASEMENT) base='deepBoss';               // B20 boss
+    else if(f<0) base='basement';                         // B1-B19
+    else base='upper';
+  }
+  if(typeof state!=='undefined' && state.mode && state.mode!=='solo'){ var _mk='mp_'+base; if(BGM_FILES[_mk]) return _mk; }   // 多人模式專屬 BGM；缺檔時於載入處自動回退單機曲
+  return base;
 }
+function _bgmSoloFallbackKey(k){ return (typeof k==='string' && k.indexOf('mp_')===0 && BGM_FILES[k.slice(3)]) ? k.slice(3) : null; }
 /* ---- Three-channel volume: master is a global multiplier; music & sfx are independent (effective = master x channel) ---- */
 function _clampv(v){ v=parseFloat(v); if(isNaN(v)) v=0; return Math.max(0,Math.min(1,v)); }
 let _volMaster=0.8, _volMusic=0.7, _volSfx=0.8;
@@ -5651,6 +5676,7 @@ function _bgmEnsureGain(){ if(!_actx) return null; if(!_bgmGain){ try{ _bgmGain=
 function _bgmPreloadAll(){   /* warm-load every floor track so switching floors plays instantly (no ~1.5s fetch/decode delay) */
   if(!_actx) return;
   Object.keys(BGM_FILES).forEach(function(key){
+    if(key.indexOf('mp_')===0) return;   /* MP tracks load on demand (and fall back to solo if missing) */
     if(_bgmBuf[key]) return;
     try{ fetch(BGM_FILES[key]).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ if(!_bgmBuf[key]) _bgmBuf[key]=_bgmTrimSilence(buf); }).catch(function(){}); }catch(e){}
   });
@@ -5690,7 +5716,9 @@ function _bgmPlayWA(key){
   if(_bgmBuf[key]){ _bgmStartWA(key); return; }
   if(_bgmLoading===key) return;
   _bgmLoading=key;
-  try{ fetch(BGM_FILES[key]).then(function(r){ return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ _bgmBuf[key]=_bgmTrimSilence(buf); _bgmLoading=null; if(_bgmWantKey()===key) _bgmStartWA(key); }).catch(function(){ _bgmLoading=null; }); }catch(e){ _bgmLoading=null; }
+  var _tryLoad=function(url, onFail){ fetch(url).then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ _bgmBuf[key]=_bgmTrimSilence(buf); _bgmLoading=null; if(_bgmWantKey()===key) _bgmStartWA(key); }).catch(function(){ if(onFail){ onFail(); } else { _bgmLoading=null; } }); };
+  var _fbk=_bgmSoloFallbackKey(key);
+  try{ _tryLoad(BGM_FILES[key], _fbk?function(){ _tryLoad(BGM_FILES[_fbk], null); }:null); }catch(e){ _bgmLoading=null; }
 }
 function updateBGM(force){
   const want=_bgmWantKey();
@@ -5701,7 +5729,7 @@ function updateBGM(force){
   /* fallback: HTML5 <audio> (only when Web Audio is unavailable) */
   if(!_bgmAudio || typeof state==='undefined' || state.floor==null) return;
   if(!want){ try{ _bgmAudio.pause(); }catch(e){} _bgmKey=null; return; }
-  if(want!==_bgmKey){ _bgmKey=want; try{ _bgmAudio.src=BGM_FILES[want]; }catch(e){} if(effMusicVol()>0){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); } }
+  if(want!==_bgmKey){ _bgmKey=want; var _fbk2=_bgmSoloFallbackKey(want); try{ _bgmAudio.onerror=_fbk2?function(){ _bgmAudio.onerror=null; try{ _bgmAudio.src=BGM_FILES[_fbk2]; if(effMusicVol()>0){ var _p2=_bgmAudio.play(); if(_p2&&_p2.catch) _p2.catch(function(){}); } }catch(e){} }:null; _bgmAudio.src=BGM_FILES[want]; }catch(e){} if(effMusicVol()>0){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); } }
   else if(force && effMusicVol()>0 && _bgmAudio.paused){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); }
 }
 function updateMuteBtn(){ const b=byId('btnMute'); if(b){ b.textContent = (_volMaster<=0) ? '🔇' : '🔊'; } }
@@ -5883,7 +5911,7 @@ const I18N_MP = {
 'zh-Hant':{mp:{startSub:'選擇遊玩方式',modeSingle:'單機冒險',modeMulti:'多人連線',notConfigured:'尚未設定 Firebase，目前僅能單機遊玩',
   lobbyTitle:'連線大廳',name:'玩家名稱',namePh:'輸入你的名稱',mode:'模式',race:'競速',coop:'合作',arena:'擂台',
   raceDesc:'同一座塔、各自獨立，比誰先登頂。',coopDesc:'共享同一座塔，清掉的怪物與寶物會同步給隊友。',arenaDesc:'同一張地圖的環形競技場，分兩隊抽籤 1v1，以勝場計分。',arenaPrep:'賽前準備',arenaTeam:'你的隊伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻擊與防禦技能書',arenaReady:'準備完成',arenaWait:'等待其他玩家…',arenaNoGold:'金幣不足',arenaReadyMsg:'已準備，等待其他玩家',arenaAllReady:'全員就緒，即將開始',arenaMatch:'對戰',arenaAI:'電腦',arenaYouFight:'你即將上場！',arenaWatching:'觀戰中',arenaFightSoon:'1v1 戰鬥即將登場（開發中）',arenaDoneSoon:'結算即將登場（開發中）',arenaWinner:'{name} 勝！',arenaDraw:'平手',arenaResult:'比賽結束',arenaTeamWin:'{team} 隊獲勝',arenaTie:'雙方平手',arenaBack:'返回主畫面',
-  maxPlayers:'人數上限',mapSizeLab:'地圖大小',viewLab:'視野',loadTitle:'載入中…',load1:'加載地圖中',load2:'加載怪物中',load3:'加載寶物中',load4:'加載玩家資料中',load5:'完成',create:'建立房間',join:'加入',codePh:'輸入房間代碼',roomCode:'房間代碼',copy:'複製',copied:'已複製',homeLocked:'多人遊戲進行中，無法離開',roomName:'房間名稱',roomNamePh:'房間名稱（選填）',roomPass:'房間密碼',roomPassPh:'設定密碼（選填）',passShort:'密碼',needRoomPass:'請輸入房間密碼',badPass:'密碼錯誤',idTitle:'玩家資料',idSave:'儲存',idClose:'關閉',idTapSet:'點此設定名稱',cfgAiCount:'AI 數量',confirmCreate:'確定建立',backHome:'返回主畫面',idEditHint:'點此修改名稱與頭像',renameHint:'可點右上角的名牌修改名稱與頭像',
+  maxPlayers:'人數上限',mapSizeLab:'地圖大小',viewLab:'視野',loadTitle:'載入中…',load1:'加載地圖中',load2:'加載怪物中',load3:'加載寶物中',load4:'加載玩家資料中',load5:'完成',create:'建立房間',join:'加入',codePh:'輸入房間代碼',roomCode:'房間代碼',copy:'複製',copied:'已複製',homeLocked:'多人遊戲進行中，無法離開',roomName:'房間名稱',roomNamePh:'房間名稱（選填）',roomPass:'房間密碼',roomPassPh:'設定密碼（選填）',passShort:'密碼',needRoomPass:'請輸入房間密碼',badPass:'密碼錯誤',idTitle:'玩家資料',idSave:'儲存',idClose:'關閉',idTapSet:'點此設定名稱',cfgAiCount:'AI 數量',confirmCreate:'確定建立',createBack:'← 返回',backHome:'返回主畫面',idEditHint:'點此修改名稱與頭像',renameHint:'可點右上角的名牌修改名稱與頭像',
   players:'玩家',host:'房主',you:'你',start:'開始遊戲',waiting:'等待房主開始…',leave:'離開房間',specExit:'離開觀戰',stScore:'分數',stStatus:'狀態',stFloor:'{n}樓',raceCdBanner:'結算倒數 {s}s',rtTeamA:'藍隊',rtTeamB:'紅隊',rtWinTeam:'{team}獲勝！',rtTie:'雙方平手',rtSummits:'{n}人登頂',rtWinDesc:'你的隊伍勝出！',rtLoseDesc:'對手隊伍勝出',rtTieDesc:'兩隊不分高下',teamPickTitle:'選擇你的隊伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未選擇',browseTitle:'公開房間',noRooms:'目前沒有公開房間',roomWaiting:'等待中',roomPlaying:'遊戲中',roomJoin:'加入',roomFull:'已滿',roomSpectate:'觀戰',specWatching:'觀戰中…',specArenaSoon:'競技場觀戰即將推出',leaveConfirm:'確定要離開房間嗎？',cfgFloors:'樓層數',cfgDifficulty:'難度',cfgCountdown:'登頂倒數',cfgTeamMethod:'分隊方式',diffEasy:'簡單',diffNormal:'普通',diffHard:'困難',diffHell:'地獄',cdOn:'開',cdOff:'關',teamRandom:'隨機',teamPick:'自選',cfgHostOnly:'由房主設定',
   started:'遊戲開始！',connecting:'連線中…',roomNotFound:'找不到該房間',roomFull:'房間已滿',alreadyStarted:'遊戲已經開始',
   noauth:'連線失敗，請稍後再試',createFail:'建立失敗',needName:'請先輸入名稱',
@@ -5894,7 +5922,7 @@ const I18N_MP = {
 'zh-Hans':{mp:{startSub:'选择游玩方式',modeSingle:'单机冒险',modeMulti:'多人联机',notConfigured:'尚未配置 Firebase，目前仅能单机游玩',
   lobbyTitle:'联机大厅',name:'玩家名称',namePh:'输入你的名称',mode:'模式',race:'竞速',coop:'合作',arena:'擂台',
   raceDesc:'同一座塔、各自独立，比谁先登顶。',coopDesc:'共享同一座塔，清掉的怪物与宝物会同步给队友。',arenaDesc:'同一张地图的环形竞技场，分两队抽签 1v1，以胜场计分。',arenaPrep:'赛前准备',arenaTeam:'你的队伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻击与防御技能书',arenaReady:'准备完成',arenaWait:'等待其他玩家…',arenaNoGold:'金币不足',arenaReadyMsg:'已准备，等待其他玩家',arenaAllReady:'全员就绪，即将开始',arenaMatch:'对战',arenaAI:'电脑',arenaYouFight:'你即将上场！',arenaWatching:'观战中',arenaFightSoon:'1v1 战斗即将登场（开发中）',arenaDoneSoon:'结算即将登场（开发中）',arenaWinner:'{name} 胜！',arenaDraw:'平手',arenaResult:'比赛结束',arenaTeamWin:'{team} 队获胜',arenaTie:'双方平手',arenaBack:'返回主画面',
-  maxPlayers:'人数上限',mapSizeLab:'地图大小',viewLab:'视野',loadTitle:'载入中…',load1:'加载地图中',load2:'加载怪物中',load3:'加载宝物中',load4:'加载玩家资料中',load5:'完成',create:'创建房间',join:'加入',codePh:'输入房间代码',roomCode:'房间代码',copy:'复制',copied:'已复制',homeLocked:'多人游戏进行中，无法离开',roomName:'房间名称',roomNamePh:'房间名称（选填）',roomPass:'房间密码',roomPassPh:'设置密码（选填）',passShort:'密码',needRoomPass:'请输入房间密码',badPass:'密码错误',idTitle:'玩家资料',idSave:'保存',idClose:'关闭',idTapSet:'点此设置名称',cfgAiCount:'AI 数量',confirmCreate:'确定创建',backHome:'返回主画面',idEditHint:'点此修改名称与头像',renameHint:'可点右上角的名牌修改名称与头像',
+  maxPlayers:'人数上限',mapSizeLab:'地图大小',viewLab:'视野',loadTitle:'载入中…',load1:'加载地图中',load2:'加载怪物中',load3:'加载宝物中',load4:'加载玩家资料中',load5:'完成',create:'创建房间',join:'加入',codePh:'输入房间代码',roomCode:'房间代码',copy:'复制',copied:'已复制',homeLocked:'多人游戏进行中，无法离开',roomName:'房间名称',roomNamePh:'房间名称（选填）',roomPass:'房间密码',roomPassPh:'设置密码（选填）',passShort:'密码',needRoomPass:'请输入房间密码',badPass:'密码错误',idTitle:'玩家资料',idSave:'保存',idClose:'关闭',idTapSet:'点此设置名称',cfgAiCount:'AI 数量',confirmCreate:'确定创建',createBack:'← 返回',backHome:'返回主画面',idEditHint:'点此修改名称与头像',renameHint:'可点右上角的名牌修改名称与头像',
   players:'玩家',host:'房主',you:'你',start:'开始游戏',waiting:'等待房主开始…',leave:'离开房间',specExit:'离开观战',stScore:'分数',stStatus:'状态',stFloor:'{n}楼',raceCdBanner:'结算倒计时 {s}s',rtTeamA:'蓝队',rtTeamB:'红队',rtWinTeam:'{team}获胜！',rtTie:'双方平手',rtSummits:'{n}人登顶',rtWinDesc:'你的队伍胜出！',rtLoseDesc:'对手队伍胜出',rtTieDesc:'两队不分高下',teamPickTitle:'选择你的队伍',teamJoin:'加入',teamJoined:'已加入',teamUnassigned:'未选择',browseTitle:'公开房间',noRooms:'目前没有公开房间',roomWaiting:'等待中',roomPlaying:'游戏中',roomJoin:'加入',roomFull:'已满',roomSpectate:'观战',specWatching:'观战中…',specArenaSoon:'竞技场观战即将推出',leaveConfirm:'确定要离开房间吗？',cfgFloors:'楼层数',cfgDifficulty:'难度',cfgCountdown:'登顶倒数',cfgTeamMethod:'分队方式',diffEasy:'简单',diffNormal:'普通',diffHard:'困难',diffHell:'地狱',cdOn:'开',cdOff:'关',teamRandom:'随机',teamPick:'自选',cfgHostOnly:'由房主设定',
   started:'游戏开始！',connecting:'连接中…',roomNotFound:'找不到该房间',roomFull:'房间已满',alreadyStarted:'游戏已经开始',
   noauth:'连接失败，请稍后再试',createFail:'创建失败',needName:'请先输入名称',
@@ -5905,7 +5933,7 @@ const I18N_MP = {
 'en':{mp:{startSub:'Choose how to play',modeSingle:'Single-player',modeMulti:'Multiplayer',notConfigured:'Firebase is not configured — single-player only for now',
   lobbyTitle:'Multiplayer Lobby',name:'Player name',namePh:'Enter your name',mode:'Mode',race:'Race',coop:'Co-op',arena:'Arena',
   raceDesc:'Same tower, separate runs — first to the top wins.',coopDesc:'Share one tower — monsters and loot you clear sync to teammates.',arenaDesc:'Ring arena on one map: two teams, lottery 1v1 duels, scored by wins.',arenaPrep:'Prep',arenaTeam:'Your team',arenaBuy:'+{inc} ({cost}g)',arenaBooks:'All attack & defense skill books owned',arenaReady:'Ready',arenaWait:'Waiting for others…',arenaNoGold:'Not enough gold',arenaReadyMsg:'Ready — waiting for others',arenaAllReady:'Everyone ready — starting',arenaMatch:'Match',arenaAI:'AI',arenaYouFight:'You\'re up next!',arenaWatching:'Watching',arenaFightSoon:'1v1 combat coming soon (WIP)',arenaDoneSoon:'Results coming soon (WIP)',arenaWinner:'{name} wins!',arenaDraw:'Draw',arenaResult:'Match over',arenaTeamWin:'Team {team} wins',arenaTie:'It\'s a tie',arenaBack:'Back to menu',
-  maxPlayers:'Max players',mapSizeLab:'Map size',viewLab:'View',loadTitle:'Loading…',load1:'Loading map',load2:'Loading monsters',load3:'Loading treasures',load4:'Loading player data',load5:'Done',create:'Create room',join:'Join',codePh:'Enter room code',roomCode:'Room code',copy:'Copy',copied:'Copied',homeLocked:'Cannot leave during a multiplayer game',roomName:'Room name',roomNamePh:'Room name (optional)',roomPass:'Room password',roomPassPh:'Set password (optional)',passShort:'Password',needRoomPass:'Enter the room password',badPass:'Wrong password',idTitle:'Player profile',idSave:'Save',idClose:'Close',idTapSet:'Tap to set your name',cfgAiCount:'AI opponents',confirmCreate:'Create room',backHome:'Back to menu',idEditHint:'Tap to edit name & avatar',renameHint:'Tap the nameplate (top-right) to change your name & avatar',
+  maxPlayers:'Max players',mapSizeLab:'Map size',viewLab:'View',loadTitle:'Loading…',load1:'Loading map',load2:'Loading monsters',load3:'Loading treasures',load4:'Loading player data',load5:'Done',create:'Create room',join:'Join',codePh:'Enter room code',roomCode:'Room code',copy:'Copy',copied:'Copied',homeLocked:'Cannot leave during a multiplayer game',roomName:'Room name',roomNamePh:'Room name (optional)',roomPass:'Room password',roomPassPh:'Set password (optional)',passShort:'Password',needRoomPass:'Enter the room password',badPass:'Wrong password',idTitle:'Player profile',idSave:'Save',idClose:'Close',idTapSet:'Tap to set your name',cfgAiCount:'AI opponents',confirmCreate:'Create room',createBack:'← Back',backHome:'Back to menu',idEditHint:'Tap to edit name & avatar',renameHint:'Tap the nameplate (top-right) to change your name & avatar',
   players:'Players',host:'Host',you:'you',start:'Start game',waiting:'Waiting for host to start…',leave:'Leave room',specExit:'Exit spectating',stScore:'Score',stStatus:'Status',stFloor:'F{n}',raceCdBanner:'Final results in {s}s',rtTeamA:'Blue',rtTeamB:'Red',rtWinTeam:'{team} team wins!',rtTie:'Draw',rtSummits:'{n} summited',rtWinDesc:'Your team wins!',rtLoseDesc:'The other team wins',rtTieDesc:'Both teams are even',teamPickTitle:'Pick your team',teamJoin:'Join',teamJoined:'Joined',teamUnassigned:'Unassigned',browseTitle:'Public Rooms',noRooms:'No public rooms right now',roomWaiting:'Waiting',roomPlaying:'In game',roomJoin:'Join',roomFull:'Full',roomSpectate:'Watch',specWatching:'Spectating…',specArenaSoon:'Arena spectating coming soon',leaveConfirm:'Leave this room?',cfgFloors:'Floors',cfgDifficulty:'Difficulty',cfgCountdown:'Summit countdown',cfgTeamMethod:'Team method',diffEasy:'Easy',diffNormal:'Normal',diffHard:'Hard',diffHell:'Hell',cdOn:'On',cdOff:'Off',teamRandom:'Random',teamPick:'Pick',cfgHostOnly:'Set by the host',
   started:'Game started!',connecting:'Connecting…',roomNotFound:'Room not found',roomFull:'Room is full',alreadyStarted:'Game already started',
   noauth:'Connection failed, try again',createFail:'Create failed',needName:'Enter a name first',
@@ -5916,7 +5944,7 @@ const I18N_MP = {
 'ja':{mp:{startSub:'遊び方を選択',modeSingle:'ひとりで冒険',modeMulti:'マルチプレイ',notConfigured:'Firebase 未設定のため、現在はシングルのみ',
   lobbyTitle:'ロビー',name:'プレイヤー名',namePh:'名前を入力',mode:'モード',race:'競争',coop:'協力',arena:'闘技場',
   raceDesc:'同じ塔・各自プレイ。先に頂上へ着いた人が勝ち。',coopDesc:'同じ塔を共有。倒した敵や取った宝が仲間と同期。',arenaDesc:'同じマップの円形闘技場。2チーム抽選1v1、勝利数で採点。',arenaPrep:'準備',arenaTeam:'あなたのチーム',arenaBuy:'+{inc}（{cost}金）',arenaBooks:'攻撃・防御スキル書をすべて所持',arenaReady:'準備完了',arenaWait:'他のプレイヤーを待っています…',arenaNoGold:'金貨が足りません',arenaReadyMsg:'準備完了、待機中',arenaAllReady:'全員準備完了、まもなく開始',arenaMatch:'対戦',arenaAI:'AI',arenaYouFight:'まもなく出場！',arenaWatching:'観戦中',arenaFightSoon:'1v1バトルは近日実装（開発中）',arenaDoneSoon:'結果は近日実装（開発中）',arenaWinner:'{name} の勝ち！',arenaDraw:'引き分け',arenaResult:'試合終了',arenaTeamWin:'{team} チームの勝利',arenaTie:'引き分け',arenaBack:'メニューに戻る',
-  maxPlayers:'最大人数',mapSizeLab:'マップサイズ',viewLab:'視野',loadTitle:'読み込み中…',load1:'マップ読込中',load2:'モンスター読込中',load3:'宝物読込中',load4:'プレイヤー読込中',load5:'完了',create:'部屋を作る',join:'参加',codePh:'部屋コードを入力',roomCode:'部屋コード',copy:'コピー',copied:'コピーしました',homeLocked:'マルチプレイ中は退出できません',roomName:'部屋名',roomNamePh:'部屋名（任意）',roomPass:'部屋パスワード',roomPassPh:'パスワード設定（任意）',passShort:'パスワード',needRoomPass:'部屋のパスワードを入力してください',badPass:'パスワードが違います',idTitle:'プレイヤー情報',idSave:'保存',idClose:'閉じる',idTapSet:'タップして名前を設定',cfgAiCount:'AI の数',confirmCreate:'作成する',backHome:'メニューに戻る',idEditHint:'名前とアバターを編集',renameHint:'右上の名札から名前とアバターを変更できます',
+  maxPlayers:'最大人数',mapSizeLab:'マップサイズ',viewLab:'視野',loadTitle:'読み込み中…',load1:'マップ読込中',load2:'モンスター読込中',load3:'宝物読込中',load4:'プレイヤー読込中',load5:'完了',create:'部屋を作る',join:'参加',codePh:'部屋コードを入力',roomCode:'部屋コード',copy:'コピー',copied:'コピーしました',homeLocked:'マルチプレイ中は退出できません',roomName:'部屋名',roomNamePh:'部屋名（任意）',roomPass:'部屋パスワード',roomPassPh:'パスワード設定（任意）',passShort:'パスワード',needRoomPass:'部屋のパスワードを入力してください',badPass:'パスワードが違います',idTitle:'プレイヤー情報',idSave:'保存',idClose:'閉じる',idTapSet:'タップして名前を設定',cfgAiCount:'AI の数',confirmCreate:'作成する',createBack:'← 戻る',backHome:'メニューに戻る',idEditHint:'名前とアバターを編集',renameHint:'右上の名札から名前とアバターを変更できます',
   players:'プレイヤー',host:'ホスト',you:'あなた',start:'ゲーム開始',waiting:'ホストの開始を待っています…',leave:'退出',specExit:'観戦をやめる',stScore:'スコア',stStatus:'状態',stFloor:'{n}階',raceCdBanner:'結果まで {s}s',rtTeamA:'青チーム',rtTeamB:'赤チーム',rtWinTeam:'{team}の勝利！',rtTie:'引き分け',rtSummits:'{n}人登頂',rtWinDesc:'あなたのチームの勝ち！',rtLoseDesc:'相手チームの勝ち',rtTieDesc:'両チーム互角',teamPickTitle:'チームを選択',teamJoin:'参加',teamJoined:'参加済み',teamUnassigned:'未選択',browseTitle:'公開ルーム',noRooms:'公開ルームはありません',roomWaiting:'待機中',roomPlaying:'ゲーム中',roomJoin:'参加',roomFull:'満員',roomSpectate:'観戦',specWatching:'観戦中…',specArenaSoon:'アリーナ観戦は近日公開',leaveConfirm:'部屋を出ますか？',cfgFloors:'階層数',cfgDifficulty:'難易度',cfgCountdown:'登頂カウントダウン',cfgTeamMethod:'チーム分け',diffEasy:'かんたん',diffNormal:'ふつう',diffHard:'むずかしい',diffHell:'地獄',cdOn:'オン',cdOff:'オフ',teamRandom:'ランダム',teamPick:'自分で選ぶ',cfgHostOnly:'ホストが設定',
   started:'ゲーム開始！',connecting:'接続中…',roomNotFound:'部屋が見つかりません',roomFull:'満員です',alreadyStarted:'すでに開始済み',
   noauth:'接続に失敗しました',createFail:'作成に失敗',needName:'先に名前を入力してください',
@@ -5927,7 +5955,7 @@ const I18N_MP = {
 'ko':{mp:{startSub:'플레이 방식 선택',modeSingle:'싱글 모험',modeMulti:'멀티플레이',notConfigured:'Firebase 미설정 — 현재는 싱글만 가능',
   lobbyTitle:'멀티 로비',name:'플레이어 이름',namePh:'이름 입력',mode:'모드',race:'경쟁',coop:'협력',arena:'투기장',
   raceDesc:'같은 탑·각자 플레이. 먼저 정상에 오르면 승리.',coopDesc:'같은 탑 공유. 처치한 몬스터·획득한 보물이 동료와 동기화.',arenaDesc:'같은 맵의 원형 투기장. 두 팀 추첨 1v1, 승수로 채점.',arenaPrep:'준비',arenaTeam:'내 팀',arenaBuy:'+{inc}（{cost}금）',arenaBooks:'공격·방어 스킬북 모두 보유',arenaReady:'준비 완료',arenaWait:'다른 플레이어 대기 중…',arenaNoGold:'금화 부족',arenaReadyMsg:'준비 완료, 대기 중',arenaAllReady:'전원 준비 완료, 곧 시작',arenaMatch:'대전',arenaAI:'AI',arenaYouFight:'곧 출전합니다!',arenaWatching:'관전 중',arenaFightSoon:'1v1 전투 곧 구현(개발 중)',arenaDoneSoon:'결산 곧 구현(개발 중)',arenaWinner:'{name} 승리!',arenaDraw:'무승부',arenaResult:'경기 종료',arenaTeamWin:'{team} 팀 승리',arenaTie:'무승부',arenaBack:'메뉴로',
-  maxPlayers:'최대 인원',mapSizeLab:'맵 크기',viewLab:'시야',loadTitle:'로딩 중…',load1:'맵 로딩 중',load2:'몬스터 로딩 중',load3:'보물 로딩 중',load4:'플레이어 로딩 중',load5:'완료',create:'방 만들기',join:'참가',codePh:'방 코드 입력',roomCode:'방 코드',copy:'복사',copied:'복사됨',homeLocked:'멀티플레이 중에는 나갈 수 없습니다',roomName:'방 이름',roomNamePh:'방 이름(선택)',roomPass:'방 비밀번호',roomPassPh:'비밀번호 설정(선택)',passShort:'비밀번호',needRoomPass:'방 비밀번호를 입력하세요',badPass:'비밀번호가 틀렸습니다',idTitle:'플레이어 정보',idSave:'저장',idClose:'닫기',idTapSet:'탭하여 이름 설정',cfgAiCount:'AI 수',confirmCreate:'방 만들기',backHome:'메인으로',idEditHint:'이름·아바타 편집',renameHint:'오른쪽 위 명패에서 이름·아바타를 변경할 수 있습니다',
+  maxPlayers:'최대 인원',mapSizeLab:'맵 크기',viewLab:'시야',loadTitle:'로딩 중…',load1:'맵 로딩 중',load2:'몬스터 로딩 중',load3:'보물 로딩 중',load4:'플레이어 로딩 중',load5:'완료',create:'방 만들기',join:'참가',codePh:'방 코드 입력',roomCode:'방 코드',copy:'복사',copied:'복사됨',homeLocked:'멀티플레이 중에는 나갈 수 없습니다',roomName:'방 이름',roomNamePh:'방 이름(선택)',roomPass:'방 비밀번호',roomPassPh:'비밀번호 설정(선택)',passShort:'비밀번호',needRoomPass:'방 비밀번호를 입력하세요',badPass:'비밀번호가 틀렸습니다',idTitle:'플레이어 정보',idSave:'저장',idClose:'닫기',idTapSet:'탭하여 이름 설정',cfgAiCount:'AI 수',confirmCreate:'방 만들기',createBack:'← 뒤로',backHome:'메인으로',idEditHint:'이름·아바타 편집',renameHint:'오른쪽 위 명패에서 이름·아바타를 변경할 수 있습니다',
   players:'플레이어',host:'방장',you:'나',start:'게임 시작',waiting:'방장이 시작하기를 기다리는 중…',leave:'방 나가기',specExit:'관전 종료',stScore:'점수',stStatus:'상태',stFloor:'{n}층',raceCdBanner:'결과까지 {s}s',rtTeamA:'블루팀',rtTeamB:'레드팀',rtWinTeam:'{team} 승리!',rtTie:'무승부',rtSummits:'{n}명 등정',rtWinDesc:'우리 팀 승리!',rtLoseDesc:'상대 팀 승리',rtTieDesc:'두 팀 막상막하',teamPickTitle:'팀 선택',teamJoin:'참가',teamJoined:'참가함',teamUnassigned:'미선택',browseTitle:'공개 방',noRooms:'공개 방이 없습니다',roomWaiting:'대기 중',roomPlaying:'게임 중',roomJoin:'참가',roomFull:'가득 참',roomSpectate:'관전',specWatching:'관전 중…',specArenaSoon:'아레나 관전 곧 제공',leaveConfirm:'방을 나갈까요?',cfgFloors:'층수',cfgDifficulty:'난이도',cfgCountdown:'등정 카운트다운',cfgTeamMethod:'팀 편성',diffEasy:'쉬움',diffNormal:'보통',diffHard:'어려움',diffHell:'지옥',cdOn:'켜기',cdOff:'끄기',teamRandom:'랜덤',teamPick:'직접 선택',cfgHostOnly:'방장이 설정',
   started:'게임 시작!',connecting:'연결 중…',roomNotFound:'방을 찾을 수 없음',roomFull:'방이 가득 참',alreadyStarted:'이미 시작됨',
   noauth:'연결 실패, 다시 시도하세요',createFail:'생성 실패',needName:'먼저 이름을 입력하세요',
@@ -6454,7 +6482,7 @@ function openLobbyScreen(){
   state.mpStarted=false; state._inLobby=false;
   hide('startScreen'); renderLobby(); show('lobby'); try{ Net.watchLobby(renderLobbyList); }catch(e){}
   try{ var _mi=byId('lbMaxInput'); if(_mi) _mi.oninput=function(){ try{ renderCreateCfg(); }catch(_e){} }; }catch(_e){}
-  try{ var _cp=byId('lbCreatePanel'); if(_cp) _cp.style.display='none'; var _nr=byId('lbNewRoomBtn'); if(_nr) _nr.style.display=''; }catch(_e){}
+  try{ var _cp=byId('lbCreatePanel'); if(_cp) _cp.style.display='none'; var _ld=byId('lbLanding'); if(_ld) _ld.style.display=''; }catch(_e){}
 }
 
 /* ---------------------------- lobby ---------------------------- */
@@ -6552,7 +6580,7 @@ function renderLobby(){
     byId('lbMaxLab').textContent=t('mp.maxPlayers');
     { const _ml=byId('lbMapLab'); if(_ml) _ml.textContent=t('mp.mapSizeLab'); const _vl=byId('lbViewLab'); if(_vl) _vl.textContent=t('mp.viewLab'); }
     byId('lbCreate').textContent=t('mp.confirmCreate');
-    { var _nl=byId('lbNewRoomLab'); if(_nl) _nl.textContent=t('mp.create'); var _bhl=byId('lbBackHomeLab'); if(_bhl) _bhl.textContent=t('mp.backHome'); }
+    { var _nl=byId('lbNewRoomLab'); if(_nl) _nl.textContent=t('mp.create'); var _bhl=byId('lbBackHomeLab'); if(_bhl) _bhl.textContent=t('mp.backHome'); var _cbl=byId('lbCreateBackLab'); if(_cbl) _cbl.textContent=t('mp.createBack'); }
     byId('lbJoin').textContent=t('mp.join');
     byId('lbCode').placeholder=t('mp.codePh');
     renderLobbyList();
@@ -6596,16 +6624,21 @@ function doCreate(){
     renderLobby();
   });
 }
-function doJoin(){
-  const name=getNameInput(); if(!name){ toast(t('mp.needName')); return; }
-  const code=(byId('lbCode').value||'').trim(); if(!code){ toast(t('mp.roomNotFound')); return; }
-  var _pass=((byId('lbJoinPass')&&byId('lbJoinPass').value)||'').trim();
+function _attemptJoin(code,name,pass){
   MP.myName=name; toast(t('mp.connecting'));
-  Net.joinWorld(code,name,_pass).then(function(r){
-    if(!r||r.error){ if(r&&r.error==='needpass'){ toast(t('mp.needRoomPass')); var _jp=byId('lbJoinPass'); if(_jp) _jp.focus(); return; } toast(mpErr(r&&r.error)); return; }
+  Net.joinWorld(code,name,pass).then(function(r){
+    if(!r||r.error){
+      if(r&&(r.error==='needpass'||r.error==='badpass')){ var _m=(r.error==='badpass')?t('mp.badPass'):t('mp.needRoomPass'); var _p=window.prompt(_m); if(_p!=null){ _attemptJoin(code,name,(_p||'').trim()); } return; }
+      toast(mpErr(r&&r.error)); return;
+    }
     MP.mode=r.mode; MP.seed=r.seed; MP.host=r.host; state._inLobby=true;
     renderLobby();
   });
+}
+function doJoin(){
+  const name=getNameInput(); if(!name){ toast(t('mp.needName')); return; }
+  const code=(byId('lbCode').value||'').trim(); if(!code){ toast(t('mp.roomNotFound')); return; }
+  _attemptJoin(code,name,'');
 }
 /* ---------------------------- public room browser ---------------------------- */
 function lobbyRoomsFromSnap(v, now){
@@ -6644,14 +6677,8 @@ function renderLobbyList(rooms){
 }
 function joinRoom(code, locked){
   var name=getNameInput(); if(!name){ toast(t('mp.needName')); return; }
-  var _pass=((byId('lbJoinPass')&&byId('lbJoinPass').value)||'').trim();
-  if(locked && !_pass){ var _lc=byId('lbCode'); if(_lc) _lc.value=code; var _jp=byId('lbJoinPass'); if(_jp) _jp.focus(); toast(t('mp.needRoomPass')); return; }
-  MP.myName=name; toast(t('mp.connecting'));
-  Net.joinWorld(code,name,_pass).then(function(r){
-    if(!r||r.error){ if(r&&r.error==='needpass'){ var _lc2=byId('lbCode'); if(_lc2) _lc2.value=code; var _jp2=byId('lbJoinPass'); if(_jp2) _jp2.focus(); toast(t('mp.needRoomPass')); return; } toast(mpErr(r&&r.error)); return; }
-    MP.mode=r.mode; MP.seed=r.seed; MP.host=r.host; state._inLobby=true;
-    renderLobby();
-  });
+  if(locked){ var _p=window.prompt(t('mp.needRoomPass')); if(_p==null) return; _attemptJoin(code,name,(_p||'').trim()); }
+  else _attemptJoin(code,name,'');
 }
 function spectateRoom(code){
   MP.myName=getNameInput()||MP.myName||''; toast(t('mp.connecting'));
@@ -7309,8 +7336,8 @@ function startMpRun(){
   Net.ensureConfigLoaded().then(_startMpRunGo);   /* wait for the cloud monster roster so all clients generate identical maps */
 }
 function _startMpRunGo(){
-  if(MP.mode==='arena'){ try{ localStorage.setItem('mt_mpView', String(lobbySelectedView())); }catch(e){} mpStartLoading(function(){}, function(){ startArenaRun(); }); return; }
-  try{ localStorage.setItem('mt_mpView', String(lobbySelectedView())); }catch(e){}   /* per-client viewport (camera-follow window) */
+  if(MP.mode==='arena'){ mpStartLoading(function(){}, function(){ startArenaRun(); }); return; }
+  /* 視野為每位玩家自己的設定（設定選單 › 視野），開賽時不再覆寫 */
   mpStartLoading(
     function(){ if(isSummitMode(MP.mode)) FLOORS=clamp(roomCfg().floors|0,26,51); newGame({ mode:MP.mode, seed:MP.seed, worldId:Net.worldId, mapSize:MP.mapSize, difficulty:(isSummitMode(MP.mode)?roomCfg().difficulty:'normal') }); },
     function(){ toast(t('mp.started')); }
@@ -7410,7 +7437,7 @@ function bindMpInput(){
   { const _ts=byId('tsStart'); if(_ts) _ts.addEventListener('click',startSolo);
     const _tm=byId('tsManual'); if(_tm) _tm.addEventListener('click',function(){ showTutorial(); });
     const _rs=byId('tsResume'); if(_rs) _rs.addEventListener('click',resumeGame);
-    const _mp=byId('tsMP'); if(_mp) _mp.addEventListener('click',openMpPanel);
+    const _mp=byId('tsMP'); if(_mp) _mp.addEventListener('click',openLobbyScreen);
     const _tr=byId('tsRank'); if(_tr) _tr.addEventListener('click',openLeaderboard); }
   { document.querySelectorAll('#arenaPrep .apBuy').forEach(function(b){ b.addEventListener('click',function(){ arenaBuy(b.dataset.buy); }); });
     const _ar=byId('apReady'); if(_ar) _ar.addEventListener('click',arenaReady);
@@ -7436,7 +7463,8 @@ function bindMpInput(){
     });
   }
   const c=byId('lbCreate'); if(c) c.addEventListener('click',doCreate);
-  { const _nr=byId('lbNewRoomBtn'); if(_nr) _nr.addEventListener('click',function(){ var pn=byId('lbCreatePanel'); if(pn) pn.style.display=''; this.style.display='none'; try{ renderCreateCfg(); }catch(_e){} }); }
+  { const _nr=byId('lbNewRoomBtn'); if(_nr) _nr.addEventListener('click',function(){ var ld=byId('lbLanding'); if(ld) ld.style.display='none'; var pn=byId('lbCreatePanel'); if(pn) pn.style.display=''; try{ renderCreateCfg(); }catch(_e){} }); }
+  { const _cb=byId('lbCreateBack'); if(_cb) _cb.addEventListener('click',function(){ var pn=byId('lbCreatePanel'); if(pn) pn.style.display='none'; var ld=byId('lbLanding'); if(ld) ld.style.display=''; }); }
   { const _bh=byId('lbBackHome'); if(_bh) _bh.addEventListener('click',function(){ try{ Net.unwatchLobby(); }catch(_e){} goStartScreen(); }); }
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
@@ -8401,7 +8429,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·167'; }
+    bt.textContent='build 0618·171'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -8409,7 +8437,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·167'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·171'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
