@@ -6775,6 +6775,8 @@ function mpStartLoading(doWork, onDone){
   step();
 }
 const ARENA_BUY={ hp:{inc:200,cost:100}, atk:{inc:2,cost:100}, def:{inc:2,cost:100} };
+let ARENA_BUY_BASE=25, ARENA_BUY_STEP=2;   /* purchase cost escalates: 1st buy = BASE, each further buy +STEP (any stat) */
+function arenaBuyCost(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null; return ARENA_BUY_BASE + ARENA_BUY_STEP*((ar&&ar._buys)||0); }
 let ARENA_GOLD=1000;
 const ARENA_AI_BUILD={ hp:1700, atk:16, def:16 };
 const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:420, liveMaxRounds:60 };
@@ -6853,6 +6855,7 @@ function afDrawAvatar(ctx,x,y,PX,face,color,isSelf,name){
 }
 function afSync(){
   var f=AField; if(!f) return; if(!(typeof Net!=='undefined' && Net.arenaRef && Net.uid)) return;
+  if(!f._odSet){ try{ Net.arenaRef.child('field/'+Net.uid).onDisconnect().remove(); }catch(e){} f._odSet=true; }
   var now=Date.now(); if(f.lastSync && now-f.lastSync<150) return; f.lastSync=now;
   try{ Net.arenaRef.child('field/'+Net.uid).set({ px:Math.round(f.px*100)/100, py:Math.round(f.py*100)/100, team:f.team, face:f.face, name:((typeof MP!=='undefined'&&MP.myName)||''), hp:((state.player&&state.player.hp)||0), atk:((state.player&&state.player.atk)||0), def:((state.player&&state.player.def)||0), cards:((state.player&&state.player.arenaCards)||[]), t:(Net.ts?Net.ts():now) }); }catch(e){}
 }
@@ -6903,7 +6906,7 @@ function afUnbind(){ document.removeEventListener('keydown',afKeyDown); document
 function afOpen(){ afInit(); show('arenaField'); { var _ss=byId('startScreen'); if(_ss) _ss.classList.remove('show'); var _lb=byId('lobby'); if(_lb) _lb.classList.remove('show'); } afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
   afStartPhases(); afRenderPhaseBar(); afRenderTeamBar(); if(afPhaseTimer) clearInterval(afPhaseTimer); afPhaseTimer=setInterval(afPhaseTick,500); }
 function afClose(){ if(AField&&AField.raf){ try{ cancelAnimationFrame(AField.raf); }catch(e){} AField.raf=null; } if(afPhaseTimer){ clearInterval(afPhaseTimer); afPhaseTimer=null; } try{ if(MP.arena&&MP.arena._afTimer){ clearInterval(MP.arena._afTimer); MP.arena._afTimer=null; } }catch(e){} afUnbind(); AField=null; hide('arenaField'); }
-function afExitToPrep(){ afClose(); if(typeof Net!=='undefined' && Net.worldId){ try{ show('lobby'); renderLobby(); return; }catch(e){} } goStartScreen(); }
+function afExitToPrep(){ try{ if(typeof Net!=='undefined'&&Net.arenaRef&&Net.uid) Net.arenaRef.child('field/'+Net.uid).remove(); }catch(e){} afClose(); if(typeof Net!=='undefined' && Net.worldId){ try{ show('lobby'); renderLobby(); return; }catch(e){} } goStartScreen(); }
 function afShopNear(){ var f=AField; if(!f) return false; for(var i=0;i<AF_SHOPS.length;i++){ var s=AF_SHOPS[i]; if(Math.hypot(f.px-s.x,f.py-s.y)<=1.4) return true; } return false; }
 function afRenderShopBtn(){ var f=AField, btn=byId('afShopBtn'); if(!btn) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var near=!!(f && !f.paused && afShopNear()); btn.style.display=(near && ph==='shop')?'':'none'; if(near&&ph==='shop') btn.textContent=t('mp.afShopBtn'); }
 function afShopRender(){
@@ -6917,7 +6920,7 @@ function afShopRender(){
   { var e=byId('afShopHp'); if(e) e.textContent=pl.hp; }
   { var e=byId('afShopAtk'); if(e) e.textContent=pl.atk; }
   { var e=byId('afShopDef'); if(e) e.textContent=pl.def; }
-  document.querySelectorAll('#afShop .afShopBuy').forEach(function(b){ var s=b.dataset.buy, c=ARENA_BUY[s]; if(c){ b.textContent=t('mp.arenaBuy',{inc:c.inc,cost:c.cost}); b.disabled=(pl.gold<c.cost); } });
+  document.querySelectorAll('#afShop .afShopBuy').forEach(function(b){ var s=b.dataset.buy, c=ARENA_BUY[s]; if(c){ var _bc=arenaBuyCost(); b.textContent=t('mp.arenaBuy',{inc:c.inc,cost:_bc}); b.disabled=(pl.gold<_bc); } });
   { var e=byId('afShopNote'); if(e) e.textContent=t('mp.arenaBooks'); }
   { var e=byId('afShopClose'); if(e) e.textContent=t('mp.afShopClose'); }
 }
@@ -7572,7 +7575,7 @@ function startArenaRun(){
   state.player.atkSkills=ATK_SKILLS.map(function(s){return s.id;});
   state.player.defSkills=DEF_SKILLS.map(function(s){return s.id;});
   const tt=arenaTeams();
-  MP.arena={ teams:tt, scoreA:0, scoreB:0, phase:'prep', ready:false, players:{} };
+  MP.arena={ teams:tt, scoreA:0, scoreB:0, phase:'prep', ready:false, players:{}, _buys:0 };
   MP.arena.myTeam=arenaMyTeam(tt);
   MP.arena.scoreA=0; MP.arena.scoreB=0; MP.arena.afResults=[]; MP.arena._afEnded=false;
   afOpen();
@@ -7589,7 +7592,7 @@ function renderArenaPrep(){
   { const e=byId('apHp'); if(e) e.textContent=pl.hp; }
   { const e=byId('apAtk'); if(e) e.textContent=pl.atk; }
   { const e=byId('apDef'); if(e) e.textContent=pl.def; }
-  document.querySelectorAll('#arenaPrep .apBuy').forEach(function(b){ const s=b.dataset.buy, c=ARENA_BUY[s]; if(c){ b.textContent=t('mp.arenaBuy',{inc:c.inc,cost:c.cost}); b.disabled=!!ar.ready; } });
+  document.querySelectorAll('#arenaPrep .apBuy').forEach(function(b){ const s=b.dataset.buy, c=ARENA_BUY[s]; if(c){ var _bc=arenaBuyCost(); b.textContent=t('mp.arenaBuy',{inc:c.inc,cost:_bc}); b.disabled=!!ar.ready||((state.player&&state.player.gold||0)<_bc); } });
   { const e=byId('apNote'); if(e) e.textContent=t('mp.arenaBooks'); }
   { const e=byId('apReady'); if(e){ e.textContent=t('mp.arenaReady'); e.disabled=!!ar.ready; } }
   { const w=byId('apWait'); if(w){ var ps=ar.players||{}, mem=MP.members||{}, ids=Object.keys(mem), rn=0; ids.forEach(function(id){ if(ps[id]&&ps[id].ready) rn++; }); var tot=ids.length||1; w.textContent=t('mp.arenaWait')+' ('+rn+'/'+tot+')'; w.style.display=ar.ready?'':'none'; } }
@@ -7597,8 +7600,9 @@ function renderArenaPrep(){
 function arenaBuy(stat){
   const pl=state.player, ar=MP.arena; if(!pl||!ar||ar.ready) return;
   const c=ARENA_BUY[stat]; if(!c) return;
-  if(pl.gold<c.cost){ toast(t('mp.arenaNoGold')); return; }
-  pl.gold-=c.cost;
+  var _cost=arenaBuyCost();
+  if(pl.gold<_cost){ toast(t('mp.arenaNoGold')); return; }
+  pl.gold-=_cost; ar._buys=((ar._buys)||0)+1;
   if(stat==='hp') pl.hp+=c.inc; else if(stat==='atk') pl.atk+=c.inc; else if(stat==='def') pl.def+=c.inc;
   renderArenaPrep(); try{ if(byId('afShop')&&byId('afShop').classList.contains('show')) afShopRender(); }catch(e){}
 }
@@ -9307,7 +9311,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·194'; }
+    bt.textContent='build 0618·195'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9315,7 +9319,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·194'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·195'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
