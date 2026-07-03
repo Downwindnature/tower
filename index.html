@@ -5608,7 +5608,7 @@ function requestRestart(){
 }
 
 /* ============================== Background music (per-floor, no overlap) ============================== */
-const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3', secret:'bgm-secret.mp3', mp_upper:'bgm-mp-upper.mp3', mp_topBoss:'bgm-mp-top-boss.mp3', mp_secret:'bgm-mp-secret.mp3' };   /* 多人音樂三軌：一般樓層(含1F/登頂) / boss房 / 密室。多人無地下層 */
+const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3', secret:'bgm-secret.mp3', mp_upper:'bgm-mp-upper.mp3', mp_topBoss:'bgm-mp-top-boss.mp3', mp_secret:'bgm-mp-secret.mp3', mp_arena:'bgm-mp-arena.mp3' };   /* 模式1(攻略塔)：一般樓層(含1F/登頂)/boss房/密室；模式2(PVP競技場)：專屬曲。多人無地下層 */
 function bgmKeyForFloor(f){
   var base;
   if(f===SECRET_FLOOR) base='secret';                     // 密室專屬 BGM（進去這首，出去依所在樓層切回）
@@ -5621,10 +5621,10 @@ function bgmKeyForFloor(f){
     else if(f<0) base='basement';                         // B1-B19
     else base='upper';
   }
-  if(typeof state!=='undefined' && state.mode && state.mode!=='solo'){ var _b2=(base==='floor1')?'upper':base; var _mk='mp_'+_b2; if(BGM_FILES[_mk]) return _mk; }   // 多人：1F 也是一般樓層 → 一般樓層曲；多人音樂僅 一般/boss/密室 三軌，缺檔時自動回退單機曲
+  if(typeof state!=='undefined' && state.mode && state.mode!=='solo'){ if(state.mode==='arena'){ if(BGM_FILES['mp_arena']) return 'mp_arena'; }   /* 模式2 PVP競技場專屬曲 */ var _b2=(base==='floor1')?'upper':base; var _mk='mp_'+_b2; if(BGM_FILES[_mk]) return _mk; }   // 模式1：1F 也是一般樓層 → 一般樓層曲（一般/boss/密室三軌）；缺檔時自動回退單機曲
   return base;
 }
-function _bgmSoloFallbackKey(k){ return (typeof k==='string' && k.indexOf('mp_')===0 && BGM_FILES[k.slice(3)]) ? k.slice(3) : null; }
+function _bgmSoloFallbackKey(k){ if(k==='mp_arena') return 'mp_upper';   /* 競技場缺檔 → 一般樓層曲（其再回退單機曲） */ return (typeof k==='string' && k.indexOf('mp_')===0 && BGM_FILES[k.slice(3)]) ? k.slice(3) : null; }
 /* ---- Three-channel volume: master is a global multiplier; music & sfx are independent (effective = master x channel) ---- */
 function _clampv(v){ v=parseFloat(v); if(isNaN(v)) v=0; return Math.max(0,Math.min(1,v)); }
 let _volMaster=0.8, _volMusic=0.7, _volSfx=0.8;
@@ -5717,8 +5717,8 @@ function _bgmPlayWA(key){
   if(_bgmLoading===key) return;
   _bgmLoading=key;
   var _tryLoad=function(url, onFail){ fetch(url).then(function(r){ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(function(ab){ return _actx.decodeAudioData(ab.slice(0)); }).then(function(buf){ _bgmBuf[key]=_bgmTrimSilence(buf); _bgmLoading=null; if(_bgmWantKey()===key) _bgmStartWA(key); }).catch(function(){ if(onFail){ onFail(); } else { _bgmLoading=null; } }); };
-  var _fbk=_bgmSoloFallbackKey(key);
-  try{ _tryLoad(BGM_FILES[key], _fbk?function(){ _tryLoad(BGM_FILES[_fbk], null); }:null); }catch(e){ _bgmLoading=null; }
+  var _mkFetch=function(k){ _tryLoad(BGM_FILES[k], function(){ var _nx=_bgmSoloFallbackKey(k); if(_nx && _nx!==k) _mkFetch(_nx); else _bgmLoading=null; }); };   /* 逐層回退：mp_arena → mp_upper → upper */
+  try{ _mkFetch(key); }catch(e){ _bgmLoading=null; }
 }
 function updateBGM(force){
   const want=_bgmWantKey();
@@ -8429,7 +8429,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·172'; }
+    bt.textContent='build 0618·173'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -8437,7 +8437,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·172'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·173'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
