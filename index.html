@@ -150,6 +150,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afpRes{ font-size:12px; color:#f6d488; margin:5px 0 3px; }
 .afpSkills{ display:flex; flex-wrap:wrap; gap:5px; }
 .afpSkBtn{ padding:5px 9px; border-radius:7px; background:#3a2c55; color:#f3ead2; border:1px solid #6b5a8f; font-size:12px; font-weight:700; cursor:pointer; }
+.afpCardBtn{ background:#4a3320; border-color:#b8863a; color:#ffe6b8; }
+.afpCardBtn.queued{ background:#7a5416; }
 .afpSkBtn.queued{ border-color:#f6d488; background:#4a3a6a; }
 .afpSkBtn:disabled{ opacity:.4; cursor:default; }
 .afSpectateBtn{ position:absolute; left:50%; bottom:128px; transform:translateX(-50%); z-index:7; padding:9px 18px; border-radius:10px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:14px; cursor:pointer; }
@@ -226,6 +228,26 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .apNote{text-align:center;font-size:11px;color:#9ad49a;margin:8px 0;}
 .apReadyBtn{display:block;width:100%;margin-top:10px;padding:11px;font-size:15px;font-weight:800;border:none;border-radius:10px;background:linear-gradient(180deg,#f0c869,#d8a13e);color:#3a2a08;cursor:pointer;}
 .apReadyBtn:disabled{opacity:.5;cursor:default;}
+.cardDraftModal{max-width:520px;}
+.cdSub{text-align:center;color:var(--gold);font-size:13px;margin:2px 0 12px;}
+.cdCards{display:flex;gap:10px;justify-content:center;}
+.cdCard{flex:1 1 0;min-width:0;background:linear-gradient(180deg,#241c3e,#191330);border:2px solid #4a3f6b;border-radius:12px;padding:12px 10px;cursor:pointer;transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease;display:flex;flex-direction:column;gap:7px;min-height:150px;}
+.cdCard:hover{transform:translateY(-4px);box-shadow:0 6px 16px rgba(0,0,0,.45);}
+.cdCard.common{border-color:#6b7280;}
+.cdCard.good{border-color:#3b82f6;box-shadow:0 0 0 1px rgba(59,130,246,.25) inset;}
+.cdCard.rare{border-color:#f0b429;box-shadow:0 0 10px rgba(240,180,41,.3),0 0 0 1px rgba(240,180,41,.3) inset;}
+.cdCard.good:hover{border-color:#60a5fa;}
+.cdCard.rare:hover{border-color:#ffd35a;}
+.cdCardType{align-self:flex-start;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:.5px;}
+.cdCardType.passive{background:rgba(96,165,250,.18);color:#9ec5ff;}
+.cdCardType.active{background:rgba(240,180,41,.2);color:#ffd888;}
+.cdCardName{font-size:18px;font-weight:800;color:#f3ead2;}
+.cdCardDesc{font-size:12px;line-height:1.5;color:#c9c2e0;flex:1;}
+.cdRerollBtn{align-self:center;margin-top:10px;padding:5px 18px;border-radius:8px;background:#3a2f5e;color:#e0d8ff;border:1px solid #5b4d8a;font-family:var(--mono);font-weight:800;font-size:14px;cursor:pointer;transition:background .12s ease,transform .1s ease;}
+.cdRerollBtn:hover:not(:disabled){background:#4a3d78;transform:scale(1.05);}
+.cdRerollBtn:disabled{opacity:.4;cursor:default;}
+
+@media(max-width:520px){ .cdCards{gap:6px;} .cdCard{padding:9px 6px;min-height:130px;} .cdCardName{font-size:15px;} .cdCardDesc{font-size:11px;} }
 .apWait{text-align:center;font-size:12px;color:#f6d488;margin-top:8px;}
 .asScore{text-align:center;font-size:18px;font-weight:800;color:#f6d488;margin-bottom:14px;letter-spacing:2px;}
 .asVs{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;}
@@ -783,13 +805,19 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .cbActions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
 .cbActions.cb3{grid-template-columns:repeat(3,1fr);}
 .cbActions.cb4{grid-template-columns:repeat(4,1fr);}
+.cbActions.cb5{grid-template-columns:repeat(5,1fr);}
+.cbActions .abtn.breath{background:linear-gradient(180deg,#8ff0e0,#2eb8a0 70%,#1c8c78);color:#06231e;box-shadow:0 3px 0 #146658;}
+.cbActions.cb5 .abtn{padding:9px 3px;font-size:12px;flex-direction:column;gap:1px;}
+#cbMeStRow{position:relative;}
+.stamPop{position:absolute;right:2px;top:50%;color:#7fdfff;font-weight:800;font-size:13px;text-shadow:0 1px 3px #000,0 0 6px rgba(60,200,255,.6);pointer-events:none;white-space:nowrap;animation:stamPopFade 1s ease-out forwards;}
+@keyframes stamPopFade{0%{opacity:0;transform:translateY(-50%);}15%{opacity:1;}100%{opacity:0;transform:translateY(-150%);}}
 .cbActions .abtn.atkS{background:linear-gradient(180deg,#f6d488,var(--gold) 65%,var(--gold-d));color:#2a1c06;box-shadow:0 3px 0 #6b4914;}
 .cbActions .abtn.defS{background:linear-gradient(180deg,#8fb4ff,#3b63d8 70%,#274aa8);color:#06122a;box-shadow:0 3px 0 #1c3470;}
 .cbActions .abtn .cbSkN{font-weight:800;}
 .cbActions .abtn .cbSkC{display:block;font-size:9px;font-family:var(--mono);opacity:.78;margin-top:1px;}
 .cbActions.cb4 .abtn{padding:9px 4px;font-size:12px;flex-direction:column;gap:1px;}
-@media(max-width:430px){ .cbActions.cb4 .abtn{font-size:11px;padding:8px 2px;} .cbActions.cb4 .abtn .kbd{display:none;} }
-.cbActions .abtn.atkS .kbd,.cbActions .abtn.defS .kbd,.cbActions .abtn.crit .kbd,.cbActions .abtn.flee .kbd{position:absolute;top:3px;right:5px;font-size:10px;font-family:var(--mono);opacity:.95;font-weight:800;}
+@media(max-width:430px){ .cbActions.cb4 .abtn{font-size:11px;padding:8px 2px;} .cbActions.cb4 .abtn .kbd{display:none;} .cbActions.cb5 .abtn{font-size:10px;padding:8px 1px;} .cbActions.cb5 .abtn .kbd{display:none;} }
+.cbActions .abtn.atkS .kbd,.cbActions .abtn.defS .kbd,.cbActions .abtn.crit .kbd,.cbActions .abtn.flee .kbd,.cbActions .abtn.breath .kbd{position:absolute;top:3px;right:5px;font-size:10px;font-family:var(--mono);opacity:.95;font-weight:800;}
 .cbActions .abtn.atkS:disabled,.cbActions .abtn.defS:disabled{filter:grayscale(.7) brightness(.7);opacity:.55;}
 .cbActions .abtn.defS.armed{animation:critPulse .8s ease-in-out infinite;box-shadow:0 0 14px rgba(90,150,255,.9),0 3px 0 #1c3470;}
 .cbActions .abtn{box-shadow:0 3px 0 var(--stone-d);position:relative;}
@@ -1091,7 +1119,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .portrait .dmgnum.right{left:100%;margin-left:-4px;text-align:left;animation:dmgFloatR 1.1s ease-out forwards;}
 @keyframes dmgFloatL{0%{opacity:0;transform:translate(8px,4px) scale(.7);}15%{opacity:1;}55%{opacity:1;transform:translate(-2px,-11px) scale(1.04);}100%{opacity:0;transform:translate(-2px,-22px) scale(1.06);}}
 @keyframes dmgFloatR{0%{opacity:0;transform:translate(-8px,4px) scale(.7);}15%{opacity:1;}55%{opacity:1;transform:translate(2px,-11px) scale(1.04);}100%{opacity:0;transform:translate(2px,-22px) scale(1.06);}}
-.portrait .dmgnum.miss{color:var(--txt-dim);font-size:15px;}
+.portrait .dmgnum.miss{color:#f0a5a5;font-size:16px;font-weight:800;left:50%;right:auto;top:4%;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.85);animation:missFloat 1s ease-out forwards !important;}
+@keyframes missFloat{0%{opacity:0;transform:translate(-50%,16px) scale(.8);}18%{opacity:1;}100%{opacity:0;transform:translate(-50%,-24px) scale(1.05);}}
 .portrait .dmgnum.crit{color:#ffd86b;font-size:25px;text-shadow:0 0 10px rgba(255,180,60,.85),0 2px 6px rgba(0,0,0,.9);}
 .portrait .dmgnum.zero{color:#a8c4dc;font-size:16px;opacity:.95;}
 .portrait .dmgnum.heal{color:#46e08a;top:8%;text-shadow:0 0 7px rgba(60,220,120,.55),0 2px 6px rgba(0,0,0,.9);}
@@ -1318,7 +1347,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
         <div class="cbRow"><span class="k" id="cbMeAtkL">攻擊</span><span class="v num" id="meAtkV"></span></div>
         <div class="cbRow"><span class="k" id="cbMeDefL">防禦</span><span class="v num" id="meDefV"></span></div>
         <div class="cbRow"><span class="k" id="cbMeEnLab">能量</span><span class="v num" id="meEnV"></span></div>
-        <div class="cbRow"><span class="k" id="cbMeStLab">體力</span><span class="v num" id="meStV"></span></div>
+        <div class="cbRow" id="cbMeStRow"><span class="k" id="cbMeStLab">體力</span><span class="v num" id="meStV"></span></div>
       </div>
       <div id="meStatus"></div>
     </div>
@@ -1338,11 +1367,12 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   </div>
   <div class="cbWin" id="cbWinPanel" style="display:none"></div>
   <div class="cbSwitch" id="cbSwitch"></div>
-  <div class="cbActions cb4">
+  <div class="cbActions cb5">
     <button class="abtn atkS" id="cbAtkSkill"><span class="cbSkN" id="cbAtkLab">攻擊技</span><span class="cbSkC" id="cbAtkCost"></span><span class="kbd">Z</span></button>
     <button class="abtn defS" id="cbDefSkill"><span class="cbSkN" id="cbDefLab">防禦技</span><span class="cbSkC" id="cbDefCost"></span><span class="kbd">X</span></button>
     <button class="abtn crit" id="cbCritBtn"><span id="cbCritLab">爆擊!</span><span class="kbd">C</span></button>
-    <button class="abtn flee" id="cbFlee"><span id="cbFleeLab">逃跑</span><span class="kbd">V</span></button>
+    <button class="abtn breath" id="cbBreath"><span id="cbBreathLab">深呼吸</span><span class="kbd">V</span></button>
+    <button class="abtn flee" id="cbFlee"><span id="cbFleeLab">逃跑</span><span class="kbd">B</span></button>
     <button class="abtn cbEnd" id="cbEndBtn" style="display:none;grid-column:1/-1"><span id="cbEndLab">關閉</span><span class="kbd" id="cbEndKbd">↵ Enter</span></button>
   </div>
   <div class="cbLog" id="cbLog"></div>
@@ -1655,6 +1685,12 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   <button class="apReadyBtn" id="apReady">準備完成</button>
   <button class="apReadyBtn" id="afPreviewBtn" style="background:#2c2350;margin-top:6px">預覽自由場地</button>
   <p class="apWait" id="apWait" style="display:none">等待其他玩家…</p>
+</div></div>
+
+<div class="overlay" id="cardDraft"><div class="modal cardDraftModal">
+  <h2 class="modalTitle" id="cdTitle">抽選卡牌</h2>
+  <p class="cdSub" id="cdSub"></p>
+  <div class="cdCards" id="cdCards"></div>
 </div></div>
 
 <!-- ===== Arena duel (1v1) ===== -->
@@ -1985,6 +2021,7 @@ function floorTitle(f){ var L=(typeof state!=='undefined'&&state.lang)||'zh-Hant
   if(L==='zh-Hans') return f>0 ? (f+' 楼') : ('地下 '+(-f)+' 层');
   return f>0 ? (f+' 樓') : ('地下 '+(-f)+' 層'); }
 const START={hp:900,atk:10,def:10,en:0,reserve:100,thrA:10,thrD:10,face:'🧝'};
+const BREATH_CFG={ base:5 };   /* 深呼吸：自己回合按 V 恢復體力，預設 +5；每撿一顆呼吸寶石 +1（恢復量對玩家不透明；體力上限 100） */
 let PLAYER_FACE=(typeof START!=='undefined'&&START.face)||'🧝';
 let PLAYER_IMG=(function(){ try{ return localStorage.getItem('mt_player_img')||''; }catch(e){ return ''; } })();
 let AVATAR_CLOUD=(function(){ try{ return localStorage.getItem('mt_avatar_cloud')||''; }catch(e){ return ''; } })();
@@ -2301,9 +2338,10 @@ function freshPlayer(){
     lv:1, hp:START.hp, atk:START.atk, def:START.def, en:START.en, reserve:START.reserve,
     thrA:START.thrA, thrD:START.thrD, gold:0, exp:0, atkc:1,
     keys:{y:5,b:1,r:0,w:0,p:0}, status:'normal', weakStacks:0, poisonStep:0, tpScrolls:0, hasManual:false, icePendant:false, portals:0, portalGot:false,
-    atkSkills:[], defSkills:[], atkEquip:null, defEquip:null, bestSword:0, loot:[]
+    atkSkills:[], defSkills:[], atkEquip:null, defEquip:null, bestSword:0, loot:[], breathGems:0
   };
 }
+function breathAmt(){ return Math.max(0,(typeof BREATH_CFG!=='undefined'?(BREATH_CFG.base||0):5)) + ((state.player&&state.player.breathGems)||0); }
 function effAtk(pl){ return Math.max(1, pl.atk - (pl.weakAtkAmt!=null?pl.weakAtkAmt:3)*pl.weakStacks); }
 function effDef(pl){ return Math.max(0, pl.def - (pl.weakDefAmt!=null?pl.weakDefAmt:3)*pl.weakStacks); }
 
@@ -3770,7 +3808,7 @@ FX_MAP.skillSfx={}; FX_MAP.abilitySfx={};   /* matching custom sounds for skills
 /* ===== custom uploaded attack media — images (GIF/PNG) for fx, short audio for sfx, kept in localStorage ===== */
 let CUSTOM_FX={}, CUSTOM_SFX={}, _customBuf={};
 let CUSTOM_FX_NAME={}, CUSTOM_SFX_NAME={};
-function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } try{ CUSTOM_FX_NAME=JSON.parse(localStorage.getItem('mt_cfxn')||'{}')||{}; }catch(e){ CUSTOM_FX_NAME={}; } try{ CUSTOM_SFX_NAME=JSON.parse(localStorage.getItem('mt_csfxn')||'{}')||{}; }catch(e){ CUSTOM_SFX_NAME={}; } }
+function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } try{ CUSTOM_FX_NAME=JSON.parse(localStorage.getItem('mt_cfxn')||'{}')||{}; }catch(e){ CUSTOM_FX_NAME={}; } try{ CUSTOM_SFX_NAME=JSON.parse(localStorage.getItem('mt_csfxn')||'{}')||{}; }catch(e){ CUSTOM_SFX_NAME={}; } try{ var _mm=localStorage.getItem('mt_missSfx'); if(_mm) SFX_MAP.miss=_mm; }catch(e){} }
 function saveCustomMedia(){ try{ localStorage.setItem('mt_cfx', JSON.stringify(CUSTOM_FX)); }catch(e){} try{ localStorage.setItem('mt_csfx', JSON.stringify(CUSTOM_SFX)); }catch(e){} try{ localStorage.setItem('mt_cfxn', JSON.stringify(CUSTOM_FX_NAME)); }catch(e){} try{ localStorage.setItem('mt_csfxn', JSON.stringify(CUSTOM_SFX_NAME)); }catch(e){} }
 function _nextCustomId(map,pfx){ let i=1; while(map[pfx+i]) i++; return pfx+i; }
 loadCustomMedia();
@@ -3851,6 +3889,7 @@ function bindCustomMediaUI(){
   if(ab){ ab.addEventListener('change', function(ev){
     const fxn=ev.target.closest('[data-fxname]'); if(fxn){ collectAdminDraft(); CUSTOM_FX_NAME[fxn.getAttribute('data-fxname')]=(fxn.value||'').trim(); saveCustomMedia(); renderAdminBody(); return; }
     const sfn=ev.target.closest('[data-sfxname]'); if(sfn){ collectAdminDraft(); CUSTOM_SFX_NAME[sfn.getAttribute('data-sfxname')]=(sfn.value||'').trim(); saveCustomMedia(); renderAdminBody(); return; }
+    const mfx=ev.target.closest('select[data-missfx]'); if(mfx){ SFX_MAP.miss=mfx.value||'whiff'; try{ localStorage.setItem('mt_missSfx', SFX_MAP.miss); }catch(e){} try{ if(SFX_MAP.miss!=='none') sfx('miss'); }catch(e){} return; }
     const wf=ev.target.closest('select[data-wlfloor]');
     if(wf){ collectAdminDraft(); _wlFloor=parseInt(wf.value,10)||1; renderAdminBody(); return; }
     const wm=ev.target.closest('input[data-wlmon]');
@@ -3896,7 +3935,7 @@ function openCombat(x,y,ent){
   clearTimeout(combatTimer);
   byId('cbEndBtn').style.display='none';
   { const _wp=byId('cbWinPanel'); if(_wp){ _wp.style.display='none'; } const _cm=byId('cbCombatants'); if(_cm){ _cm.style.display=''; } const _lg=byId('cbLog'); if(_lg){ _lg.style.display=''; } }
-  byId('cbAtkSkill').style.display=''; byId('cbDefSkill').style.display=''; byId('cbFlee').style.display=''; byId('cbCritBtn').style.display='';
+  byId('cbAtkSkill').style.display=''; byId('cbDefSkill').style.display=''; byId('cbFlee').style.display=''; byId('cbCritBtn').style.display=''; { var _bb=byId('cbBreath'); if(_bb) _bb.style.display=''; }
   byId('cbFloor').textContent=floorTag(state.floor);
   { const _ff=byId('foeFace'); if(_ff){ if(foe.img){ _ff.classList.add('pgImg'); _ff.innerHTML='<img class="entImg" src="'+foe.img+'" alt="">'; } else { _ff.classList.remove('pgImg'); _ff.textContent=foe.face; } } }
   try{ applyPlayerFace(); }catch(e){}
@@ -3936,6 +3975,7 @@ function refreshCombatButtons(){
     dBtn.classList.toggle('armed', c.defArmed===pl.defEquip || (pl.defEquip==='shendun' && c.shendunHits>0)); }
   else { byId('cbDefLab').textContent=t('cb.defUse'); byId('cbDefCost').textContent=''; dBtn.disabled=true; }
   { const _fB=byId('cbFlee'); if(_fB){ const _nf=!!(c.foe&&c.foe.noFlee); _fB.disabled=(_nf||state.busy||c.done); _fB.style.opacity=_nf?'0.45':''; } }
+  { const _bB=byId('cbBreath'); if(_bB) _bB.disabled=(state.busy||c.done); }
   updateCritBtn();
 }
 /* in-combat skill switching — pick among the attack/defence skills you already own */
@@ -4083,6 +4123,16 @@ function zeroDmgFx(side){
   try{ sfxPlayPreset('thud'); }catch(e){}
 }
 function playerNormal(){ playerAct('normal'); }
+function staminaPop(n){ try{ var host=byId('cbMeStRow'); if(!host) return; var s=document.createElement('span'); s.className='stamPop'; s.textContent='+'+n+' '+t('cb.st'); host.appendChild(s); setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },1000); }catch(e){} }
+function deepBreath(){
+  const c=state.combat; if(!c||c.done||c.ended||state.busy) return;
+  if(c.playerStun){ c.playerStun=false; log('sys',t('msg.msStun')); renderCombat(); state.busy=true; refreshCombatButtons(); clearTimeout(combatTimer); combatTimer=setTimeout(foeTurn,260); return; }   /* 結晶盾束縛時，深呼吸也會被消耗掉這回合 */
+  var before=c.meStam; c.meStam=clamp(c.meStam+breathAmt(),0,100); var gained=Math.round(c.meStam-before);
+  staminaPop(gained);                                   /* 體力那排跳出「+N 體力」水藍提示，1 秒後消失 */
+  renderCombat();
+  state.busy=true; refreshCombatButtons();
+  clearTimeout(combatTimer); combatTimer=setTimeout(foeTurn,320);   /* 深呼吸＝本回合不攻擊，直接換怪物行動 */
+}
 
 function playerAct(action){
   const c=state.combat; if(!c||c.done||state.busy) return;
@@ -4253,7 +4303,7 @@ function _foeShowHits(seq, foeCrit, done){
   function step(){
     const c2=state.combat; if(!c2 || c2.done || c2!==c){ return; }
     const h=seq[i]; i++;
-    if(h && h.miss){ floatDmg('me','miss!','miss'); }
+    if(h && h.miss){ floatDmg('me','miss!','miss'); try{ sfx('miss'); }catch(_e){} }
     else if(h){
       state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null); if(h.heal>0){ c2.foe.hp=c2.foe.hp+h.heal; floatDmg('foe','+'+h.heal,'heal'); }
       if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=h.crit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=h.crit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, h.crit, _fsnd); }catch(_e){} }
@@ -4271,7 +4321,7 @@ function _meShowHits(seq, skill, crit, done){
   function step(){
     const c2=state.combat; if(!c2 || c2.done || c2!==c){ return; }
     const h=seq[i]; i++;
-    if(h && h.miss){ floatDmg('foe','miss!','miss'); }
+    if(h && h.miss){ floatDmg('foe','miss!','miss'); try{ sfx('miss'); }catch(_e){} }
     else if(h){
       c2.foe.hp-=h.d; if(c2.foe.atkFatigue>0){ c2.meStam=clamp(c2.meStam-c2.foe.atkFatigue,0,100); } if(h.d===0){ zeroDmgFx('foe'); }
       else { const _isHg=(skill&&skill.id==='huangu'); const _pfx=(!_isHg&&skill&&FX_MAP.skill[skill.id])?FX_MAP.skill[skill.id]:((crit&&FX_MAP.playerCrit)?FX_MAP.playerCrit:(FX_MAP.player||fxRemap('weapon',weaponFxTier(pl)))); try{ playAttackFx('foe', _pfx, crit, (!_isHg&&skill&&FX_MAP.skillSfx&&FX_MAP.skillSfx[skill.id])?FX_MAP.skillSfx[skill.id]:null); }catch(_e){} if(_isHg){ const _hg=FX_MAP.skill['huangu']; if(_hg){ try{ playAttackFx('me', _hg, false, (FX_MAP.skillSfx&&FX_MAP.skillSfx['huangu'])?FX_MAP.skillSfx['huangu']:null); }catch(_e){} } } floatDmg('foe','-'+h.d, crit?'crit':null); }
@@ -4321,7 +4371,7 @@ function showCombatEnd(){
   state.busy=true; clearTimeout(combatTimer);
   byId('cbAtkSkill').style.display='none';
   byId('cbDefSkill').style.display='none';
-  byId('cbFlee').style.display='none';
+  byId('cbFlee').style.display='none'; { var _bb=byId('cbBreath'); if(_bb) _bb.style.display='none'; }
   byId('cbCritBtn').style.display='none';
   byId('cbEndBtn').style.display='';
   { const sw=byId('cbSwitch'); if(sw){ sw.style.display='none'; sw.innerHTML=''; } }
@@ -4336,7 +4386,7 @@ function closeCombat(){
   byId('cbEndBtn').style.display='none';
   byId('cbAtkSkill').style.display='';
   byId('cbDefSkill').style.display='';
-  byId('cbFlee').style.display='';
+  byId('cbFlee').style.display=''; { var _bb=byId('cbBreath'); if(_bb) _bb.style.display=''; }
   byId('cbCritBtn').style.display='';
   const win=c.win, wasBoss=c.wasBoss;
   state.combat=null; state.busy=false;
@@ -5157,7 +5207,7 @@ function genFloor(f){
 function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f)); try{ return genBossFloorRaw(f); } finally{ RAND=prev; } }
 function ensureFloor(f){ if(!state.floors[f]){ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } }
 function curFloor(){ return state.floors[state.floor]; }
-const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev','arenaPrep','arenaStage','arenaDuel','arenaEnd','arenaField','afShop'];
+const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev','arenaPrep','arenaStage','arenaDuel','arenaEnd','arenaField','afShop','cardDraft'];
 function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} let modalOpen=false; try{ const _ovs=document.querySelectorAll('.overlay.show'); for(let _i=0;_i<_ovs.length;_i++){ if(_ovs[_i].id!=='startScreen'){ modalOpen=true; break; } } }catch(e){} ae.style.display = (isAdmin && !open && onMenu && !modalOpen) ? '' : 'none'; }
 function show(id){
   /* only ONE modal overlay open at a time — close any other so windows never stack */
@@ -5301,6 +5351,7 @@ function applyLang(){
   byId('cbFoeAtkL').textContent=t('ui.atk'); byId('cbFoeDefL').textContent=t('ui.def');
   byId('vsTxt').textContent=t('cb.vs');
   byId('cbFleeLab').textContent=t('cb.flee'); byId('cbCritLab').textContent=t('cb.crit');   /* attack/defence skill labels are set by refreshCombatButtons */
+  { var _bl=byId('cbBreathLab'); if(_bl) _bl.textContent=(state.lang==='en'?'Deep Breath':(state.lang==='ko'?'심호흡':'深呼吸')); }
   byId('shopExpLab').textContent=t('shop.exp'); byId('shopGoldLab').textContent=t('shop.gold');
   { const _e=byId('cheatTitle'); if(_e)_e.textContent=t('cheat.title'); const _o=byId('cheatOk'); if(_o)_o.textContent=t('cheat.ok'); const _bl=byId('cheatBadgeLab'); if(_bl)_bl.textContent=t('cheat.badge'); const _ex=byId('cheatExit'); if(_ex)_ex.textContent=t('cheat.exit'); const _cp=byId('cheatPass'); if(_cp)_cp.placeholder=t('cheat.ph'); }
   const closeWord=(state.lang==='en')?'Close':(state.lang==='ja')?'閉じる':(state.lang==='ko')?'닫기':(state.lang==='zh-Hans')?'关闭':'關閉';
@@ -5413,7 +5464,9 @@ function bindInput(){
       } else if(e.key==='ArrowRight' && state.combat && !state.combat.ended){
         e.preventDefault(); cbCursorMove(1);                    /* right = next skill in the cursor row */
       } else if((e.key==='v'||e.key==='V') && state.combat && !state.combat.ended){
-        e.preventDefault(); fleeCombat();                       /* V = flee */
+        e.preventDefault(); deepBreath();                       /* V = deep breath (recover stamina, skip attack) */
+      } else if((e.key==='b'||e.key==='B') && state.combat && !state.combat.ended){
+        e.preventDefault(); fleeCombat();                       /* B = flee (F is the map teleport key) */
       }
       return;
     }
@@ -5542,6 +5595,7 @@ function bindInput(){
   byId('cbAtkSkill').addEventListener('click',combatAtkSkill);
   byId('cbDefSkill').addEventListener('click',combatDefSkill);
   byId('cbFlee').addEventListener('click',fleeCombat);
+  { var _bb=byId('cbBreath'); if(_bb) _bb.addEventListener('click',deepBreath); }
   byId('cbCritBtn').addEventListener('click',armCrit);
   byId('cbEndBtn').addEventListener('click',closeCombat);
   byId('storyNext').addEventListener('click', storyNext);
@@ -5783,16 +5837,18 @@ const SFX_PRESETS = {
   zap:   function(){ _blip(900,0.05,'square',0.20,0,1300); _blip(1250,0.07,'square',0.18,0.04,320); },
   roar:  function(){ _blip(110,0.22,'sawtooth',0.22,0,70); _noise(0.10,0.12,0.0); },
   bite:  function(){ _noise(0.07,0.28,0); _blip(170,0.06,'square',0.16,0,95); },
-  boom:  function(){ _noise(0.20,0.30,0); _blip(70,0.18,'sawtooth',0.22,0,40); }
+  boom:  function(){ _noise(0.20,0.30,0); _blip(70,0.18,'sawtooth',0.22,0,40); },
+  whiff: function(){ _noise(0.11,0.13,0.0); _blip(320,0.05,'sine',0.07,0.0,150); }
 };
 const SFX_PRESET_KEYS = Object.keys(SFX_PRESETS);
-let SFX_MAP = { hurt:'default', critHurt:'default', hit:'default', critHit:'default' };
+let SFX_MAP = { hurt:'default', critHurt:'default', hit:'default', critHit:'default', miss:'whiff' };   /* miss 音效：預設 whiff，可在後台指定自訂音效或設為 none 靜音 */
 function sfx(name){
   if(!_sfxUnlocked || !_actx || !_sfxGain) return;
   if(effSfxVol()<=0) return;
   if(_actx.state==='suspended'){ try{ _actx.resume(); }catch(e){} }
   let fn=SFX[name];
   const m=SFX_MAP[name];
+  if(m==='none') return;
   if(m && CUSTOM_SFX[m]){ playCustomSfx(m); return; }
   if(m && m!=='default' && SFX_PRESETS[m]) fn=SFX_PRESETS[m];
   if(fn){ try{ fn(); }catch(e){} }
@@ -6722,6 +6778,11 @@ const ARENA_BUY={ hp:{inc:200,cost:100}, atk:{inc:2,cost:100}, def:{inc:2,cost:1
 let ARENA_GOLD=1000;
 const ARENA_AI_BUILD={ hp:1700, atk:16, def:16 };
 const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:420, liveMaxRounds:60 };
+let DOT_HP_FRAC=0.02;   /* DoT per-round damage capped at this fraction of the target's max HP (scales across stat levels) */
+let RAMP_MAX_ROUNDS=20;   /* ramp bonuses (rampAtk/rampDef/rampTrue) stop accumulating after this many rounds' worth */
+let LIFESTEAL_CAP=60;   /* aggregated lifesteal%% cap (guards extreme multi-card stacking) */
+let SUSTAIN_MULT=0.75;   /* global multiplier on sustained healing: lifesteal, regen, shield-on-hit/hurt (NOT opening shield) */
+let SCALE_ATK_MAX=1.2;   /* scaling ATK bonuses (ramp + hpToAtk + defToAtk) capped at this multiple of base ATK */
 function arenaApplyCfg(a){
   if(!a) return;
   if(a.gold!=null) ARENA_GOLD=a.gold;
@@ -6730,10 +6791,11 @@ function arenaApplyCfg(a){
   if(a.defInc!=null) ARENA_BUY.def.inc=a.defInc; if(a.defCost!=null) ARENA_BUY.def.cost=a.defCost;
   if(a.aiHp!=null) ARENA_AI_BUILD.hp=a.aiHp; if(a.aiAtk!=null) ARENA_AI_BUILD.atk=a.aiAtk; if(a.aiDef!=null) ARENA_AI_BUILD.def=a.aiDef;
   if(a.tickMs!=null) ARENA_DUEL.tickMs=Math.max(120,a.tickMs); if(a.maxRounds!=null) ARENA_DUEL.liveMaxRounds=Math.max(5,a.maxRounds);
+  if(a.dotHpPct!=null) DOT_HP_FRAC=Math.max(0,a.dotHpPct)/100; if(a.rampMaxRd!=null) RAMP_MAX_ROUNDS=Math.max(1,a.rampMaxRd); if(a.lifestealCap!=null) LIFESTEAL_CAP=Math.max(0,a.lifestealCap); if(a.sustainPct!=null) SUSTAIN_MULT=Math.max(0,a.sustainPct)/100; if(a.scaleAtkPct!=null) SCALE_ATK_MAX=Math.max(0,a.scaleAtkPct)/100;
   if(typeof AF_PHASE!=='undefined'){ if(a.waitSec!=null) AF_PHASE.wait=Math.max(1,a.waitSec); if(a.shopSec!=null) AF_PHASE.shop=Math.max(1,a.shopSec); if(a.prepSec!=null) AF_PHASE.prep=Math.max(5,a.prepSec); }
 }
 function arenaSnapshotCfg(){
-  return { gold:ARENA_GOLD, hpInc:ARENA_BUY.hp.inc, hpCost:ARENA_BUY.hp.cost, atkInc:ARENA_BUY.atk.inc, atkCost:ARENA_BUY.atk.cost, defInc:ARENA_BUY.def.inc, defCost:ARENA_BUY.def.cost, aiHp:ARENA_AI_BUILD.hp, aiAtk:ARENA_AI_BUILD.atk, aiDef:ARENA_AI_BUILD.def, tickMs:ARENA_DUEL.tickMs, maxRounds:ARENA_DUEL.liveMaxRounds, waitSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.wait:60), shopSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.shop:120), prepSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.prep:15) };
+  return { gold:ARENA_GOLD, hpInc:ARENA_BUY.hp.inc, hpCost:ARENA_BUY.hp.cost, atkInc:ARENA_BUY.atk.inc, atkCost:ARENA_BUY.atk.cost, defInc:ARENA_BUY.def.inc, defCost:ARENA_BUY.def.cost, aiHp:ARENA_AI_BUILD.hp, aiAtk:ARENA_AI_BUILD.atk, aiDef:ARENA_AI_BUILD.def, tickMs:ARENA_DUEL.tickMs, maxRounds:ARENA_DUEL.liveMaxRounds, dotHpPct:Math.round(DOT_HP_FRAC*100), rampMaxRd:RAMP_MAX_ROUNDS, lifestealCap:LIFESTEAL_CAP, sustainPct:Math.round(SUSTAIN_MULT*100), scaleAtkPct:Math.round(SCALE_ATK_MAX*100), waitSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.wait:60), shopSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.shop:120), prepSec:(typeof AF_PHASE!=='undefined'?AF_PHASE.prep:15) };
 }
 const SCORE_CFG={ abAtk:1, abDef:1, abLv:20, monKill:12, monFloor:20, timeBase:6000, timeRate:3, winBonus:1000 };
 const SCORE_KEYS=['abAtk','abDef','abLv','monKill','monFloor','timeBase','timeRate','winBonus'];
@@ -6792,7 +6854,7 @@ function afDrawAvatar(ctx,x,y,PX,face,color,isSelf,name){
 function afSync(){
   var f=AField; if(!f) return; if(!(typeof Net!=='undefined' && Net.arenaRef && Net.uid)) return;
   var now=Date.now(); if(f.lastSync && now-f.lastSync<150) return; f.lastSync=now;
-  try{ Net.arenaRef.child('field/'+Net.uid).set({ px:Math.round(f.px*100)/100, py:Math.round(f.py*100)/100, team:f.team, face:f.face, name:((typeof MP!=='undefined'&&MP.myName)||''), hp:((state.player&&state.player.hp)||0), atk:((state.player&&state.player.atk)||0), def:((state.player&&state.player.def)||0), t:(Net.ts?Net.ts():now) }); }catch(e){}
+  try{ Net.arenaRef.child('field/'+Net.uid).set({ px:Math.round(f.px*100)/100, py:Math.round(f.py*100)/100, team:f.team, face:f.face, name:((typeof MP!=='undefined'&&MP.myName)||''), hp:((state.player&&state.player.hp)||0), atk:((state.player&&state.player.atk)||0), def:((state.player&&state.player.def)||0), cards:((state.player&&state.player.arenaCards)||[]), t:(Net.ts?Net.ts():now) }); }catch(e){}
 }
 function afOnField(fieldData){
   if(typeof MP==='undefined' || !MP.arena) return; var out={};
@@ -6875,7 +6937,14 @@ function afOnDuel(d){ if(typeof MP==='undefined'||!MP.arena) return; MP.arena.af
 function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'){ f.frozen=false; f.spectateFree=false; return; } var meUid=Net.uid||'me'; if(meUid===d.a){ f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
 function afRenderDuelOverlay(){ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; if(scoreEl) scoreEl.style.display='none'; return; } if(scoreEl){ if(d.sub==='count'||d.sub==='fight'||d.sub==='result'){ scoreEl.style.display=''; scoreEl.textContent=t('mp.afTeamA')+' '+(d.scoreA||0)+' : '+(d.scoreB||0)+' '+t('mp.afTeamB'); } else scoreEl.style.display='none'; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ var ids=afAllFieldUids(); var r1=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):na; var r2=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):nb; ban.textContent=t('mp.afLottery')+'  '+r1+'  VS  '+r2; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
 function afFinishField(){ var ar=MP.arena; if(!ar) return; ar.afDuel={sub:'done'}; var sA=ar.scoreA||0, sB=ar.scoreB||0, results=ar.afResults||[]; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); Net.arenaRef.child('afEnd').set({scoreA:sA, scoreB:sB, results:results}); }catch(e){} } afShowEnd(sA,sB,results); }
-function afFighterStats(uid){ if(/^AI/.test(uid||'')) return arenaFighterStats(uid); if(uid===Net.uid){ var pl=state.player; return { uid:uid, name:(MP.myName||'你'), hp:pl.hp, atk:pl.atk, def:pl.def, thrA:START.thrA, ai:false }; } var fp=(MP.arena&&MP.arena.fieldPlayers)||{}, f=fp[uid]||{}; return { uid:uid, name:f.name||uid, hp:f.hp||START.hp, atk:f.atk||START.atk, def:f.def||START.def, thrA:START.thrA, ai:false }; }
+function arenaAICards(uid){
+  var seed=0, s=''+(uid||'AI'); for(var i=0;i<s.length;i++) seed=(seed*31+s.charCodeAt(i))>>>0; if(!seed) seed=12345;
+  function rnd(){ seed=(seed*1103515245+12345)>>>0; return seed/4294967296; }
+  var picks=[], seen={}, tries=0;
+  while(picks.length<4 && tries<400){ tries++; var c=CARD_POOL[Math.floor(rnd()*CARD_POOL.length)]; if(c && !seen[c.id]){ seen[c.id]=1; picks.push(c.id); } }
+  return picks;
+}
+function afFighterStats(uid){ if(/^AI/.test(uid||'')){ var _st=arenaFighterStats(uid); if(_st && (!_st.cards || !_st.cards.length)) _st.cards=arenaAICards(uid); return _st; } if(uid===Net.uid){ var pl=state.player; return { uid:uid, name:(MP.myName||'你'), hp:pl.hp, atk:pl.atk, def:pl.def, thrA:START.thrA, ai:false, cards:(pl.arenaCards||[]) }; } var fp=(MP.arena&&MP.arena.fieldPlayers)||{}, f=fp[uid]||{}; return { uid:uid, name:f.name||uid, hp:f.hp||START.hp, atk:f.atk||START.atk, def:f.def||START.def, thrA:START.thrA, ai:false, cards:(f.cards||[]) }; }
 function afFightStart(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; if(ar.afD) return; ar.curPair=[d.a,d.b]; ar.afD={ A:arenaNewFighter(afFighterStats(d.a)), B:arenaNewFighter(afFighterStats(d.b)), aAct:null, bAct:null, round:0, over:false, result:null }; afFightStream(); if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ if(ar._afTimer) clearInterval(ar._afTimer); ar._afTimer=setInterval(afFightTick, ARENA_DUEL.tickMs); } }
 function afFightTick(){ var ar=MP.arena, D=ar&&ar.afD; if(!D||D.over) return; arenaApplyReqs(D); arenaAITick(D); arenaDuelRound(D); D.round++; var res=arenaJudgeFighters(D.A,D.B); if(res===null && D.round>=ARENA_DUEL.liveMaxRounds) res=arenaTieResult(D.A.hp,D.A.maxhp,D.B.hp,D.B.maxhp); if(res!==null){ D.over=true; D.result=res; } afFightStream(); if(D.over){ if(ar._afTimer){ clearInterval(ar._afTimer); ar._afTimer=null; } afFightStream(); afFightEnd(res); } }
 function afFightStream(){ var ar=MP.arena, D=ar&&ar.afD; if(!D) return; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afFight').set({ ahp:Math.round(D.A.hp), amax:D.A.maxhp, bhp:Math.round(D.B.hp), bmax:D.B.maxhp, aname:D.A.name, bname:D.B.name, aen:Math.round(D.A.en), astam:Math.round(D.A.stam), ben:Math.round(D.B.en), bstam:Math.round(D.B.stam), round:D.round, over:!!D.over, result:D.result||null, t:(Net.ts?Net.ts():Date.now()) }); }catch(e){} } }
@@ -6885,9 +6954,18 @@ function afFightEnd(res){ var ar=MP.arena; if(!ar||!ar.afDuel) return; if(res===
 function afAdvanceMatch(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d) return; d.fought=(d.fought||[]).concat([d.a,d.b]); ar.afD=null; ar.afFightView=null; afStartDuelSequence(); }
 function afShowEnd(sA,sB,results){ if(typeof MP!=='undefined'&&MP.arena){ if(MP.arena._afEnded) return; MP.arena._afEnded=true; } var winTxt=(sA>sB)? t('mp.arenaTeamWin',{team:'A'}) : (sB>sA? t('mp.arenaTeamWin',{team:'B'}) : t('mp.arenaTie')); { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); } { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } } { var e=byId('aeScore'); if(e) e.textContent='A '+sA+' : '+sB+' B'; } var list=byId('aeList'); if(list){ list.innerHTML=''; for(var i=0;i<results.length;i++){ var r=results[i], aw=(r.result==='A'), bw=(r.result==='B'), dr=(r.result==='draw'); var row=document.createElement('div'); row.className='aeRow'; var na=document.createElement('span'); na.className='aeNm'+(aw?' aeWinner':(bw?' aeLoser':'')); na.textContent=(r.an||afDuelName(r.a))+(aw?'  ✓':''); var mid=document.createElement('span'); mid.className='aeMid'+(dr?' aeDraw':''); mid.textContent=dr? t('mp.arenaDraw') : 'VS'; var nb=document.createElement('span'); nb.className='aeNm'+(bw?' aeWinner':(aw?' aeLoser':'')); nb.textContent=(bw?'✓  ':'')+(r.bn||afDuelName(r.b)); row.appendChild(na); row.appendChild(mid); row.appendChild(nb); list.appendChild(row); } } { var e=byId('aeBack'); if(e) e.textContent=t('mp.arenaBack'); } afClose(); show('arenaEnd'); }
 function afOnEnd(end){ if(end) afShowEnd(end.scoreA||0, end.scoreB||0, end.results||[]); }
-function afSkillPress(id){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; var side=(Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); if(!side) return; if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ var D=ar.afD; if(!D) return; var me=(side==='A')?D.A:D.B; if(!arenaCanUse(me,id)){ try{ toast(t('cb.needEnStam')); }catch(e){} return; } D[(side==='A')?'aAct':'bAct']=id; } else { try{ Net.arenaRef.child('req/'+Net.uid).set({ skill:id, round:(ar.afFightView&&ar.afFightView.round)||0, at:(Net.ts?Net.ts():Date.now()) }); }catch(e){} ar._myReq=id; } afFightPanelRender(); }
+function afSkillPress(id){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; var side=(Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); if(!side) return; if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ var D=ar.afD; if(!D) return; var me=(side==='A')?D.A:D.B; var _ok=arenaIsCard(id)?arenaCanUseCard(me,id):arenaCanUse(me,id); if(!_ok){ try{ toast(t('cb.needEnStam')); }catch(e){} return; } D[(side==='A')?'aAct':'bAct']=id; } else { try{ Net.arenaRef.child('req/'+Net.uid).set({ skill:id, round:(ar.afFightView&&ar.afFightView.round)||0, at:(Net.ts?Net.ts():Date.now()) }); }catch(e){} ar._myReq=id; } afFightPanelRender(); }
 function afToggleSpectate(){ if(AField){ AField.spectateFree=!AField.spectateFree; afFightPanelRender(); } }
-function afpBuildSkills(side){ var ar=MP.arena, D=ar&&ar.afD, host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef)), me=(host&&D)?(side==='A'?D.A:D.B):null; var el=byId('afpSkills'); if(!el) return; el.innerHTML=''; ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ var b=document.createElement('button'); b.className='afpSkBtn'; var queued=(host&&D)?(D[(side==='A')?'aAct':'bAct']===s.id):(ar._myReq===s.id); if(queued) b.className+=' queued'; b.textContent=skillName(s.id); if(host&&me) b.disabled=!arenaCanUse(me,s.id); b.onclick=(function(_id){ return function(){ afSkillPress(_id); }; })(s.id); el.appendChild(b); }); }
+function afpBuildSkills(side){ var ar=MP.arena, D=ar&&ar.afD, host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef)), me=(host&&D)?(side==='A'?D.A:D.B):null; var el=byId('afpSkills'); if(!el) return; el.innerHTML=''; ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ var b=document.createElement('button'); b.className='afpSkBtn'; var queued=(host&&D)?(D[(side==='A')?'aAct':'bAct']===s.id):(ar._myReq===s.id); if(queued) b.className+=' queued'; b.textContent=skillName(s.id); if(host&&me) b.disabled=!arenaCanUse(me,s.id); b.onclick=(function(_id){ return function(){ afSkillPress(_id); }; })(s.id); el.appendChild(b); });
+  var _myC=(host&&me)?(me.cards||[]):((state.player&&state.player.arenaCards)||[]);
+  (_myC||[]).forEach(function(cid){ var cc=(typeof cardById==='function')?cardById(cid):null; if(!cc||cc.type!=='active') return;
+    var b=document.createElement('button'); b.className='afpSkBtn afpCardBtn';
+    var uses=(host&&me&&me._cardUses)?(me._cardUses[cid]||0):null;
+    var queued=(host&&D)?(D[(side==='A')?'aAct':'bAct']===cid):(ar._myReq===cid); if(queued) b.className+=' queued';
+    b.textContent=cardName(cid)+(uses!=null?(' \u00d7'+uses):'');
+    if(host&&me) b.disabled=!arenaCanUseCard(me,cid);
+    b.onclick=(function(_id){ return function(){ afSkillPress(_id); }; })(cid); el.appendChild(b); });
+}
 function afFightPanelRender(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel, panel=byId('afFightPanel'), spec=byId('afSpectateBtn'); if(!panel) return; var inFight=d&&(d.sub==='fight'||d.sub==='result'); if(!inFight){ panel.style.display='none'; if(spec) spec.style.display='none'; return; } var meUid=Net.uid, amF=(d.a===meUid||d.b===meUid), side=(d.a===meUid)?'A':((d.b===meUid)?'B':null); var free=AField&&AField.spectateFree; if(spec){ if(!amF && d.sub==='fight'){ spec.style.display=''; spec.textContent= free? t('mp.afWatch') : t('mp.afRoam'); } else spec.style.display='none'; } if(!amF && free){ panel.style.display='none'; return; } panel.style.display=''; var hp=afFightHp()||{ahp:0,amax:1,bhp:0,bmax:1}; { var e=byId('afpAName'); if(e) e.textContent=afDuelName(d.a); } { var e=byId('afpBName'); if(e) e.textContent=afDuelName(d.b); } { var e=byId('afpABar'); if(e) e.style.width=(hp.amax>0?Math.max(0,Math.min(100,100*hp.ahp/hp.amax)):0)+'%'; } { var e=byId('afpBBar'); if(e) e.style.width=(hp.bmax>0?Math.max(0,Math.min(100,100*hp.bhp/hp.bmax)):0)+'%'; } { var e=byId('afpAHp'); if(e) e.textContent=Math.max(0,Math.round(hp.ahp))+'/'+hp.amax; } { var e=byId('afpBHp'); if(e) e.textContent=Math.max(0,Math.round(hp.bhp))+'/'+hp.bmax; } var mine=byId('afpMine'); if(amF && d.sub==='fight'){ if(mine) mine.style.display=''; var host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef)), D=ar.afD, en, stam; if(host&&D){ var me=(side==='A')?D.A:D.B; en=Math.round(me.en); stam=Math.round(me.stam); } else { var v=ar.afFightView||{}; en=Math.round((side==='A')?(v.aen||0):(v.ben||0)); stam=Math.round((side==='A')?(v.astam||0):(v.bstam||0)); } { var e=byId('afpRes'); if(e) e.textContent=t('cb.en')+' '+en+'   '+t('cb.st')+' '+stam; } afpBuildSkills(side); } else { if(mine) mine.style.display='none'; } }
 function afIsHost(){ return (typeof MP==='undefined') || !MP.arena || MP.host || !(typeof Net!=='undefined'&&Net.arenaRef); }
 function afNextPhase(cur){ return cur==='wait'?'shop':(cur==='shop'?'prep':(cur==='prep'?'duel':null)); }
@@ -6925,6 +7003,568 @@ function afRenderPhaseBar(){
   if(ph.name!=='shop'){ try{ if(byId('afShop')&&byId('afShop').classList.contains('show')) afShopClose(); }catch(e){} }
 }
 function arenaMyTeam(tt){ if(!tt) return 'A'; return tt.B.indexOf(Net.uid)>=0?'B':'A'; }
+
+/* ===== Arena cards (mode 2). First batch — effects wired in a later phase; draft picks 1 of 3, x4, reroll<=3 ===== */
+const CARD_POOL=[
+  {id:'atk_a',name:'小試身手',type:'passive',rarity:'common',desc:'攻擊力 +6。',eff:{atkAdd:6}},
+  {id:'atk_b',name:'利刃',type:'passive',rarity:'common',desc:'攻擊力 +10。',eff:{atkAdd:10}},
+  {id:'atk_c',name:'鋒芒',type:'passive',rarity:'good',desc:'攻擊力 +15。',eff:{atkAdd:15}},
+  {id:'atk_d',name:'破軍',type:'passive',rarity:'good',desc:'攻擊力 +22。',eff:{atkAdd:22}},
+  {id:'atk_e',name:'斬星訣',type:'passive',rarity:'rare',desc:'攻擊力 +32。',eff:{atkAdd:32}},
+  {id:'def_a',name:'薄甲',type:'passive',rarity:'common',desc:'防禦力 +8。',eff:{defAdd:8}},
+  {id:'def_b',name:'鐵壁',type:'passive',rarity:'common',desc:'防禦力 +14。',eff:{defAdd:14}},
+  {id:'def_c',name:'磐石',type:'passive',rarity:'good',desc:'防禦力 +20。',eff:{defAdd:20}},
+  {id:'def_d',name:'金鐘',type:'passive',rarity:'good',desc:'防禦力 +30。',eff:{defAdd:30}},
+  {id:'def_e',name:'不壞金身',type:'passive',rarity:'rare',desc:'防禦力 +42。',eff:{defAdd:42}},
+  {id:'hp_a',name:'韌體',type:'passive',rarity:'common',desc:'生命 +150。',eff:{hpAdd:150}},
+  {id:'hp_b',name:'厚生',type:'passive',rarity:'common',desc:'生命 +300。',eff:{hpAdd:300}},
+  {id:'hp_c',name:'熊心',type:'passive',rarity:'good',desc:'生命 +500。',eff:{hpAdd:500}},
+  {id:'hp_d',name:'龍血',type:'passive',rarity:'good',desc:'生命 +800。',eff:{hpAdd:800}},
+  {id:'hp_e',name:'不滅之軀',type:'passive',rarity:'rare',desc:'生命 +1300。',eff:{hpAdd:1300}},
+  {id:'atkp_a',name:'蓄勢',type:'passive',rarity:'common',desc:'攻擊力 +8%。',eff:{atkMul:1.08}},
+  {id:'atkp_b',name:'攻勢',type:'passive',rarity:'good',desc:'攻擊力 +15%。',eff:{atkMul:1.15}},
+  {id:'atkp_c',name:'銳勢',type:'passive',rarity:'good',desc:'攻擊力 +22%。',eff:{atkMul:1.22}},
+  {id:'atkp_d',name:'破勢',type:'passive',rarity:'rare',desc:'攻擊力 +30%。',eff:{atkMul:1.3}},
+  {id:'atkp_e',name:'滅勢',type:'passive',rarity:'rare',desc:'攻擊力 +42%。',eff:{atkMul:1.42}},
+  {id:'defp_a',name:'護身',type:'passive',rarity:'common',desc:'防禦力 +10%。',eff:{defMul:1.1}},
+  {id:'defp_b',name:'守勢',type:'passive',rarity:'good',desc:'防禦力 +18%。',eff:{defMul:1.18}},
+  {id:'defp_c',name:'磐護',type:'passive',rarity:'good',desc:'防禦力 +26%。',eff:{defMul:1.26}},
+  {id:'defp_d',name:'金護',type:'passive',rarity:'rare',desc:'防禦力 +36%。',eff:{defMul:1.36}},
+  {id:'defp_e',name:'神護',type:'passive',rarity:'rare',desc:'防禦力 +50%。',eff:{defMul:1.5}},
+  {id:'hpp_a',name:'壯魄',type:'passive',rarity:'common',desc:'生命 ×1.15。',eff:{hpMul:1.15}},
+  {id:'hpp_b',name:'雄魄',type:'passive',rarity:'good',desc:'生命 ×1.28。',eff:{hpMul:1.28}},
+  {id:'hpp_c',name:'巨魄',type:'passive',rarity:'good',desc:'生命 ×1.45。',eff:{hpMul:1.45}},
+  {id:'hpp_d',name:'龍魄',type:'passive',rarity:'rare',desc:'生命 ×1.65。',eff:{hpMul:1.65}},
+  {id:'hpp_e',name:'神魄',type:'passive',rarity:'rare',desc:'生命 ×1.9。',eff:{hpMul:1.9}},
+  {id:'ad_a',name:'攻守·初',type:'passive',rarity:'common',desc:'攻擊力 +6、防禦力 +8。',eff:{atkAdd:6,defAdd:8}},
+  {id:'ad_b',name:'攻守·中',type:'passive',rarity:'good',desc:'攻擊力 +12、防禦力 +16。',eff:{atkAdd:12,defAdd:16}},
+  {id:'ad_c',name:'攻守·大',type:'passive',rarity:'rare',desc:'攻擊力 +20、防禦力 +26。',eff:{atkAdd:20,defAdd:26}},
+  {id:'ah_a',name:'血刃·初',type:'passive',rarity:'common',desc:'攻擊力 +6、生命 +150。',eff:{atkAdd:6,hpAdd:150}},
+  {id:'ah_b',name:'血刃·中',type:'passive',rarity:'good',desc:'攻擊力 +12、生命 +320。',eff:{atkAdd:12,hpAdd:320}},
+  {id:'ah_c',name:'血刃·大',type:'passive',rarity:'rare',desc:'攻擊力 +20、生命 +520。',eff:{atkAdd:20,hpAdd:520}},
+  {id:'dh_a',name:'鐵魄·初',type:'passive',rarity:'common',desc:'防禦力 +8、生命 +150。',eff:{defAdd:8,hpAdd:150}},
+  {id:'dh_b',name:'鐵魄·中',type:'passive',rarity:'good',desc:'防禦力 +16、生命 +320。',eff:{defAdd:16,hpAdd:320}},
+  {id:'dh_c',name:'鐵魄·大',type:'passive',rarity:'rare',desc:'防禦力 +26、生命 +520。',eff:{defAdd:26,hpAdd:520}},
+  {id:'all_a',name:'均衡·初',type:'passive',rarity:'good',desc:'攻擊 +8、防禦 +10、生命 +200。',eff:{atkAdd:8,defAdd:10,hpAdd:200}},
+  {id:'all_b',name:'均衡·極',type:'passive',rarity:'rare',desc:'攻擊 +16、防禦 +20、生命 +400。',eff:{atkAdd:16,defAdd:20,hpAdd:400}},
+  {id:'ls_a',name:'汲血',type:'passive',rarity:'common',desc:'每次造成傷害，回復其 8% 為生命。',eff:{lifesteal:8}},
+  {id:'ls_b',name:'噬血',type:'passive',rarity:'good',desc:'每次造成傷害，回復其 15% 為生命。',eff:{lifesteal:15}},
+  {id:'ls_c',name:'奪魂',type:'passive',rarity:'good',desc:'每次造成傷害，回復其 25% 為生命。',eff:{lifesteal:25}},
+  {id:'ls_d',name:'血飼',type:'passive',rarity:'rare',desc:'每次造成傷害，回復其 40% 為生命。',eff:{lifesteal:40}},
+  {id:'th_a',name:'棘皮',type:'passive',rarity:'common',desc:'每次受到攻擊，反彈 8% 傷害給對手。',eff:{thorns:8}},
+  {id:'th_b',name:'荊棘',type:'passive',rarity:'good',desc:'每次受到攻擊，反彈 15% 傷害給對手。',eff:{thorns:15}},
+  {id:'th_c',name:'反鋒',type:'passive',rarity:'good',desc:'每次受到攻擊，反彈 25% 傷害給對手。',eff:{thorns:25}},
+  {id:'th_d',name:'鏡刺',type:'passive',rarity:'rare',desc:'每次受到攻擊，反彈 40% 傷害給對手。',eff:{thorns:40}},
+  {id:'pc_a',name:'破甲',type:'passive',rarity:'common',desc:'攻擊無視對手 15% 的防禦力。',eff:{pierce:15}},
+  {id:'pc_b',name:'穿甲',type:'passive',rarity:'good',desc:'攻擊無視對手 25% 的防禦力。',eff:{pierce:25}},
+  {id:'pc_c',name:'裂甲',type:'passive',rarity:'rare',desc:'攻擊無視對手 40% 的防禦力。',eff:{pierce:40}},
+  {id:'pc_d',name:'滅甲',type:'passive',rarity:'rare',desc:'攻擊無視對手 60% 的防禦力。',eff:{pierce:60}},
+  {id:'tf_a',name:'罡氣',type:'passive',rarity:'common',desc:'每次攻擊額外造成 3 點真傷（無視防禦）。',eff:{trueHit:3}},
+  {id:'tf_b',name:'真罡',type:'passive',rarity:'good',desc:'每次攻擊額外造成 6 點真傷（無視防禦）。',eff:{trueHit:6}},
+  {id:'tf_c',name:'罡雷',type:'passive',rarity:'good',desc:'每次攻擊額外造成 10 點真傷（無視防禦）。',eff:{trueHit:10}},
+  {id:'tf_d',name:'滅罡',type:'passive',rarity:'rare',desc:'每次攻擊額外造成 16 點真傷（無視防禦）。',eff:{trueHit:16}},
+  {id:'tm_a',name:'蝕魂',type:'passive',rarity:'good',desc:'每次攻擊額外造成對手當前生命 2% 的真傷（無視防禦）。',eff:{curHpTrue:2}},
+  {id:'tm_b',name:'裂魂',type:'passive',rarity:'good',desc:'每次攻擊額外造成對手當前生命 3% 的真傷（無視防禦）。',eff:{curHpTrue:3}},
+  {id:'tm_c',name:'噬命',type:'passive',rarity:'rare',desc:'每次攻擊額外造成對手當前生命 5% 的真傷（無視防禦）。',eff:{curHpTrue:5}},
+  {id:'tm_d',name:'斷命',type:'passive',rarity:'rare',desc:'每次攻擊額外造成對手當前生命 8% 的真傷（無視防禦）。',eff:{curHpTrue:8}},
+  {id:'ch_a',name:'蝕心',type:'passive',rarity:'common',desc:'每次攻擊額外造成對手當前生命 3% 的傷害。',eff:{curHpDmg:3}},
+  {id:'ch_b',name:'噬魂',type:'passive',rarity:'good',desc:'每次攻擊額外造成對手當前生命 5% 的傷害。',eff:{curHpDmg:5}},
+  {id:'st_a',name:'震懾',type:'passive',rarity:'common',desc:'攻擊有 15% 機率使對手暈眩，跳過其下一回合。',eff:{stunChance:15}},
+  {id:'st_b',name:'當頭棒喝',type:'passive',rarity:'rare',desc:'攻擊有 30% 機率使對手暈眩，跳過其下一回合。',eff:{stunChance:30}},
+  {id:'hh_a',name:'氣盛',type:'passive',rarity:'good',desc:'生命高於 70% 時，攻擊力 ×1.25。',eff:{highHp:70,highAtkMul:1.25}},
+  {id:'hh_b',name:'睥睨天下',type:'passive',rarity:'rare',desc:'生命高於 60% 時，攻擊力 ×1.4。',eff:{highHp:60,highAtkMul:1.4}},
+  {id:'ds_a',name:'落井下石',type:'passive',rarity:'good',desc:'對手每承受一層減益（攻或防被削），你的傷害提高 8%。',eff:{debuffSynergy:8}},
+  {id:'vf_a',name:'摧枯拉朽',type:'passive',rarity:'rare',desc:'對生命高於 90% 的對手，傷害提高 40%。',eff:{vsFullHp:40}},
+  {id:'ex_a',name:'斬殺',type:'passive',rarity:'common',desc:'對手生命低於 20% 時，你的傷害提高 30%。',eff:{execHp:20,execBonus:30}},
+  {id:'ex_b',name:'收割',type:'passive',rarity:'good',desc:'對手生命低於 25% 時，你的傷害提高 45%。',eff:{execHp:25,execBonus:45}},
+  {id:'ex_c',name:'終結',type:'passive',rarity:'rare',desc:'對手生命低於 30% 時，你的傷害提高 70%。',eff:{execHp:30,execBonus:70}},
+  {id:'cb_a',name:'連擊',type:'passive',rarity:'common',desc:'每次攻擊有 15% 機率追加一次普通攻擊。',eff:{extraHit:15}},
+  {id:'cb_b',name:'亂舞',type:'passive',rarity:'good',desc:'每次攻擊有 25% 機率追加一次普通攻擊。',eff:{extraHit:25}},
+  {id:'cb_c',name:'千手',type:'passive',rarity:'rare',desc:'每次攻擊有 40% 機率追加一次普通攻擊。',eff:{extraHit:40}},
+  {id:'rt_a',name:'積怨',type:'passive',rarity:'common',desc:'每次受到攻擊後，你的下一次攻擊傷害 +15%。',eff:{retaliate:15}},
+  {id:'rt_b',name:'報復',type:'passive',rarity:'good',desc:'每次受到攻擊後，你的下一次攻擊傷害 +30%。',eff:{retaliate:30}},
+  {id:'rt_c',name:'雪恨',type:'passive',rarity:'rare',desc:'每次受到攻擊後，你的下一次攻擊傷害 +55%。',eff:{retaliate:55}},
+  {id:'ca_a',name:'削力',type:'passive',rarity:'common',desc:'每次擊中對手，使其攻擊力 -2（整場疊加）。',eff:{curseAtk:2}},
+  {id:'ca_b',name:'蝕骨',type:'passive',rarity:'good',desc:'每次擊中對手，使其攻擊力 -3（整場疊加）。',eff:{curseAtk:3}},
+  {id:'ca_c',name:'枯竭',type:'passive',rarity:'rare',desc:'每次擊中對手，使其攻擊力 -5（整場疊加）。',eff:{curseAtk:5}},
+  {id:'cd_a',name:'蝕甲',type:'passive',rarity:'common',desc:'每次擊中對手，使其防禦力 -2（整場疊加）。',eff:{curseDef:2}},
+  {id:'cd_b',name:'鏽蝕',type:'passive',rarity:'good',desc:'每次擊中對手，使其防禦力 -3（整場疊加）。',eff:{curseDef:3}},
+  {id:'cd_c',name:'碎防',type:'passive',rarity:'rare',desc:'每次擊中對手，使其防禦力 -5（整場疊加）。',eff:{curseDef:5}},
+  {id:'cbk_a',name:'血怒',type:'passive',rarity:'common',desc:'已損失的生命越多，造成傷害越高（最高 +20%）。',eff:{rageMax:20}},
+  {id:'cbk_b',name:'狂化',type:'passive',rarity:'good',desc:'已損失的生命越多，造成傷害越高（最高 +40%）。',eff:{rageMax:40}},
+  {id:'cbk_c',name:'嗜殺',type:'passive',rarity:'rare',desc:'已損失的生命越多，造成傷害越高（最高 +70%）。',eff:{rageMax:70}},
+  {id:'dta_a',name:'幻骨',type:'passive',rarity:'good',desc:'將自身 10% 的防禦力額外計入攻擊力。',eff:{defToAtk:10}},
+  {id:'dta_b',name:'骨刃',type:'passive',rarity:'good',desc:'將自身 18% 的防禦力額外計入攻擊力。',eff:{defToAtk:18}},
+  {id:'dta_c',name:'魔化',type:'passive',rarity:'rare',desc:'將自身 30% 的防禦力額外計入攻擊力。',eff:{defToAtk:30}},
+  {id:'hta_a',name:'血刃訣',type:'passive',rarity:'good',desc:'將自身當前生命的 3% 額外計入攻擊力。',eff:{hpToAtk:3}},
+  {id:'hta_b',name:'以血飼刃',type:'passive',rarity:'rare',desc:'將自身當前生命的 5% 額外計入攻擊力。',eff:{hpToAtk:5}},
+  {id:'hta_c',name:'血海深仇',type:'passive',rarity:'rare',desc:'將自身當前生命的 8% 額外計入攻擊力。',eff:{hpToAtk:8}},
+  {id:'dr_a',name:'卸力',type:'passive',rarity:'common',desc:'受到的傷害減少 10%。',eff:{dr:10}},
+  {id:'dr_b',name:'化勁',type:'passive',rarity:'good',desc:'受到的傷害減少 18%。',eff:{dr:18}},
+  {id:'dr_c',name:'柔勁',type:'passive',rarity:'good',desc:'受到的傷害減少 25%。',eff:{dr:25}},
+  {id:'dr_d',name:'太極勁',type:'passive',rarity:'rare',desc:'受到的傷害減少 35%。',eff:{dr:35}},
+  {id:'dg_a',name:'身法',type:'passive',rarity:'common',desc:'有 8% 機率完全閃避對手的攻擊。',eff:{dodge:8}},
+  {id:'dg_b',name:'殘影',type:'passive',rarity:'good',desc:'有 15% 機率完全閃避對手的攻擊。',eff:{dodge:15}},
+  {id:'dg_c',name:'縹緲',type:'passive',rarity:'rare',desc:'有 25% 機率完全閃避對手的攻擊。',eff:{dodge:25}},
+  {id:'ac_a',name:'堅韌',type:'passive',rarity:'common',desc:'受到重擊時，該次傷害減少 40%。',eff:{heavyTakenCut:40}},
+  {id:'ac_b',name:'鐵骨',type:'passive',rarity:'good',desc:'受到重擊時，該次傷害減少 60%。',eff:{heavyTakenCut:60}},
+  {id:'ac_c',name:'金剛不壞',type:'passive',rarity:'rare',desc:'受到重擊時，該次傷害減少 85%。',eff:{heavyTakenCut:85}},
+  {id:'rg_a',name:'回氣',type:'passive',rarity:'common',desc:'每 3 回合回復 48 點生命。',eff:{regenN:3,regenFlat:48}},
+  {id:'rg_b',name:'泉湧',type:'passive',rarity:'good',desc:'每 3 回合回復 72 點生命。',eff:{regenN:3,regenFlat:72}},
+  {id:'rg_c',name:'生生不息',type:'passive',rarity:'rare',desc:'每 2 回合回復 96 點生命。',eff:{regenN:2,regenFlat:96}},
+  {id:'fg_a',name:'先機',type:'passive',rarity:'common',desc:'最先受到的 1 次攻擊，該次傷害減半。',eff:{firstHitCutN:1,firstHitCut:50}},
+  {id:'fg_b',name:'迎擊',type:'passive',rarity:'good',desc:'最先受到的 2 次攻擊，該次傷害減半。',eff:{firstHitCutN:2,firstHitCut:50}},
+  {id:'fg_c',name:'金鐘罩·序',type:'passive',rarity:'rare',desc:'最先受到的 3 次攻擊，該次傷害減半。',eff:{firstHitCutN:3,firstHitCut:50}},
+  {id:'bp_a',name:'薄盾',type:'passive',rarity:'common',desc:'開戰時獲得 48 點護盾。',eff:{shieldFlat:48}},
+  {id:'bp_b',name:'護盾',type:'passive',rarity:'good',desc:'開戰時獲得 90 點護盾。',eff:{shieldFlat:90}},
+  {id:'bp_c',name:'結界',type:'passive',rarity:'rare',desc:'開戰時獲得 150 點護盾。',eff:{shieldFlat:150}},
+  {id:'bf_a',name:'鐵盾',type:'passive',rarity:'common',desc:'開戰時獲得 120 點護盾。',eff:{shieldFlat:120}},
+  {id:'bf_b',name:'巨盾',type:'passive',rarity:'good',desc:'開戰時獲得 260 點護盾。',eff:{shieldFlat:260}},
+  {id:'bf_c',name:'神盾',type:'passive',rarity:'rare',desc:'開戰時獲得 450 點護盾。',eff:{shieldFlat:450}},
+  {id:'ra_a',name:'漸強',type:'passive',rarity:'common',desc:'每過一回合，攻擊力 +2（整場疊加）。',eff:{rampAtk:2}},
+  {id:'ra_b',name:'蓄力',type:'passive',rarity:'good',desc:'每過一回合，攻擊力 +3（整場疊加）。',eff:{rampAtk:3}},
+  {id:'ra_c',name:'無盡',type:'passive',rarity:'rare',desc:'每過一回合，攻擊力 +5（整場疊加）。',eff:{rampAtk:5}},
+  {id:'rd_a',name:'漸固',type:'passive',rarity:'common',desc:'每過一回合，防禦力 +3（整場疊加）。',eff:{rampDef:3}},
+  {id:'rd_b',name:'滾雪',type:'passive',rarity:'good',desc:'每過一回合，防禦力 +5（整場疊加）。',eff:{rampDef:5}},
+  {id:'rd_c',name:'壁壘',type:'passive',rarity:'rare',desc:'每過一回合，防禦力 +8（整場疊加）。',eff:{rampDef:8}},
+  {id:'sa_a',name:'奪力',type:'passive',rarity:'common',desc:'每次擊中對手，偷取其 2 點攻擊力。',eff:{stealAtk:2}},
+  {id:'sa_b',name:'汲取',type:'passive',rarity:'good',desc:'每次擊中對手，偷取其 3 點攻擊力。',eff:{stealAtk:3}},
+  {id:'sa_c',name:'蝕能',type:'passive',rarity:'rare',desc:'每次擊中對手，偷取其 5 點攻擊力。',eff:{stealAtk:5}},
+  {id:'sd_a',name:'奪甲',type:'passive',rarity:'common',desc:'每次擊中對手，偷取其 2 點防禦力。',eff:{stealDef:2}},
+  {id:'sd_b',name:'蝕壁',type:'passive',rarity:'good',desc:'每次擊中對手，偷取其 3 點防禦力。',eff:{stealDef:3}},
+  {id:'sd_c',name:'奪魄',type:'passive',rarity:'rare',desc:'每次擊中對手，偷取其 5 點防禦力。',eff:{stealDef:5}},
+  {id:'lr_a',name:'頑抗',type:'passive',rarity:'common',desc:'生命低於 30% 時，攻擊力 ×1.3。',eff:{lowHp:30,lowAtkMul:1.3}},
+  {id:'lr_b',name:'背水',type:'passive',rarity:'good',desc:'生命低於 30% 時，攻擊力 ×1.5。',eff:{lowHp:30,lowAtkMul:1.5}},
+  {id:'lr_c',name:'絕境',type:'passive',rarity:'rare',desc:'生命低於 35% 時，攻擊力 ×1.8。',eff:{lowHp:35,lowAtkMul:1.8}},
+  {id:'lr_d',name:'困獸之鬥',type:'passive',rarity:'rare',desc:'生命低於 25% 時，攻擊力 ×2。',eff:{lowHp:25,lowAtkMul:2}},
+  {id:'vd_a',name:'弒巨',type:'passive',rarity:'good',desc:'對手防禦力高於你時，你的傷害提高 20%。',eff:{vsHighDef:20}},
+  {id:'vd_b',name:'屠龍',type:'passive',rarity:'rare',desc:'對手防禦力高於你時，你的傷害提高 40%。',eff:{vsHighDef:40}},
+  {id:'va_a',name:'制剛',type:'passive',rarity:'good',desc:'對手攻擊力高於你時，你受到的傷害減少 20%。',eff:{vsHighAtk:20}},
+  {id:'va_b',name:'以柔克剛',type:'passive',rarity:'rare',desc:'對手攻擊力高於你時，你受到的傷害減少 35%。',eff:{vsHighAtk:35}},
+  {id:'vh_a',name:'搏命',type:'passive',rarity:'good',desc:'對手生命高於你時，你的傷害提高 15%。',eff:{vsHighHp:15}},
+  {id:'vh_b',name:'蚍蜉撼樹',type:'passive',rarity:'rare',desc:'對手生命高於你時，你的傷害提高 30%。',eff:{vsHighHp:30}},
+  {id:'ah_a2',name:'焚傷',type:'passive',rarity:'common',desc:'使對手的回復效果降低 30%。',eff:{antiHeal:30}},
+  {id:'ah_b2',name:'重創',type:'passive',rarity:'good',desc:'使對手的回復效果降低 50%。',eff:{antiHeal:50}},
+  {id:'ah_c2',name:'絕癒',type:'passive',rarity:'rare',desc:'使對手的回復效果降低 80%。',eff:{antiHeal:80}},
+  {id:'er_a',name:'內息',type:'passive',rarity:'common',desc:'每回合額外恢復 4 點能量。',eff:{enRegen:4}},
+  {id:'er_b',name:'真氣',type:'passive',rarity:'good',desc:'每回合額外恢復 8 點能量。',eff:{enRegen:8}},
+  {id:'er_c',name:'氣海',type:'passive',rarity:'rare',desc:'每回合額外恢復 14 點能量。',eff:{enRegen:14}},
+  {id:'sr_a',name:'吐納',type:'passive',rarity:'common',desc:'每回合額外恢復 4 點體力。',eff:{stamRegen:4}},
+  {id:'sr_b',name:'龜息',type:'passive',rarity:'good',desc:'每回合額外恢復 8 點體力。',eff:{stamRegen:8}},
+  {id:'sr_c',name:'導引術',type:'passive',rarity:'rare',desc:'每回合額外恢復 14 點體力。',eff:{stamRegen:14}},
+  {id:'op_a',name:'搶攻',type:'passive',rarity:'common',desc:'首次攻擊的傷害提高 50%。',eff:{openerBonus:50}},
+  {id:'op_b',name:'先聲奪人',type:'passive',rarity:'good',desc:'首次攻擊的傷害提高 100%。',eff:{openerBonus:100}},
+  {id:'op_c',name:'迎頭痛擊',type:'passive',rarity:'rare',desc:'首次攻擊的傷害提高 150%。',eff:{openerBonus:150}},
+  {id:'act_burst_a',name:'蓄爆',type:'active',rarity:'common',desc:'【主動】使用後，本回合攻擊傷害 ×1.6。（消耗 20 能量・每場限 3 次）',eff:{active:'burst',mul:1.6,cost:20,uses:3}},
+  {id:'act_burst_b',name:'爆發',type:'active',rarity:'good',desc:'【主動】使用後，本回合攻擊傷害 ×2。（消耗 30 能量・每場限 2 次）',eff:{active:'burst',mul:2,cost:30,uses:2}},
+  {id:'act_burst_c',name:'滅殺',type:'active',rarity:'rare',desc:'【主動】使用後，本回合攻擊傷害 ×2.6。（消耗 45 能量・每場限 1 次）',eff:{active:'burst',mul:2.6,cost:45,uses:1}},
+  {id:'act_heal_a',name:'療傷',type:'active',rarity:'common',desc:'【主動】立即回復 75 點生命。（消耗 20 能量・每場限 3 次）',eff:{active:'heal',amt:75,cost:20,uses:3}},
+  {id:'act_heal_b',name:'回春',type:'active',rarity:'good',desc:'【主動】立即回復 125 點生命。（消耗 30 能量・每場限 2 次）',eff:{active:'heal',amt:125,cost:30,uses:2}},
+  {id:'act_heal_c',name:'續命',type:'active',rarity:'rare',desc:'【主動】立即回復 200 點生命。（消耗 45 能量・每場限 1 次）',eff:{active:'heal',amt:200,cost:45,uses:1}},
+  {id:'act_block_a',name:'硬擋',type:'active',rarity:'common',desc:'【主動】完全格擋對手接下來 1 次攻擊。（消耗 30 能量・每場限 2 次）',eff:{active:'block',hits:1,cost:30,uses:2}},
+  {id:'act_block_b',name:'鐵盾令',type:'active',rarity:'good',desc:'【主動】完全格擋對手接下來 2 次攻擊。（消耗 30 能量・每場限 2 次）',eff:{active:'block',hits:2,cost:30,uses:2}},
+  {id:'act_block_c',name:'龜息大法',type:'active',rarity:'rare',desc:'【主動】完全格擋對手接下來 3 次攻擊。（消耗 30 能量・每場限 2 次）',eff:{active:'block',hits:3,cost:30,uses:2}},
+  {id:'act_break_a',name:'削防',type:'active',rarity:'common',desc:'【主動】使對手防禦力 -20%，持續 2 回合。（消耗 20 能量・每場限 3 次）',eff:{active:'break',pct:20,rounds:2,cost:20,uses:3}},
+  {id:'act_break_b',name:'破勢令',type:'active',rarity:'good',desc:'【主動】使對手防禦力 -30%，持續 3 回合。（消耗 30 能量・每場限 2 次）',eff:{active:'break',pct:30,rounds:3,cost:30,uses:2}},
+  {id:'act_break_c',name:'碎甲',type:'active',rarity:'rare',desc:'【主動】使對手防禦力 -50%，持續 3 回合。（消耗 30 能量・每場限 2 次）',eff:{active:'break',pct:50,rounds:3,cost:30,uses:2}},
+  {id:'act_stun_a',name:'定身',type:'active',rarity:'good',desc:'【主動】使對手接下來 1 回合無法攻擊。（消耗 30 能量・每場限 2 次）',eff:{active:'stun',rounds:1,cost:30,uses:2}},
+  {id:'act_stun_b',name:'鎮魂',type:'active',rarity:'rare',desc:'【主動】使對手接下來 2 回合無法攻擊。（消耗 30 能量・每場限 2 次）',eff:{active:'stun',rounds:2,cost:30,uses:2}},
+  {id:'act_batk_a',name:'戰吼',type:'active',rarity:'common',desc:'【主動】接下來 3 回合，攻擊力 +20%。（消耗 20 能量・每場限 3 次）',eff:{active:'buffAtk',pct:20,rounds:3,cost:20,uses:3}},
+  {id:'act_batk_b',name:'狂戰',type:'active',rarity:'good',desc:'【主動】接下來 3 回合，攻擊力 +35%。（消耗 30 能量・每場限 2 次）',eff:{active:'buffAtk',pct:35,rounds:3,cost:30,uses:2}},
+  {id:'act_batk_c',name:'血戰',type:'active',rarity:'rare',desc:'【主動】接下來 3 回合，攻擊力 +55%。（消耗 30 能量・每場限 2 次）',eff:{active:'buffAtk',pct:55,rounds:3,cost:30,uses:2}},
+  {id:'act_bdef_a',name:'鐵壁令',type:'active',rarity:'common',desc:'【主動】接下來 3 回合，防禦力 +25%。（消耗 20 能量・每場限 3 次）',eff:{active:'buffDef',pct:25,rounds:3,cost:20,uses:3}},
+  {id:'act_bdef_b',name:'金鐘令',type:'active',rarity:'good',desc:'【主動】接下來 3 回合，防禦力 +45%。（消耗 30 能量・每場限 2 次）',eff:{active:'buffDef',pct:45,rounds:3,cost:30,uses:2}},
+  {id:'act_bdef_c',name:'不動如山',type:'active',rarity:'rare',desc:'【主動】接下來 3 回合，防禦力 +70%。（消耗 30 能量・每場限 2 次）',eff:{active:'buffDef',pct:70,rounds:3,cost:30,uses:2}},
+  {id:'act_drain_a',name:'奪氣',type:'active',rarity:'common',desc:'【主動】吸取對手 20 點能量與體力。（消耗 20 能量・每場限 3 次）',eff:{active:'drain',amt:20,cost:20,uses:3}},
+  {id:'act_drain_b',name:'吸星',type:'active',rarity:'good',desc:'【主動】吸取對手 35 點能量與體力。（消耗 30 能量・每場限 2 次）',eff:{active:'drain',amt:35,cost:30,uses:2}},
+  {id:'act_drain_c',name:'化功大法',type:'active',rarity:'rare',desc:'【主動】吸取對手 55 點能量與體力。（消耗 30 能量・每場限 2 次）',eff:{active:'drain',amt:55,cost:30,uses:2}},
+  {id:'act_refl_a',name:'反震',type:'active',rarity:'good',desc:'【主動】接下來 2 回合，反彈 40% 受到的傷害。（消耗 30 能量・每場限 2 次）',eff:{active:'reflect',pct:40,rounds:2,cost:30,uses:2}},
+  {id:'act_refl_b',name:'乾坤挪移',type:'active',rarity:'rare',desc:'【主動】接下來 2 回合，反彈 70% 受到的傷害。（消耗 30 能量・每場限 2 次）',eff:{active:'reflect',pct:70,rounds:2,cost:30,uses:2}},
+  {id:'act_true_a',name:'奪命一擊',type:'active',rarity:'good',desc:'【主動】立即對對手造成其當前生命 8% 的真傷。（消耗 30 能量・每場限 2 次）',eff:{active:'trueBurst',curPct:8,cost:30,uses:2}},
+  {id:'act_true_b',name:'天崩',type:'active',rarity:'rare',desc:'【主動】立即對對手造成其當前生命 15% 的真傷。（消耗 45 能量・每場限 1 次）',eff:{active:'trueBurst',curPct:15,cost:45,uses:1}},
+  {id:'act_cleanse_a',name:'淨化',type:'active',rarity:'good',desc:'【主動】清除自身所有減益效果，並回復 10%% 體力。（消耗 30 能量・每場限 2 次）',eff:{active:'cleanse',cost:30,uses:2}},
+  {id:'act_haste_a',name:'疾風',type:'active',rarity:'good',desc:'【主動】本回合額外攻擊一次。（消耗 30 能量・每場限 2 次）',eff:{active:'extraStrike',cost:30,uses:2}},
+  {id:'bsk_a',name:'狂暴',type:'passive',rarity:'good',desc:'攻擊力 +20%，但防禦力 -10%。',eff:{atkMul:1.2,defMul:0.9}},
+  {id:'bsk_b',name:'血怒斬',type:'passive',rarity:'rare',desc:'攻擊力 +35%，但防禦力 -18%。',eff:{atkMul:1.35,defMul:0.82}},
+  {id:'bsk_c',name:'玉石俱焚',type:'passive',rarity:'rare',desc:'攻擊力 +55%，但防禦力 -30%。',eff:{atkMul:1.55,defMul:0.7}},
+  {id:'trt_a',name:'龜甲',type:'passive',rarity:'good',desc:'防禦力 +25%，但攻擊力 -10%。',eff:{defMul:1.25,atkMul:0.9}},
+  {id:'trt_b',name:'鐵龜',type:'passive',rarity:'rare',desc:'防禦力 +45%，但攻擊力 -20%。',eff:{defMul:1.45,atkMul:0.8}},
+  {id:'gls_a',name:'玻璃大砲',type:'passive',rarity:'rare',desc:'攻擊力 +30%，但生命 ×0.7。',eff:{atkMul:1.3,hpMul:0.7}},
+  {id:'gls_b',name:'破釜沉舟',type:'passive',rarity:'rare',desc:'攻擊力 +55%，但生命 ×0.55。',eff:{atkMul:1.55,hpMul:0.55}},
+  {id:'blw_a',name:'龜殼',type:'passive',rarity:'good',desc:'生命 ×1.5，但攻擊力 -15%。',eff:{hpMul:1.5,atkMul:0.85}},
+  {id:'blw_b',name:'移動堡壘',type:'passive',rarity:'rare',desc:'生命 ×1.8，但攻擊力 -25%。',eff:{hpMul:1.8,atkMul:0.75}},
+  {id:'sv_a',name:'不屈',type:'passive',rarity:'rare',desc:'受到致命傷害時，改為保留 1 點生命（整場 1 次）。',eff:{survive:1}},
+  {id:'sv_b',name:'打不死',type:'passive',rarity:'rare',desc:'受到致命傷害時，改為保留 1 點生命（整場 2 次）。',eff:{survive:2}},
+  {id:'ps_a',name:'淬毒',type:'passive',rarity:'common',desc:'擊中對手後使其中毒，每回合損失 3 點生命（可疊加）。',eff:{poison:3}},
+  {id:'ps_b',name:'劇毒',type:'passive',rarity:'good',desc:'擊中對手後使其中毒，每回合損失 6 點生命（可疊加）。',eff:{poison:6}},
+  {id:'ps_c',name:'七步斷魂',type:'passive',rarity:'rare',desc:'擊中對手後使其中毒，每回合損失 10 點生命（可疊加）。',eff:{poison:10}},
+  {id:'ce_a',name:'蓄力一擊',type:'passive',rarity:'common',desc:'每累積 4 次攻擊，下一擊為重擊，造成 ×2 傷害。',eff:{heavyEveryN:4,heavyMul:2}},
+  {id:'ce_b',name:'三段擊',type:'passive',rarity:'good',desc:'每累積 3 次攻擊，下一擊為重擊，造成 ×2 傷害。',eff:{heavyEveryN:3,heavyMul:2}},
+  {id:'ce_c',name:'必殺',type:'passive',rarity:'rare',desc:'每累積 5 次攻擊，下一擊為重擊，造成 ×3 傷害。',eff:{heavyEveryN:5,heavyMul:3}},
+  {id:'ac2_a',name:'準星',type:'passive',rarity:'common',desc:'命中率提高 20%（更不易落空）。',eff:{accuracy:20}},
+  {id:'ac2_b',name:'百步穿楊',type:'passive',rarity:'good',desc:'命中率提高 45%（更不易落空）。',eff:{accuracy:45}},
+  {id:'ac2_c',name:'例不虛發',type:'passive',rarity:'rare',desc:'命中率提高 100%（更不易落空）。',eff:{accuracy:100}},
+  {id:'vs_a',name:'破盾',type:'passive',rarity:'common',desc:'對有護盾的對手，傷害提高 50%。',eff:{vsShield:50}},
+  {id:'vs_b',name:'碎盾錘',type:'passive',rarity:'good',desc:'對有護盾的對手，傷害提高 100%。',eff:{vsShield:100}},
+  {id:'mo_a',name:'連勢',type:'passive',rarity:'common',desc:'連續命中時，每次額外 +5% 傷害（落空歸零）。',eff:{momentum:5}},
+  {id:'mo_b',name:'勢如破竹',type:'passive',rarity:'good',desc:'連續命中時，每次額外 +10% 傷害（落空歸零）。',eff:{momentum:10}},
+  {id:'mo_c',name:'一鼓作氣',type:'passive',rarity:'rare',desc:'連續命中時，每次額外 +18% 傷害（落空歸零）。',eff:{momentum:18}},
+  {id:'rc_a',name:'硬碰硬',type:'passive',rarity:'good',desc:'受到重擊時，反彈該傷害的 50% 給對手。',eff:{reflectHeavy:50}},
+  {id:'rc_b',name:'以牙還牙',type:'passive',rarity:'rare',desc:'受到重擊時，反彈該傷害的 100% 給對手。',eff:{reflectHeavy:100}},
+  {id:'act_sh_a',name:'護體',type:'active',rarity:'common',desc:'【主動】立即獲得 150 點護盾。（消耗 20 能量・每場限 3 次）',eff:{active:'shield',amt:150,cost:20,uses:3}},
+  {id:'act_sh_b',name:'金鐘護體',type:'active',rarity:'good',desc:'【主動】立即獲得 300 點護盾。（消耗 30 能量・每場限 2 次）',eff:{active:'shield',amt:300,cost:30,uses:2}},
+  {id:'act_sh_c',name:'不動明王',type:'active',rarity:'rare',desc:'【主動】立即獲得 500 點護盾。（消耗 45 能量・每場限 1 次）',eff:{active:'shield',amt:500,cost:45,uses:1}},
+  {id:'act_ba_a',name:'怒吼',type:'active',rarity:'common',desc:'【主動】接下來 3 回合，攻擊力 +15。（消耗 30 能量・每場限 2 次）',eff:{active:'buffAtkFlat',amt:15,rounds:3,cost:30,uses:2}},
+  {id:'act_ba_b',name:'獅子吼',type:'active',rarity:'good',desc:'【主動】接下來 3 回合，攻擊力 +30。（消耗 30 能量・每場限 2 次）',eff:{active:'buffAtkFlat',amt:30,rounds:3,cost:30,uses:2}},
+  {id:'act_ex_a',name:'斬首',type:'active',rarity:'rare',desc:'【主動】對手生命低於 15% 時，立即擊殺；否則造成少量真傷。（消耗 30 能量・每場限 2 次）',eff:{active:'execute',hp:15,cost:30,uses:2}},
+  {id:'act_ex_b',name:'天誅',type:'active',rarity:'rare',desc:'【主動】對手生命低於 25% 時，立即擊殺；否則造成少量真傷。（消耗 30 能量・每場限 2 次）',eff:{active:'execute',hp:25,cost:30,uses:2}},
+  {id:'atk_f',name:'快刀',type:'passive',rarity:'common',desc:'攻擊力 +8。',eff:{atkAdd:8}},
+  {id:'atk_g',name:'銳鋒',type:'passive',rarity:'good',desc:'攻擊力 +18。',eff:{atkAdd:18}},
+  {id:'atk_h',name:'裂空斬',type:'passive',rarity:'rare',desc:'攻擊力 +26。',eff:{atkAdd:26}},
+  {id:'atk_i',name:'斬龍訣',type:'passive',rarity:'rare',desc:'攻擊力 +40。',eff:{atkAdd:40}},
+  {id:'atk_j',name:'弒神刃',type:'passive',rarity:'rare',desc:'攻擊力 +55。',eff:{atkAdd:55}},
+  {id:'def_f',name:'皮甲',type:'passive',rarity:'common',desc:'防禦力 +6。',eff:{defAdd:6}},
+  {id:'def_g',name:'重甲',type:'passive',rarity:'good',desc:'防禦力 +17。',eff:{defAdd:17}},
+  {id:'def_h',name:'龜甲盾',type:'passive',rarity:'rare',desc:'防禦力 +26。',eff:{defAdd:26}},
+  {id:'def_i',name:'玄武殼',type:'passive',rarity:'rare',desc:'防禦力 +38。',eff:{defAdd:38}},
+  {id:'def_j',name:'萬鈞壁',type:'passive',rarity:'rare',desc:'防禦力 +52。',eff:{defAdd:52}},
+  {id:'hp_f',name:'壯體',type:'passive',rarity:'common',desc:'生命 +200。',eff:{hpAdd:200}},
+  {id:'hp_g',name:'鐵血',type:'passive',rarity:'good',desc:'生命 +420。',eff:{hpAdd:420}},
+  {id:'hp_h',name:'巨軀',type:'passive',rarity:'rare',desc:'生命 +680。',eff:{hpAdd:680}},
+  {id:'hp_i',name:'龍鱗體',type:'passive',rarity:'rare',desc:'生命 +1000。',eff:{hpAdd:1000}},
+  {id:'hp_j',name:'不朽之心',type:'passive',rarity:'rare',desc:'生命 +1600。',eff:{hpAdd:1600}},
+  {id:'atkp_f',name:'奮起',type:'passive',rarity:'common',desc:'攻擊力 +12%。',eff:{atkMul:1.12}},
+  {id:'atkp_g',name:'昂揚',type:'passive',rarity:'good',desc:'攻擊力 +20%。',eff:{atkMul:1.2}},
+  {id:'atkp_h',name:'狂潮',type:'passive',rarity:'rare',desc:'攻擊力 +34%。',eff:{atkMul:1.34}},
+  {id:'atkp_i',name:'霸體',type:'passive',rarity:'rare',desc:'攻擊力 +46%。',eff:{atkMul:1.46}},
+  {id:'defp_f',name:'堅守',type:'passive',rarity:'common',desc:'防禦力 +14%。',eff:{defMul:1.14}},
+  {id:'defp_g',name:'屹立',type:'passive',rarity:'good',desc:'防禦力 +22%。',eff:{defMul:1.22}},
+  {id:'defp_h',name:'銅牆',type:'passive',rarity:'rare',desc:'防禦力 +32%。',eff:{defMul:1.32}},
+  {id:'defp_i',name:'鎮岳壁',type:'passive',rarity:'rare',desc:'防禦力 +44%。',eff:{defMul:1.44}},
+  {id:'hpp_f',name:'健體',type:'passive',rarity:'common',desc:'生命 ×1.2。',eff:{hpMul:1.2}},
+  {id:'hpp_g',name:'鋼魄',type:'passive',rarity:'good',desc:'生命 ×1.35。',eff:{hpMul:1.35}},
+  {id:'hpp_h',name:'霸魄',type:'passive',rarity:'rare',desc:'生命 ×1.55。',eff:{hpMul:1.55}},
+  {id:'hpp_i',name:'龍威',type:'passive',rarity:'rare',desc:'生命 ×1.75。',eff:{hpMul:1.75}},
+  {id:'bl_a',name:'放血',type:'passive',rarity:'common',desc:'擊中對手造成流血，每回合損失 4 點生命（可疊加）。',eff:{bleed:4}},
+  {id:'bl_b',name:'裂創',type:'passive',rarity:'good',desc:'擊中對手造成流血，每回合損失 7 點生命（可疊加）。',eff:{bleed:7}},
+  {id:'bl_c',name:'血崩',type:'passive',rarity:'rare',desc:'擊中對手造成流血，每回合損失 12 點生命（可疊加）。',eff:{bleed:12}},
+  {id:'bn_a',name:'燒灼',type:'passive',rarity:'common',desc:'擊中對手造成灼燒，每回合損失 4 點生命（可疊加）。',eff:{burn:4}},
+  {id:'bn_b',name:'焚身',type:'passive',rarity:'good',desc:'擊中對手造成灼燒，每回合損失 7 點生命（可疊加）。',eff:{burn:7}},
+  {id:'bn_c',name:'業火',type:'passive',rarity:'rare',desc:'擊中對手造成灼燒，每回合損失 12 點生命（可疊加）。',eff:{burn:12}},
+  {id:'ds2_a',name:'奪氣訣',type:'passive',rarity:'common',desc:'每次擊中對手，削減其 4 點能量。',eff:{drainEn:4}},
+  {id:'ds2_b',name:'散功',type:'passive',rarity:'good',desc:'每次擊中對手，削減其 7 點能量。',eff:{drainEn:7}},
+  {id:'ds2_c',name:'化勁散',type:'passive',rarity:'rare',desc:'每次擊中對手，削減其 12 點能量。',eff:{drainEn:12}},
+  {id:'dst_a',name:'疲勞',type:'passive',rarity:'common',desc:'每次擊中對手，削減其 4 點體力（使其更易落空）。',eff:{drainStam:4}},
+  {id:'dst_b',name:'力竭',type:'passive',rarity:'good',desc:'每次擊中對手，削減其 7 點體力（使其更易落空）。',eff:{drainStam:7}},
+  {id:'dst_c',name:'脫力',type:'passive',rarity:'rare',desc:'每次擊中對手，削減其 12 點體力（使其更易落空）。',eff:{drainStam:12}},
+  {id:'fr_a',name:'減傷符',type:'passive',rarity:'common',desc:'每次受到的傷害額外減少 3 點（固定值）。',eff:{flatDR:3}},
+  {id:'fr_b',name:'護心鏡',type:'passive',rarity:'good',desc:'每次受到的傷害額外減少 6 點（固定值）。',eff:{flatDR:6}},
+  {id:'fr_c',name:'金鐘罩',type:'passive',rarity:'rare',desc:'每次受到的傷害額外減少 10 點（固定值）。',eff:{flatDR:10}},
+  {id:'dc_a',name:'緩衝',type:'passive',rarity:'good',desc:'單次受到的傷害最多 300 點。',eff:{dmgCapFlat:300}},
+  {id:'dc_b',name:'護體真氣',type:'passive',rarity:'rare',desc:'單次受到的傷害最多 180 點。',eff:{dmgCapFlat:180}},
+  {id:'iv_a',name:'無敵星',type:'passive',rarity:'good',desc:'開戰後最初 1 回合完全免疫傷害。',eff:{invulnRounds:1}},
+  {id:'iv_b',name:'金身護法',type:'passive',rarity:'rare',desc:'開戰後最初 2 回合完全免疫傷害。',eff:{invulnRounds:2}},
+  {id:'ls2_a',name:'背水一戰',type:'passive',rarity:'good',desc:'生命低於 25% 時，受到的傷害減少 30%。',eff:{lowDefHp:25,lowDR:30}},
+  {id:'ls2_b',name:'絕地反擊',type:'passive',rarity:'rare',desc:'生命低於 30% 時，受到的傷害減少 50%。',eff:{lowDefHp:30,lowDR:50}},
+  {id:'idb_a',name:'清心',type:'passive',rarity:'good',desc:'免疫攻防被削減（削攻/削防）的減益效果。',eff:{immuneDebuff:1}},
+  {id:'idb_b',name:'金剛護體',type:'passive',rarity:'rare',desc:'免疫攻防被削減（削攻/削防）的減益效果。',eff:{immuneDebuff:1}},
+  {id:'sp_a',name:'蓄力斬',type:'passive',rarity:'good',desc:'體力越高，傷害越高（滿體力時最高 +15%）。',eff:{stamScale:15}},
+  {id:'sp_b',name:'氣勁',type:'passive',rarity:'rare',desc:'體力越高，傷害越高（滿體力時最高 +30%）。',eff:{stamScale:30}},
+  {id:'ep_a',name:'聚能',type:'passive',rarity:'good',desc:'能量越高，傷害越高（滿能量時最高 +15%）。',eff:{enScale:15}},
+  {id:'ep_b',name:'能量爆走',type:'passive',rarity:'rare',desc:'能量越高，傷害越高（滿能量時最高 +30%）。',eff:{enScale:30}},
+  {id:'cdge_a',name:'反身',type:'passive',rarity:'good',desc:'閃避對手攻擊後，立即反擊，造成 50% 攻擊力的傷害。',eff:{dodgeCounter:50}},
+  {id:'cdge_b',name:'鷂子翻身',type:'passive',rarity:'rare',desc:'閃避對手攻擊後，立即反擊，造成 100% 攻擊力的傷害。',eff:{dodgeCounter:100}},
+  {id:'soh_a',name:'聚盾',type:'passive',rarity:'common',desc:'每次擊中對手，獲得 60 點護盾。',eff:{shieldOnHit:60}},
+  {id:'soh_b',name:'鋼鐵之軀',type:'passive',rarity:'good',desc:'每次擊中對手，獲得 120 點護盾。',eff:{shieldOnHit:120}},
+  {id:'sot_a',name:'反震甲',type:'passive',rarity:'common',desc:'每次受到攻擊，獲得 80 點護盾。',eff:{shieldOnHurt:80}},
+  {id:'sot_b',name:'荊棘之鎧',type:'passive',rarity:'good',desc:'每次受到攻擊，獲得 160 點護盾。',eff:{shieldOnHurt:160}},
+  {id:'cr_a',name:'淨體',type:'passive',rarity:'good',desc:'每回合自動清除自身一層減益效果。',eff:{cleanseEachRound:1}},
+  {id:'cr_b',name:'百毒不侵',type:'passive',rarity:'rare',desc:'每回合自動清除自身一層減益效果。',eff:{cleanseEachRound:1}},
+  {id:'rdb_a',name:'反彈衰弱',type:'passive',rarity:'good',desc:'受到攻防削減時，將同樣的減益反彈給對手。',eff:{reflectDebuff:1}},
+  {id:'rdb_b',name:'以彼之道',type:'passive',rarity:'rare',desc:'受到攻防削減時，將同樣的減益反彈給對手。',eff:{reflectDebuff:1}},
+  {id:'vp_a',name:'趁虛而入',type:'passive',rarity:'good',desc:'對處於中毒/流血/灼燒的對手，傷害提高 20%。',eff:{vsDot:20}},
+  {id:'vp_b',name:'落花流水',type:'passive',rarity:'rare',desc:'對處於中毒/流血/灼燒的對手，傷害提高 35%。',eff:{vsDot:35}},
+  {id:'rmp_a',name:'漸盛真傷',type:'passive',rarity:'good',desc:'每過一回合，攻擊附帶的真傷 +2（整場疊加）。',eff:{rampTrue:2}},
+  {id:'rmp_b',name:'滔滔不絕',type:'passive',rarity:'rare',desc:'每過一回合，攻擊附帶的真傷 +4（整場疊加）。',eff:{rampTrue:4}},
+  {id:'ds3_a',name:'雙刃',type:'passive',rarity:'common',desc:'首次攻擊時，額外追加 15% 攻擊力的一擊。',eff:{firstDouble:15}},
+  {id:'ds3_b',name:'疾風連斬',type:'passive',rarity:'good',desc:'首次攻擊時，額外追加 25% 攻擊力的一擊。',eff:{firstDouble:25}},
+  {id:'ds3_c',name:'影分身',type:'passive',rarity:'rare',desc:'首次攻擊時，額外追加 40% 攻擊力的一擊。',eff:{firstDouble:40}},
+  {id:'hyb_a',name:'嗜血刃',type:'passive',rarity:'good',desc:'攻擊力 +8，且每次造成傷害回復其 10%。',eff:{atkAdd:8,lifesteal:10}},
+  {id:'hyb_b',name:'血飲狂刀',type:'passive',rarity:'rare',desc:'攻擊力 +16，且每次造成傷害回復其 20%。',eff:{atkAdd:16,lifesteal:20}},
+  {id:'hyb_c',name:'破魔刃',type:'passive',rarity:'good',desc:'攻擊力 +8，且無視對手 15% 防禦。',eff:{atkAdd:8,pierce:15}},
+  {id:'hyb_d',name:'裂穹',type:'passive',rarity:'rare',desc:'攻擊力 +16，且無視對手 30% 防禦。',eff:{atkAdd:16,pierce:30}},
+  {id:'hyb_e',name:'棘盾',type:'passive',rarity:'good',desc:'防禦力 +10，且反彈 12% 受到的傷害。',eff:{defAdd:10,thorns:12}},
+  {id:'hyb_f',name:'反刺重鎧',type:'passive',rarity:'rare',desc:'防禦力 +20，且反彈 22% 受到的傷害。',eff:{defAdd:20,thorns:22}},
+  {id:'hyb_g',name:'生息甲',type:'passive',rarity:'good',desc:'防禦力 +10，且每 3 回合回復 60 點生命。',eff:{defAdd:10,regenN:3,regenFlat:60}},
+  {id:'hyb_h',name:'再生鎧',type:'passive',rarity:'rare',desc:'防禦力 +20，且每 2 回合回復 84 點生命。',eff:{defAdd:20,regenN:2,regenFlat:84}},
+  {id:'hyb_i',name:'罡刃',type:'passive',rarity:'good',desc:'攻擊力 +8，且每次攻擊附帶 4 點真傷。',eff:{atkAdd:8,trueHit:4}},
+  {id:'hyb_j',name:'雷罡刀',type:'passive',rarity:'rare',desc:'攻擊力 +16，且每次攻擊附帶 9 點真傷。',eff:{atkAdd:16,trueHit:9}},
+  {id:'hyb_k',name:'生命之泉',type:'passive',rarity:'good',desc:'生命 +300，且每 3 回合回復 60 點生命。',eff:{hpAdd:300,regenN:3,regenFlat:60}},
+  {id:'hyb_l',name:'不竭之源',type:'passive',rarity:'rare',desc:'生命 +600，且每 2 回合回復 96 點生命。',eff:{hpAdd:600,regenN:2,regenFlat:96}},
+  {id:'leg_atk',name:'戰神之力',type:'passive',rarity:'rare',desc:'攻擊力 +70%。',eff:{atkMul:1.7}},
+  {id:'leg_def',name:'不動金剛',type:'passive',rarity:'rare',desc:'防禦力 +65%。',eff:{defMul:1.65}},
+  {id:'leg_hp',name:'龍神之軀',type:'passive',rarity:'rare',desc:'生命 ×2.1。',eff:{hpMul:2.1}},
+  {id:'leg_all',name:'完美形態',type:'passive',rarity:'rare',desc:'攻擊 +25、防禦 +30、生命 +600。',eff:{atkAdd:25,defAdd:30,hpAdd:600}},
+  {id:'act_burst_d',name:'蓄勢待發',type:'active',rarity:'rare',desc:'【主動】使用後，本回合攻擊傷害 ×3。（消耗 45 能量・每場限 1 次）',eff:{active:'burst',mul:3,cost:45,uses:1}},
+  {id:'act_burst_e',name:'天崩地裂',type:'active',rarity:'rare',desc:'【主動】使用後，本回合攻擊傷害 ×3.6。（消耗 45 能量・每場限 1 次）',eff:{active:'burst',mul:3.6,cost:45,uses:1}},
+  {id:'act_heal_d',name:'大回春',type:'active',rarity:'rare',desc:'【主動】立即回復 275 點生命。（消耗 45 能量・每場限 1 次）',eff:{active:'heal',amt:275,cost:45,uses:1}},
+  {id:'act_heal_e',name:'浴火重生',type:'active',rarity:'rare',desc:'【主動】立即回復 375 點生命。（消耗 45 能量・每場限 1 次）',eff:{active:'heal',amt:375,cost:45,uses:1}},
+  {id:'act_ls_a',name:'血祭',type:'active',rarity:'good',desc:'【主動】本回合攻擊變為吸血 50%。（消耗 30 能量・每場限 2 次）',eff:{active:'lifestealBurst',pct:50,cost:30,uses:2}},
+  {id:'act_ls_b',name:'奪命吸魂',type:'active',rarity:'rare',desc:'【主動】本回合攻擊變為吸血 80%。（消耗 45 能量・每場限 1 次）',eff:{active:'lifestealBurst',pct:80,cost:45,uses:1}},
+  {id:'act_iv_a',name:'護體神功',type:'active',rarity:'rare',desc:'【主動】接下來 1 回合完全免疫傷害。（消耗 45 能量・每場限 1 次）',eff:{active:'invuln',rounds:1,cost:45,uses:1}},
+  {id:'act_iv_b',name:'無敵領域',type:'active',rarity:'rare',desc:'【主動】接下來 2 回合完全免疫傷害。（消耗 45 能量・每場限 1 次）',eff:{active:'invuln',rounds:2,cost:45,uses:1}},
+  {id:'act_cl_a',name:'解厄',type:'active',rarity:'good',desc:'【主動】清除所有減益，並回復 15% 體力。（消耗 30 能量・每場限 2 次）',eff:{active:'cleanseHeal',pct:15,cost:30,uses:2}},
+  {id:'act_cl_b',name:'大淨化',type:'active',rarity:'rare',desc:'【主動】清除所有減益，並回復 30% 體力。（消耗 30 能量・每場限 2 次）',eff:{active:'cleanseHeal',pct:30,cost:30,uses:2}},
+  {id:'act_curse_a',name:'詛咒',type:'active',rarity:'good',desc:'【主動】使對手攻防各降低 20%，持續 3 回合。（消耗 30 能量・每場限 2 次）',eff:{active:'curse',pct:20,cost:30,uses:2}},
+  {id:'act_curse_b',name:'大衰咒',type:'active',rarity:'rare',desc:'【主動】使對手攻防各降低 35%，持續 3 回合。（消耗 30 能量・每場限 2 次）',eff:{active:'curse',pct:35,cost:30,uses:2}},
+  {id:'act_thorn_a',name:'荊棘結界',type:'active',rarity:'good',desc:'【主動】接下來 3 回合，反彈 60% 受到的傷害。（消耗 30 能量・每場限 2 次）',eff:{active:'thornField',pct:60,cost:30,uses:2}},
+  {id:'act_thorn_b',name:'血刺領域',type:'active',rarity:'rare',desc:'【主動】接下來 3 回合，反彈 100% 受到的傷害。（消耗 45 能量・每場限 1 次）',eff:{active:'thornField',pct:100,cost:45,uses:1}},
+  {id:'act_atk2_a',name:'奮力一搏',type:'active',rarity:'good',desc:'【主動】犧牲 40% 當前生命，本回合傷害翻倍。（消耗 45 能量・每場限 1 次）',eff:{active:'sacrifice',pct:40,cost:45,uses:1}},
+  {id:'act_atk2_b',name:'背水狂攻',type:'active',rarity:'rare',desc:'【主動】犧牲 70% 當前生命，本回合傷害翻倍。（消耗 45 能量・每場限 1 次）',eff:{active:'sacrifice',pct:70,cost:45,uses:1}},
+  {id:'vd2_a',name:'以小搏大',type:'passive',rarity:'good',desc:'自身生命值低於對手時，你的傷害提高 15%。',eff:{vsHpAdv:15}},
+  {id:'vd2_b',name:'蟬翼破千鈞',type:'passive',rarity:'rare',desc:'自身生命值低於對手時，你的傷害提高 30%。',eff:{vsHpAdv:30}},
+  {id:'atr_a',name:'攻其不備',type:'passive',rarity:'common',desc:'前 3 回合，你的攻擊力提高 10%。',eff:{earlyAtk:10}},
+  {id:'atr_b',name:'出其不意',type:'passive',rarity:'good',desc:'前 3 回合，你的攻擊力提高 20%。',eff:{earlyAtk:20}},
+  {id:'atr_c',name:'攻無不克',type:'passive',rarity:'rare',desc:'前 3 回合，你的攻擊力提高 35%。',eff:{earlyAtk:35}},
+  {id:'dtr_a',name:'以逸待勞',type:'passive',rarity:'common',desc:'第 5 回合後，你的攻擊力提高 12%。',eff:{lateAtk:12}},
+  {id:'dtr_b',name:'後發制人',type:'passive',rarity:'good',desc:'第 5 回合後，你的攻擊力提高 24%。',eff:{lateAtk:24}},
+  {id:'dtr_c',name:'大器晚成',type:'passive',rarity:'rare',desc:'第 5 回合後，你的攻擊力提高 40%。',eff:{lateAtk:40}},
+  {id:'exx_a',name:'宜將剩勇',type:'passive',rarity:'good',desc:'對手生命低於 40% 時，你的攻擊速度提升，追加一擊（25% 傷害）。',eff:{execExtra:25}},
+  {id:'exx_b',name:'痛打落水狗',type:'passive',rarity:'rare',desc:'對手生命低於 40% 時，你的攻擊速度提升，追加一擊（45% 傷害）。',eff:{execExtra:45}},
+  {id:'atk_k',name:'微鋒',type:'passive',rarity:'common',desc:'攻擊力 +3。',eff:{atkAdd:3}},
+  {id:'atk_l',name:'短匕',type:'passive',rarity:'common',desc:'攻擊力 +5。',eff:{atkAdd:5}},
+  {id:'atk_m',name:'鋼刃',type:'passive',rarity:'common',desc:'攻擊力 +7。',eff:{atkAdd:7}},
+  {id:'atk_n',name:'寒鋒',type:'passive',rarity:'good',desc:'攻擊力 +13。',eff:{atkAdd:13}},
+  {id:'atk_o',name:'霜刃',type:'passive',rarity:'good',desc:'攻擊力 +17。',eff:{atkAdd:17}},
+  {id:'atk_p',name:'血鋒',type:'passive',rarity:'good',desc:'攻擊力 +20。',eff:{atkAdd:20}},
+  {id:'def_k',name:'布衣',type:'passive',rarity:'common',desc:'防禦力 +4。',eff:{defAdd:4}},
+  {id:'def_l',name:'木盾',type:'passive',rarity:'common',desc:'防禦力 +6。',eff:{defAdd:6}},
+  {id:'def_m',name:'銅甲',type:'passive',rarity:'common',desc:'防禦力 +10。',eff:{defAdd:10}},
+  {id:'def_n',name:'鋼盾',type:'passive',rarity:'good',desc:'防禦力 +16。',eff:{defAdd:16}},
+  {id:'def_o',name:'精鋼甲',type:'passive',rarity:'good',desc:'防禦力 +22。',eff:{defAdd:22}},
+  {id:'def_p',name:'玄鐵甲',type:'passive',rarity:'good',desc:'防禦力 +28。',eff:{defAdd:28}},
+  {id:'hp_k',name:'體魄',type:'passive',rarity:'common',desc:'生命 +100。',eff:{hpAdd:100}},
+  {id:'hp_l',name:'壯漢',type:'passive',rarity:'common',desc:'生命 +200。',eff:{hpAdd:200}},
+  {id:'hp_m',name:'鐵人',type:'passive',rarity:'common',desc:'生命 +350。',eff:{hpAdd:350}},
+  {id:'hp_n',name:'蠻力',type:'passive',rarity:'good',desc:'生命 +450。',eff:{hpAdd:450}},
+  {id:'hp_o',name:'巨漢',type:'passive',rarity:'good',desc:'生命 +650。',eff:{hpAdd:650}},
+  {id:'hp_p',name:'霸體軀',type:'passive',rarity:'good',desc:'生命 +900。',eff:{hpAdd:900}},
+  {id:'atkp_j',name:'小勁',type:'passive',rarity:'common',desc:'攻擊力 +6%。',eff:{atkMul:1.06}},
+  {id:'atkp_k',name:'中勁',type:'passive',rarity:'common',desc:'攻擊力 +10%。',eff:{atkMul:1.1}},
+  {id:'atkp_l',name:'剛勁',type:'passive',rarity:'good',desc:'攻擊力 +17%。',eff:{atkMul:1.17}},
+  {id:'atkp_m',name:'猛勁',type:'passive',rarity:'good',desc:'攻擊力 +25%。',eff:{atkMul:1.25}},
+  {id:'defp_j',name:'小護',type:'passive',rarity:'common',desc:'防禦力 +8%。',eff:{defMul:1.08}},
+  {id:'defp_k',name:'中護',type:'passive',rarity:'common',desc:'防禦力 +12%。',eff:{defMul:1.12}},
+  {id:'defp_l',name:'剛護',type:'passive',rarity:'good',desc:'防禦力 +20%。',eff:{defMul:1.2}},
+  {id:'defp_m',name:'厚護',type:'passive',rarity:'good',desc:'防禦力 +28%。',eff:{defMul:1.28}},
+  {id:'ad_d',name:'攻守·壯',type:'passive',rarity:'common',desc:'攻擊力 +4、防禦力 +6。',eff:{atkAdd:4,defAdd:6}},
+  {id:'ad_e',name:'攻守·健',type:'passive',rarity:'common',desc:'攻擊力 +8、防禦力 +10。',eff:{atkAdd:8,defAdd:10}},
+  {id:'ad_f',name:'攻守·雄',type:'passive',rarity:'good',desc:'攻擊力 +14、防禦力 +18。',eff:{atkAdd:14,defAdd:18}},
+  {id:'ad_g',name:'攻守·霸',type:'passive',rarity:'good',desc:'攻擊力 +18、防禦力 +22。',eff:{atkAdd:18,defAdd:22}},
+  {id:'ad_h',name:'攻守·絕',type:'passive',rarity:'rare',desc:'攻擊力 +26、防禦力 +32。',eff:{atkAdd:26,defAdd:32}},
+  {id:'ah_d',name:'血刃·壯',type:'passive',rarity:'common',desc:'攻擊力 +4、生命 +120。',eff:{atkAdd:4,hpAdd:120}},
+  {id:'ah_e',name:'血刃·健',type:'passive',rarity:'common',desc:'攻擊力 +8、生命 +240。',eff:{atkAdd:8,hpAdd:240}},
+  {id:'ah_f',name:'血刃·雄',type:'passive',rarity:'good',desc:'攻擊力 +14、生命 +400。',eff:{atkAdd:14,hpAdd:400}},
+  {id:'ah_g',name:'血刃·霸',type:'passive',rarity:'good',desc:'攻擊力 +18、生命 +560。',eff:{atkAdd:18,hpAdd:560}},
+  {id:'ah_h',name:'血刃·絕',type:'passive',rarity:'rare',desc:'攻擊力 +26、生命 +760。',eff:{atkAdd:26,hpAdd:760}},
+  {id:'dh_d',name:'鐵魄·壯',type:'passive',rarity:'common',desc:'防禦力 +6、生命 +120。',eff:{defAdd:6,hpAdd:120}},
+  {id:'dh_e',name:'鐵魄·健',type:'passive',rarity:'common',desc:'防禦力 +10、生命 +240。',eff:{defAdd:10,hpAdd:240}},
+  {id:'dh_f',name:'鐵魄·雄',type:'passive',rarity:'good',desc:'防禦力 +16、生命 +400。',eff:{defAdd:16,hpAdd:400}},
+  {id:'dh_g',name:'鐵魄·霸',type:'passive',rarity:'good',desc:'防禦力 +22、生命 +560。',eff:{defAdd:22,hpAdd:560}},
+  {id:'dh_h',name:'鐵魄·絕',type:'passive',rarity:'rare',desc:'防禦力 +30、生命 +760。',eff:{defAdd:30,hpAdd:760}},
+  {id:'all_c',name:'均衡·中',type:'passive',rarity:'common',desc:'攻擊 +6、防禦 +8、生命 +150。',eff:{atkAdd:6,defAdd:8,hpAdd:150}},
+  {id:'all_d',name:'均衡·雄',type:'passive',rarity:'good',desc:'攻擊 +12、防禦 +15、生命 +300。',eff:{atkAdd:12,defAdd:15,hpAdd:300}},
+  {id:'all_e',name:'均衡·霸',type:'passive',rarity:'good',desc:'攻擊 +18、防禦 +22、生命 +450。',eff:{atkAdd:18,defAdd:22,hpAdd:450}},
+  {id:'all_f',name:'均衡·絕',type:'passive',rarity:'rare',desc:'攻擊 +26、防禦 +32、生命 +650。',eff:{atkAdd:26,defAdd:32,hpAdd:650}},
+  {id:'ls_e',name:'吸血鬼',type:'passive',rarity:'rare',desc:'每次造成傷害，回復其 55% 為生命。',eff:{lifesteal:55}},
+  {id:'ls_f',name:'血之渴望',type:'passive',rarity:'rare',desc:'每次造成傷害，回復其 70% 為生命。',eff:{lifesteal:70}},
+  {id:'th_e',name:'鐵刺',type:'passive',rarity:'rare',desc:'每次受到攻擊，反彈 55% 傷害給對手。',eff:{thorns:55}},
+  {id:'th_f',name:'刺蝟之鎧',type:'passive',rarity:'rare',desc:'每次受到攻擊，反彈 70% 傷害給對手。',eff:{thorns:70}},
+  {id:'pc_e',name:'碎甲·玄',type:'passive',rarity:'rare',desc:'攻擊無視對手 75% 的防禦力。',eff:{pierce:75}},
+  {id:'pc_f',name:'無視防禦',type:'passive',rarity:'rare',desc:'攻擊無視對手 90% 的防禦力。',eff:{pierce:90}},
+  {id:'dr_e',name:'化境',type:'passive',rarity:'rare',desc:'受到的傷害減少 45%。',eff:{dr:45}},
+  {id:'dr_f',name:'金身',type:'passive',rarity:'rare',desc:'受到的傷害減少 55%。',eff:{dr:55}},
+  {id:'dg_d',name:'鬼魅',type:'passive',rarity:'rare',desc:'有 35% 機率完全閃避對手的攻擊。',eff:{dodge:35}},
+  {id:'dg_e',name:'無影',type:'passive',rarity:'rare',desc:'有 45% 機率完全閃避對手的攻擊。',eff:{dodge:45}},
+  {id:'tf_e',name:'罡風',type:'passive',rarity:'rare',desc:'每次攻擊額外造成 22 點真傷（無視防禦）。',eff:{trueHit:22}},
+  {id:'tf_f',name:'天罡',type:'passive',rarity:'rare',desc:'每次攻擊額外造成 30 點真傷（無視防禦）。',eff:{trueHit:30}},
+  {id:'cbk_d',name:'狂暴化',type:'passive',rarity:'rare',desc:'已損失的生命越多，造成傷害越高（最高 +90%）。',eff:{rageMax:90}},
+  {id:'cbk_e',name:'魔化狂怒',type:'passive',rarity:'rare',desc:'已損失的生命越多，造成傷害越高（最高 +120%）。',eff:{rageMax:120}},
+  {id:'lr_e',name:'絕命反擊',type:'passive',rarity:'rare',desc:'生命低於 40% 時，攻擊力 ×2.2。',eff:{lowHp:40,lowAtkMul:2.2}},
+  {id:'lr_f',name:'鳳凰之怒',type:'passive',rarity:'rare',desc:'生命低於 50% 時，攻擊力 ×2.5。',eff:{lowHp:50,lowAtkMul:2.5}},
+  {id:'rg_d',name:'大回氣',type:'passive',rarity:'rare',desc:'每 2 回合回復 120 點生命。',eff:{regenN:2,regenFlat:120}},
+  {id:'rg_e',name:'不死鳥',type:'passive',rarity:'rare',desc:'每 1 回合回復 72 點生命。',eff:{regenN:1,regenFlat:72}},
+  {id:'hyb_m',name:'棘甲',type:'passive',rarity:'common',desc:'防禦力 +6，且反彈 8% 受到的傷害。',eff:{defAdd:6,thorns:8}},
+  {id:'hyb_n',name:'反震重甲',type:'passive',rarity:'good',desc:'防禦力 +12，且反彈 15% 受到的傷害。',eff:{defAdd:12,thorns:15}},
+  {id:'hyb_o',name:'毒刃',type:'passive',rarity:'common',desc:'攻擊力 +6，且擊中使對手中毒（每回合 -3 生命）。',eff:{atkAdd:6,poison:3}},
+  {id:'hyb_p',name:'淬毒刀',type:'passive',rarity:'good',desc:'攻擊力 +12，且擊中使對手中毒（每回合 -6 生命）。',eff:{atkAdd:12,poison:6}},
+  {id:'hyb_q',name:'霸刃',type:'passive',rarity:'good',desc:'攻擊力 +10%，且無視對手 12% 防禦。',eff:{atkMul:1.1,pierce:12}},
+  {id:'hyb_r',name:'絕世神兵',type:'passive',rarity:'rare',desc:'攻擊力 +20%，且無視對手 25% 防禦。',eff:{atkMul:1.2,pierce:25}},
+  {id:'hyb_s',name:'生息重甲',type:'passive',rarity:'good',desc:'防禦力 +12%，且每 2 回合回復 60 點生命。',eff:{defMul:1.12,regenN:2,regenFlat:60}},
+  {id:'hyb_t',name:'不朽之鎧',type:'passive',rarity:'rare',desc:'防禦力 +25%，且每 2 回合回復 96 點生命。',eff:{defMul:1.25,regenN:2,regenFlat:96}},
+  {id:'act_burst_f',name:'蓄力斬·真',type:'active',rarity:'common',desc:'【主動】使用後，本回合攻擊傷害 ×1.5。（消耗 20 能量・每場限 3 次）',eff:{active:'burst',mul:1.5,cost:20,uses:3}},
+  {id:'act_burst_g',name:'裂空爆',type:'active',rarity:'good',desc:'【主動】使用後，本回合攻擊傷害 ×2.2。（消耗 30 能量・每場限 2 次）',eff:{active:'burst',mul:2.2,cost:30,uses:2}},
+  {id:'act_heal_f',name:'小回復',type:'active',rarity:'common',desc:'【主動】立即回復 60 點生命。（消耗 20 能量・每場限 3 次）',eff:{active:'heal',amt:60,cost:20,uses:3}},
+  {id:'act_heal_g',name:'療癒術',type:'active',rarity:'good',desc:'【主動】立即回復 150 點生命。（消耗 30 能量・每場限 2 次）',eff:{active:'heal',amt:150,cost:30,uses:2}},
+  {id:'act_sh_d',name:'小護盾',type:'active',rarity:'common',desc:'【主動】立即獲得 120 點護盾。（消耗 20 能量・每場限 3 次）',eff:{active:'shield',amt:120,cost:20,uses:3}},
+  {id:'act_sh_e',name:'鐵壁術',type:'active',rarity:'good',desc:'【主動】立即獲得 280 點護盾。（消耗 30 能量・每場限 2 次）',eff:{active:'shield',amt:280,cost:30,uses:2}},
+  {id:'act_break_d',name:'弱化術',type:'active',rarity:'common',desc:'【主動】使對手防禦力 -20%，持續 2 回合。（消耗 20 能量・每場限 3 次）',eff:{active:'break',pct:20,rounds:2,cost:20,uses:3}},
+  {id:'act_break_e',name:'崩甲斬',type:'active',rarity:'good',desc:'【主動】使對手防禦力 -35%，持續 3 回合。（消耗 30 能量・每場限 2 次）',eff:{active:'break',pct:35,rounds:3,cost:30,uses:2}},
+  {id:'act_true_c',name:'穿心',type:'active',rarity:'good',desc:'【主動】立即對對手造成其當前生命 10% 的真傷。（消耗 30 能量・每場限 2 次）',eff:{active:'trueBurst',curPct:10,cost:30,uses:2}},
+  {id:'act_true_d',name:'裂地斬',type:'active',rarity:'rare',desc:'【主動】立即對對手造成其當前生命 18% 的真傷。（消耗 45 能量・每場限 1 次）',eff:{active:'trueBurst',curPct:18,cost:45,uses:1}},
+  {id:'act_drain_d',name:'小吸取',type:'active',rarity:'common',desc:'【主動】吸取對手 15 點能量與體力。（消耗 20 能量・每場限 3 次）',eff:{active:'drain',amt:15,cost:20,uses:3}},
+  {id:'act_drain_e',name:'攝魂',type:'active',rarity:'good',desc:'【主動】吸取對手 35 點能量與體力。（消耗 30 能量・每場限 2 次）',eff:{active:'drain',amt:35,cost:30,uses:2}},
+  {id:'vd_c',name:'巨龍剋星',type:'passive',rarity:'rare',desc:'對手防禦力高於你時，你的傷害提高 55%。',eff:{vsHighDef:55}},
+  {id:'ex_e',name:'趕盡殺絕',type:'passive',rarity:'rare',desc:'對手生命低於 35% 時，你的傷害提高 90%。',eff:{execHp:35,execBonus:90}},
+  {id:'ex_f',name:'天譴',type:'passive',rarity:'rare',desc:'對手生命低於 40% 時，你的傷害提高 120%。',eff:{execHp:40,execBonus:120}},
+  {id:'mo_d',name:'連環',type:'passive',rarity:'rare',desc:'連續命中時，每次額外 +25% 傷害（落空歸零）。',eff:{momentum:25}},
+  {id:'mo_e',name:'萬箭齊發',type:'passive',rarity:'rare',desc:'連續命中時，每次額外 +35% 傷害（落空歸零）。',eff:{momentum:35}},
+  {id:'rt_d',name:'血仇',type:'passive',rarity:'rare',desc:'每次受到攻擊後，你的下一次攻擊傷害 +80%。',eff:{retaliate:80}},
+  {id:'rt_e',name:'怨念滔天',type:'passive',rarity:'rare',desc:'每次受到攻擊後，你的下一次攻擊傷害 +120%。',eff:{retaliate:120}},
+  {id:'atk_q',name:'鐵爪',type:'passive',rarity:'common',desc:'攻擊力 +4。',eff:{atkAdd:4}},
+  {id:'atk_r',name:'狼牙',type:'passive',rarity:'common',desc:'攻擊力 +9。',eff:{atkAdd:9}},
+  {id:'atk_s',name:'虎爪',type:'passive',rarity:'common',desc:'攻擊力 +11。',eff:{atkAdd:11}},
+  {id:'atk_t',name:'龍爪',type:'passive',rarity:'good',desc:'攻擊力 +14。',eff:{atkAdd:14}},
+  {id:'atk_u',name:'鳳翎',type:'passive',rarity:'good',desc:'攻擊力 +19。',eff:{atkAdd:19}},
+  {id:'def_q',name:'藤盾',type:'passive',rarity:'common',desc:'防禦力 +5。',eff:{defAdd:5}},
+  {id:'def_r',name:'石甲',type:'passive',rarity:'common',desc:'防禦力 +9。',eff:{defAdd:9}},
+  {id:'def_s',name:'骨甲',type:'passive',rarity:'common',desc:'防禦力 +12。',eff:{defAdd:12}},
+  {id:'def_t',name:'龍鱗甲',type:'passive',rarity:'good',desc:'防禦力 +18。',eff:{defAdd:18}},
+  {id:'def_u',name:'鳳羽衣',type:'passive',rarity:'good',desc:'防禦力 +24。',eff:{defAdd:24}},
+  {id:'hp_q',name:'氣血',type:'passive',rarity:'common',desc:'生命 +120。',eff:{hpAdd:120}},
+  {id:'hp_r',name:'精血',type:'passive',rarity:'common',desc:'生命 +260。',eff:{hpAdd:260}},
+  {id:'hp_s',name:'龍息',type:'passive',rarity:'good',desc:'生命 +480。',eff:{hpAdd:480}},
+  {id:'hp_t',name:'神魂',type:'passive',rarity:'good',desc:'生命 +700。',eff:{hpAdd:700}},
+  {id:'atkp_n',name:'爆勁',type:'passive',rarity:'common',desc:'攻擊力 +7%。',eff:{atkMul:1.07}},
+  {id:'atkp_o',name:'疾勁',type:'passive',rarity:'common',desc:'攻擊力 +11%。',eff:{atkMul:1.11}},
+  {id:'atkp_p',name:'絕勁',type:'passive',rarity:'good',desc:'攻擊力 +19%。',eff:{atkMul:1.19}},
+  {id:'defp_n',name:'堅甲',type:'passive',rarity:'common',desc:'防禦力 +9%。',eff:{defMul:1.09}},
+  {id:'defp_o',name:'厚盾',type:'passive',rarity:'common',desc:'防禦力 +13%。',eff:{defMul:1.13}},
+  {id:'defp_p',name:'絕護',type:'passive',rarity:'good',desc:'防禦力 +21%。',eff:{defMul:1.21}},
+  {id:'hpp_j',name:'壯魂',type:'passive',rarity:'common',desc:'生命 ×1.18。',eff:{hpMul:1.18}},
+  {id:'hpp_k',name:'雄魂',type:'passive',rarity:'good',desc:'生命 ×1.32。',eff:{hpMul:1.32}},
+  {id:'ad_i',name:'攻守·微',type:'passive',rarity:'common',desc:'攻擊力 +3、防禦力 +5。',eff:{atkAdd:3,defAdd:5}},
+  {id:'ad_j',name:'攻守·穩',type:'passive',rarity:'common',desc:'攻擊力 +6、防禦力 +8。',eff:{atkAdd:6,defAdd:8}},
+  {id:'ad_k',name:'攻守·強',type:'passive',rarity:'good',desc:'攻擊力 +11、防禦力 +14。',eff:{atkAdd:11,defAdd:14}},
+  {id:'ad_l',name:'攻守·猛',type:'passive',rarity:'good',desc:'攻擊力 +16、防禦力 +20。',eff:{atkAdd:16,defAdd:20}},
+  {id:'ah_i',name:'血刃·微',type:'passive',rarity:'common',desc:'攻擊力 +3、生命 +100。',eff:{atkAdd:3,hpAdd:100}},
+  {id:'ah_j',name:'血刃·穩',type:'passive',rarity:'common',desc:'攻擊力 +6、生命 +200。',eff:{atkAdd:6,hpAdd:200}},
+  {id:'ah_k',name:'血刃·強',type:'passive',rarity:'good',desc:'攻擊力 +11、生命 +340。',eff:{atkAdd:11,hpAdd:340}},
+  {id:'ah_l',name:'血刃·猛',type:'passive',rarity:'good',desc:'攻擊力 +16、生命 +480。',eff:{atkAdd:16,hpAdd:480}},
+  {id:'dh_i',name:'鐵魄·微',type:'passive',rarity:'common',desc:'防禦力 +5、生命 +100。',eff:{defAdd:5,hpAdd:100}},
+  {id:'dh_j',name:'鐵魄·穩',type:'passive',rarity:'common',desc:'防禦力 +9、生命 +200。',eff:{defAdd:9,hpAdd:200}},
+  {id:'dh_k',name:'鐵魄·強',type:'passive',rarity:'good',desc:'防禦力 +14、生命 +340。',eff:{defAdd:14,hpAdd:340}},
+  {id:'dh_l',name:'鐵魄·猛',type:'passive',rarity:'good',desc:'防禦力 +20、生命 +480。',eff:{defAdd:20,hpAdd:480}},
+  {id:'ls_g',name:'小吸血',type:'passive',rarity:'common',desc:'每次造成傷害，回復其 6% 為生命。',eff:{lifesteal:6}},
+  {id:'ls_h',name:'中吸血',type:'passive',rarity:'common',desc:'每次造成傷害，回復其 11% 為生命。',eff:{lifesteal:11}},
+  {id:'ls_i',name:'大吸血',type:'passive',rarity:'good',desc:'每次造成傷害，回復其 20% 為生命。',eff:{lifesteal:20}},
+  {id:'th_g',name:'小反彈',type:'passive',rarity:'common',desc:'每次受到攻擊，反彈 6% 傷害給對手。',eff:{thorns:6}},
+  {id:'th_h',name:'中反彈',type:'passive',rarity:'common',desc:'每次受到攻擊，反彈 11% 傷害給對手。',eff:{thorns:11}},
+  {id:'th_i',name:'大反彈',type:'passive',rarity:'good',desc:'每次受到攻擊，反彈 20% 傷害給對手。',eff:{thorns:20}},
+  {id:'pc_g',name:'小破甲',type:'passive',rarity:'common',desc:'攻擊無視對手 12% 的防禦力。',eff:{pierce:12}},
+  {id:'pc_h',name:'中破甲',type:'passive',rarity:'common',desc:'攻擊無視對手 20% 的防禦力。',eff:{pierce:20}},
+  {id:'pc_i',name:'大破甲',type:'passive',rarity:'good',desc:'攻擊無視對手 32% 的防禦力。',eff:{pierce:32}},
+  {id:'dr_g',name:'小減傷',type:'passive',rarity:'common',desc:'受到的傷害減少 8%。',eff:{dr:8}},
+  {id:'dr_h',name:'中減傷',type:'passive',rarity:'common',desc:'受到的傷害減少 14%。',eff:{dr:14}},
+  {id:'dr_i',name:'大減傷',type:'passive',rarity:'good',desc:'受到的傷害減少 22%。',eff:{dr:22}},
+  {id:'tf_g',name:'小罡氣',type:'passive',rarity:'common',desc:'每次攻擊額外造成 2 點真傷（無視防禦）。',eff:{trueHit:2}},
+  {id:'tf_h',name:'中罡氣',type:'passive',rarity:'common',desc:'每次攻擊額外造成 5 點真傷（無視防禦）。',eff:{trueHit:5}},
+  {id:'tf_i',name:'大罡氣',type:'passive',rarity:'good',desc:'每次攻擊額外造成 9 點真傷（無視防禦）。',eff:{trueHit:9}},
+  {id:'ex_g',name:'小斬殺',type:'passive',rarity:'common',desc:'對手生命低於 15% 時，你的傷害提高 30%。',eff:{execHp:15,execBonus:30}},
+  {id:'ex_h',name:'中斬殺',type:'passive',rarity:'good',desc:'對手生命低於 20% 時，你的傷害提高 30%。',eff:{execHp:20,execBonus:30}},
+  {id:'ra_d',name:'小蓄力',type:'passive',rarity:'common',desc:'每過一回合，攻擊力 +2（整場疊加）。',eff:{rampAtk:2}},
+  {id:'ra_e',name:'中蓄力',type:'passive',rarity:'good',desc:'每過一回合，攻擊力 +4（整場疊加）。',eff:{rampAtk:4}},
+  {id:'rd_d',name:'小滾雪',type:'passive',rarity:'common',desc:'每過一回合，防禦力 +3（整場疊加）。',eff:{rampDef:3}},
+  {id:'rd_e',name:'中滾雪',type:'passive',rarity:'good',desc:'每過一回合，防禦力 +6（整場疊加）。',eff:{rampDef:6}},
+  {id:'act_burst_h',name:'小爆發',type:'active',rarity:'common',desc:'【主動】使用後，本回合攻擊傷害 ×1.4。（消耗 20 能量・每場限 3 次）',eff:{active:'burst',mul:1.4,cost:20,uses:3}},
+  {id:'act_burst_i',name:'中爆發',type:'active',rarity:'good',desc:'【主動】使用後，本回合攻擊傷害 ×1.9。（消耗 30 能量・每場限 2 次）',eff:{active:'burst',mul:1.9,cost:30,uses:2}},
+  {id:'act_heal_h',name:'包紮',type:'active',rarity:'common',desc:'【主動】立即回復 50 點生命。（消耗 20 能量・每場限 3 次）',eff:{active:'heal',amt:50,cost:20,uses:3}},
+  {id:'act_heal_i',name:'治療術',type:'active',rarity:'good',desc:'【主動】立即回復 110 點生命。（消耗 30 能量・每場限 2 次）',eff:{active:'heal',amt:110,cost:30,uses:2}},
+  {id:'act_batk_d',name:'鼓舞',type:'active',rarity:'common',desc:'【主動】接下來 3 回合，攻擊力 +15%。（消耗 20 能量・每場限 3 次）',eff:{active:'buffAtk',pct:15,rounds:3,cost:20,uses:3}},
+  {id:'act_batk_e',name:'奮戰',type:'active',rarity:'good',desc:'【主動】接下來 3 回合，攻擊力 +28%。（消耗 20 能量・每場限 3 次）',eff:{active:'buffAtk',pct:28,rounds:3,cost:20,uses:3}},
+  {id:'act_bdef_d',name:'守勢·極',type:'active',rarity:'common',desc:'【主動】接下來 3 回合，防禦力 +20%。（消耗 20 能量・每場限 3 次）',eff:{active:'buffDef',pct:20,rounds:3,cost:20,uses:3}},
+  {id:'act_bdef_e',name:'固守',type:'active',rarity:'good',desc:'【主動】接下來 3 回合，防禦力 +38%。（消耗 30 能量・每場限 2 次）',eff:{active:'buffDef',pct:38,rounds:3,cost:30,uses:2}},
+  {id:'atk_v',name:'裂石',type:'passive',rarity:'common',desc:'攻擊力 +6。',eff:{atkAdd:6}},
+  {id:'atk_w',name:'斷金',type:'passive',rarity:'common',desc:'攻擊力 +12。',eff:{atkAdd:12}},
+  {id:'atk_x',name:'摧鋒',type:'passive',rarity:'good',desc:'攻擊力 +16。',eff:{atkAdd:16}},
+  {id:'atk_y',name:'絕鋒',type:'passive',rarity:'good',desc:'攻擊力 +21。',eff:{atkAdd:21}},
+  {id:'atk_z',name:'神鋒',type:'passive',rarity:'rare',desc:'攻擊力 +34。',eff:{atkAdd:34}},
+  {id:'def_v',name:'藤鎧',type:'passive',rarity:'common',desc:'防禦力 +7。',eff:{defAdd:7}},
+  {id:'def_w',name:'磐鎧',type:'passive',rarity:'common',desc:'防禦力 +13。',eff:{defAdd:13}},
+  {id:'def_x',name:'鎮甲',type:'passive',rarity:'good',desc:'防禦力 +19。',eff:{defAdd:19}},
+  {id:'def_y',name:'絕甲',type:'passive',rarity:'good',desc:'防禦力 +25。',eff:{defAdd:25}},
+  {id:'def_z',name:'神甲',type:'passive',rarity:'rare',desc:'防禦力 +38。',eff:{defAdd:38}},
+  {id:'hp_u',name:'壯魄體',type:'passive',rarity:'common',desc:'生命 +180。',eff:{hpAdd:180}},
+  {id:'hp_v',name:'蠻荒之力',type:'passive',rarity:'good',desc:'生命 +420。',eff:{hpAdd:420}},
+  {id:'hp_w',name:'神魂體',type:'passive',rarity:'rare',desc:'生命 +720。',eff:{hpAdd:720}},
+  {id:'ad_m',name:'攻守·猛極',type:'passive',rarity:'rare',desc:'攻擊力 +22、防禦力 +28。',eff:{atkAdd:22,defAdd:28}},
+  {id:'ad_n',name:'攻守·神',type:'passive',rarity:'rare',desc:'攻擊力 +30、防禦力 +38。',eff:{atkAdd:30,defAdd:38}},
+  {id:'ls_j',name:'血契',type:'passive',rarity:'rare',desc:'每次造成傷害，回復其 45% 為生命。',eff:{lifesteal:45}},
+  {id:'pc_j',name:'絕甲破',type:'passive',rarity:'rare',desc:'攻擊無視對手 50% 的防禦力。',eff:{pierce:50}},
+  {id:'dg_f',name:'幻影步',type:'passive',rarity:'good',desc:'有 20% 機率完全閃避對手的攻擊。',eff:{dodge:20}},
+  {id:'th_j',name:'逆鱗',type:'passive',rarity:'rare',desc:'每次受到攻擊，反彈 50% 傷害給對手。',eff:{thorns:50}},
+  {id:'act_burst_j',name:'大爆發',type:'active',rarity:'rare',desc:'【主動】使用後，本回合攻擊傷害 ×2.8。（消耗 45 能量・每場限 1 次）',eff:{active:'burst',mul:2.8,cost:45,uses:1}},
+  {id:'act_heal_j',name:'聖療',type:'active',rarity:'rare',desc:'【主動】立即回復 250 點生命。（消耗 45 能量・每場限 1 次）',eff:{active:'heal',amt:250,cost:45,uses:1}},
+  {id:'act_sh_f',name:'聖盾',type:'active',rarity:'rare',desc:'【主動】立即獲得 420 點護盾。（消耗 45 能量・每場限 1 次）',eff:{active:'shield',amt:420,cost:45,uses:1}}
+];
+var CARD_T2S_PAIRS='並并乾干亂乱來来備备傷伤內内則则剋克剛刚創创劇剧勁劲動动勞劳勢势單单堅坚報报場场壘垒壞坏壯壮奪夺奮奋將将對对導导層层帶带弒弑強强彈弹後后復复態态懾慑戰战揚扬損损搶抢擊击擋挡攝摄敵敌斬斩斷断於于時时暈晕楊杨業业極极樣样樹树機机歸归殘残殺杀殼壳氣气淨净減减湧涌準准滅灭滾滚滿满漢汉漸渐為为無无燒烧牆墙犧牺獅狮獲获獸兽環环當当疊叠療疗癒愈發发盡尽禦御積积穩稳納纳紮扎終终結结絕绝給给緩缓緲缈縹缥續续聖圣聲声脫脱與与荊荆萬万處处虛虚蝕蚀蝟猬蟬蝉蠻蛮術术衝冲視视計计訣诀詛诅試试該该誅诛譴谴護护變变趕赶軀躯軍军連连過过還还鈞钧銅铜銳锐鋒锋鋼钢錘锤鎧铠鎮镇鏡镜鏽锈鐘钟鐵铁閃闪開开雙双韌韧頑顽領领頭头額额風风飲饮飼饲體体鬥斗鱗鳞鳥鸟鳳凤鷂鹞點点齊齐龍龙龜龟';
+var _cardT2S=(function(){ var m={}; for(var i=0;i<CARD_T2S_PAIRS.length;i+=2){ m[CARD_T2S_PAIRS.charAt(i)]=CARD_T2S_PAIRS.charAt(i+1); } return m; })();
+function t2sCard(s){ if(!s) return s; var o=''; for(var i=0;i<s.length;i++){ var c=s.charAt(i); o+=(_cardT2S[c]||c); } return o; }
+var CARD_L10N={"en":{"atk_a":{"n":"First Blood"},"atk_b":{"n":"Keen Blade"},"atk_c":{"n":"Cutting Edge"},"atk_d":{"n":"Army Breaker"},"atk_e":{"n":"Starcleaver"},"def_a":{"n":"Light Armor"},"def_b":{"n":"Iron Wall"},"def_c":{"n":"Bedrock"},"def_d":{"n":"Golden Bell"},"def_e":{"n":"Adamant Body"},"hp_a":{"n":"Tough Body"},"hp_b":{"n":"Vitality"},"hp_c":{"n":"Bear Heart"},"hp_d":{"n":"Dragon Blood"},"hp_e":{"n":"Undying Form"},"atkp_a":{"n":"Building Force"},"atkp_b":{"n":"Offensive"},"atkp_c":{"n":"Keen Momentum"},"atkp_d":{"n":"Breaking Force"},"atkp_e":{"n":"Annihilating Force"},"defp_a":{"n":"Bodyguard"},"defp_b":{"n":"Defensive"},"defp_c":{"n":"Rock Guard"},"defp_d":{"n":"Golden Guard"},"defp_e":{"n":"Divine Guard"},"hpp_a":{"n":"Robust Spirit"},"hpp_b":{"n":"Mighty Spirit"},"hpp_c":{"n":"Giant Spirit"},"hpp_d":{"n":"Dragon Spirit"},"hpp_e":{"n":"Divine Spirit"},"ad_a":{"n":"Balance I"},"ad_b":{"n":"Balance II"},"ad_c":{"n":"Balance III"},"ah_a":{"n":"Bloodblade I"},"ah_b":{"n":"Bloodblade II"},"ah_c":{"n":"Bloodblade III"},"dh_a":{"n":"Ironsoul I"},"dh_b":{"n":"Ironsoul II"},"dh_c":{"n":"Ironsoul III"},"all_a":{"n":"Harmony I"},"all_b":{"n":"Harmony: Peak"},"ls_a":{"n":"Blooddraw"},"ls_b":{"n":"Bloodthirst"},"ls_c":{"n":"Soulreaver"},"ls_d":{"n":"Bloodfeed"},"th_a":{"n":"Thornhide"},"th_b":{"n":"Brambles"},"th_c":{"n":"Backblade"},"th_d":{"n":"Mirror Thorn"},"pc_a":{"n":"Armorbreak"},"pc_b":{"n":"Piercing"},"pc_c":{"n":"Armorrend"},"pc_d":{"n":"Armorsunder"},"tf_a":{"n":"Gang Force"},"tf_b":{"n":"True Gang"},"tf_c":{"n":"Gang Thunder"},"tf_d":{"n":"Gang Annihilation"},"tm_a":{"n":"Soulrot"},"tm_b":{"n":"Soulrend"},"tm_c":{"n":"Lifeeater"},"tm_d":{"n":"Lifesever"},"ch_a":{"n":"Heartrot"},"ch_b":{"n":"Souleater"},"st_a":{"n":"Stagger"},"st_b":{"n":"Rude Awakening"},"hh_a":{"n":"High Spirits"},"hh_b":{"n":"Overlord's Gaze"},"ds_a":{"n":"Kick 'Em Down"},"vf_a":{"n":"Crushing Blow"},"ex_a":{"n":"Execute"},"ex_b":{"n":"Reap"},"ex_c":{"n":"Finisher"},"cb_a":{"n":"Combo"},"cb_b":{"n":"Wild Dance"},"cb_c":{"n":"Thousand Hands"},"rt_a":{"n":"Grudge"},"rt_b":{"n":"Retaliate"},"rt_c":{"n":"Vengeance"},"ca_a":{"n":"Sap Strength"},"ca_b":{"n":"Bonerot"},"ca_c":{"n":"Wither"},"cd_a":{"n":"Armorrot"},"cd_b":{"n":"Corrode"},"cd_c":{"n":"Guardbreak"},"cbk_a":{"n":"Bloodrage"},"cbk_b":{"n":"Frenzy"},"cbk_c":{"n":"Bloodthirsty"},"dta_a":{"n":"Phantom Bone"},"dta_b":{"n":"Boneblade"},"dta_c":{"n":"Demonform"},"hta_a":{"n":"Bloodblade Art"},"hta_b":{"n":"Feed the Blade"},"hta_c":{"n":"Sea of Vengeance"},"dr_a":{"n":"Deflect"},"dr_b":{"n":"Redirect"},"dr_c":{"n":"Soft Force"},"dr_d":{"n":"Taiji Force"},"dg_a":{"n":"Footwork"},"dg_b":{"n":"Afterimage"},"dg_c":{"n":"Ethereal"},"ac_a":{"n":"Resilience"},"ac_b":{"n":"Iron Bones"},"ac_c":{"n":"Vajra Body"},"rg_a":{"n":"Recover"},"rg_b":{"n":"Wellspring"},"rg_c":{"n":"Endless Life"},"fg_a":{"n":"First Move"},"fg_b":{"n":"Intercept"},"fg_c":{"n":"Golden Bell: Prelude"},"bp_a":{"n":"Thin Shield"},"bp_b":{"n":"Shield"},"bp_c":{"n":"Barrier"},"bf_a":{"n":"Iron Shield"},"bf_b":{"n":"Great Shield"},"bf_c":{"n":"Divine Shield"},"ra_a":{"n":"Building Power"},"ra_b":{"n":"Charge"},"ra_c":{"n":"Endless"},"rd_a":{"n":"Building Guard"},"rd_b":{"n":"Snowball"},"rd_c":{"n":"Bulwark"},"sa_a":{"n":"Steal Strength"},"sa_b":{"n":"Siphon"},"sa_c":{"n":"Drain Might"},"sd_a":{"n":"Steal Armor"},"sd_b":{"n":"Erode Wall"},"sd_c":{"n":"Steal Spirit"},"lr_a":{"n":"Last Stand"},"lr_b":{"n":"Backs to the Wall"},"lr_c":{"n":"Desperation"},"lr_d":{"n":"Cornered Beast"},"vd_a":{"n":"Giantslayer"},"vd_b":{"n":"Dragonslayer"},"va_a":{"n":"Subdue Force"},"va_b":{"n":"Soft Beats Hard"},"vh_a":{"n":"Risk It All"},"vh_b":{"n":"Ant Shakes the Tree"},"ah_a2":{"n":"Searing Wound"},"ah_b2":{"n":"Grievous Wound"},"ah_c2":{"n":"No Mercy"},"er_a":{"n":"Inner Breath"},"er_b":{"n":"True Qi"},"er_c":{"n":"Sea of Qi"},"sr_a":{"n":"Breathing"},"sr_b":{"n":"Tortoise Breath"},"sr_c":{"n":"Daoyin Art"},"op_a":{"n":"First Strike"},"op_b":{"n":"Preemptive"},"op_c":{"n":"Head-On Blow"},"act_burst_a":{"n":"Charged Blast"},"act_burst_b":{"n":"Burst"},"act_burst_c":{"n":"Annihilate"},"act_heal_a":{"n":"Mend"},"act_heal_b":{"n":"Rejuvenate"},"act_heal_c":{"n":"Cling to Life"},"act_block_a":{"n":"Hard Block"},"act_block_b":{"n":"Iron Shield Order"},"act_block_c":{"n":"Tortoise Breath Art"},"act_break_a":{"n":"Sunder Armor"},"act_break_b":{"n":"Break Momentum"},"act_break_c":{"n":"Crush Armor"},"act_stun_a":{"n":"Immobilize"},"act_stun_b":{"n":"Soul Bind"},"act_batk_a":{"n":"War Cry"},"act_batk_b":{"n":"Battle Frenzy"},"act_batk_c":{"n":"Bloody Battle"},"act_bdef_a":{"n":"Iron Wall Order"},"act_bdef_b":{"n":"Golden Bell Order"},"act_bdef_c":{"n":"Immovable Mountain"},"act_drain_a":{"n":"Qi Drain"},"act_drain_b":{"n":"Star-Sucking Art"},"act_drain_c":{"n":"Power Nullify Art"},"act_refl_a":{"n":"Recoil"},"act_refl_b":{"n":"Heaven-Earth Shift"},"act_true_a":{"n":"Deathblow"},"act_true_b":{"n":"Sky Fall"},"act_cleanse_a":{"n":"Cleanse"},"act_haste_a":{"n":"Gale"},"bsk_a":{"n":"Rampage"},"bsk_b":{"n":"Bloodrage Slash"},"bsk_c":{"n":"Mutual Destruction"},"trt_a":{"n":"Tortoise Shell"},"trt_b":{"n":"Iron Tortoise"},"gls_a":{"n":"Glass Cannon"},"gls_b":{"n":"Point of No Return"},"blw_a":{"n":"Turtle Carapace"},"blw_b":{"n":"Mobile Fortress"},"sv_a":{"n":"Unbroken"},"sv_b":{"n":"Deathless"},"ps_a":{"n":"Envenom"},"ps_b":{"n":"Deadly Poison"},"ps_c":{"n":"Seven-Step Venom"},"ce_a":{"n":"Charged Strike"},"ce_b":{"n":"Triple Strike"},"ce_c":{"n":"Killing Blow"},"ac2_a":{"n":"Sights"},"ac2_b":{"n":"Hundred-Pace Shot"},"ac2_c":{"n":"Never Misses"},"vs_a":{"n":"Shieldbreak"},"vs_b":{"n":"Shield-Crushing Maul"},"mo_a":{"n":"Momentum"},"mo_b":{"n":"Unstoppable"},"mo_c":{"n":"One Fell Swoop"},"rc_a":{"n":"Head to Head"},"rc_b":{"n":"Tit for Tat"},"act_sh_a":{"n":"Bodyshield"},"act_sh_b":{"n":"Golden Bell Guard"},"act_sh_c":{"n":"Acala's Aegis"},"act_ba_a":{"n":"Roar"},"act_ba_b":{"n":"Lion's Roar"},"act_ex_a":{"n":"Decapitate"},"act_ex_b":{"n":"Heaven's Wrath"},"atk_f":{"n":"Swift Blade"},"atk_g":{"n":"Keen Point"},"atk_h":{"n":"Sky Render"},"atk_i":{"n":"Dragonslayer Art"},"atk_j":{"n":"Godslayer Blade"},"def_f":{"n":"Leather Armor"},"def_g":{"n":"Heavy Armor"},"def_h":{"n":"Tortoise Shield"},"def_i":{"n":"Xuanwu Shell"},"def_j":{"n":"Titan Wall"},"hp_f":{"n":"Robust Body"},"hp_g":{"n":"Iron Blood"},"hp_h":{"n":"Giant Frame"},"hp_i":{"n":"Dragonscale Body"},"hp_j":{"n":"Immortal Heart"},"atkp_f":{"n":"Rally"},"atkp_g":{"n":"Surge"},"atkp_h":{"n":"Raging Tide"},"atkp_i":{"n":"Dominant Body"},"defp_f":{"n":"Hold Fast"},"defp_g":{"n":"Stand Firm"},"defp_h":{"n":"Bronze Wall"},"defp_i":{"n":"Mountain Wall"},"hpp_f":{"n":"Fit Body"},"hpp_g":{"n":"Steel Spirit"},"hpp_h":{"n":"Supreme Spirit"},"hpp_i":{"n":"Dragon Might"},"bl_a":{"n":"Bleed"},"bl_b":{"n":"Rend"},"bl_c":{"n":"Hemorrhage"},"bn_a":{"n":"Scorch"},"bn_b":{"n":"Immolate"},"bn_c":{"n":"Hellfire"},"ds2_a":{"n":"Qi-Draining Art"},"ds2_b":{"n":"Disperse Power"},"ds2_c":{"n":"Force-Melting Art"},"dst_a":{"n":"Fatigue"},"dst_b":{"n":"Exhaust"},"dst_c":{"n":"Enervate"},"fr_a":{"n":"Ward Charm"},"fr_b":{"n":"Heart Mirror"},"fr_c":{"n":"Golden Bell Shroud"},"dc_a":{"n":"Cushion"},"dc_b":{"n":"Guardian Qi"},"iv_a":{"n":"Invincible Star"},"iv_b":{"n":"Golden Guardian"},"ls2_a":{"n":"Do or Die"},"ls2_b":{"n":"Last-Ditch Strike"},"idb_a":{"n":"Clear Mind"},"idb_b":{"n":"Vajra Guard"},"sp_a":{"n":"Charged Slash"},"sp_b":{"n":"Qi Force"},"ep_a":{"n":"Energy Focus"},"ep_b":{"n":"Energy Overload"},"cdge_a":{"n":"Riposte"},"cdge_b":{"n":"Falcon Turn"},"soh_a":{"n":"Gathering Shield"},"soh_b":{"n":"Steel Frame"},"sot_a":{"n":"Recoil Armor"},"sot_b":{"n":"Bramble Mail"},"cr_a":{"n":"Cleanse Body"},"cr_b":{"n":"Poison Immunity"},"rdb_a":{"n":"Reflect Weakness"},"rdb_b":{"n":"Turnabout"},"vp_a":{"n":"Strike the Weak"},"vp_b":{"n":"Utter Rout"},"rmp_a":{"n":"Rising True Damage"},"rmp_b":{"n":"Relentless"},"ds3_a":{"n":"Twin Strike"},"ds3_b":{"n":"Gale Combo"},"ds3_c":{"n":"Shadow Clone"},"hyb_a":{"n":"Bloodthirst Blade"},"hyb_b":{"n":"Blooddrinker Saber"},"hyb_c":{"n":"Demonbane Blade"},"hyb_d":{"n":"Skyrender"},"hyb_e":{"n":"Thorn Shield"},"hyb_f":{"n":"Recoil Plate"},"hyb_g":{"n":"Regen Armor"},"hyb_h":{"n":"Regrowth Mail"},"hyb_i":{"n":"Gang Blade"},"hyb_j":{"n":"Thunder Gang Saber"},"hyb_k":{"n":"Fount of Life"},"hyb_l":{"n":"Endless Source"},"leg_atk":{"n":"Might of the War God"},"leg_def":{"n":"Immovable Vajra"},"leg_hp":{"n":"Dragon God Body"},"leg_all":{"n":"Perfect Form"},"act_burst_d":{"n":"Coiled Strike"},"act_burst_e":{"n":"Cataclysm"},"act_heal_d":{"n":"Grand Rejuvenation"},"act_heal_e":{"n":"Reborn in Fire"},"act_ls_a":{"n":"Blood Rite"},"act_ls_b":{"n":"Soul-Draining Blow"},"act_iv_a":{"n":"Divine Aegis"},"act_iv_b":{"n":"Invincible Zone"},"act_cl_a":{"n":"Purge"},"act_cl_b":{"n":"Grand Cleanse"},"act_curse_a":{"n":"Curse"},"act_curse_b":{"n":"Grand Hex"},"act_thorn_a":{"n":"Bramble Barrier"},"act_thorn_b":{"n":"Bloodspike Zone"},"act_atk2_a":{"n":"All-Out Strike"},"act_atk2_b":{"n":"Desperate Assault"},"vd2_a":{"n":"David vs Goliath"},"vd2_b":{"n":"Feather Fells Titan"},"atr_a":{"n":"Catch Off Guard"},"atr_b":{"n":"Surprise Attack"},"atr_c":{"n":"Ever-Victorious"},"dtr_a":{"n":"Wait and Strike"},"dtr_b":{"n":"Strike Second"},"dtr_c":{"n":"Late Bloomer"},"exx_a":{"n":"Press the Advantage"},"exx_b":{"n":"Kick 'Em While Down"},"atk_k":{"n":"Faint Edge"},"atk_l":{"n":"Short Dagger"},"atk_m":{"n":"Steel Blade"},"atk_n":{"n":"Cold Edge"},"atk_o":{"n":"Frost Blade"},"atk_p":{"n":"Blood Edge"},"def_k":{"n":"Cloth Garb"},"def_l":{"n":"Wooden Shield"},"def_m":{"n":"Bronze Armor"},"def_n":{"n":"Steel Shield"},"def_o":{"n":"Fine Steel Armor"},"def_p":{"n":"Dark Iron Armor"},"hp_k":{"n":"Sturdy Physique"},"hp_l":{"n":"Strongman"},"hp_m":{"n":"Iron Man"},"hp_n":{"n":"Brute Force"},"hp_o":{"n":"Giant"},"hp_p":{"n":"Dominant Frame"},"atkp_j":{"n":"Lesser Vigor"},"atkp_k":{"n":"Greater Vigor"},"atkp_l":{"n":"Firm Vigor"},"atkp_m":{"n":"Fierce Vigor"},"defp_j":{"n":"Lesser Guard"},"defp_k":{"n":"Greater Guard"},"defp_l":{"n":"Firm Guard"},"defp_m":{"n":"Thick Guard"},"ad_d":{"n":"Balance IV"},"ad_e":{"n":"Balance V"},"ad_f":{"n":"Balance VI"},"ad_g":{"n":"Balance VII"},"ad_h":{"n":"Balance VIII"},"ah_d":{"n":"Bloodblade IV"},"ah_e":{"n":"Bloodblade V"},"ah_f":{"n":"Bloodblade VI"},"ah_g":{"n":"Bloodblade VII"},"ah_h":{"n":"Bloodblade VIII"},"dh_d":{"n":"Ironsoul IV"},"dh_e":{"n":"Ironsoul V"},"dh_f":{"n":"Ironsoul VI"},"dh_g":{"n":"Ironsoul VII"},"dh_h":{"n":"Ironsoul VIII"},"all_c":{"n":"Harmony II"},"all_d":{"n":"Harmony III"},"all_e":{"n":"Harmony IV"},"all_f":{"n":"Harmony: Ultimate"},"ls_e":{"n":"Vampire"},"ls_f":{"n":"Bloodlust"},"th_e":{"n":"Iron Spikes"},"th_f":{"n":"Hedgehog Mail"},"pc_e":{"n":"Armorshatter"},"pc_f":{"n":"Defense Ignore"},"dr_e":{"n":"Mastery"},"dr_f":{"n":"Golden Body"},"dg_d":{"n":"Phantom"},"dg_e":{"n":"Shadowless"},"tf_e":{"n":"Gang Wind"},"tf_f":{"n":"Heavenly Gang"},"cbk_d":{"n":"Berserk"},"cbk_e":{"n":"Demonic Fury"},"lr_e":{"n":"Deathblow Counter"},"lr_f":{"n":"Phoenix's Wrath"},"rg_d":{"n":"Grand Recovery"},"rg_e":{"n":"Phoenix"},"hyb_m":{"n":"Thorn Armor"},"hyb_n":{"n":"Recoil Heavy Armor"},"hyb_o":{"n":"Poison Blade"},"hyb_p":{"n":"Envenomed Saber"},"hyb_q":{"n":"Supreme Blade"},"hyb_r":{"n":"Peerless Arm"},"hyb_s":{"n":"Regen Plate"},"hyb_t":{"n":"Immortal Mail"},"act_burst_f":{"n":"True Charged Slash"},"act_burst_g":{"n":"Sky-Rending Blast"},"act_heal_f":{"n":"Lesser Heal"},"act_heal_g":{"n":"Healing Art"},"act_sh_d":{"n":"Lesser Shield"},"act_sh_e":{"n":"Iron Wall Art"},"act_break_d":{"n":"Weaken"},"act_break_e":{"n":"Armor-Crushing Slash"},"act_true_c":{"n":"Heartpierce"},"act_true_d":{"n":"Earth-Rending Slash"},"act_drain_d":{"n":"Lesser Drain"},"act_drain_e":{"n":"Soul Snatch"},"vd_c":{"n":"Dragonbane"},"ex_e":{"n":"No Survivors"},"ex_f":{"n":"Heaven's Judgment"},"mo_d":{"n":"Chain"},"mo_e":{"n":"Arrow Storm"},"rt_d":{"n":"Blood Feud"},"rt_e":{"n":"Boundless Spite"},"atk_q":{"n":"Iron Claw"},"atk_r":{"n":"Wolf Fang"},"atk_s":{"n":"Tiger Claw"},"atk_t":{"n":"Dragon Claw"},"atk_u":{"n":"Phoenix Plume"},"def_q":{"n":"Rattan Shield"},"def_r":{"n":"Stone Armor"},"def_s":{"n":"Bone Armor"},"def_t":{"n":"Dragonscale Armor"},"def_u":{"n":"Phoenix Robe"},"hp_q":{"n":"Lifeblood"},"hp_r":{"n":"Vital Essence"},"hp_s":{"n":"Dragon Breath"},"hp_t":{"n":"Divine Soul"},"atkp_n":{"n":"Explosive Vigor"},"atkp_o":{"n":"Swift Vigor"},"atkp_p":{"n":"Ultimate Vigor"},"defp_n":{"n":"Solid Armor"},"defp_o":{"n":"Heavy Shield"},"defp_p":{"n":"Ultimate Guard"},"hpp_j":{"n":"Robust Soul"},"hpp_k":{"n":"Mighty Soul"},"ad_i":{"n":"Balance: Faint"},"ad_j":{"n":"Balance: Steady"},"ad_k":{"n":"Balance: Strong"},"ad_l":{"n":"Balance: Fierce"},"ah_i":{"n":"Bloodblade: Faint"},"ah_j":{"n":"Bloodblade: Steady"},"ah_k":{"n":"Bloodblade: Strong"},"ah_l":{"n":"Bloodblade: Fierce"},"dh_i":{"n":"Ironsoul: Faint"},"dh_j":{"n":"Ironsoul: Steady"},"dh_k":{"n":"Ironsoul: Strong"},"dh_l":{"n":"Ironsoul: Fierce"},"ls_g":{"n":"Lesser Leech"},"ls_h":{"n":"Greater Leech"},"ls_i":{"n":"Grand Leech"},"th_g":{"n":"Lesser Recoil"},"th_h":{"n":"Greater Recoil"},"th_i":{"n":"Grand Recoil"},"pc_g":{"n":"Lesser Pierce"},"pc_h":{"n":"Greater Pierce"},"pc_i":{"n":"Grand Pierce"},"dr_g":{"n":"Lesser Ward"},"dr_h":{"n":"Greater Ward"},"dr_i":{"n":"Grand Ward"},"tf_g":{"n":"Lesser Gang Force"},"tf_h":{"n":"Greater Gang Force"},"tf_i":{"n":"Grand Gang Force"},"ex_g":{"n":"Lesser Execute"},"ex_h":{"n":"Greater Execute"},"ra_d":{"n":"Lesser Charge"},"ra_e":{"n":"Greater Charge"},"rd_d":{"n":"Lesser Snowball"},"rd_e":{"n":"Greater Snowball"},"act_burst_h":{"n":"Lesser Burst"},"act_burst_i":{"n":"Greater Burst"},"act_heal_h":{"n":"Bandage"},"act_heal_i":{"n":"Cure"},"act_batk_d":{"n":"Inspire"},"act_batk_e":{"n":"Fight On"},"act_bdef_d":{"n":"Defense: Peak"},"act_bdef_e":{"n":"Hold Ground"},"atk_v":{"n":"Stonesplitter"},"atk_w":{"n":"Goldcleaver"},"atk_x":{"n":"Edgebreaker"},"atk_y":{"n":"Ultimate Edge"},"atk_z":{"n":"Divine Edge"},"def_v":{"n":"Rattan Mail"},"def_w":{"n":"Boulder Mail"},"def_x":{"n":"Warding Armor"},"def_y":{"n":"Ultimate Armor"},"def_z":{"n":"Divine Armor"},"hp_u":{"n":"Robust Vigor"},"hp_v":{"n":"Primal Might"},"hp_w":{"n":"Divine Soul Body"},"ad_m":{"n":"Balance: Extreme"},"ad_n":{"n":"Balance: Divine"},"ls_j":{"n":"Blood Pact"},"pc_j":{"n":"Ultimate Pierce"},"dg_f":{"n":"Mirage Step"},"th_j":{"n":"Reverse Scale"},"act_burst_j":{"n":"Grand Burst"},"act_heal_j":{"n":"Holy Heal"},"act_sh_f":{"n":"Holy Shield"}},"ja":{"atk_a":{"n":"腕試し"},"atk_b":{"n":"鋭刃"},"atk_c":{"n":"鋒芒"},"atk_d":{"n":"破軍"},"atk_e":{"n":"斬星訣"},"def_a":{"n":"薄甲"},"def_b":{"n":"鉄壁"},"def_c":{"n":"磐石"},"def_d":{"n":"金鐘"},"def_e":{"n":"不壊金身"},"hp_a":{"n":"靭体"},"hp_b":{"n":"厚生"},"hp_c":{"n":"熊心"},"hp_d":{"n":"龍血"},"hp_e":{"n":"不滅の体"},"atkp_a":{"n":"蓄勢"},"atkp_b":{"n":"攻勢"},"atkp_c":{"n":"鋭勢"},"atkp_d":{"n":"破勢"},"atkp_e":{"n":"滅勢"},"defp_a":{"n":"護身"},"defp_b":{"n":"守勢"},"defp_c":{"n":"磐護"},"defp_d":{"n":"金護"},"defp_e":{"n":"神護"},"hpp_a":{"n":"壮魄"},"hpp_b":{"n":"雄魄"},"hpp_c":{"n":"巨魄"},"hpp_d":{"n":"龍魄"},"hpp_e":{"n":"神魄"},"ad_a":{"n":"攻守・初"},"ad_b":{"n":"攻守・中"},"ad_c":{"n":"攻守・大"},"ah_a":{"n":"血刃・初"},"ah_b":{"n":"血刃・中"},"ah_c":{"n":"血刃・大"},"dh_a":{"n":"鉄魄・初"},"dh_b":{"n":"鉄魄・中"},"dh_c":{"n":"鉄魄・大"},"all_a":{"n":"均衡・初"},"all_b":{"n":"均衡・極"},"ls_a":{"n":"汲血"},"ls_b":{"n":"噬血"},"ls_c":{"n":"奪魂"},"ls_d":{"n":"血飼"},"th_a":{"n":"棘皮"},"th_b":{"n":"茨"},"th_c":{"n":"反鋒"},"th_d":{"n":"鏡刺"},"pc_a":{"n":"破甲"},"pc_b":{"n":"穿甲"},"pc_c":{"n":"裂甲"},"pc_d":{"n":"滅甲"},"tf_a":{"n":"罡気"},"tf_b":{"n":"真罡"},"tf_c":{"n":"罡雷"},"tf_d":{"n":"滅罡"},"tm_a":{"n":"蝕魂"},"tm_b":{"n":"裂魂"},"tm_c":{"n":"噬命"},"tm_d":{"n":"断命"},"ch_a":{"n":"蝕心"},"ch_b":{"n":"噬魂"},"st_a":{"n":"震懾"},"st_b":{"n":"頭上一棒"},"hh_a":{"n":"気盛"},"hh_b":{"n":"睥睨天下"},"ds_a":{"n":"落井下石"},"vf_a":{"n":"摧枯拉朽"},"ex_a":{"n":"斬殺"},"ex_b":{"n":"収穫"},"ex_c":{"n":"終結"},"cb_a":{"n":"連撃"},"cb_b":{"n":"乱舞"},"cb_c":{"n":"千手"},"rt_a":{"n":"積怨"},"rt_b":{"n":"報復"},"rt_c":{"n":"雪恨"},"ca_a":{"n":"削力"},"ca_b":{"n":"蝕骨"},"ca_c":{"n":"枯渇"},"cd_a":{"n":"蝕甲"},"cd_b":{"n":"錆蝕"},"cd_c":{"n":"砕防"},"cbk_a":{"n":"血怒"},"cbk_b":{"n":"狂化"},"cbk_c":{"n":"嗜殺"},"dta_a":{"n":"幻骨"},"dta_b":{"n":"骨刃"},"dta_c":{"n":"魔化"},"hta_a":{"n":"血刃訣"},"hta_b":{"n":"血で刃を養う"},"hta_c":{"n":"血の海の恨み"},"dr_a":{"n":"卸力"},"dr_b":{"n":"化勁"},"dr_c":{"n":"柔勁"},"dr_d":{"n":"太極勁"},"dg_a":{"n":"身法"},"dg_b":{"n":"残影"},"dg_c":{"n":"縹渺"},"ac_a":{"n":"堅靭"},"ac_b":{"n":"鉄骨"},"ac_c":{"n":"金剛不壊"},"rg_a":{"n":"回気"},"rg_b":{"n":"泉湧"},"rg_c":{"n":"生生不息"},"fg_a":{"n":"先機"},"fg_b":{"n":"迎撃"},"fg_c":{"n":"金鐘罩・序"},"bp_a":{"n":"薄盾"},"bp_b":{"n":"護盾"},"bp_c":{"n":"結界"},"bf_a":{"n":"鉄盾"},"bf_b":{"n":"巨盾"},"bf_c":{"n":"神盾"},"ra_a":{"n":"漸強"},"ra_b":{"n":"蓄力"},"ra_c":{"n":"無尽"},"rd_a":{"n":"漸固"},"rd_b":{"n":"雪だるま"},"rd_c":{"n":"壁塁"},"sa_a":{"n":"奪力"},"sa_b":{"n":"汲取"},"sa_c":{"n":"蝕能"},"sd_a":{"n":"奪甲"},"sd_b":{"n":"蝕壁"},"sd_c":{"n":"奪魄"},"lr_a":{"n":"頑抗"},"lr_b":{"n":"背水"},"lr_c":{"n":"絶境"},"lr_d":{"n":"窮鼠の闘い"},"vd_a":{"n":"弑巨"},"vd_b":{"n":"屠龍"},"va_a":{"n":"制剛"},"va_b":{"n":"柔よく剛を制す"},"vh_a":{"n":"命懸け"},"vh_b":{"n":"蟷螂の斧"},"ah_a2":{"n":"焚傷"},"ah_b2":{"n":"重創"},"ah_c2":{"n":"絶癒"},"er_a":{"n":"内息"},"er_b":{"n":"真気"},"er_c":{"n":"気海"},"sr_a":{"n":"吐納"},"sr_b":{"n":"亀息"},"sr_c":{"n":"導引術"},"op_a":{"n":"先手"},"op_b":{"n":"先声奪人"},"op_c":{"n":"迎頭痛撃"},"act_burst_a":{"n":"蓄爆"},"act_burst_b":{"n":"爆発"},"act_burst_c":{"n":"滅殺"},"act_heal_a":{"n":"治療"},"act_heal_b":{"n":"回春"},"act_heal_c":{"n":"延命"},"act_block_a":{"n":"硬直ガード"},"act_block_b":{"n":"鉄盾令"},"act_block_c":{"n":"亀息大法"},"act_break_a":{"n":"削防"},"act_break_b":{"n":"破勢令"},"act_break_c":{"n":"砕甲"},"act_stun_a":{"n":"金縛り"},"act_stun_b":{"n":"鎮魂"},"act_batk_a":{"n":"戦吼"},"act_batk_b":{"n":"狂戦"},"act_batk_c":{"n":"血戦"},"act_bdef_a":{"n":"鉄壁令"},"act_bdef_b":{"n":"金鐘令"},"act_bdef_c":{"n":"不動如山"},"act_drain_a":{"n":"奪気"},"act_drain_b":{"n":"吸星"},"act_drain_c":{"n":"化功大法"},"act_refl_a":{"n":"反震"},"act_refl_b":{"n":"乾坤挪移"},"act_true_a":{"n":"奪命の一撃"},"act_true_b":{"n":"天崩"},"act_cleanse_a":{"n":"浄化"},"act_haste_a":{"n":"疾風"},"bsk_a":{"n":"狂暴"},"bsk_b":{"n":"血怒斬"},"bsk_c":{"n":"玉石倶焚"},"trt_a":{"n":"亀甲"},"trt_b":{"n":"鉄亀"},"gls_a":{"n":"ガラスの大砲"},"gls_b":{"n":"背水の陣"},"blw_a":{"n":"亀の甲羅"},"blw_b":{"n":"移動要塞"},"sv_a":{"n":"不屈"},"sv_b":{"n":"不死身"},"ps_a":{"n":"毒塗り"},"ps_b":{"n":"劇毒"},"ps_c":{"n":"七歩断魂"},"ce_a":{"n":"蓄力の一撃"},"ce_b":{"n":"三段撃"},"ce_c":{"n":"必殺"},"ac2_a":{"n":"照準"},"ac2_b":{"n":"百歩穿楊"},"ac2_c":{"n":"例不虚発"},"vs_a":{"n":"破盾"},"vs_b":{"n":"砕盾槌"},"mo_a":{"n":"連勢"},"mo_b":{"n":"破竹の勢い"},"mo_c":{"n":"一気呵成"},"rc_a":{"n":"真っ向勝負"},"rc_b":{"n":"目には目を"},"act_sh_a":{"n":"護体"},"act_sh_b":{"n":"金鐘護体"},"act_sh_c":{"n":"不動明王"},"act_ba_a":{"n":"咆哮"},"act_ba_b":{"n":"獅子吼"},"act_ex_a":{"n":"斬首"},"act_ex_b":{"n":"天誅"},"atk_f":{"n":"快刀"},"atk_g":{"n":"鋭鋒"},"atk_h":{"n":"裂空斬"},"atk_i":{"n":"斬龍訣"},"atk_j":{"n":"弑神刃"},"def_f":{"n":"革鎧"},"def_g":{"n":"重甲"},"def_h":{"n":"亀甲盾"},"def_i":{"n":"玄武殻"},"def_j":{"n":"万鈞壁"},"hp_f":{"n":"壮体"},"hp_g":{"n":"鉄血"},"hp_h":{"n":"巨躯"},"hp_i":{"n":"龍鱗体"},"hp_j":{"n":"不朽の心"},"atkp_f":{"n":"奮起"},"atkp_g":{"n":"昂揚"},"atkp_h":{"n":"狂潮"},"atkp_i":{"n":"覇体"},"defp_f":{"n":"堅守"},"defp_g":{"n":"屹立"},"defp_h":{"n":"銅牆"},"defp_i":{"n":"鎮岳壁"},"hpp_f":{"n":"健体"},"hpp_g":{"n":"鋼魄"},"hpp_h":{"n":"覇魄"},"hpp_i":{"n":"龍威"},"bl_a":{"n":"放血"},"bl_b":{"n":"裂創"},"bl_c":{"n":"血崩"},"bn_a":{"n":"焼灼"},"bn_b":{"n":"焚身"},"bn_c":{"n":"業火"},"ds2_a":{"n":"奪気訣"},"ds2_b":{"n":"散功"},"ds2_c":{"n":"化勁散"},"dst_a":{"n":"疲労"},"dst_b":{"n":"力尽き"},"dst_c":{"n":"脱力"},"fr_a":{"n":"減傷符"},"fr_b":{"n":"護心鏡"},"fr_c":{"n":"金鐘罩"},"dc_a":{"n":"緩衝"},"dc_b":{"n":"護体真気"},"iv_a":{"n":"無敵星"},"iv_b":{"n":"金身護法"},"ls2_a":{"n":"背水一戦"},"ls2_b":{"n":"絶地反撃"},"idb_a":{"n":"清心"},"idb_b":{"n":"金剛護体"},"sp_a":{"n":"蓄力斬"},"sp_b":{"n":"気勁"},"ep_a":{"n":"集能"},"ep_b":{"n":"エネルギー暴走"},"cdge_a":{"n":"反身"},"cdge_b":{"n":"鷂子翻身"},"soh_a":{"n":"集盾"},"soh_b":{"n":"鋼鉄の体"},"sot_a":{"n":"反震甲"},"sot_b":{"n":"茨の鎧"},"cr_a":{"n":"浄体"},"cr_b":{"n":"百毒不侵"},"rdb_a":{"n":"弱体反射"},"rdb_b":{"n":"以彼之道"},"vp_a":{"n":"付け入る"},"vp_b":{"n":"落花流水"},"rmp_a":{"n":"漸盛真傷"},"rmp_b":{"n":"滔々不絶"},"ds3_a":{"n":"双刃"},"ds3_b":{"n":"疾風連斬"},"ds3_c":{"n":"影分身"},"hyb_a":{"n":"嗜血刃"},"hyb_b":{"n":"血飲狂刀"},"hyb_c":{"n":"破魔刃"},"hyb_d":{"n":"裂穹"},"hyb_e":{"n":"棘盾"},"hyb_f":{"n":"反刺重鎧"},"hyb_g":{"n":"生息甲"},"hyb_h":{"n":"再生鎧"},"hyb_i":{"n":"罡刃"},"hyb_j":{"n":"雷罡刀"},"hyb_k":{"n":"生命の泉"},"hyb_l":{"n":"不竭の源"},"leg_atk":{"n":"戦神の力"},"leg_def":{"n":"不動金剛"},"leg_hp":{"n":"龍神の躯"},"leg_all":{"n":"完全形態"},"act_burst_d":{"n":"蓄勢待発"},"act_burst_e":{"n":"天崩地裂"},"act_heal_d":{"n":"大回春"},"act_heal_e":{"n":"浴火重生"},"act_ls_a":{"n":"血祭"},"act_ls_b":{"n":"奪命吸魂"},"act_iv_a":{"n":"護体神功"},"act_iv_b":{"n":"無敵領域"},"act_cl_a":{"n":"厄払い"},"act_cl_b":{"n":"大浄化"},"act_curse_a":{"n":"呪詛"},"act_curse_b":{"n":"大衰咒"},"act_thorn_a":{"n":"茨の結界"},"act_thorn_b":{"n":"血刺領域"},"act_atk2_a":{"n":"渾身の一撃"},"act_atk2_b":{"n":"背水の猛攻"},"vd2_a":{"n":"以小搏大"},"vd2_b":{"n":"蝉翼千鈞を破る"},"atr_a":{"n":"不意を突く"},"atr_b":{"n":"意表を突く"},"atr_c":{"n":"攻無不克"},"dtr_a":{"n":"以逸待労"},"dtr_b":{"n":"後の先"},"dtr_c":{"n":"大器晩成"},"exx_a":{"n":"勢いに乗る"},"exx_b":{"n":"水に落ちた犬を叩く"},"atk_k":{"n":"微鋒"},"atk_l":{"n":"短刀"},"atk_m":{"n":"鋼刃"},"atk_n":{"n":"寒鋒"},"atk_o":{"n":"霜刃"},"atk_p":{"n":"血鋒"},"def_k":{"n":"布衣"},"def_l":{"n":"木盾"},"def_m":{"n":"銅甲"},"def_n":{"n":"鋼盾"},"def_o":{"n":"精鋼甲"},"def_p":{"n":"玄鉄甲"},"hp_k":{"n":"体魄"},"hp_l":{"n":"壮漢"},"hp_m":{"n":"鉄人"},"hp_n":{"n":"蛮力"},"hp_o":{"n":"巨漢"},"hp_p":{"n":"覇体躯"},"atkp_j":{"n":"小勁"},"atkp_k":{"n":"中勁"},"atkp_l":{"n":"剛勁"},"atkp_m":{"n":"猛勁"},"defp_j":{"n":"小護"},"defp_k":{"n":"中護"},"defp_l":{"n":"剛護"},"defp_m":{"n":"厚護"},"ad_d":{"n":"攻守・壮"},"ad_e":{"n":"攻守・健"},"ad_f":{"n":"攻守・雄"},"ad_g":{"n":"攻守・覇"},"ad_h":{"n":"攻守・絶"},"ah_d":{"n":"血刃・壮"},"ah_e":{"n":"血刃・健"},"ah_f":{"n":"血刃・雄"},"ah_g":{"n":"血刃・覇"},"ah_h":{"n":"血刃・絶"},"dh_d":{"n":"鉄魄・壮"},"dh_e":{"n":"鉄魄・健"},"dh_f":{"n":"鉄魄・雄"},"dh_g":{"n":"鉄魄・覇"},"dh_h":{"n":"鉄魄・絶"},"all_c":{"n":"均衡・中"},"all_d":{"n":"均衡・雄"},"all_e":{"n":"均衡・覇"},"all_f":{"n":"均衡・絶"},"ls_e":{"n":"吸血鬼"},"ls_f":{"n":"血の渇望"},"th_e":{"n":"鉄刺"},"th_f":{"n":"針鼠の鎧"},"pc_e":{"n":"砕甲・玄"},"pc_f":{"n":"防御無視"},"dr_e":{"n":"化境"},"dr_f":{"n":"金身"},"dg_d":{"n":"鬼魅"},"dg_e":{"n":"無影"},"tf_e":{"n":"罡風"},"tf_f":{"n":"天罡"},"cbk_d":{"n":"狂暴化"},"cbk_e":{"n":"魔化狂怒"},"lr_e":{"n":"絶命反撃"},"lr_f":{"n":"鳳凰の怒り"},"rg_d":{"n":"大回気"},"rg_e":{"n":"不死鳥"},"hyb_m":{"n":"棘甲"},"hyb_n":{"n":"反震重甲"},"hyb_o":{"n":"毒刃"},"hyb_p":{"n":"毒塗りの刀"},"hyb_q":{"n":"覇刃"},"hyb_r":{"n":"絶世の神兵"},"hyb_s":{"n":"生息重甲"},"hyb_t":{"n":"不朽の鎧"},"act_burst_f":{"n":"蓄力斬・真"},"act_burst_g":{"n":"裂空爆"},"act_heal_f":{"n":"小回復"},"act_heal_g":{"n":"治癒術"},"act_sh_d":{"n":"小護盾"},"act_sh_e":{"n":"鉄壁術"},"act_break_d":{"n":"弱体化術"},"act_break_e":{"n":"崩甲斬"},"act_true_c":{"n":"穿心"},"act_true_d":{"n":"裂地斬"},"act_drain_d":{"n":"小吸取"},"act_drain_e":{"n":"摂魂"},"vd_c":{"n":"巨龍剋星"},"ex_e":{"n":"一網打尽"},"ex_f":{"n":"天譴"},"mo_d":{"n":"連環"},"mo_e":{"n":"万箭斉発"},"rt_d":{"n":"血讐"},"rt_e":{"n":"怨念滔天"},"atk_q":{"n":"鉄爪"},"atk_r":{"n":"狼牙"},"atk_s":{"n":"虎爪"},"atk_t":{"n":"龍爪"},"atk_u":{"n":"鳳翎"},"def_q":{"n":"藤盾"},"def_r":{"n":"石甲"},"def_s":{"n":"骨甲"},"def_t":{"n":"龍鱗甲"},"def_u":{"n":"鳳羽衣"},"hp_q":{"n":"気血"},"hp_r":{"n":"精血"},"hp_s":{"n":"龍息"},"hp_t":{"n":"神魂"},"atkp_n":{"n":"爆勁"},"atkp_o":{"n":"疾勁"},"atkp_p":{"n":"絶勁"},"defp_n":{"n":"堅甲"},"defp_o":{"n":"厚盾"},"defp_p":{"n":"絶護"},"hpp_j":{"n":"壮魂"},"hpp_k":{"n":"雄魂"},"ad_i":{"n":"攻守・微"},"ad_j":{"n":"攻守・穏"},"ad_k":{"n":"攻守・強"},"ad_l":{"n":"攻守・猛"},"ah_i":{"n":"血刃・微"},"ah_j":{"n":"血刃・穏"},"ah_k":{"n":"血刃・強"},"ah_l":{"n":"血刃・猛"},"dh_i":{"n":"鉄魄・微"},"dh_j":{"n":"鉄魄・穏"},"dh_k":{"n":"鉄魄・強"},"dh_l":{"n":"鉄魄・猛"},"ls_g":{"n":"小吸血"},"ls_h":{"n":"中吸血"},"ls_i":{"n":"大吸血"},"th_g":{"n":"小反弾"},"th_h":{"n":"中反弾"},"th_i":{"n":"大反弾"},"pc_g":{"n":"小破甲"},"pc_h":{"n":"中破甲"},"pc_i":{"n":"大破甲"},"dr_g":{"n":"小減傷"},"dr_h":{"n":"中減傷"},"dr_i":{"n":"大減傷"},"tf_g":{"n":"小罡気"},"tf_h":{"n":"中罡気"},"tf_i":{"n":"大罡気"},"ex_g":{"n":"小斬殺"},"ex_h":{"n":"中斬殺"},"ra_d":{"n":"小蓄力"},"ra_e":{"n":"中蓄力"},"rd_d":{"n":"小雪だるま"},"rd_e":{"n":"中雪だるま"},"act_burst_h":{"n":"小爆発"},"act_burst_i":{"n":"中爆発"},"act_heal_h":{"n":"包帯"},"act_heal_i":{"n":"治療術"},"act_batk_d":{"n":"鼓舞"},"act_batk_e":{"n":"奮戦"},"act_bdef_d":{"n":"守勢・極"},"act_bdef_e":{"n":"固守"},"atk_v":{"n":"裂石"},"atk_w":{"n":"断金"},"atk_x":{"n":"摧鋒"},"atk_y":{"n":"絶鋒"},"atk_z":{"n":"神鋒"},"def_v":{"n":"藤鎧"},"def_w":{"n":"磐鎧"},"def_x":{"n":"鎮甲"},"def_y":{"n":"絶甲"},"def_z":{"n":"神甲"},"hp_u":{"n":"壮魄体"},"hp_v":{"n":"蛮荒の力"},"hp_w":{"n":"神魂体"},"ad_m":{"n":"攻守・猛極"},"ad_n":{"n":"攻守・神"},"ls_j":{"n":"血契"},"pc_j":{"n":"絶甲破"},"dg_f":{"n":"幻影歩"},"th_j":{"n":"逆鱗"},"act_burst_j":{"n":"大爆発"},"act_heal_j":{"n":"聖療"},"act_sh_f":{"n":"聖盾"}},"ko":{"atk_a":{"n":"솜씨 시험"},"atk_b":{"n":"예리한 칼날"},"atk_c":{"n":"예기"},"atk_d":{"n":"파군"},"atk_e":{"n":"참성결"},"def_a":{"n":"가벼운 갑옷"},"def_b":{"n":"철벽"},"def_c":{"n":"반석"},"def_d":{"n":"금종"},"def_e":{"n":"불괴금신"},"hp_a":{"n":"질긴 몸"},"hp_b":{"n":"후생"},"hp_c":{"n":"곰의 심장"},"hp_d":{"n":"용혈"},"hp_e":{"n":"불멸의 몸"},"atkp_a":{"n":"축세"},"atkp_b":{"n":"공세"},"atkp_c":{"n":"예세"},"atkp_d":{"n":"파세"},"atkp_e":{"n":"멸세"},"defp_a":{"n":"호신"},"defp_b":{"n":"수세"},"defp_c":{"n":"반호"},"defp_d":{"n":"금호"},"defp_e":{"n":"신호"},"hpp_a":{"n":"장백"},"hpp_b":{"n":"웅백"},"hpp_c":{"n":"거백"},"hpp_d":{"n":"용백"},"hpp_e":{"n":"신백"},"ad_a":{"n":"공수 I"},"ad_b":{"n":"공수 II"},"ad_c":{"n":"공수 III"},"ah_a":{"n":"혈인 I"},"ah_b":{"n":"혈인 II"},"ah_c":{"n":"혈인 III"},"dh_a":{"n":"철백 I"},"dh_b":{"n":"철백 II"},"dh_c":{"n":"철백 III"},"all_a":{"n":"균형 I"},"all_b":{"n":"균형·극"},"ls_a":{"n":"급혈"},"ls_b":{"n":"서혈"},"ls_c":{"n":"탈혼"},"ls_d":{"n":"혈사"},"th_a":{"n":"가시 가죽"},"th_b":{"n":"가시덤불"},"th_c":{"n":"반봉"},"th_d":{"n":"경자"},"pc_a":{"n":"파갑"},"pc_b":{"n":"천갑"},"pc_c":{"n":"열갑"},"pc_d":{"n":"멸갑"},"tf_a":{"n":"강기"},"tf_b":{"n":"진강"},"tf_c":{"n":"강뢰"},"tf_d":{"n":"멸강"},"tm_a":{"n":"식혼"},"tm_b":{"n":"열혼"},"tm_c":{"n":"서명"},"tm_d":{"n":"단명"},"ch_a":{"n":"식심"},"ch_b":{"n":"서혼"},"st_a":{"n":"진섭"},"st_b":{"n":"당두봉갈"},"hh_a":{"n":"기성"},"hh_b":{"n":"비예천하"},"ds_a":{"n":"낙정하석"},"vf_a":{"n":"최고랍후"},"ex_a":{"n":"참살"},"ex_b":{"n":"수확"},"ex_c":{"n":"종결"},"cb_a":{"n":"연격"},"cb_b":{"n":"난무"},"cb_c":{"n":"천수"},"rt_a":{"n":"적원"},"rt_b":{"n":"보복"},"rt_c":{"n":"설한"},"ca_a":{"n":"삭력"},"ca_b":{"n":"식골"},"ca_c":{"n":"고갈"},"cd_a":{"n":"식갑"},"cd_b":{"n":"녹슴"},"cd_c":{"n":"쇄방"},"cbk_a":{"n":"혈노"},"cbk_b":{"n":"광화"},"cbk_c":{"n":"기살"},"dta_a":{"n":"환골"},"dta_b":{"n":"골인"},"dta_c":{"n":"마화"},"hta_a":{"n":"혈인결"},"hta_b":{"n":"피로 칼을 먹이다"},"hta_c":{"n":"혈해심수"},"dr_a":{"n":"사력"},"dr_b":{"n":"화경"},"dr_c":{"n":"유경"},"dr_d":{"n":"태극경"},"dg_a":{"n":"신법"},"dg_b":{"n":"잔영"},"dg_c":{"n":"표묘"},"ac_a":{"n":"견인"},"ac_b":{"n":"철골"},"ac_c":{"n":"금강불괴"},"rg_a":{"n":"회기"},"rg_b":{"n":"천용"},"rg_c":{"n":"생생불식"},"fg_a":{"n":"선기"},"fg_b":{"n":"영격"},"fg_c":{"n":"금종조·서"},"bp_a":{"n":"얇은 방패"},"bp_b":{"n":"보호막"},"bp_c":{"n":"결계"},"bf_a":{"n":"철 방패"},"bf_b":{"n":"거대 방패"},"bf_c":{"n":"신 방패"},"ra_a":{"n":"점강"},"ra_b":{"n":"축력"},"ra_c":{"n":"무진"},"rd_a":{"n":"점고"},"rd_b":{"n":"눈덩이"},"rd_c":{"n":"벽루"},"sa_a":{"n":"탈력"},"sa_b":{"n":"급취"},"sa_c":{"n":"식능"},"sd_a":{"n":"탈갑"},"sd_b":{"n":"식벽"},"sd_c":{"n":"탈백"},"lr_a":{"n":"완항"},"lr_b":{"n":"배수"},"lr_c":{"n":"절경지"},"lr_d":{"n":"곤수지투"},"vd_a":{"n":"시거"},"vd_b":{"n":"도룡"},"va_a":{"n":"제강"},"va_b":{"n":"이유극강"},"vh_a":{"n":"박명"},"vh_b":{"n":"비부감수"},"ah_a2":{"n":"분상"},"ah_b2":{"n":"중상"},"ah_c2":{"n":"절유"},"er_a":{"n":"내식"},"er_b":{"n":"진기"},"er_c":{"n":"기해"},"sr_a":{"n":"토납"},"sr_b":{"n":"귀식"},"sr_c":{"n":"도인술"},"op_a":{"n":"선공"},"op_b":{"n":"선성탈인"},"op_c":{"n":"영두통격"},"act_burst_a":{"n":"축폭"},"act_burst_b":{"n":"폭발"},"act_burst_c":{"n":"멸살"},"act_heal_a":{"n":"치료"},"act_heal_b":{"n":"회춘"},"act_heal_c":{"n":"연명"},"act_block_a":{"n":"경막"},"act_block_b":{"n":"철순령"},"act_block_c":{"n":"귀식대법"},"act_break_a":{"n":"삭방"},"act_break_b":{"n":"파세령"},"act_break_c":{"n":"쇄갑"},"act_stun_a":{"n":"정신"},"act_stun_b":{"n":"진혼"},"act_batk_a":{"n":"전후"},"act_batk_b":{"n":"광전"},"act_batk_c":{"n":"혈전"},"act_bdef_a":{"n":"철벽령"},"act_bdef_b":{"n":"금종령"},"act_bdef_c":{"n":"부동여산"},"act_drain_a":{"n":"탈기"},"act_drain_b":{"n":"흡성"},"act_drain_c":{"n":"화공대법"},"act_refl_a":{"n":"반진"},"act_refl_b":{"n":"건곤나이"},"act_true_a":{"n":"탈명일격"},"act_true_b":{"n":"천붕"},"act_cleanse_a":{"n":"정화"},"act_haste_a":{"n":"질풍"},"bsk_a":{"n":"광폭"},"bsk_b":{"n":"혈노참"},"bsk_c":{"n":"옥석구분"},"trt_a":{"n":"귀갑"},"trt_b":{"n":"철귀"},"gls_a":{"n":"유리 대포"},"gls_b":{"n":"파부침주"},"blw_a":{"n":"거북 등딱지"},"blw_b":{"n":"이동 요새"},"sv_a":{"n":"불굴"},"sv_b":{"n":"불사"},"ps_a":{"n":"쉬독"},"ps_b":{"n":"극독"},"ps_c":{"n":"칠보단혼"},"ce_a":{"n":"축력일격"},"ce_b":{"n":"삼단격"},"ce_c":{"n":"필살"},"ac2_a":{"n":"조준"},"ac2_b":{"n":"백보천양"},"ac2_c":{"n":"예불허발"},"vs_a":{"n":"파순"},"vs_b":{"n":"쇄순추"},"mo_a":{"n":"연세"},"mo_b":{"n":"세여파죽"},"mo_c":{"n":"일고작기"},"rc_a":{"n":"경대경"},"rc_b":{"n":"이아환아"},"act_sh_a":{"n":"호체"},"act_sh_b":{"n":"금종호체"},"act_sh_c":{"n":"부동명왕"},"act_ba_a":{"n":"노후"},"act_ba_b":{"n":"사자후"},"act_ex_a":{"n":"참수"},"act_ex_b":{"n":"천주"},"atk_f":{"n":"쾌도"},"atk_g":{"n":"예봉"},"atk_h":{"n":"열공참"},"atk_i":{"n":"참룡결"},"atk_j":{"n":"시신도"},"def_f":{"n":"가죽 갑옷"},"def_g":{"n":"중갑"},"def_h":{"n":"귀갑 방패"},"def_i":{"n":"현무 껍질"},"def_j":{"n":"만균벽"},"hp_f":{"n":"건장한 몸"},"hp_g":{"n":"철혈"},"hp_h":{"n":"거구"},"hp_i":{"n":"용린체"},"hp_j":{"n":"불후의 심장"},"atkp_f":{"n":"분기"},"atkp_g":{"n":"앙양"},"atkp_h":{"n":"광조"},"atkp_i":{"n":"패체"},"defp_f":{"n":"견수"},"defp_g":{"n":"흘립"},"defp_h":{"n":"동장"},"defp_i":{"n":"진악벽"},"hpp_f":{"n":"건체"},"hpp_g":{"n":"강백"},"hpp_h":{"n":"패백"},"hpp_i":{"n":"용위"},"bl_a":{"n":"방혈"},"bl_b":{"n":"열창"},"bl_c":{"n":"혈붕"},"bn_a":{"n":"소작"},"bn_b":{"n":"분신"},"bn_c":{"n":"업화"},"ds2_a":{"n":"탈기결"},"ds2_b":{"n":"산공"},"ds2_c":{"n":"화경산"},"dst_a":{"n":"피로"},"dst_b":{"n":"역갈"},"dst_c":{"n":"탈력지"},"fr_a":{"n":"감상부"},"fr_b":{"n":"호심경"},"fr_c":{"n":"금종조"},"dc_a":{"n":"완충"},"dc_b":{"n":"호체진기"},"iv_a":{"n":"무적성"},"iv_b":{"n":"금신호법"},"ls2_a":{"n":"배수일전"},"ls2_b":{"n":"절지반격"},"idb_a":{"n":"청심"},"idb_b":{"n":"금강호체"},"sp_a":{"n":"축력참"},"sp_b":{"n":"기경"},"ep_a":{"n":"취능"},"ep_b":{"n":"에너지 폭주"},"cdge_a":{"n":"반신"},"cdge_b":{"n":"요자번신"},"soh_a":{"n":"취순"},"soh_b":{"n":"강철의 몸"},"sot_a":{"n":"반진갑"},"sot_b":{"n":"가시 갑주"},"cr_a":{"n":"정체"},"cr_b":{"n":"백독불침"},"rdb_a":{"n":"약화 반사"},"rdb_b":{"n":"이피지도"},"vp_a":{"n":"진허이입"},"vp_b":{"n":"낙화유수"},"rmp_a":{"n":"점성진상"},"rmp_b":{"n":"도도부절"},"ds3_a":{"n":"쌍인"},"ds3_b":{"n":"질풍연참"},"ds3_c":{"n":"그림자 분신"},"hyb_a":{"n":"기혈인"},"hyb_b":{"n":"혈음광도"},"hyb_c":{"n":"파마인"},"hyb_d":{"n":"열궁"},"hyb_e":{"n":"가시 방패"},"hyb_f":{"n":"반자중개"},"hyb_g":{"n":"생식갑"},"hyb_h":{"n":"재생개"},"hyb_i":{"n":"강인"},"hyb_j":{"n":"뇌강도"},"hyb_k":{"n":"생명의 샘"},"hyb_l":{"n":"불갈의 원"},"leg_atk":{"n":"전신의 힘"},"leg_def":{"n":"부동금강"},"leg_hp":{"n":"용신의 몸"},"leg_all":{"n":"완벽한 형태"},"act_burst_d":{"n":"축세대발"},"act_burst_e":{"n":"천붕지열"},"act_heal_d":{"n":"대회춘"},"act_heal_e":{"n":"욕화중생"},"act_ls_a":{"n":"혈제"},"act_ls_b":{"n":"탈명흡혼"},"act_iv_a":{"n":"호체신공"},"act_iv_b":{"n":"무적 영역"},"act_cl_a":{"n":"해액"},"act_cl_b":{"n":"대정화"},"act_curse_a":{"n":"저주"},"act_curse_b":{"n":"대쇠주"},"act_thorn_a":{"n":"가시 결계"},"act_thorn_b":{"n":"혈자 영역"},"act_atk2_a":{"n":"분력일박"},"act_atk2_b":{"n":"배수광공"},"vd2_a":{"n":"이소박대"},"vd2_b":{"n":"선익파천균"},"atr_a":{"n":"공기불비"},"atr_b":{"n":"출기불의"},"atr_c":{"n":"공무불극"},"dtr_a":{"n":"이일대로"},"dtr_b":{"n":"후발제인"},"dtr_c":{"n":"대기만성"},"exx_a":{"n":"의장잉용"},"exx_b":{"n":"통타낙수구"},"atk_k":{"n":"미봉"},"atk_l":{"n":"단검"},"atk_m":{"n":"강철 칼날"},"atk_n":{"n":"한봉"},"atk_o":{"n":"서리 칼날"},"atk_p":{"n":"혈봉"},"def_k":{"n":"포의"},"def_l":{"n":"나무 방패"},"def_m":{"n":"동갑"},"def_n":{"n":"강철 방패"},"def_o":{"n":"정강갑"},"def_p":{"n":"현철갑"},"hp_k":{"n":"체백"},"hp_l":{"n":"장한"},"hp_m":{"n":"철인"},"hp_n":{"n":"만력"},"hp_o":{"n":"거한"},"hp_p":{"n":"패체구"},"atkp_j":{"n":"작은 힘"},"atkp_k":{"n":"중간 힘"},"atkp_l":{"n":"강경"},"atkp_m":{"n":"맹경"},"defp_j":{"n":"작은 수호"},"defp_k":{"n":"중간 수호"},"defp_l":{"n":"강호"},"defp_m":{"n":"후호"},"ad_d":{"n":"공수 IV"},"ad_e":{"n":"공수 V"},"ad_f":{"n":"공수 VI"},"ad_g":{"n":"공수 VII"},"ad_h":{"n":"공수 VIII"},"ah_d":{"n":"혈인 IV"},"ah_e":{"n":"혈인 V"},"ah_f":{"n":"혈인 VI"},"ah_g":{"n":"혈인 VII"},"ah_h":{"n":"혈인 VIII"},"dh_d":{"n":"철백 IV"},"dh_e":{"n":"철백 V"},"dh_f":{"n":"철백 VI"},"dh_g":{"n":"철백 VII"},"dh_h":{"n":"철백 VIII"},"all_c":{"n":"균형 II"},"all_d":{"n":"균형 III"},"all_e":{"n":"균형 IV"},"all_f":{"n":"균형·절"},"ls_e":{"n":"흡혈귀"},"ls_f":{"n":"피의 갈망"},"th_e":{"n":"철자"},"th_f":{"n":"고슴도치 갑옷"},"pc_e":{"n":"쇄갑·현"},"pc_f":{"n":"방어 무시"},"dr_e":{"n":"화경지"},"dr_f":{"n":"금신"},"dg_d":{"n":"귀매"},"dg_e":{"n":"무영"},"tf_e":{"n":"강풍"},"tf_f":{"n":"천강"},"cbk_d":{"n":"광폭화"},"cbk_e":{"n":"마화광노"},"lr_e":{"n":"절명반격"},"lr_f":{"n":"봉황의 분노"},"rg_d":{"n":"대회기"},"rg_e":{"n":"불사조"},"hyb_m":{"n":"가시갑"},"hyb_n":{"n":"반진중갑"},"hyb_o":{"n":"독인"},"hyb_p":{"n":"쉬독도"},"hyb_q":{"n":"패인"},"hyb_r":{"n":"절세신병"},"hyb_s":{"n":"생식중갑"},"hyb_t":{"n":"불후의 갑주"},"act_burst_f":{"n":"축력참·진"},"act_burst_g":{"n":"열공폭"},"act_heal_f":{"n":"작은 회복"},"act_heal_g":{"n":"치유술"},"act_sh_d":{"n":"작은 보호막"},"act_sh_e":{"n":"철벽술"},"act_break_d":{"n":"약화술"},"act_break_e":{"n":"붕갑참"},"act_true_c":{"n":"천심"},"act_true_d":{"n":"열지참"},"act_drain_d":{"n":"작은 흡취"},"act_drain_e":{"n":"섭혼"},"vd_c":{"n":"거룡극성"},"ex_e":{"n":"진살절"},"ex_f":{"n":"천견"},"mo_d":{"n":"연환"},"mo_e":{"n":"만전제발"},"rt_d":{"n":"혈수"},"rt_e":{"n":"원념도천"},"atk_q":{"n":"철조"},"atk_r":{"n":"늑대 송곳니"},"atk_s":{"n":"호조"},"atk_t":{"n":"용조"},"atk_u":{"n":"봉령"},"def_q":{"n":"등나무 방패"},"def_r":{"n":"석갑"},"def_s":{"n":"골갑"},"def_t":{"n":"용린갑"},"def_u":{"n":"봉우의"},"hp_q":{"n":"기혈"},"hp_r":{"n":"정혈"},"hp_s":{"n":"용식"},"hp_t":{"n":"신혼"},"atkp_n":{"n":"폭경"},"atkp_o":{"n":"질경"},"atkp_p":{"n":"절경"},"defp_n":{"n":"견갑"},"defp_o":{"n":"두꺼운 방패"},"defp_p":{"n":"절호"},"hpp_j":{"n":"장혼"},"hpp_k":{"n":"웅혼"},"ad_i":{"n":"공수·미"},"ad_j":{"n":"공수·온"},"ad_k":{"n":"공수·강"},"ad_l":{"n":"공수·맹"},"ah_i":{"n":"혈인·미"},"ah_j":{"n":"혈인·온"},"ah_k":{"n":"혈인·강"},"ah_l":{"n":"혈인·맹"},"dh_i":{"n":"철백·미"},"dh_j":{"n":"철백·온"},"dh_k":{"n":"철백·강"},"dh_l":{"n":"철백·맹"},"ls_g":{"n":"작은 흡혈"},"ls_h":{"n":"중간 흡혈"},"ls_i":{"n":"대흡혈"},"th_g":{"n":"작은 반사"},"th_h":{"n":"중간 반사"},"th_i":{"n":"대반사"},"pc_g":{"n":"작은 파갑"},"pc_h":{"n":"중간 파갑"},"pc_i":{"n":"대파갑"},"dr_g":{"n":"작은 감상"},"dr_h":{"n":"중간 감상"},"dr_i":{"n":"대감상"},"tf_g":{"n":"작은 강기"},"tf_h":{"n":"중간 강기"},"tf_i":{"n":"대강기"},"ex_g":{"n":"작은 참살"},"ex_h":{"n":"중간 참살"},"ra_d":{"n":"작은 축력"},"ra_e":{"n":"중간 축력"},"rd_d":{"n":"작은 눈덩이"},"rd_e":{"n":"중간 눈덩이"},"act_burst_h":{"n":"작은 폭발"},"act_burst_i":{"n":"중간 폭발"},"act_heal_h":{"n":"붕대"},"act_heal_i":{"n":"치료술"},"act_batk_d":{"n":"고무"},"act_batk_e":{"n":"분전"},"act_bdef_d":{"n":"수세·극"},"act_bdef_e":{"n":"고수"},"atk_v":{"n":"열석"},"atk_w":{"n":"단금"},"atk_x":{"n":"최봉"},"atk_y":{"n":"절봉"},"atk_z":{"n":"신봉"},"def_v":{"n":"등나무 갑주"},"def_w":{"n":"반개"},"def_x":{"n":"진갑"},"def_y":{"n":"절갑"},"def_z":{"n":"신갑"},"hp_u":{"n":"장백체"},"hp_v":{"n":"만황의 힘"},"hp_w":{"n":"신혼체"},"ad_m":{"n":"공수·맹극"},"ad_n":{"n":"공수·신"},"ls_j":{"n":"혈계"},"pc_j":{"n":"절갑파"},"dg_f":{"n":"환영보"},"th_j":{"n":"역린"},"act_burst_j":{"n":"대폭발"},"act_heal_j":{"n":"성치료"},"act_sh_f":{"n":"성순"}}};
+var CARD_UI_TXT={
+  'zh-Hant':{title:'抽選卡牌',pass:'被動',act:'主動',reroll:'重新抽選這張（剩 {n} 次）',sub:'第 {i} / 4 張 — 點卡片選取，或用卡片下方 \u21bb 單張重抽（每張 {r} 次）'},
+  'zh-Hans':{title:'抽选卡牌',pass:'被动',act:'主动',reroll:'重新抽选这张（剩 {n} 次）',sub:'第 {i} / 4 张 — 点卡片选取，或用卡片下方 \u21bb 单张重抽（每张 {r} 次）'},
+  'en':{title:'Draw Cards',pass:'Passive',act:'Active',reroll:'Reroll this card ({n} left)',sub:'Card {i} / 4 \u2014 tap to pick, or use \u21bb under a card to reroll it ({r} each)'},
+  'ja':{title:'カードを選ぶ',pass:'パッシブ',act:'アクティブ',reroll:'このカードを引き直す（残り {n} 回）',sub:'{i} / 4 枚 \u2014 カードをタップで選択、各カード下の \u21bb で引き直し（各 {r} 回）'},
+  'ko':{title:'카드 뽑기',pass:'패시브',act:'액티브',reroll:'이 카드 다시 뽑기 (남은 {n}회)',sub:'{i} / 4장 \u2014 카드를 눌러 선택, 카드 아래 \u21bb 로 다시 뽑기 (각 {r}회)'}
+};
+function cardUiTxt(k){ var lang=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; var M=CARD_UI_TXT[lang]||CARD_UI_TXT['zh-Hant']; return (M[k]!=null)?M[k]:CARD_UI_TXT['zh-Hant'][k]; }
+function cardTypeLabel(ty){ return ty==='active'?cardUiTxt('act'):cardUiTxt('pass'); }
+var CARD_DESC_TMPL={en:["ATK +#.","DEF +#.","HP +#.","ATK +#%.","DEF +#%.","HP ×#.#.","ATK +#, DEF +#.","ATK +#, HP +#.","DEF +#, HP +#.","ATK +#, DEF +#, HP +#.","Heal for #% of the damage you deal.","Reflect #% of the damage you take back at the foe.","Attacks ignore #% of the foe's DEF.","Each attack deals # extra true damage (ignores DEF).","Each attack deals extra true damage equal to #% of the foe's current HP (ignores DEF).","Each attack deals extra damage equal to #% of the foe's current HP.","Attacks have a #% chance to stun the foe, skipping its next turn.","When HP is above #%, ATK ×#.#.","For each debuff on the foe (ATK or DEF reduced), your damage +#%.","Against foes with HP above #%, deal +#% damage.","When the foe's HP is below #%, your damage +#%.","Attacks have a #% chance to trigger an extra basic attack.","After taking a hit, your next attack deals +#% damage.","Each hit lowers the foe's ATK by # (stacks all match).","Each hit lowers the foe's DEF by # (stacks all match).","The more HP you've lost, the more damage you deal (up to +#%).","Add #% of your DEF to your ATK.","Add #% of your current HP to your ATK.","Damage taken reduced by #%.","#% chance to fully dodge the foe's attack.","Reduce damage from heavy strikes by #%.","Restore # HP every # turns.","The first # hits you take deal half damage.","Start the match with a # shield.","Each turn, ATK +# (stacks all match).","Each turn, DEF +# (stacks all match).","Each hit steals # ATK from the foe.","Each hit steals # DEF from the foe.","When HP is below #%, ATK ×#.#.","When HP is below #%, ATK ×#.","When the foe's DEF is higher than yours, your damage +#%.","When the foe's ATK is higher than yours, damage taken -#%.","When the foe's HP is higher than yours, your damage +#%.","The foe's healing is reduced by #%.","Restore # extra Energy each turn.","Restore # extra Stamina each turn.","Your first attack deals +#% damage.","[Active] This turn, attack damage ×#.#. (costs # Energy · # uses/match)","[Active] This turn, attack damage ×#. (costs # Energy · # uses/match)","[Active] Instantly restore # HP. (costs # Energy · # uses/match)","[Active] Fully block the foe's next # attack(s). (costs # Energy · # uses/match)","[Active] Lower the foe's DEF by #% for # turns. (costs # Energy · # uses/match)","[Active] The foe cannot attack for the next # turn(s). (costs # Energy · # uses/match)","[Active] For the next # turns, ATK +#%. (costs # Energy · # uses/match)","[Active] For the next # turns, DEF +#%. (costs # Energy · # uses/match)","[Active] Drain # Energy and Stamina from the foe. (costs # Energy · # uses/match)","[Active] For the next # turns, reflect #% of damage taken. (costs # Energy · # uses/match)","[Active] Instantly deal true damage equal to #% of the foe's current HP. (costs # Energy · # uses/match)","[Active] Clear all debuffs from yourself and restore #% Stamina. (costs # Energy · # uses/match)","[Active] Attack one extra time this turn. (costs # Energy · # uses/match)","ATK +#%, but DEF -#%.","DEF +#%, but ATK -#%.","ATK +#%, but HP ×#.#.","HP ×#.#, but ATK -#%.","When you'd take lethal damage, survive on # HP instead (# time(s)/match).","Hits poison the foe for # HP loss per turn (stackable).","Every # attacks, your next hit is a heavy strike dealing ×# damage.","Accuracy +#% (harder to miss).","Deal +#% damage to shielded foes.","On consecutive hits, +#% damage each (resets on a miss).","When hit by a heavy strike, reflect #% of that damage back.","[Active] Instantly gain a # shield. (costs # Energy · # uses/match)","[Active] For the next # turns, ATK +#. (costs # Energy · # uses/match)","[Active] Instantly kill the foe if its HP is below #%; otherwise deal minor true damage. (costs # Energy · # uses/match)","Hits cause bleed for # HP loss per turn (stackable).","Hits cause burn for # HP loss per turn (stackable).","Each hit drains # Energy from the foe.","Each hit drains # Stamina from the foe (making it miss more).","Reduce all damage taken by # (flat).","Cap damage taken per hit at #.","Immune to all damage for the first # turn(s).","When HP is below #%, damage taken -#%.","Immune to ATK/DEF-reduction debuffs.","The more Stamina you have, the more damage you deal (up to +#% at full).","The more Energy you have, the more damage you deal (up to +#% at full).","After dodging, immediately counter for #% of your ATK.","Each hit grants a # shield.","Each hit taken grants a # shield.","Each turn, automatically clear one debuff from yourself.","When hit with an ATK/DEF reduction, reflect the same debuff onto the foe.","Deal +#% damage to poisoned/bleeding/burning foes.","Each turn, bonus true damage on attacks +# (stacks all match).","Your first attack adds an extra strike for #% of your ATK.","ATK +#, and heal for #% of the damage you deal.","ATK +#, and ignore #% of the foe's DEF.","DEF +#, and reflect #% of damage taken.","DEF +#, and restore # HP every # turns.","ATK +#, and each attack deals # bonus true damage.","HP +#, and restore # HP every # turns.","[Active] This turn, attacks lifesteal for #%. (costs # Energy · # uses/match)","[Active] Immune to all damage for the next # turn(s). (costs # Energy · # uses/match)","[Active] Clear all debuffs and restore #% Stamina. (costs # Energy · # uses/match)","[Active] Lower the foe's ATK and DEF by #% each for # turns. (costs # Energy · # uses/match)","[Active] Sacrifice #% of current HP to double this turn's damage. (costs # Energy · # uses/match)","When your HP is lower than the foe's, your damage +#%.","For the first # turns, your ATK +#%.","After turn #, your ATK +#%.","When the foe's HP is below #%, you strike faster and add an extra hit (#% damage).","ATK +#, and hits poison the foe (# HP loss/turn).","ATK +#%, and ignore #% of the foe's DEF.","DEF +#%, and restore # HP every # turns."],ja:["攻撃力 +#。","防御力 +#。","HP +#。","攻撃力 +#%。","防御力 +#%。","HP ×#.#。","攻撃力 +#、防御力 +#。","攻撃力 +#、HP +#。","防御力 +#、HP +#。","攻撃 +#、防御 +#、HP +#。","与えたダメージの #% を HP として回復。","受けたダメージの #% を相手に反射。","攻撃が相手の防御力 #% を無視。","攻撃ごとに # の貫通ダメージを追加（防御無視）。","攻撃ごとに相手の現在 HP の #% の貫通ダメージを追加（防御無視）。","攻撃ごとに相手の現在 HP の #% のダメージを追加。","攻撃時 #% の確率で相手をスタンさせ、次のターンをスキップ。","HP が #% 超のとき、攻撃力 ×#.#。","相手が受けている弱体（攻/防低下）1つにつき、与ダメージ +#%。","HP が #% 超の相手へ与ダメージ +#%。","相手の HP が #% 未満のとき、与ダメージ +#%。","攻撃時 #% の確率で通常攻撃を追加。","攻撃を受けるたび、次の攻撃ダメージ +#%。","命中するたび相手の攻撃力 -#（試合中累積）。","命中するたび相手の防御力 -#（試合中累積）。","失った HP が多いほど与ダメージ増加（最大 +#%）。","自分の防御力の #% を攻撃力に加算。","自分の現在 HP の #% を攻撃力に加算。","受けるダメージ #% 減少。","#% の確率で相手の攻撃を完全回避。","強打を受けたとき、そのダメージ #% 減少。","# ターンごとに HP を # 回復。","最初に受ける # 回の攻撃はダメージ半減。","開戦時に # のシールドを獲得。","1 ターンごとに攻撃力 +#（試合中累積）。","1 ターンごとに防御力 +#（試合中累積）。","命中するたび相手の攻撃力を # 奪う。","命中するたび相手の防御力を # 奪う。","HP が #% 未満のとき、攻撃力 ×#.#。","HP が #% 未満のとき、攻撃力 ×#。","相手の防御力が自分より高いとき、与ダメージ +#%。","相手の攻撃力が自分より高いとき、受けるダメージ -#%。","相手の HP が自分より高いとき、与ダメージ +#%。","相手の回復効果を #% 減少。","毎ターン エネルギーを # 追加回復。","毎ターン スタミナを # 追加回復。","最初の攻撃の与ダメージ +#%。","【アクティブ】このターンの攻撃ダメージ ×#.#。（エネルギー #消費・1試合 #回）","【アクティブ】このターンの攻撃ダメージ ×#。（エネルギー #消費・1試合 #回）","【アクティブ】HP を # 回復。（エネルギー #消費・1試合 #回）","【アクティブ】相手の次の # 回の攻撃を完全ガード。（エネルギー #消費・1試合 #回）","【アクティブ】相手の防御力を #% 低下、# ターン持続。（エネルギー #消費・1試合 #回）","【アクティブ】相手は次の # ターン攻撃不能。（エネルギー #消費・1試合 #回）","【アクティブ】次の # ターン、攻撃力 +#%。（エネルギー #消費・1試合 #回）","【アクティブ】次の # ターン、防御力 +#%。（エネルギー #消費・1試合 #回）","【アクティブ】相手のエネルギーとスタミナを # 吸収。（エネルギー #消費・1試合 #回）","【アクティブ】次の # ターン、受けたダメージの #% を反射。（エネルギー #消費・1試合 #回）","【アクティブ】相手の現在 HP の #% の貫通ダメージを即座に与える。（エネルギー #消費・1試合 #回）","【アクティブ】自身の全ての弱体を解除し、スタミナを #% 回復。（エネルギー #消費・1試合 #回）","【アクティブ】このターン、追加でもう1回攻撃。（エネルギー #消費・1試合 #回）","攻撃力 +#%、ただし防御力 -#%。","防御力 +#%、ただし攻撃力 -#%。","攻撃力 +#%、ただし HP ×#.#。","HP ×#.#、ただし攻撃力 -#%。","致命的なダメージを受けたとき、代わりに HP # で耐える（1試合 #回）。","命中で相手を毒状態にし、毎ターン HP を # 失わせる（累積可）。","# 回攻撃するごとに、次の一撃が強打となり ×# ダメージ。","命中率 +#%（外しにくくなる）。","シールド持ちの相手へ与ダメージ +#%。","連続ヒット中、毎回 +#% ダメージ（外すとリセット）。","強打を受けたとき、そのダメージの #% を相手に反射。","【アクティブ】# のシールドを獲得。（エネルギー #消費・1試合 #回）","【アクティブ】次の # ターン、攻撃力 +#。（エネルギー #消費・1試合 #回）","【アクティブ】相手の HP が #% 未満なら即撃破、それ以外は少量の貫通ダメージ。（エネルギー #消費・1試合 #回）","命中で出血させ、毎ターン HP を # 失わせる（累積可）。","命中で火傷させ、毎ターン HP を # 失わせる（累積可）。","命中するたび相手のエネルギーを # 削る。","命中するたび相手のスタミナを # 削る（相手が外しやすくなる）。","受けるダメージを毎回 # 追加軽減（固定値）。","1 回に受けるダメージを最大 # に制限。","開戦後最初の # ターン、ダメージ完全無効。","HP が #% 未満のとき、受けるダメージ -#%。","攻撃力・防御力低下（削攻/削防）の弱体を無効。","スタミナが高いほど与ダメージ増加（満タンで最大 +#%）。","エネルギーが高いほど与ダメージ増加（満タンで最大 +#%）。","回避後、即座に反撃し攻撃力の #% のダメージ。","命中するたび # のシールドを獲得。","攻撃を受けるたび # のシールドを獲得。","毎ターン、自身の弱体を1つ自動解除。","攻防低下を受けたとき、同じ弱体を相手に反射。","毒/出血/火傷状態の相手へ与ダメージ +#%。","1 ターンごとに攻撃の貫通ダメージ +#（試合中累積）。","最初の攻撃時、攻撃力の #% の一撃を追加。","攻撃力 +#、さらに与えたダメージの #% を回復。","攻撃力 +#、さらに相手の防御 #% を無視。","防御力 +#、さらに受けたダメージの #% を反射。","防御力 +#、さらに # ターンごとに HP を # 回復。","攻撃力 +#、さらに攻撃ごとに # の貫通ダメージ。","HP +#、さらに # ターンごとに HP を # 回復。","【アクティブ】このターンの攻撃に #% の吸血を付与。（エネルギー #消費・1試合 #回）","【アクティブ】次の # ターン、ダメージ完全無効。（エネルギー #消費・1試合 #回）","【アクティブ】全ての弱体を解除し、スタミナを #% 回復。（エネルギー #消費・1試合 #回）","【アクティブ】相手の攻撃・防御を各 #% 低下、# ターン持続。（エネルギー #消費・1試合 #回）","【アクティブ】現在 HP の #% を犠牲にし、このターンのダメージを2倍に。（エネルギー #消費・1試合 #回）","自分の HP が相手より低いとき、与ダメージ +#%。","最初の # ターン、攻撃力 +#%。","# ターン以降、攻撃力 +#%。","相手の HP が #% 未満のとき攻撃速度が上がり、一撃追加（#% ダメージ）。","攻撃力 +#、さらに命中で相手を毒状態に（毎ターン HP -#）。","攻撃力 +#%、さらに相手の防御 #% を無視。","防御力 +#%、さらに # ターンごとに HP を # 回復。"],ko:["공격력 +#.","방어력 +#.","생명 +#.","공격력 +#%.","방어력 +#%.","생명 ×#.#.","공격력 +#, 방어력 +#.","공격력 +#, 생명 +#.","방어력 +#, 생명 +#.","공격 +#, 방어 +#, 생명 +#.","입힌 피해의 #%를 생명으로 회복.","받은 피해의 #%를 상대에게 반사.","공격이 상대 방어력의 #%를 무시.","공격마다 고정 피해 #를 추가로 입힘(방어 무시).","공격마다 상대 현재 생명의 #%만큼 고정 피해 추가(방어 무시).","공격마다 상대 현재 생명의 #%만큼 피해 추가.","공격 시 #% 확률로 상대를 기절시켜 다음 턴을 건너뜀.","생명이 #% 초과일 때, 공격력 ×#.#.","상대가 받은 약화(공/방 감소) 하나당 피해 +#%.","생명이 #% 초과인 상대에게 피해 +#%.","상대 생명이 #% 미만일 때, 피해 +#%.","공격 시 #% 확률로 기본 공격 추가.","공격을 받은 후, 다음 공격 피해 +#%.","명중할 때마다 상대 공격력 -#(매치 내 누적).","명중할 때마다 상대 방어력 -#(매치 내 누적).","잃은 생명이 많을수록 피해 증가(최대 +#%).","자신 방어력의 #%를 공격력에 추가.","자신 현재 생명의 #%를 공격력에 추가.","받는 피해 #% 감소.","#% 확률로 상대 공격을 완전 회피.","강타를 받을 때 그 피해 #% 감소.","# 턴마다 생명 # 회복.","처음 받는 # 번의 공격은 피해 절반.","전투 시작 시 보호막 # 획득.","매 턴 공격력 +#(매치 내 누적).","매 턴 방어력 +#(매치 내 누적).","명중할 때마다 상대 공격력 # 훔침.","명중할 때마다 상대 방어력 # 훔침.","생명이 #% 미만일 때, 공격력 ×#.#.","생명이 #% 미만일 때, 공격력 ×#.","상대 방어력이 자신보다 높을 때, 피해 +#%.","상대 공격력이 자신보다 높을 때, 받는 피해 -#%.","상대 생명이 자신보다 높을 때, 피해 +#%.","상대의 회복 효과 #% 감소.","매 턴 에너지 # 추가 회복.","매 턴 스태미나 # 추가 회복.","첫 공격의 피해 +#%.","【액티브】이번 턴 공격 피해 ×#.#. (에너지 # 소모 · 매치당 #회)","【액티브】이번 턴 공격 피해 ×#. (에너지 # 소모 · 매치당 #회)","【액티브】생명을 # 회복. (에너지 # 소모 · 매치당 #회)","【액티브】상대의 다음 # 번 공격을 완전 방어. (에너지 # 소모 · 매치당 #회)","【액티브】상대 방어력 #% 감소, # 턴 지속. (에너지 # 소모 · 매치당 #회)","【액티브】상대가 다음 # 턴 동안 공격 불가. (에너지 # 소모 · 매치당 #회)","【액티브】다음 # 턴 동안 공격력 +#%. (에너지 # 소모 · 매치당 #회)","【액티브】다음 # 턴 동안 방어력 +#%. (에너지 # 소모 · 매치당 #회)","【액티브】상대의 에너지와 스태미나를 # 흡수. (에너지 # 소모 · 매치당 #회)","【액티브】다음 # 턴 동안 받은 피해의 #% 반사. (에너지 # 소모 · 매치당 #회)","【액티브】상대 현재 생명의 #%만큼 고정 피해를 즉시 입힘. (에너지 # 소모 · 매치당 #회)","【액티브】자신의 모든 약화를 해제하고 스태미나 #% 회복. (에너지 # 소모 · 매치당 #회)","【액티브】이번 턴 추가로 한 번 더 공격. (에너지 # 소모 · 매치당 #회)","공격력 +#%, 그러나 방어력 -#%.","방어력 +#%, 그러나 공격력 -#%.","공격력 +#%, 그러나 생명 ×#.#.","생명 ×#.#, 그러나 공격력 -#%.","치명적 피해를 받을 때 대신 생명 #로 생존(매치당 #회).","명중 시 상대를 중독시켜 매 턴 생명 # 감소(중첩 가능).","# 번 공격마다 다음 일격이 강타가 되어 ×# 피해.","명중률 +#%(빗나갈 확률 감소).","보호막이 있는 상대에게 피해 +#%.","연속 명중 시 매번 +#% 피해(빗나가면 초기화).","강타를 받을 때 그 피해의 #%를 상대에게 반사.","【액티브】보호막 # 획득. (에너지 # 소모 · 매치당 #회)","【액티브】다음 # 턴 동안 공격력 +#. (에너지 # 소모 · 매치당 #회)","【액티브】상대 생명이 #% 미만이면 즉시 처치, 아니면 소량 고정 피해. (에너지 # 소모 · 매치당 #회)","명중 시 출혈시켜 매 턴 생명 # 감소(중첩 가능).","명중 시 화상시켜 매 턴 생명 # 감소(중첩 가능).","명중할 때마다 상대 에너지 # 감소.","명중할 때마다 상대 스태미나 # 감소(상대가 더 잘 빗나감).","받는 피해를 매번 # 추가 감소(고정값).","한 번에 받는 피해를 최대 #로 제한.","전투 시작 후 처음 # 턴 동안 피해 완전 면역.","생명이 #% 미만일 때, 받는 피해 -#%.","공격/방어 감소(약화) 효과에 면역.","스태미나가 높을수록 피해 증가(가득 찰 때 최대 +#%).","에너지가 높을수록 피해 증가(가득 찰 때 최대 +#%).","회피 후 즉시 반격하여 공격력의 #% 피해.","명중할 때마다 보호막 # 획득.","공격을 받을 때마다 보호막 # 획득.","매 턴 자신의 약화 효과 하나를 자동 해제.","공격/방어 감소를 받을 때 같은 약화를 상대에게 반사.","중독/출혈/화상 상태의 상대에게 피해 +#%.","매 턴 공격의 고정 피해 +#(매치 내 누적).","첫 공격 시 공격력의 #%만큼 추가 일격.","공격력 +#, 입힌 피해의 #% 회복.","공격력 +#, 상대 방어 #% 무시.","방어력 +#, 받은 피해의 #% 반사.","방어력 +#, # 턴마다 생명 # 회복.","공격력 +#, 공격마다 고정 피해 # 추가.","생명 +#, # 턴마다 생명 # 회복.","【액티브】이번 턴 공격에 흡혈 #% 부여. (에너지 # 소모 · 매치당 #회)","【액티브】다음 # 턴 동안 피해 완전 면역. (에너지 # 소모 · 매치당 #회)","【액티브】모든 약화를 해제하고 스태미나 #% 회복. (에너지 # 소모 · 매치당 #회)","【액티브】상대 공격·방어를 각각 #% 감소, # 턴 지속. (에너지 # 소모 · 매치당 #회)","【액티브】현재 생명의 #%를 희생하여 이번 턴 피해 2배. (에너지 # 소모 · 매치당 #회)","자신 생명이 상대보다 낮을 때, 피해 +#%.","처음 # 턴 동안 공격력 +#%.","# 턴 이후 공격력 +#%.","상대 생명이 #% 미만일 때 공격 속도가 올라 추가 일격(#% 피해).","공격력 +#, 명중 시 상대를 중독(매 턴 생명 -#).","공격력 +#%, 상대 방어 #% 무시.","방어력 +#%, # 턴마다 생명 # 회복."]};
+var CARD_TMPL_IDX={"atk_a":0,"atk_b":0,"atk_c":0,"atk_d":0,"atk_e":0,"def_a":1,"def_b":1,"def_c":1,"def_d":1,"def_e":1,"hp_a":2,"hp_b":2,"hp_c":2,"hp_d":2,"hp_e":2,"atkp_a":3,"atkp_b":3,"atkp_c":3,"atkp_d":3,"atkp_e":3,"defp_a":4,"defp_b":4,"defp_c":4,"defp_d":4,"defp_e":4,"hpp_a":5,"hpp_b":5,"hpp_c":5,"hpp_d":5,"hpp_e":5,"ad_a":6,"ad_b":6,"ad_c":6,"ah_a":7,"ah_b":7,"ah_c":7,"dh_a":8,"dh_b":8,"dh_c":8,"all_a":9,"all_b":9,"ls_a":10,"ls_b":10,"ls_c":10,"ls_d":10,"th_a":11,"th_b":11,"th_c":11,"th_d":11,"pc_a":12,"pc_b":12,"pc_c":12,"pc_d":12,"tf_a":13,"tf_b":13,"tf_c":13,"tf_d":13,"tm_a":14,"tm_b":14,"tm_c":14,"tm_d":14,"ch_a":15,"ch_b":15,"st_a":16,"st_b":16,"hh_a":17,"hh_b":17,"ds_a":18,"vf_a":19,"ex_a":20,"ex_b":20,"ex_c":20,"cb_a":21,"cb_b":21,"cb_c":21,"rt_a":22,"rt_b":22,"rt_c":22,"ca_a":23,"ca_b":23,"ca_c":23,"cd_a":24,"cd_b":24,"cd_c":24,"cbk_a":25,"cbk_b":25,"cbk_c":25,"dta_a":26,"dta_b":26,"dta_c":26,"hta_a":27,"hta_b":27,"hta_c":27,"dr_a":28,"dr_b":28,"dr_c":28,"dr_d":28,"dg_a":29,"dg_b":29,"dg_c":29,"ac_a":30,"ac_b":30,"ac_c":30,"rg_a":31,"rg_b":31,"rg_c":31,"fg_a":32,"fg_b":32,"fg_c":32,"bp_a":33,"bp_b":33,"bp_c":33,"bf_a":33,"bf_b":33,"bf_c":33,"ra_a":34,"ra_b":34,"ra_c":34,"rd_a":35,"rd_b":35,"rd_c":35,"sa_a":36,"sa_b":36,"sa_c":36,"sd_a":37,"sd_b":37,"sd_c":37,"lr_a":38,"lr_b":38,"lr_c":38,"lr_d":39,"vd_a":40,"vd_b":40,"va_a":41,"va_b":41,"vh_a":42,"vh_b":42,"ah_a2":43,"ah_b2":43,"ah_c2":43,"er_a":44,"er_b":44,"er_c":44,"sr_a":45,"sr_b":45,"sr_c":45,"op_a":46,"op_b":46,"op_c":46,"act_burst_a":47,"act_burst_b":48,"act_burst_c":47,"act_heal_a":49,"act_heal_b":49,"act_heal_c":49,"act_block_a":50,"act_block_b":50,"act_block_c":50,"act_break_a":51,"act_break_b":51,"act_break_c":51,"act_stun_a":52,"act_stun_b":52,"act_batk_a":53,"act_batk_b":53,"act_batk_c":53,"act_bdef_a":54,"act_bdef_b":54,"act_bdef_c":54,"act_drain_a":55,"act_drain_b":55,"act_drain_c":55,"act_refl_a":56,"act_refl_b":56,"act_true_a":57,"act_true_b":57,"act_cleanse_a":58,"act_haste_a":59,"bsk_a":60,"bsk_b":60,"bsk_c":60,"trt_a":61,"trt_b":61,"gls_a":62,"gls_b":62,"blw_a":63,"blw_b":63,"sv_a":64,"sv_b":64,"ps_a":65,"ps_b":65,"ps_c":65,"ce_a":66,"ce_b":66,"ce_c":66,"ac2_a":67,"ac2_b":67,"ac2_c":67,"vs_a":68,"vs_b":68,"mo_a":69,"mo_b":69,"mo_c":69,"rc_a":70,"rc_b":70,"act_sh_a":71,"act_sh_b":71,"act_sh_c":71,"act_ba_a":72,"act_ba_b":72,"act_ex_a":73,"act_ex_b":73,"atk_f":0,"atk_g":0,"atk_h":0,"atk_i":0,"atk_j":0,"def_f":1,"def_g":1,"def_h":1,"def_i":1,"def_j":1,"hp_f":2,"hp_g":2,"hp_h":2,"hp_i":2,"hp_j":2,"atkp_f":3,"atkp_g":3,"atkp_h":3,"atkp_i":3,"defp_f":4,"defp_g":4,"defp_h":4,"defp_i":4,"hpp_f":5,"hpp_g":5,"hpp_h":5,"hpp_i":5,"bl_a":74,"bl_b":74,"bl_c":74,"bn_a":75,"bn_b":75,"bn_c":75,"ds2_a":76,"ds2_b":76,"ds2_c":76,"dst_a":77,"dst_b":77,"dst_c":77,"fr_a":78,"fr_b":78,"fr_c":78,"dc_a":79,"dc_b":79,"iv_a":80,"iv_b":80,"ls2_a":81,"ls2_b":81,"idb_a":82,"idb_b":82,"sp_a":83,"sp_b":83,"ep_a":84,"ep_b":84,"cdge_a":85,"cdge_b":85,"soh_a":86,"soh_b":86,"sot_a":87,"sot_b":87,"cr_a":88,"cr_b":88,"rdb_a":89,"rdb_b":89,"vp_a":90,"vp_b":90,"rmp_a":91,"rmp_b":91,"ds3_a":92,"ds3_b":92,"ds3_c":92,"hyb_a":93,"hyb_b":93,"hyb_c":94,"hyb_d":94,"hyb_e":95,"hyb_f":95,"hyb_g":96,"hyb_h":96,"hyb_i":97,"hyb_j":97,"hyb_k":98,"hyb_l":98,"leg_atk":3,"leg_def":4,"leg_hp":5,"leg_all":9,"act_burst_d":48,"act_burst_e":47,"act_heal_d":49,"act_heal_e":49,"act_ls_a":99,"act_ls_b":99,"act_iv_a":100,"act_iv_b":100,"act_cl_a":101,"act_cl_b":101,"act_curse_a":102,"act_curse_b":102,"act_thorn_a":56,"act_thorn_b":56,"act_atk2_a":103,"act_atk2_b":103,"vd2_a":104,"vd2_b":104,"atr_a":105,"atr_b":105,"atr_c":105,"dtr_a":106,"dtr_b":106,"dtr_c":106,"exx_a":107,"exx_b":107,"atk_k":0,"atk_l":0,"atk_m":0,"atk_n":0,"atk_o":0,"atk_p":0,"def_k":1,"def_l":1,"def_m":1,"def_n":1,"def_o":1,"def_p":1,"hp_k":2,"hp_l":2,"hp_m":2,"hp_n":2,"hp_o":2,"hp_p":2,"atkp_j":3,"atkp_k":3,"atkp_l":3,"atkp_m":3,"defp_j":4,"defp_k":4,"defp_l":4,"defp_m":4,"ad_d":6,"ad_e":6,"ad_f":6,"ad_g":6,"ad_h":6,"ah_d":7,"ah_e":7,"ah_f":7,"ah_g":7,"ah_h":7,"dh_d":8,"dh_e":8,"dh_f":8,"dh_g":8,"dh_h":8,"all_c":9,"all_d":9,"all_e":9,"all_f":9,"ls_e":10,"ls_f":10,"th_e":11,"th_f":11,"pc_e":12,"pc_f":12,"dr_e":28,"dr_f":28,"dg_d":29,"dg_e":29,"tf_e":13,"tf_f":13,"cbk_d":25,"cbk_e":25,"lr_e":38,"lr_f":38,"rg_d":31,"rg_e":31,"hyb_m":95,"hyb_n":95,"hyb_o":108,"hyb_p":108,"hyb_q":109,"hyb_r":109,"hyb_s":110,"hyb_t":110,"act_burst_f":47,"act_burst_g":47,"act_heal_f":49,"act_heal_g":49,"act_sh_d":71,"act_sh_e":71,"act_break_d":51,"act_break_e":51,"act_true_c":57,"act_true_d":57,"act_drain_d":55,"act_drain_e":55,"vd_c":40,"ex_e":20,"ex_f":20,"mo_d":69,"mo_e":69,"rt_d":22,"rt_e":22,"atk_q":0,"atk_r":0,"atk_s":0,"atk_t":0,"atk_u":0,"def_q":1,"def_r":1,"def_s":1,"def_t":1,"def_u":1,"hp_q":2,"hp_r":2,"hp_s":2,"hp_t":2,"atkp_n":3,"atkp_o":3,"atkp_p":3,"defp_n":4,"defp_o":4,"defp_p":4,"hpp_j":5,"hpp_k":5,"ad_i":6,"ad_j":6,"ad_k":6,"ad_l":6,"ah_i":7,"ah_j":7,"ah_k":7,"ah_l":7,"dh_i":8,"dh_j":8,"dh_k":8,"dh_l":8,"ls_g":10,"ls_h":10,"ls_i":10,"th_g":11,"th_h":11,"th_i":11,"pc_g":12,"pc_h":12,"pc_i":12,"dr_g":28,"dr_h":28,"dr_i":28,"tf_g":13,"tf_h":13,"tf_i":13,"ex_g":20,"ex_h":20,"ra_d":34,"ra_e":34,"rd_d":35,"rd_e":35,"act_burst_h":47,"act_burst_i":47,"act_heal_h":49,"act_heal_i":49,"act_batk_d":53,"act_batk_e":53,"act_bdef_d":54,"act_bdef_e":54,"atk_v":0,"atk_w":0,"atk_x":0,"atk_y":0,"atk_z":0,"def_v":1,"def_w":1,"def_x":1,"def_y":1,"def_z":1,"hp_u":2,"hp_v":2,"hp_w":2,"ad_m":6,"ad_n":6,"ls_j":10,"pc_j":12,"dg_f":29,"th_j":11,"act_burst_j":47,"act_heal_j":49,"act_sh_f":71};
+function _fillTmpl(t,nums){ var i=0; return t.replace(/#/g,function(){ var v=nums[i]; i++; return (v!=null)?v:'#'; }); }
+function cardDescGen(id,lang){ var ix=CARD_TMPL_IDX[id]; if(ix==null) return null; var arr=CARD_DESC_TMPL[lang]; if(!arr||arr[ix]==null) return null; var c=cardById(id); if(!c) return null; var nums=(c.desc.match(/\d+/g))||[]; return _fillTmpl(arr[ix],nums); }
+function cardName(id){ var c=cardById(id); if(!c) return id; var lang=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(lang==='zh-Hant') return c.name; var L=CARD_L10N[lang]; if(L&&L[id]&&L[id].n) return L[id].n; if(lang==='zh-Hans') return t2sCard(c.name); return c.name; }
+function cardDesc(id){ var c=cardById(id); if(!c) return ''; var lang=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(lang==='zh-Hant') return c.desc; var L=CARD_L10N[lang]; if(L&&L[id]&&L[id].d) return L[id].d; if(lang==='zh-Hans') return t2sCard(c.desc); var g=(typeof cardDescGen==='function')?cardDescGen(id,lang):null; if(g!=null) return g; return c.desc; }
+function cardById(id){ for(var i=0;i<CARD_POOL.length;i++){ if(CARD_POOL[i].id===id) return CARD_POOL[i]; } return null; }
+var _draft=null;
+const CARD_REROLLS=5;   /* 每張卡各自可重抽的次數（每次抽選的 3 張各 5 次） */
+function openCardDraft(onDone){ _draft={ picks:0, chosen:[], rerolls:[CARD_REROLLS,CARD_REROLLS,CARD_REROLLS], current:[], onDone:onDone }; _draftDeal(); show('cardDraft'); }
+function _cardWeight(c){ return c&&c.rarity==='rare'?1:(c&&c.rarity==='good'?3:6); }   /* 稀有度加權：普通 6 / 優 3 / 稀有 1 */
+function _draftPickWeighted(pool){ var tot=0,i; for(i=0;i<pool.length;i++) tot+=_cardWeight(pool[i]); if(tot<=0) return 0; var r=Math.random()*tot; for(i=0;i<pool.length;i++){ r-=_cardWeight(pool[i]); if(r<=0) return i; } return pool.length-1; }
+function _draftDeal(){
+  var chosen=_draft.chosen, pool=CARD_POOL.filter(function(c){ return chosen.indexOf(c.id)<0; }).slice(), out=[];
+  for(var k=0;k<3 && pool.length;k++){ var idx=_draftPickWeighted(pool); out.push(pool[idx]); pool.splice(idx,1); }
+  _draft.current=out; _draft.rerolls=[CARD_REROLLS,CARD_REROLLS,CARD_REROLLS]; _draftRender();   /* 每次抽選重置每張的重抽次數 */
+}
+function _draftRender(){
+  var host=byId('cdCards'); if(!host) return; host.innerHTML='';
+  _draft.current.forEach(function(c,i){
+    var el=document.createElement('div'); el.className='cdCard '+c.rarity;
+    var ty=document.createElement('div'); ty.className='cdCardType '+c.type; ty.textContent=cardTypeLabel(c.type);
+    var nm=document.createElement('div'); nm.className='cdCardName'; nm.textContent=cardName(c.id);
+    var ds=document.createElement('div'); ds.className='cdCardDesc'; ds.textContent=cardDesc(c.id);
+    el.appendChild(ty); el.appendChild(nm); el.appendChild(ds);
+    el.addEventListener('click',function(){ _draftPick(i); });   /* 點卡片＝選取這張 */
+    var left=_draft.rerolls[i]|0;
+    var rb=document.createElement('button'); rb.className='cdRerollBtn'; rb.textContent='\u21bb '+left; rb.disabled=(left<=0); rb.title=fmt(cardUiTxt('reroll'),{n:left});
+    rb.addEventListener('click',function(ev){ ev.stopPropagation(); _draftRerollSlot(i); });   /* 點重抽鈕＝只換這一張，不會選取 */
+    el.appendChild(rb);
+    host.appendChild(el);
+  });
+  var sub=byId('cdSub'); if(sub) sub.textContent=fmt(cardUiTxt('sub'),{i:(_draft.picks+1),r:CARD_REROLLS});
+  var tt=byId('cdTitle'); if(tt) tt.textContent=cardUiTxt('title');
+}
+function _draftPick(i){ if(!_draft) return; var c=_draft.current[i]; if(!c) return; _draft.chosen.push(c.id); _draft.picks++; if(_draft.picks>=4) _draftFinish(); else _draftDeal(); }
+function _draftRerollSlot(slot){
+  if(!_draft || slot<0 || slot>2) return; if((_draft.rerolls[slot]|0)<=0) return;
+  var chosen=_draft.chosen, curIds=_draft.current.map(function(c){return c.id;});
+  var avail=CARD_POOL.filter(function(c){ return chosen.indexOf(c.id)<0 && curIds.indexOf(c.id)<0; });   /* 換一張沒被選過、也不在目前 3 張裡的新卡 */
+  if(!avail.length) return;
+  _draft.current[slot]=avail[_draftPickWeighted(avail)]; _draft.rerolls[slot]--; _draftRender();
+}
+function _draftFinish(){ var picked=_draft.chosen.slice(); if(typeof MP!=='undefined'&&MP.arena) MP.arena.myCards=picked; if(state.player) state.player.arenaCards=picked; hide('cardDraft'); var cb=_draft.onDone; _draft=null; if(typeof cb==='function') cb(); }
+
 function startArenaRun(){
   state.mode='arena';
   state.player=freshPlayer();
@@ -6964,6 +7604,7 @@ function arenaBuy(stat){
 }
 function arenaReady(){
   const ar=MP.arena, pl=state.player; if(!ar||ar.ready||!pl) return;
+  if(!ar.cardsDrafted){ openCardDraft(function(){ ar.cardsDrafted=true; arenaReady(); }); return; }   /* 準備完成前先抽選 4 張卡 */
   ar.ready=true; if(!ar.players) ar.players={};
   const me=Net.uid||'me';
   ar.players[me]={ ready:true, name:MP.myName||'', team:ar.myTeam, hp:pl.hp, atk:pl.atk, def:pl.def };
@@ -7092,16 +7733,182 @@ function renderArenaDuel(fa,fb){
 /* ===== Arena duel skill engine (faithful re-impl of single-player skill effects, fighter-vs-fighter) ===== */
 function arenaIsDef(id){ var s=SKILL_BY_ID[id]; return !!(s && s.div!=null); }
 function arenaCanUse(f,id){ var s=SKILL_BY_ID[id]; return !!(s && f.en>=(s.en||0) && f.stam>=(s.stam||0)); }
-function arenaNewFighter(st){ return { uid:st.uid, name:st.name, ai:!!st.ai, hp:st.hp, maxhp:st.hp, atk:st.atk, def:st.def, thrA:st.thrA||START.thrA, en:100, stam:100, lv:1, atkBuff:0, defDebuff:0, shieldBonus:0, shieldHits:0, skip:false }; }
-function arenaSideDmg(att,def,attAct,defAct){
+function arenaApplyCards(f, ids){
+  if(!ids || !ids.length) return f;
+  var aF=0,dF=0,hF=0,aM=1,dM=1,hM=1,ls=0,th=0,pi=0,dr=0,dg=0,tru=0,fdr=0;
+  var lowHp=0,lowMul=1,highHp=0,highMul=1,rage=0,execHp=0,execB=0,vsFull=0,dbSyn=0;
+  var earlyA=0,lateA=0,vhDef=0,vhAtk=0,vhHp=0,hpAdv=0,stamS=0,enS=0,hpA=0,dfA=0;
+  var heavyN=0,heavyM=1,mom=0,ret=0,rampA=0,rampD=0,rampT=0,curHp=0,curHpT=0;
+  var dot=0,regN=0,regF=0,capF=0,invR=0,shF=0,shHit=0,shHurt=0,enR=0,stR=0;
+  var stunC=0,dodgeC=0,reflH=0,heavyTC=0,curseA=0,curseD=0,fhcN=0,fhc=0,surv=0,antiH=0,immD=0,cleanseER=0,reflD=0,vsdot=0,extraH=0,execX=0,firstD=0,openerB=0,vsShld=0,drEn=0,drStam=0;
+  var accur=0,lowDefHp=0,lowDR=0,stealA=0,stealD=0;
+  for(var i=0;i<ids.length;i++){ var c=(typeof cardById==='function')?cardById(ids[i]):null; if(!c||!c.eff) continue; var e=c.eff;
+    if(e.atkAdd)aF+=e.atkAdd; if(e.defAdd)dF+=e.defAdd; if(e.hpAdd)hF+=e.hpAdd;
+    if(e.atkMul)aM*=e.atkMul; if(e.defMul)dM*=e.defMul; if(e.hpMul)hM*=e.hpMul;
+    if(e.lifesteal)ls+=e.lifesteal; if(e.thorns)th+=e.thorns; if(e.pierce)pi+=e.pierce;
+    if(e.dr)dr+=e.dr; if(e.dodge)dg+=e.dodge; if(e.trueHit)tru+=e.trueHit; if(e.flatDR)fdr+=e.flatDR;
+    if(e.lowHp){ lowHp=Math.max(lowHp,e.lowHp); lowMul*=(e.lowAtkMul||1); }
+    if(e.highHp){ highHp=Math.max(highHp,e.highHp); highMul*=(e.highAtkMul||1); }
+    if(e.rageMax)rage+=e.rageMax;
+    if(e.execHp){ execHp=Math.max(execHp,e.execHp); execB+=(e.execBonus||0); }
+    if(e.vsFullHp)vsFull+=e.vsFullHp; if(e.debuffSynergy)dbSyn+=e.debuffSynergy;
+    if(e.earlyAtk)earlyA+=e.earlyAtk; if(e.lateAtk)lateA+=e.lateAtk;
+    if(e.vsHighDef)vhDef+=e.vsHighDef; if(e.vsHighAtk)vhAtk+=e.vsHighAtk; if(e.vsHighHp)vhHp+=e.vsHighHp; if(e.vsHpAdv)hpAdv+=e.vsHpAdv;
+    if(e.stamScale)stamS+=e.stamScale; if(e.enScale)enS+=e.enScale;
+    if(e.hpToAtk)hpA+=e.hpToAtk; if(e.defToAtk)dfA+=e.defToAtk;
+    if(e.heavyEveryN){ heavyN=heavyN?Math.min(heavyN,e.heavyEveryN):e.heavyEveryN; heavyM*=(e.heavyMul||1); }
+    if(e.momentum)mom+=e.momentum; if(e.retaliate)ret+=e.retaliate;
+    if(e.rampAtk)rampA+=e.rampAtk; if(e.rampDef)rampD+=e.rampDef; if(e.rampTrue)rampT+=e.rampTrue;
+    if(e.curHpDmg)curHp+=e.curHpDmg; if(e.curHpTrue)curHpT+=e.curHpTrue;
+    if(e.bleed)dot+=e.bleed; if(e.burn)dot+=e.burn; if(e.poison)dot+=e.poison;
+    if(e.regenN){ regN=regN?Math.min(regN,e.regenN):e.regenN; regF+=(e.regenFlat||0); }
+    if(e.dmgCapFlat)capF=capF?Math.min(capF,e.dmgCapFlat):e.dmgCapFlat;
+    if(e.invulnRounds)invR+=e.invulnRounds;
+    if(e.shieldFlat)shF+=e.shieldFlat; if(e.shieldOnHit)shHit+=e.shieldOnHit; if(e.shieldOnHurt)shHurt+=e.shieldOnHurt;
+    if(e.enRegen)enR+=e.enRegen; if(e.stamRegen)stR+=e.stamRegen;
+    if(e.stunChance)stunC+=e.stunChance; if(e.dodgeCounter)dodgeC=Math.max(dodgeC,e.dodgeCounter); if(e.reflectHeavy)reflH+=e.reflectHeavy; if(e.heavyTakenCut)heavyTC=Math.max(heavyTC,e.heavyTakenCut);
+    if(e.curseAtk)curseA+=e.curseAtk; if(e.curseDef)curseD+=e.curseDef;
+    if(e.firstHitCutN){ fhcN=Math.max(fhcN,e.firstHitCutN); fhc=Math.max(fhc,e.firstHitCut||0); }
+    if(e.survive)surv=1; if(e.antiHeal)antiH+=e.antiHeal; if(e.immuneDebuff)immD=1; if(e.cleanseEachRound)cleanseER=1; if(e.reflectDebuff)reflD=1;
+    if(e.vsDot)vsdot+=e.vsDot; if(e.extraHit)extraH+=e.extraHit; if(e.execExtra)execX+=e.execExtra; if(e.firstDouble)firstD+=e.firstDouble; if(e.openerBonus)openerB+=e.openerBonus; if(e.vsShield)vsShld+=e.vsShield;
+    if(e.drainEn)drEn+=e.drainEn; if(e.drainStam)drStam+=e.drainStam;
+    if(e.accuracy)accur+=e.accuracy; if(e.lowDefHp){ lowDefHp=Math.max(lowDefHp,e.lowDefHp); lowDR=Math.max(lowDR,e.lowDR||0); } if(e.stealAtk)stealA+=e.stealAtk; if(e.stealDef)stealD+=e.stealDef;
+  }
+  f.atk=Math.max(0,Math.round((f.atk+aF)*aM)); f.def=Math.max(0,Math.round((f.def+dF)*dM));
+  f.hp=Math.round((f.hp+hF)*hM); f.maxhp=Math.round((f.maxhp+hF)*hM);
+  f.lifesteal=Math.min(f.lifesteal+ls,LIFESTEAL_CAP); f.thorns+=th; f.pierce=Math.min(f.pierce+pi,90); f.dr=Math.min(f.dr+dr,90); f.dodge=Math.min(f.dodge+dg,75); f.trueHit+=tru; f.flatDR+=fdr;
+  f.lowHp=lowHp; f.lowAtkMul=lowMul; f.highHp=highHp; f.highAtkMul=highMul; f.rageMax=rage;
+  f.execHp=execHp; f.execBonus=execB; f.vsFullHp=vsFull; f.debuffSynergy=dbSyn;
+  f.earlyAtk=earlyA; f.lateAtk=lateA; f.vsHighDef=vhDef; f.vsHighAtk=vhAtk; f.vsHighHp=vhHp; f.vsHpAdv=hpAdv;
+  f.stamScale=stamS; f.enScale=enS; f.hpToAtk=hpA; f.defToAtk=dfA;
+  f.heavyEveryN=heavyN; f.heavyMul=heavyM; f.momentum=mom; f.retaliate=ret;
+  f.rampAtk=rampA; f.rampDef=rampD; f.rampTrue=rampT; f.curHpDmg=curHp; f.curHpTrue=curHpT;
+  f.dotApply=dot; f.regenN=regN; f.regenFlat=regF; f.dmgCapFlat=capF; f.invulnRounds=invR;
+  f.shieldOnHit=Math.round(shHit*SUSTAIN_MULT); f.shieldOnHurt=Math.round(shHurt*SUSTAIN_MULT); f.enRegen=enR; f.stamRegen=stR;
+  f.stunChance=stunC; f.dodgeCounter=dodgeC; f.reflectHeavy=reflH; f.heavyTakenCut=Math.min(heavyTC,90);
+  f.curseAtk=curseA; f.curseDef=curseD; f.firstHitCutN=fhcN; f.firstHitCut=fhc;
+  f.survive=surv; f.antiHeal=Math.min(antiH,90); f.immuneDebuff=immD; f.cleanseEachRound=cleanseER; f.reflectDebuff=reflD;
+  f.vsDot=vsdot; f.extraHit=extraH; f.execExtra=execX; f.firstDouble=firstD; f.openerBonus=openerB; f.vsShield=vsShld;
+  f.drainEn=drEn; f.drainStam=drStam;
+  f.accuracy=Math.min(accur,95); f.lowDefHp=lowDefHp; f.lowDR=Math.min(lowDR,90); f.stealAtk=stealA; f.stealDef=stealD;
+  if(shF>0) f._shield=(f._shield||0)+shF;
+  return f;
+}
+function arenaNewFighter(st){ var f={ uid:st.uid, name:st.name, ai:!!st.ai, hp:st.hp, maxhp:st.hp, atk:st.atk, def:st.def, thrA:st.thrA||START.thrA, en:100, stam:100, lv:1, atkBuff:0, defDebuff:0, shieldBonus:0, shieldHits:0, skip:false,
+  lifesteal:0, thorns:0, pierce:0, dr:0, dodge:0, trueHit:0, flatDR:0,
+  lowHp:0, lowAtkMul:1, highHp:0, highAtkMul:1, rageMax:0, execHp:0, execBonus:0, vsFullHp:0, debuffSynergy:0,
+  earlyAtk:0, lateAtk:0, vsHighDef:0, vsHighAtk:0, vsHighHp:0, vsHpAdv:0, stamScale:0, enScale:0, hpToAtk:0, defToAtk:0,
+  heavyEveryN:0, heavyMul:1, momentum:0, retaliate:0, rampAtk:0, rampDef:0, rampTrue:0, curHpDmg:0, curHpTrue:0,
+  dotApply:0, regenN:0, regenFlat:0, dmgCapFlat:0, invulnRounds:0, shieldOnHit:0, shieldOnHurt:0, enRegen:0, stamRegen:0,
+  _consec:0, _wasHit:false, _heavyCnt:0, _rampAtk:0, _rampDef:0, _rampTrue:0, _regenCnt:0, _dot:0, _shield:0,
+  stunChance:0,dodgeCounter:0,reflectHeavy:0,heavyTakenCut:0,curseAtk:0,curseDef:0,firstHitCutN:0,firstHitCut:0,survive:0,antiHeal:0,immuneDebuff:0,cleanseEachRound:0,reflectDebuff:0,vsDot:0,extraHit:0,execExtra:0,firstDouble:0,openerBonus:0,vsShield:0,drainEn:0,drainStam:0,
+  accuracy:0,lowDefHp:0,lowDR:0,stealAtk:0,stealDef:0,
+  _hitsTaken:0,_survived:false,_stunned:false,_block:0,
+  cards:(st.cards||[]) }; arenaApplyCards(f, f.cards);
+  f._cardUses={}; (f.cards||[]).forEach(function(id){ var c=(typeof cardById==='function')?cardById(id):null; if(c&&c.type==='active'&&c.eff) f._cardUses[id]=(c.eff.uses||1); });
+  return f; }
+function arenaCondMul(att, def, round){
+  var mul=1, flat=0, ctrue=0;
+  var hf=(att.maxhp>0)?att.hp/att.maxhp:1, df=(def.maxhp>0)?def.hp/def.maxhp:1;
+  if(att.lowHp && hf<att.lowHp/100) mul*=(att.lowAtkMul||1);
+  if(att.highHp && hf>att.highHp/100) mul*=(att.highAtkMul||1);
+  if(att.rageMax) mul*=1+(1-hf)*(att.rageMax/100);
+  if(att.execHp && df<att.execHp/100) mul*=1+(att.execBonus||0)/100;
+  if(att.vsFullHp && df>0.9) mul*=1+att.vsFullHp/100;
+  if(att.debuffSynergy && (def.defDebuff||0)>0) mul*=1+att.debuffSynergy/100;
+  if(att.vsHighDef && def.def>att.def) mul*=1+att.vsHighDef/100;
+  if(att.vsHighAtk && def.atk>att.atk) mul*=1+att.vsHighAtk/100;
+  if(att.vsHighHp && def.maxhp>att.maxhp) mul*=1+att.vsHighHp/100;
+  if(att.vsHpAdv && att.maxhp<def.maxhp) mul*=1+att.vsHpAdv/100;
+  if(att.earlyAtk && round<3) mul*=1+att.earlyAtk/100;
+  if(att.lateAtk && round>=5) mul*=1+att.lateAtk/100;
+  if(att.stamScale) mul*=1+(clamp(att.stam,0,100)/100)*(att.stamScale/100);
+  if(att.enScale) mul*=1+(clamp(att.en,0,100)/100)*(att.enScale/100);
+  if(att.momentum && att._consec>0) mul*=1+att._consec*(att.momentum/100);
+  if(att.retaliate && att._wasHit) mul*=1+att.retaliate/100;
+  var heavy=false;
+  if(att.heavyEveryN){ att._heavyCnt=(att._heavyCnt||0)+1; if(att._heavyCnt>=att.heavyEveryN){ att._heavyCnt=0; mul*=(att.heavyMul||1); heavy=true; } }
+  if(round===0){ if(att.openerBonus) mul*=1+att.openerBonus/100; if(att.firstDouble) mul*=1+att.firstDouble/100; }
+  if(att.extraHit) mul*=1+att.extraHit/100;
+  if(att.execExtra && df<0.3) mul*=1+att.execExtra/100;
+  if(att.vsDot && (def._dot||0)>0) mul*=1+att.vsDot/100;
+  if(att.vsShield && (def._shield||0)>0) mul*=1+att.vsShield/100;
+  if(att.curHpDmg) flat+=Math.round(def.hp*att.curHpDmg/100);
+  if(att.curHpTrue) ctrue+=Math.round(def.hp*att.curHpTrue/100);
+  return { mul:mul, flat:flat, ctrue:ctrue, heavy:heavy };
+}
+function arenaIsCard(id){ var c=(typeof cardById==='function')?cardById(id):null; return !!(c && c.type==='active'); }
+function arenaCanUseCard(f,id){ var c=(typeof cardById==='function')?cardById(id):null; if(!c||c.type!=='active'||!c.eff) return false; if(f.cards && f.cards.indexOf(id)<0) return false; if(!f._cardUses || (f._cardUses[id]||0)<=0) return false; if(f.en < (c.eff.cost||0)) return false; return true; }
+function arenaActMods(f){
+  var atkMul=1, defMul=1, thorn=0, invuln=false; var m=f&&f._mods;
+  if(m){ for(var i=0;i<m.length;i++){ var x=m[i];
+    if(x.type==='atk') atkMul*=(1+(x.val||0)/100);
+    else if(x.type==='atkDown'){ if(!f.immuneDebuff) atkMul*=Math.max(0,1-(x.val||0)/100); }
+    else if(x.type==='def') defMul*=(1+(x.val||0)/100);
+    else if(x.type==='defDown'){ if(!f.immuneDebuff) defMul*=Math.max(0,1-(x.val||0)/100); }
+    else if(x.type==='thorn') thorn+=(x.val||0);
+    else if(x.type==='invuln') invuln=true;
+  } }
+  return { atkMul:atkMul, defMul:defMul, thorn:thorn, invuln:invuln };
+}
+function arenaUseActive(f, foe, id){
+  var c=(typeof cardById==='function')?cardById(id):null; if(!c||c.type!=='active'||!c.eff) return false;
+  var e=c.eff; if(!f._cardUses || (f._cardUses[id]||0)<=0) return false; if(f.en<(e.cost||0)) return false;
+  f.en=clamp(f.en-(e.cost||0),0,100); f._cardUses[id]--; f._mods=f._mods||[]; foe._mods=foe._mods||[];
+  var a=e.active, r=(e.rounds||3);
+  if(a==='burst') f._burstMul=(f._burstMul||1)*(e.mul||1);
+  else if(a==='heal') f.hp+=Math.round((e.amt||0)*(1-clamp((foe.antiHeal||0)/100,0,0.9)));
+  else if(a==='shield') f._shield=(f._shield||0)+(e.amt||0);
+  else if(a==='trueBurst') foe.hp-=Math.round(foe.hp*(e.curPct||0)/100);
+  else if(a==='break') foe._mods.push({type:'defDown',val:(e.pct||0),rounds:r});
+  else if(a==='curse'){ foe._mods.push({type:'atkDown',val:(e.pct||0),rounds:r}); foe._mods.push({type:'defDown',val:(e.pct||0),rounds:r}); }
+  else if(a==='buffAtk') f._mods.push({type:'atk',val:(e.pct||0),rounds:r});
+  else if(a==='buffDef') f._mods.push({type:'def',val:(e.pct||0),rounds:r});
+  else if(a==='buffAtkFlat') f.atkBuff=(f.atkBuff||0)+(e.amt||0);
+  else if(a==='drain'){ var am=(e.amt||0); foe.en=clamp(foe.en-am,0,100); foe.stam=clamp(foe.stam-am,0,100); }
+  else if(a==='invuln') f._mods.push({type:'invuln',val:1,rounds:(e.rounds||1)});
+  else if(a==='thornField') f._mods.push({type:'thorn',val:(e.pct||0),rounds:r});
+  else if(a==='sacrifice'){ f.hp-=Math.round(f.hp*(e.pct||0)/100); f._burstMul=(f._burstMul||1)*2; }
+  else if(a==='lifestealBurst') f._lsBurst=Math.max(f._lsBurst||0,(e.pct||0));
+  else if(a==='cleanseHeal'){ f.defDebuff=0; f._dot=0; f._mods=f._mods.filter(function(m){ return m.type!=='atkDown'&&m.type!=='defDown'; }); f.stam=clamp(f.stam+(e.pct||0),0,100); }
+  else if(a==='execute'){ if(foe.maxhp>0 && foe.hp/foe.maxhp < (e.pct||30)/100) foe.hp=0; }
+  else if(a==='extraStrike') f._burstMul=(f._burstMul||1)*(1+(e.pct||50)/100);
+  else if(a==='reflect') f._mods.push({type:'thorn',val:(e.pct||50),rounds:(e.rounds||2)});
+  else if(a==='block') f._block=(f._block||0)+(e.hits||1);
+  else if(a==='cleanse'){ f.defDebuff=0; f._dot=0; f._mods=f._mods.filter(function(m){ return m.type!=='atkDown'&&m.type!=='defDown'; }); f.stam=clamp(f.stam+(e.pct||10),0,100); }
+  else if(a==='stun') foe._stunned=true;
+  return true;
+}
+function arenaCurse(tg, atkr, aAmt, dAmt){ var dst=tg.reflectDebuff?atkr:tg; if(dst.immuneDebuff) return; if(aAmt) dst.atk=Math.max(0,dst.atk-aAmt); if(dAmt) dst.def=Math.max(0,dst.def-dAmt); }
+function arenaSideDmg(att,def,attAct,defAct,round){
+  round=round||0;
   var attSkill=(attAct && !arenaIsDef(attAct))?SKILL_BY_ID[attAct]:null;
   var defSkill=(defAct && arenaIsDef(defAct))?SKILL_BY_ID[defAct]:null;
   var mult=attSkill?(attSkill.mult||1):1;
-  var dEff=Math.max(0, def.def-(def.defDebuff||0)) + ((def.shieldHits>0)?(def.shieldBonus||0):0);
-  var raw=Math.round(dmgUp(att.atk+(att.atkBuff||0), dEff, att.thrA||10)*mult); if(raw<0) raw=0;
+  var _am=arenaActMods(att), _dm=arenaActMods(def);
+  if(round<(def.invulnRounds||0) || _dm.invuln) return { dmg:0, blocked:0, attSkill:attSkill, defSkill:defSkill };
+  var _sclB=(att._rampAtk||0);
+  if(att.hpToAtk) _sclB+=Math.round(att.hp*att.hpToAtk/100);
+  if(att.defToAtk) _sclB+=Math.round(att.def*att.defToAtk/100);
+  _sclB=Math.min(_sclB, Math.round(att.atk*SCALE_ATK_MAX));
+  var effAtk=(att.atk+(att.atkBuff||0)+_sclB);
+  effAtk=Math.round(effAtk*_am.atkMul);
+  var _pi=clamp((att.pierce||0)/100,0,0.9);
+  var _dbase=Math.max(0, Math.round((def.def-(def.defDebuff||0)+(def._rampDef||0))*_dm.defMul));
+  var dEff=Math.max(0, Math.round(_dbase*(1-_pi))) + ((def.shieldHits>0)?(def.shieldBonus||0):0);
+  var raw=Math.round(dmgUp(effAtk, dEff, att.thrA||10)*mult); if(raw<0) raw=0;
   var blocked=0;
   if(defSkill && defSkill.div>1){ var pre=raw; raw=Math.ceil(raw/defSkill.div); blocked=pre-raw; }
-  return { dmg:raw, blocked:blocked, attSkill:attSkill, defSkill:defSkill };
+  var cm=arenaCondMul(att, def, round);
+  raw=Math.round(raw*cm.mul*(att._burstMul||1))+cm.flat; if(raw<0) raw=0;
+  if(cm.heavy && def.heavyTakenCut) raw=Math.round(raw*(1-clamp((def.heavyTakenCut||0)/100,0,0.9)));
+  if(def.firstHitCutN && (def._hitsTaken||0)<def.firstHitCutN && def.firstHitCut) raw=Math.round(raw*(1-clamp((def.firstHitCut||0)/100,0,0.95)));
+  if(def.dr){ raw=Math.round(raw*(1-clamp((def.dr||0)/100,0,0.9))); }
+  if(def.flatDR){ raw=Math.max(0, raw-(def.flatDR||0)); }
+  if(def.dmgCapFlat){ raw=Math.min(raw, def.dmgCapFlat); }
+  if(def.lowDR && def.lowDefHp && def.maxhp>0 && (def.hp/def.maxhp)<def.lowDefHp/100) raw=Math.round(raw*(1-clamp((def.lowDR||0)/100,0,0.9)));
+  var _tru=(att.trueHit||0)+(att._rampTrue||0)+cm.ctrue;
+  return { dmg:raw+_tru, blocked:blocked, attSkill:attSkill, defSkill:defSkill, heavy:cm.heavy };
 }
 function arenaApplyAtkEffect(att,def,skill,dealt){
   if(!skill) return;
@@ -7122,25 +7929,49 @@ function arenaDuelRound(D){
   var A=D.A, B=D.B;
   var aAct=A.skip?null:(D.aAct||null), bAct=B.skip?null:(D.bAct||null);
   A.skip=false; B.skip=false; D.aAct=null; D.bAct=null;
-  if(aAct && !arenaCanUse(A,aAct)) aAct=null;
-  if(bAct && !arenaCanUse(B,bAct)) bAct=null;
-  var aShen=(aAct==='shendun'), bShen=(bAct==='shendun');
+  /* stun: a stunned fighter skips the whole turn (no attack, no action) */
+  var aStun=!!A._stunned, bStun=!!B._stunned; A._stunned=false; B._stunned=false;
+  if(aStun) aAct=null; if(bStun) bAct=null;
+  /* split active cards from skills; apply cards up front (they may buff this round) */
+  var aCard=(aAct&&arenaIsCard(aAct))?aAct:null, bCard=(bAct&&arenaIsCard(bAct))?bAct:null;
+  var aAct2=aCard?null:aAct, bAct2=bCard?null:bAct;
+  if(aCard){ if(arenaCanUseCard(A,aCard)) arenaUseActive(A,B,aCard); else aCard=null; }
+  if(bCard){ if(arenaCanUseCard(B,bCard)) arenaUseActive(B,A,bCard); else bCard=null; }
+  if(aAct2 && !arenaCanUse(A,aAct2)) aAct2=null;
+  if(bAct2 && !arenaCanUse(B,bAct2)) bAct2=null;
+  var aShen=(aAct2==='shendun'), bShen=(bAct2==='shendun');
   /* compute both directions from pre-round state (simultaneous) */
-  var ab=arenaSideDmg(A,B,aAct,bAct);   /* A -> B */
-  var ba=arenaSideDmg(B,A,bAct,aAct);   /* B -> A */
+  var ab=aStun?{dmg:0,blocked:0,attSkill:null,defSkill:null,heavy:false}:arenaSideDmg(A,B,aAct2,bAct2,D.round);   /* A -> B */
+  var ba=bStun?{dmg:0,blocked:0,attSkill:null,defSkill:null,heavy:false}:arenaSideDmg(B,A,bAct2,aAct2,D.round);   /* B -> A */
   var aNon=ab.attSkill&&(ab.attSkill.id==='jinshi'||ab.attSkill.id==='shenlei');
   var bNon=ba.attSkill&&(ba.attSkill.id==='jinshi'||ba.attSkill.id==='shenlei');
   var dB=ab.dmg, dA=ba.dmg;
   if(aNon && (B.hp-dB)<1) dB=Math.max(0,B.hp-1);
   if(bNon && (A.hp-dA)<1) dA=Math.max(0,A.hp-1);
   /* skill costs (deducted up front, like single-player) */
-  if(aAct){ var sa=SKILL_BY_ID[aAct]; if(sa){ A.en=clamp(A.en-(sa.en||0),0,100); A.stam=clamp(A.stam-(sa.stam||0),0,100); } }
-  if(bAct){ var sb=SKILL_BY_ID[bAct]; if(sb){ B.en=clamp(B.en-(sb.en||0),0,100); B.stam=clamp(B.stam-(sb.stam||0),0,100); } }
-  /* apply damage simultaneously */
-  B.hp-=dB; A.hp-=dA;
+  if(aAct2){ var sa=SKILL_BY_ID[aAct2]; if(sa){ A.en=clamp(A.en-(sa.en||0),0,100); A.stam=clamp(A.stam-(sa.stam||0),0,100); } }
+  if(bAct2){ var sb=SKILL_BY_ID[bAct2]; if(sb){ B.en=clamp(B.en-(sb.en||0),0,100); B.stam=clamp(B.stam-(sb.stam||0),0,100); } }
+  /* passive dodge — defender fully avoids the incoming hit */
+  /* active block: fully negate incoming hit(s) */
+  if(dB>0 && B._block>0){ dB=0; B._block--; }
+  if(dA>0 && A._block>0){ dA=0; A._block--; }
+  /* passive dodge (reduced by attacker accuracy) + dodge counter */
+  var _bDodge=Math.max(0,(B.dodge||0)-(A.accuracy||0)), _aDodge=Math.max(0,(A.dodge||0)-(B.accuracy||0));
+  if(dB>0 && _bDodge && chance(clamp(_bDodge/100,0,1))){ dB=0; if(B.dodgeCounter) A.hp-=Math.round((B.atk||0)*B.dodgeCounter/100); }
+  if(dA>0 && _aDodge && chance(clamp(_aDodge/100,0,1))){ dA=0; if(A.dodgeCounter) B.hp-=Math.round((A.atk||0)*A.dodgeCounter/100); }
+  /* apply damage simultaneously (shield pool absorbs first) */
+  if(dB>0 && B._shield>0){ var _sB=Math.min(B._shield,dB); B._shield-=_sB; B.hp-=(dB-_sB); } else { B.hp-=dB; }
+  if(dA>0 && A._shield>0){ var _sA=Math.min(A._shield,dA); A._shield-=_sA; A.hp-=(dA-_sA); } else { A.hp-=dA; }
   /* energy charge on landing a hit (faithful) */
   if(dB>0) A.en=clamp(A.en+clamp(Math.round(dB*0.08)+2,2,13),0,100);
   if(dA>0) B.en=clamp(B.en+clamp(Math.round(dA*0.08)+2,2,13),0,100);
+  /* passive lifesteal (heal attacker) + thorns (reflect to attacker) */
+  var _aLs=Math.max(A.lifesteal||0,A._lsBurst||0), _bLs=Math.max(B.lifesteal||0,B._lsBurst||0);
+  if(dB>0 && _aLs) A.hp+=Math.round(dB*_aLs/100*(1-clamp((B.antiHeal||0)/100,0,0.9))*SUSTAIN_MULT);
+  if(dA>0 && _bLs) B.hp+=Math.round(dA*_bLs/100*(1-clamp((A.antiHeal||0)/100,0,0.9))*SUSTAIN_MULT);
+  var _aTh=(A.thorns||0)+arenaActMods(A).thorn, _bTh=(B.thorns||0)+arenaActMods(B).thorn;
+  if(dB>0 && _bTh) A.hp-=Math.round(dB*_bTh/100);
+  if(dA>0 && _aTh) B.hp-=Math.round(dA*_aTh/100);
   /* attacker skill side-effects */
   arenaApplyAtkEffect(A,B,ab.attSkill,dB);
   arenaApplyAtkEffect(B,A,ba.attSkill,dA);
@@ -7150,8 +7981,51 @@ function arenaDuelRound(D){
   /* count down shendun blocks for fighters not (re)casting it this round */
   if(A.shieldHits>0 && !aShen) A.shieldHits--;
   if(B.shieldHits>0 && !bShen) B.shieldHits--;
+  /* ==== card reactive/periodic effects ==== */
+  /* apply DoT on hit + shieldOnHit */
+  if(dB>0){ if(A.dotApply) B._dot=Math.min((B._dot||0)+A.dotApply, Math.max(A.dotApply, Math.round(B.maxhp*DOT_HP_FRAC))); if(A.shieldOnHit) A._shield=(A._shield||0)+A.shieldOnHit; }
+  if(dA>0){ if(B.dotApply) A._dot=Math.min((A._dot||0)+B.dotApply, Math.max(B.dotApply, Math.round(A.maxhp*DOT_HP_FRAC))); if(B.shieldOnHit) B._shield=(B._shield||0)+B.shieldOnHit; }
+  /* heavy reflect / stacking curse / resource drain / stun / first-hit counter */
+  if(ab.heavy && dB>0 && B.reflectHeavy) A.hp-=Math.round(dB*B.reflectHeavy/100);
+  if(ba.heavy && dA>0 && A.reflectHeavy) B.hp-=Math.round(dA*A.reflectHeavy/100);
+  if(dB>0 && (A.curseAtk||A.curseDef)) arenaCurse(B,A,A.curseAtk||0,A.curseDef||0);
+  if(dA>0 && (B.curseAtk||B.curseDef)) arenaCurse(A,B,B.curseAtk||0,B.curseDef||0);
+  if(dB>0 && !B.immuneDebuff){ if(A.stealAtk){ var _sa=Math.min(A.stealAtk,B.atk); B.atk-=_sa; A.atk+=_sa; } if(A.stealDef){ var _sd=Math.min(A.stealDef,B.def); B.def-=_sd; A.def+=_sd; } }
+  if(dA>0 && !A.immuneDebuff){ if(B.stealAtk){ var _sa2=Math.min(B.stealAtk,A.atk); A.atk-=_sa2; B.atk+=_sa2; } if(B.stealDef){ var _sd2=Math.min(B.stealDef,A.def); A.def-=_sd2; B.def+=_sd2; } }
+  if(dB>0){ if(A.drainEn) B.en=clamp(B.en-A.drainEn,0,100); if(A.drainStam) B.stam=clamp(B.stam-A.drainStam,0,100); }
+  if(dA>0){ if(B.drainEn) A.en=clamp(A.en-B.drainEn,0,100); if(B.drainStam) A.stam=clamp(A.stam-B.drainStam,0,100); }
+  if(dB>0 && A.stunChance && chance(clamp(A.stunChance,0,100)/100)) B._stunned=true;
+  if(dA>0 && B.stunChance && chance(clamp(B.stunChance,0,100)/100)) A._stunned=true;
+  if(dB>0) B._hitsTaken=(B._hitsTaken||0)+1; if(dA>0) A._hitsTaken=(A._hitsTaken||0)+1;
+  /* shieldOnHurt (gained when hit) */
+  if(dA>0 && A.shieldOnHurt) A._shield=(A._shield||0)+A.shieldOnHurt;
+  if(dB>0 && B.shieldOnHurt) B._shield=(B._shield||0)+B.shieldOnHurt;
+  /* momentum / retaliate flags for next round */
+  A._consec=(dB>0)?((A._consec||0)+1):0; B._consec=(dA>0)?((B._consec||0)+1):0;
+  A._wasHit=(dA>0); B._wasHit=(dB>0);
+  /* DoT tick */
+  if(A._dot>0) A.hp-=A._dot; if(B._dot>0) B.hp-=B._dot;
+  /* periodic regen */
+  if(A.regenN){ A._regenCnt=(A._regenCnt||0)+1; if(A._regenCnt>=A.regenN){ A.hp+=Math.round((A.regenFlat||0)*(1-clamp((B.antiHeal||0)/100,0,0.9))*SUSTAIN_MULT); A._regenCnt=0; } }
+  if(B.regenN){ B._regenCnt=(B._regenCnt||0)+1; if(B._regenCnt>=B.regenN){ B.hp+=Math.round((B.regenFlat||0)*(1-clamp((A.antiHeal||0)/100,0,0.9))*SUSTAIN_MULT); B._regenCnt=0; } }
+  /* ramp accumulation (for next round) */
+  if(A.rampAtk) A._rampAtk=Math.min((A._rampAtk||0)+A.rampAtk, A.rampAtk*RAMP_MAX_ROUNDS); if(A.rampDef) A._rampDef=Math.min((A._rampDef||0)+A.rampDef, A.rampDef*RAMP_MAX_ROUNDS); if(A.rampTrue) A._rampTrue=Math.min((A._rampTrue||0)+A.rampTrue, A.rampTrue*RAMP_MAX_ROUNDS);
+  if(B.rampAtk) B._rampAtk=Math.min((B._rampAtk||0)+B.rampAtk, B.rampAtk*RAMP_MAX_ROUNDS); if(B.rampDef) B._rampDef=Math.min((B._rampDef||0)+B.rampDef, B.rampDef*RAMP_MAX_ROUNDS); if(B.rampTrue) B._rampTrue=Math.min((B._rampTrue||0)+B.rampTrue, B.rampTrue*RAMP_MAX_ROUNDS);
+  /* passive energy / stamina regen */
+  if(A.enRegen) A.en=clamp(A.en+A.enRegen,0,100); if(A.stamRegen) A.stam=clamp(A.stam+A.stamRegen,0,100);
+  if(B.enRegen) B.en=clamp(B.en+B.enRegen,0,100); if(B.stamRegen) B.stam=clamp(B.stam+B.stamRegen,0,100);
+  /* cleanse-each-round: wipe own debuffs before ticking */
+  if(A.cleanseEachRound){ A.defDebuff=0; A._mods=(A._mods||[]).filter(function(m){return m.type!=='atkDown'&&m.type!=='defDown';}); }
+  if(B.cleanseEachRound){ B.defDebuff=0; B._mods=(B._mods||[]).filter(function(m){return m.type!=='atkDown'&&m.type!=='defDown';}); }
+  /* tick timed active mods; clear per-round active flags */
+  A._mods=(A._mods||[]).filter(function(m){ m.rounds--; return m.rounds>0; });
+  B._mods=(B._mods||[]).filter(function(m){ m.rounds--; return m.rounds>0; });
+  A._burstMul=1; B._burstMul=1; A._lsBurst=0; B._lsBurst=0;
+  /* survive: cheat death once, staying on 1 HP */
+  if(A.hp<=0 && A.survive && !A._survived){ A.hp=1; A._survived=true; }
+  if(B.hp<=0 && B.survive && !B._survived){ B.hp=1; B._survived=true; }
   if(A.hp<0)A.hp=0; if(B.hp<0)B.hp=0;
-  return { dA:dA, dB:dB, aAct:aAct, bAct:bAct };
+  return { dA:dA, dB:dB, aAct:(aAct2||aCard), bAct:(bAct2||bCard) };
 }
 function arenaJudgeFighters(A,B){
   if(A.hp<=0 && B.hp<=0) return 'draw';
@@ -7163,6 +8037,10 @@ function arenaTieResult(aHp,aMax,bHp,bMax){ var pA=(aMax>0?aHp/aMax:0), pB=(bMax
 function arenaMySide(){ var ar=MP.arena; if(!ar||!ar.curPair) return null; if(Net.uid===ar.curPair[0]) return 'A'; if(Net.uid===ar.curPair[1]) return 'B'; return null; }
 function arenaAIPick(me,foe,D,side){
   if((D.round%3)!==(side==='A'?0:1)) return null;   /* act ~every 3 rounds, A/B staggered */
+  if(me.cards && me.cards.length){ var _low=(me.hp/me.maxhp<0.4);
+    for(var ci=0;ci<me.cards.length;ci++){ var cid=me.cards[ci]; if(!arenaCanUseCard(me,cid)) continue; var cc=cardById(cid); if(!cc||!cc.eff) continue;
+      var _a=cc.eff.active, _def=(_a==='heal'||_a==='shield'||_a==='cleanseHeal'||_a==='invuln'||_a==='buffDef');
+      if(_low===_def) return cid; } }
   var pool=(me.hp/me.maxhp<0.4) ? ['healShield','shendun','jinshi','counterdun'] : ['shenlei','zhuanti','tianti','huangu'];
   for(var i=0;i<pool.length;i++){ if(arenaCanUse(me,pool[i])) return pool[i]; }
   var all=ATK_SKILLS.concat(DEF_SKILLS);
@@ -7198,7 +8076,7 @@ function arenaApplyReqs(D){
     var r=reqs[uid];
     if(r && r.skill){
       var f=(sideKey==='A')?D.A:D.B;
-      if(arenaCanUse(f,r.skill)) D[(sideKey==='A')?'aAct':'bAct']=r.skill;
+      if(arenaIsCard(r.skill)?arenaCanUseCard(f,r.skill):arenaCanUse(f,r.skill)) D[(sideKey==='A')?'aAct':'bAct']=r.skill;
       if(ar._reqs) ar._reqs[uid]=null;
       try{ if(Net.arenaRef) Net.arenaRef.child('req/'+uid).remove(); }catch(e){}
     }
@@ -7695,11 +8573,11 @@ const I18N_CUST = {
 };
 (function mergeCust(){ for(const L in I18N_CUST){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_CUST[L].admin); } })();
 const I18N_ARENA_CFG={
- 'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合'}},
- 'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合'}},
- 'en':{admin:{arenaParams:'Arena',arGold:'Gold',arHpInc:'HP +',arHpCost:'HP cost',arAtkInc:'ATK +',arAtkCost:'ATK cost',arDefInc:'DEF +',arDefCost:'DEF cost',arAiHp:'AI HP',arAiAtk:'AI ATK',arAiDef:'AI DEF',arTickMs:'Tick ms',arMaxRd:'Max rounds'}},
- 'ja':{admin:{arenaParams:'闘技場',arGold:'初期金',arHpInc:'HP+',arHpCost:'HP費用',arAtkInc:'攻+',arAtkCost:'攻費用',arDefInc:'防+',arDefCost:'防費用',arAiHp:'AI HP',arAiAtk:'AI攻',arAiDef:'AI防',arTickMs:'間隔ms',arMaxRd:'最大ラウンド'}},
- 'ko':{admin:{arenaParams:'투기장',arGold:'시작 골드',arHpInc:'HP+',arHpCost:'HP비용',arAtkInc:'공+',arAtkCost:'공비용',arDefInc:'방+',arDefCost:'방비용',arAiHp:'AI HP',arAiAtk:'AI공',arAiDef:'AI방',arTickMs:'간격ms',arMaxRd:'최대 라운드'}}
+ 'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'遞增上限R',arLsCap:'吸血上限%',arSustain:'續航倍率%',arScaleAtk:'進攻縮放%'}},
+ 'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'递增上限R',arLsCap:'吸血上限%',arSustain:'续航倍率%',arScaleAtk:'进攻缩放%'}},
+ 'en':{admin:{arenaParams:'Arena',arGold:'Gold',arHpInc:'HP +',arHpCost:'HP cost',arAtkInc:'ATK +',arAtkCost:'ATK cost',arDefInc:'DEF +',arDefCost:'DEF cost',arAiHp:'AI HP',arAiAtk:'AI ATK',arAiDef:'AI DEF',arTickMs:'Tick ms',arMaxRd:'Max rounds',arDotCap:'DoT cap%',arRampCap:'Ramp cap R',arLsCap:'Lifesteal cap%',arSustain:'Sustain%',arScaleAtk:'Scale ATK%'}},
+ 'ja':{admin:{arenaParams:'闘技場',arGold:'初期金',arHpInc:'HP+',arHpCost:'HP費用',arAtkInc:'攻+',arAtkCost:'攻費用',arDefInc:'防+',arDefCost:'防費用',arAiHp:'AI HP',arAiAtk:'AI攻',arAiDef:'AI防',arTickMs:'間隔ms',arMaxRd:'最大ラウンド',arDotCap:'DoT上限%',arRampCap:'累積上限R',arLsCap:'吸血上限%',arSustain:'継戦倍率%',arScaleAtk:'攻倍上限%'}},
+ 'ko':{admin:{arenaParams:'투기장',arGold:'시작 골드',arHpInc:'HP+',arHpCost:'HP비용',arAtkInc:'공+',arAtkCost:'공비용',arDefInc:'방+',arDefCost:'방비용',arAiHp:'AI HP',arAiAtk:'AI공',arAiDef:'AI방',arTickMs:'간격ms',arMaxRd:'최대 라운드',arDotCap:'DoT 상한%',arRampCap:'누적 상한R',arLsCap:'흡혈 상한%',arSustain:'지속 배율%',arScaleAtk:'공격 스케일%'}}
 };
 (function mergeArenaCfg(){ for(const L in I18N_ARENA_CFG){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_ARENA_CFG[L].admin); } })();
 const I18N_SCORE={
@@ -8429,7 +9307,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·173'; }
+    bt.textContent='build 0618·194'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -8437,7 +9315,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·173'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·194'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -8546,6 +9424,14 @@ function _customSfxManager(){
   const ids=Object.keys(CUSTOM_SFX);
   if(!ids.length){ h+='<p class="adNote">'+t('admin.noCustomSfx')+'</p>'; }
   else { h+='<div class="cmList">'; ids.forEach(function(id){ h+='<div class="cmItem"><button class="btn cmPlay" data-sfxplay="'+id+'">\u25b6</button><input class="cmNameInp" data-sfxname="'+id+'" value="'+(CUSTOM_SFX_NAME[id]||'').replace(/"/g,'&quot;')+'" placeholder="'+t('admin.sndCustom')+' '+id.replace('csfx','')+'"><button class="btn btnDanger" data-sfxdel="'+id+'">'+t('admin.del')+'</button></div>'; }); h+='</div>'; }
+  var _msLab=(state.lang==='en'?'Miss sound':(state.lang==='ko'?'Miss 소리':'Miss 音效'));
+  var _msDef=(state.lang==='en'?'Default (whiff)':(state.lang==='ko'?'기본 (whiff)':'預設（whiff）'));
+  var _msNone=(state.lang==='en'?'Silent':(state.lang==='ko'?'무음':'無聲'));
+  h+='<div class="adField" style="margin-top:12px"><label>'+_msLab+'</label><select data-missfx>';
+  h+='<option value="whiff"'+(SFX_MAP.miss==='whiff'?' selected':'')+'>'+_msDef+'</option>';
+  h+='<option value="none"'+(SFX_MAP.miss==='none'?' selected':'')+'>'+_msNone+'</option>';
+  Object.keys(CUSTOM_SFX).forEach(function(id){ h+='<option value="'+id+'"'+(SFX_MAP.miss===id?' selected':'')+'>'+customSfxLabel(id)+'</option>'; });
+  h+='</select></div>';
   box.innerHTML=h; return box;
 }
 function adAtkFx(obj){ const cur=(obj&&obj.atkFx)||''; let o='<div class="adField"><label>'+((obj&&obj.id==='overlordGordon')?t('admin.bossBoltFx'):t('admin.atkFx'))+'</label><select data-k="atkFx"><option value="">'+t('admin.fxDefault')+'</option>'; FX_PRESETS.forEach(function(pp){ o+='<option value="'+pp+'"'+(pp===cur?' selected':'')+'>'+t('admin.fxn_'+pp)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select></div>'; }
@@ -8747,6 +9633,7 @@ function renderAdminBody(){
         adNum(t('admin.arDefInc'),a,'defInc')+adNum(t('admin.arDefCost'),a,'defCost')+
         adNum(t('admin.arAiHp'),a,'aiHp')+adNum(t('admin.arAiAtk'),a,'aiAtk')+adNum(t('admin.arAiDef'),a,'aiDef')+
         adNum(t('admin.arTickMs'),a,'tickMs')+adNum(t('admin.arMaxRd'),a,'maxRounds')+
+        adNum(t('admin.arDotCap'),a,'dotHpPct')+adNum(t('admin.arRampCap'),a,'rampMaxRd')+adNum(t('admin.arLsCap'),a,'lifestealCap')+adNum(t('admin.arSustain'),a,'sustainPct')+adNum(t('admin.arScaleAtk'),a,'scaleAtkPct')+
         adNum(t('admin.arWait'),a,'waitSec')+adNum(t('admin.arShop'),a,'shopSec')+adNum(t('admin.arPrep'),a,'prepSec')+'</div>';
       body.appendChild(arow); }
     if(!adminDraft.score && typeof scoreSnapshotCfg==='function') adminDraft.score=scoreSnapshotCfg();
