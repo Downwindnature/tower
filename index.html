@@ -153,7 +153,9 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afpSkBtn{ padding:5px 9px; border-radius:7px; background:#3a2c55; color:#f3ead2; border:1px solid #6b5a8f; font-size:12px; font-weight:700; cursor:pointer; }
 .afpCardBtn{ background:#4a3320; border-color:#b8863a; color:#ffe6b8; }
 .afpCardBtn.queued{ background:#7a5416; }
-.afCards{ position:absolute; left:14px; top:50%; transform:translateY(-50%); z-index:6; display:flex; flex-direction:column; gap:6px; width:130px; }
+.afCards{ position:absolute; left:16px; bottom:16px; z-index:6; display:grid; grid-template-columns:repeat(2,1fr); gap:6px; width:216px; }
+@media (pointer:fine){ .afField .afJoy{ display:none; } }   /* desktop uses keyboard -> free the bottom-left corner for the cards */
+@media (pointer:coarse){ .afCards{ bottom:150px; } }   /* touch: sit the 2x2 cards just above the joystick */
 .afCardChip{ background:#2a2350; border:1px solid #6b5fa8; border-radius:8px; color:#e9e2ff; font-size:12px; font-weight:700; padding:7px 9px; cursor:pointer; text-align:left; box-shadow:0 2px 6px rgba(0,0,0,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .afCardChip:hover{ background:#3a3272; }
 .afCardChip.act{ border-color:#e0b34a; color:#ffe6b8; background:#3a2c1a; }
@@ -6198,6 +6200,7 @@ const Net = {
   markCleared(f,x,y,type){ if(!this.stateRef) return; this.stateRef.child(f+'/'+x+'_'+y).set({ t:type, by:this.uid }); },
   setBossCleared(){ if(this.metaRef) this.metaRef.update({ clearedBoss:this.uid, clearedAt:this.ts() }); },
   setRoomCfg(cfg){ if(this.metaRef) this.metaRef.update({ cfg: cfg }); },
+  setMode(m){ if(this.metaRef) this.metaRef.update({ mode: m }); },
   setRaceEndsAt(ts){ if(this.metaRef) this.metaRef.update({ raceEndsAt: ts }); },
   pushLobby(){
     if(this.spectator) return;
@@ -6622,10 +6625,25 @@ function roomCfg(){ var d=defaultRoomCfg(), c=(MP.meta&&MP.meta.cfg)?MP.meta.cfg
            aiCount:clamp((c.aiCount!=null?c.aiCount:d.aiCount)|0,0,8) }; }
 var _lbCfgOpen=true;
 function _lbCfgBindToggle(){ var t=byId('lbCfgToggle'); if(!t||t._bound) return; t._bound=true; t.addEventListener('click',function(){ _lbCfgOpen=!_lbCfgOpen; var b=byId('lbCfg'); if(b) b.style.display=_lbCfgOpen?'':'none'; var a=this.querySelector('.lbCfgArr'); if(a) a.textContent=_lbCfgOpen?'▾':'▸'; }); }
+function renderRoomModeSel(box, mode){
+  var host=!!(MP.meta && MP.meta.host===Net.uid);
+  function commitMode(m){ if(!m || m===MP.mode) return; if(MP.meta) MP.meta.mode=m; MP.mode=m; if(typeof Net!=='undefined'&&Net.setMode) Net.setMode(m); try{ if(byId('lobby')&&byId('lobby').classList.contains('show')) renderLobby(); else renderRoomCfg(); }catch(_e){ renderRoomCfg(); } }
+  function mseg(lab,opts,cur,pick){ var f=document.createElement('div'); f.className='lbField'; if(lab){ var l=document.createElement('label'); l.textContent=lab; f.appendChild(l); } var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; if(host){ b.addEventListener('click',function(){ pick(o.val); }); } else { b.disabled=true; } s.appendChild(b); }); f.appendChild(s); box.appendChild(f); }
+  var l1=(mode==='arena')?'arena':'tower';
+  mseg(t('mp.mode'),[{val:'tower',lab:t('mp.modeTower')},{val:'arena',lab:t('mp.modeFreeArena')}], l1, function(v){ if(v==='arena') commitMode('arena'); else commitMode(isSummitMode(MP.mode)?MP.mode:'coop'); });
+  if(l1==='tower'){
+    var l2=(mode==='coop')?'coop':'race';
+    mseg(null,[{val:'coop',lab:t('mp.modeCoopTower')},{val:'race',lab:t('mp.modeRaceTower')}], l2, function(v){ if(v==='coop') commitMode('coop'); else commitMode(MP.mode==='raceteam'?'raceteam':'race'); });
+    if(l2==='race'){
+      var l3=(mode==='raceteam')?'team':'solo';
+      mseg(null,[{val:'solo',lab:t('mp.modeSolo')},{val:'team',lab:t('mp.modeTeam')}], l3, function(v){ commitMode(v==='team'?'raceteam':'race'); });
+    }
+  }
+}
 function renderRoomCfg(){
   var box=byId('lbCfg'); if(!box) return;
-  var mode=MP.mode; box.innerHTML=''; _lbCfgBindToggle(); var _tg=byId('lbCfgToggle');
-  if(!isSummitMode(mode)){ if(_tg) _tg.style.display=''; box.style.display=(_lbCfgOpen?'':'none'); var host0=!!(MP.meta && MP.meta.host===Net.uid), c0=roomCfg(); var _aiMax0=Math.max(1,((MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10)-1);
+  var mode=MP.mode; box.innerHTML=''; _lbCfgBindToggle(); var _tg=byId('lbCfgToggle'); if(_tg) _tg.style.display=''; box.style.display=(_lbCfgOpen?'':'none'); renderRoomModeSel(box, mode);
+  if(!isSummitMode(mode)){ var host0=!!(MP.meta && MP.meta.host===Net.uid), c0=roomCfg(); var _aiMax0=Math.max(1,((MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10)-1);
     function commit0(k,v){ var nc=roomCfg(); nc[k]=v; if(MP.meta) MP.meta.cfg=nc; if(typeof Net!=='undefined'&&Net.setRoomCfg) Net.setRoomCfg(nc); renderRoomCfg(); }
     var af=document.createElement('div'); af.className='lbField'; var al=document.createElement('label'); al.textContent=t('mp.cfgAiCount'); af.appendChild(al);
     var ast=document.createElement('div'); ast.className='cfgStep';
@@ -6636,7 +6654,6 @@ function renderRoomCfg(){
     if(!host0){ var hh=document.createElement('p'); hh.className='lbHint'; hh.textContent=t('mp.cfgHostOnly'); box.appendChild(hh); }
     return;
   }
-  if(_tg) _tg.style.display=''; box.style.display=(_lbCfgOpen?'':'none');
   var host=!!(MP.meta && MP.meta.host===Net.uid), c=roomCfg();
   function commit(k,v){ var nc=roomCfg(); nc[k]=v; if(MP.meta) MP.meta.cfg=nc; if(typeof Net!=='undefined'&&Net.setRoomCfg) Net.setRoomCfg(nc); renderRoomCfg(); }
   function field(key){ var f=document.createElement('div'); f.className='lbField'; var l=document.createElement('label'); l.textContent=t('mp.'+key); f.appendChild(l); box.appendChild(f); return f; }
@@ -7621,7 +7638,7 @@ function startArenaRun(){
   MP.arena.myTeam=arenaMyTeam(tt);
   MP.arena.scoreA=0; MP.arena.scoreB=0; MP.arena.afResults=[]; MP.arena._afEnded=false;
   afOpen();
-  if(MP.arena && !MP.arena.cardsDrafted){ openCardDraft(function(){ MP.arena.cardsDrafted=true; }); }   /* draft the 4 cards right on entering the arena field */
+  if(MP.arena && !MP.arena.cardsDrafted){ openCardDraft(function(){ MP.arena.cardsDrafted=true; try{ show('arenaField'); afResize(); }catch(e){} }); }   /* draft on entry, then RE-SHOW the field (show('cardDraft') closed it) */
 }
 function renderArenaPrep(){
   const pl=state.player, ar=MP.arena; if(!pl||!ar) return;
@@ -9354,7 +9371,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·202'; }
+    bt.textContent='build 0618·204'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9362,7 +9379,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·202'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·204'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
