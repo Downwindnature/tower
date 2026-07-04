@@ -5703,7 +5703,7 @@ function bgmKeyForFloor(f){
   if(typeof state!=='undefined' && state.mode && state.mode!=='solo'){ if(state.mode==='arena'){ if(BGM_FILES['mp_arena']) return 'mp_arena'; }   /* 模式2 PVP競技場專屬曲 */ var _b2=(base==='floor1')?'upper':base; var _mk='mp_'+_b2; if(BGM_FILES[_mk]) return _mk; }   // 模式1：1F 也是一般樓層 → 一般樓層曲（一般/boss/密室三軌）；缺檔時自動回退單機曲
   return base;
 }
-function _bgmSoloFallbackKey(k){ if(k==='mp_arena') return 'mp_upper';   /* 競技場缺檔 → 一般樓層曲（其再回退單機曲） */ return (typeof k==='string' && k.indexOf('mp_')===0 && BGM_FILES[k.slice(3)]) ? k.slice(3) : null; }
+function _bgmSoloFallbackKey(k){ if(k==='mp_arena') return null;   /* 競技場 BGM 獨立：缺檔則靜音，不借用模式1（一般樓層）曲 */ return (typeof k==='string' && k.indexOf('mp_')===0 && BGM_FILES[k.slice(3)]) ? k.slice(3) : null; }
 /* ---- Three-channel volume: master is a global multiplier; music & sfx are independent (effective = master x channel) ---- */
 function _clampv(v){ v=parseFloat(v); if(isNaN(v)) v=0; return Math.max(0,Math.min(1,v)); }
 let _volMaster=0.8, _volMusic=0.7, _volSfx=0.8;
@@ -5806,7 +5806,7 @@ function updateBGM(force){
     _bgmSetGain(); _bgmPlayWA(want); return;
   }
   /* fallback: HTML5 <audio> (only when Web Audio is unavailable) */
-  if(!_bgmAudio || typeof state==='undefined' || state.floor==null) return;
+  if(!_bgmAudio || typeof state==='undefined' || (state.floor==null && !(state.mode==='arena'))) return;
   if(!want){ try{ _bgmAudio.pause(); }catch(e){} _bgmKey=null; return; }
   if(want!==_bgmKey){ _bgmKey=want; var _fbk2=_bgmSoloFallbackKey(want); try{ _bgmAudio.onerror=_fbk2?function(){ _bgmAudio.onerror=null; try{ _bgmAudio.src=BGM_FILES[_fbk2]; if(effMusicVol()>0){ var _p2=_bgmAudio.play(); if(_p2&&_p2.catch) _p2.catch(function(){}); } }catch(e){} }:null; _bgmAudio.src=BGM_FILES[want]; }catch(e){} if(effMusicVol()>0){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); } }
   else if(force && effMusicVol()>0 && _bgmAudio.paused){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); }
@@ -6944,7 +6944,7 @@ function afJoyEnd(){ if(AField){ AField.joy=null; } afJoyKnob({x:0,y:0}); }
 function afJoyMoveMouse(e){ if(AField&&AField.joy){ afJoyMove(e); } }
 function afBind(){ document.addEventListener('keydown',afKeyDown); document.addEventListener('keyup',afKeyUp); { var _cpc=byId('afCardPopClose'); if(_cpc&&!_cpc._b){ _cpc._b=1; _cpc.addEventListener('click',afHideCardPop); } var _cp=byId('afCardPop'); if(_cp&&!_cp._b){ _cp._b=1; _cp.addEventListener('click',function(e){ if(e.target===_cp) afHideCardPop(); }); } } var j=byId('afJoy'); if(j){ j.addEventListener('touchstart',afJoyStart,{passive:false}); j.addEventListener('touchmove',afJoyMove,{passive:false}); j.addEventListener('touchend',afJoyEnd); j.addEventListener('mousedown',afJoyStart); } window.addEventListener('mousemove',afJoyMoveMouse); window.addEventListener('mouseup',afJoyEnd); window.addEventListener('resize',afResize); }
 function afUnbind(){ document.removeEventListener('keydown',afKeyDown); document.removeEventListener('keyup',afKeyUp); window.removeEventListener('mousemove',afJoyMoveMouse); window.removeEventListener('mouseup',afJoyEnd); window.removeEventListener('resize',afResize); }
-function afOpen(){ afInit(); show('arenaField'); _afCardsKey=null; try{ afHideCardPop(); }catch(_e){} { var _ss=byId('startScreen'); if(_ss) _ss.classList.remove('show'); var _lb=byId('lobby'); if(_lb) _lb.classList.remove('show'); } afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
+function afOpen(){ afInit(); show('arenaField'); _afCardsKey=null; try{ afHideCardPop(); }catch(_e){} try{ updateBGM(true); }catch(_e){}   /* arena has its own BGM; switch off the mode-1 track on entry */ { var _ss=byId('startScreen'); if(_ss) _ss.classList.remove('show'); var _lb=byId('lobby'); if(_lb) _lb.classList.remove('show'); } afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
   afStartPhases(); afRenderPhaseBar(); afRenderTeamBar(); if(afPhaseTimer) clearInterval(afPhaseTimer); afPhaseTimer=setInterval(afPhaseTick,500); }
 function afClose(){ if(AField&&AField.raf){ try{ cancelAnimationFrame(AField.raf); }catch(e){} AField.raf=null; } if(afPhaseTimer){ clearInterval(afPhaseTimer); afPhaseTimer=null; } try{ if(MP.arena&&MP.arena._afTimer){ clearInterval(MP.arena._afTimer); MP.arena._afTimer=null; } }catch(e){} afUnbind(); AField=null; hide('arenaField'); }
 function afExitToPrep(){ try{ if(typeof Net!=='undefined'&&Net.arenaRef&&Net.uid) Net.arenaRef.child('field/'+Net.uid).remove(); }catch(e){} afClose(); if(typeof Net!=='undefined' && Net.worldId){ try{ show('lobby'); renderLobby(); return; }catch(e){} } goStartScreen(); }
@@ -9353,7 +9353,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·199'; }
+    bt.textContent='build 0618·200'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9361,7 +9361,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·199'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·200'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
