@@ -85,6 +85,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .setRow.langRow{padding-top:6px;margin-top:4px;border-top:1px solid var(--line);cursor:default;}
 .langRow select.langsel{flex:1;height:32px;}
 .setViewSeg{display:flex;gap:4px;margin-left:auto;}
+.lbMapFixed{ display:inline-flex; align-items:center; justify-content:center; min-width:64px; padding:9px 18px; border-radius:8px; background:linear-gradient(180deg,#e9c25a,#d9a441); color:#2a1e05; font-weight:800; font-size:14px; }
 .setViewSeg .segBtn{padding:3px 9px;font-size:12px;min-width:28px;}
 
 /* ============ Main ============ */
@@ -1636,13 +1637,13 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
       <p class="lbHint" id="lbModeDesc"></p></div>
     <div class="lbField"><label id="lbMaxLab">人數上限</label>
       <input type="number" id="lbMaxInput" min="2" max="10" step="1" value="4" inputmode="numeric" autocomplete="off"></div>
-    <div class="lbField"><label id="lbMapLab">地圖大小</label>
+    <div class="lbField" id="lbMapField"><label id="lbMapLab">地圖大小</label>
       <div class="seg" id="lbMapSeg">
         <button class="segBtn" data-map="25">25</button>
         <button class="segBtn sel" data-map="30">30</button>
         <button class="segBtn" data-map="35">35</button>
         <button class="segBtn" data-map="40">40</button>
-      </div></div>
+      </div><span class="lbMapFixed" id="lbMapFixed" style="display:none">20</span></div>
     <div id="lbCreateCfg"></div>
     <button class="btn gold lbWide" id="lbCreate">確定建立</button>
     </div>
@@ -6568,7 +6569,7 @@ function openLobbyScreen(){
 
 /* ---------------------------- lobby ---------------------------- */
 function lobbySelectedMode(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; if(l1==='arena') return 'arena'; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l2==='coop') return 'coop'; var l3b=document.querySelector('#lbL3Seg .segBtn.sel'), l3=l3b?l3b.dataset.l3:'solo'; return (l3==='team')?'raceteam':'race'; }
-function lobbyUpdateModeMenu(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; var l2seg=byId('lbL2Seg'), l3seg=byId('lbL3Seg'); if(l1==='tower'){ if(l2seg) l2seg.style.display=''; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l3seg) l3seg.style.display=(l2==='race')?'':'none'; } else { if(l2seg) l2seg.style.display='none'; if(l3seg) l3seg.style.display='none'; } var d=byId('lbModeDesc'); if(d) d.textContent=t(modeDescKey(lobbySelectedMode())); try{ renderCreateCfg(); }catch(_e){} }
+function lobbyUpdateModeMenu(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; var l2seg=byId('lbL2Seg'), l3seg=byId('lbL3Seg'); if(l1==='tower'){ if(l2seg) l2seg.style.display=''; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l3seg) l3seg.style.display=(l2==='race')?'':'none'; } else { if(l2seg) l2seg.style.display='none'; if(l3seg) l3seg.style.display='none'; } var d=byId('lbModeDesc'); if(d) d.textContent=t(modeDescKey(lobbySelectedMode())); { var _arena=(lobbySelectedMode()==='arena'); var _ms=byId('lbMapSeg'), _fx=byId('lbMapFixed'); if(_ms) _ms.style.display=_arena?'none':''; if(_fx) _fx.style.display=_arena?'':'none'; }   /* arena is always 20x20 -> show a fixed '20', not a selector */ try{ renderCreateCfg(); }catch(_e){} }
 var _createCfg=null;
 function getCreateCfg(){ if(!_createCfg) _createCfg=defaultRoomCfg(); return _createCfg; }
 function hashPass(s){ s=String(s||''); if(!s) return ''; var h=5381; for(var i=0;i<s.length;i++){ h=((h*33)^s.charCodeAt(i))>>>0; } return h.toString(36); }
@@ -6698,7 +6699,7 @@ function mpErr(code){ return t('mp.'+({noauth:'noauth',notfound:'roomNotFound',f
 
 function doCreate(){
   const name=getNameInput(); if(!name){ toast(t('mp.needName')); return; }
-  MP.myName=name; const mode=lobbySelectedMode(), maxP=lobbySelectedMax(), mapN=lobbySelectedMapSize();
+  MP.myName=name; const mode=lobbySelectedMode(), maxP=lobbySelectedMax(), mapN=(lobbySelectedMode()==='arena'?20:lobbySelectedMapSize());
   var _rn=((byId('lbRoomName')&&byId('lbRoomName').value)||'').trim();
   var _ph=(typeof hashPass==='function')?hashPass(((byId('lbRoomPass')&&byId('lbRoomPass').value)||'').trim()):'';
   var _cfg=(typeof getCreateCfg==='function')?getCreateCfg():null;
@@ -9353,7 +9354,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·200'; }
+    bt.textContent='build 0618·202'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9361,7 +9362,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·200'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·202'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
