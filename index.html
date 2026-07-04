@@ -6520,6 +6520,7 @@ function computeRaceRank(){
 
 /* ---------------------------- start screen ---------------------------- */
 function goStartScreen(){
+  var _wasMP=!!(state.mpStarted || state._inLobby || (state.mode && state.mode!=='solo') || (typeof Net!=='undefined' && Net.worldId));
   try{ clearTimeout(combatTimer); }catch(e){} state.combat=null; state.busy=false; state.target=null;   /* 退出回主畫面：強制中止戰鬥——取消回合排程，並把 state.combat 設為 null，逐發動畫/音效迴圈下一步即自停 */
   state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false; state.portalAim=false; state.portalTarget=null;
   if(Net.worldId) Net.leaveWorld();
@@ -6528,6 +6529,7 @@ function goStartScreen(){
   try{ stopRaceCountdown(); }catch(e){} state.raceEndsAt=0; state._raceCdEnded=false;
   try{ Net.unwatchLobby(); }catch(e){} state._spectator=false;
   state.spectating=false; state.specUid=null;
+  if(_wasMP){ state.player=null; state.over=false; }   /* left MP / lobby / room-create -> no resumable solo game, so no 繼續遊戲 button (solo mid-exit still keeps its player) */
   renderStartScreen(); show('startScreen'); renderMpButton(); try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(e){}   /* 回主畫面時收起成就提示，回遊戲再續播 */
   try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){}
   try{ _bgmStopWA(); }catch(e){}
@@ -6639,7 +6641,7 @@ function _lbCfgBindToggle(){ var t=byId('lbCfgToggle'); if(!t||t._bound) return;
 function renderRoomModeSel(box, mode){
   var host=!!(MP.meta && MP.meta.host===Net.uid);
   function commitMode(m){ if(!m || m===MP.mode) return; if(MP.meta) MP.meta.mode=m; MP.mode=m; if(typeof Net!=='undefined'&&Net.setMode) Net.setMode(m); try{ if(byId('lobby')&&byId('lobby').classList.contains('show')) renderLobby(); else renderRoomCfg(); }catch(_e){ renderRoomCfg(); } }
-  function mseg(lab,opts,cur,pick){ var f=document.createElement('div'); f.className='lbField'; if(lab){ var l=document.createElement('label'); l.textContent=lab; f.appendChild(l); } var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; if(host){ b.addEventListener('click',function(){ pick(o.val); }); } else { b.disabled=true; } s.appendChild(b); }); f.appendChild(s); box.appendChild(f); }
+  function mseg(lab,opts,cur,pick,anyone){ var f=document.createElement('div'); f.className='lbField'; if(lab){ var l=document.createElement('label'); l.textContent=lab; f.appendChild(l); } var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; if(host||anyone){ b.addEventListener('click',function(){ pick(o.val); }); } else { b.disabled=true; } s.appendChild(b); }); f.appendChild(s); box.appendChild(f); }
   var l1=(mode==='arena')?'arena':'tower';
   mseg(t('mp.mode'),[{val:'tower',lab:t('mp.modeTower')},{val:'arena',lab:t('mp.modeFreeArena')}], l1, function(v){ if(v==='arena') commitMode('arena'); else commitMode(isSummitMode(MP.mode)?MP.mode:'coop'); });
   if(l1==='tower'){
@@ -6650,6 +6652,7 @@ function renderRoomModeSel(box, mode){
       mseg(null,[{val:'solo',lab:t('mp.modeSolo')},{val:'team',lab:t('mp.modeTeam')}], l3, function(v){ commitMode(v==='team'?'raceteam':'race'); });
     }
   }
+  if(mode==='arena'){ var _tp=(MP.arenaTeamPref==='A'||MP.arenaTeamPref==='B')?MP.arenaTeamPref:'auto'; mseg(t('mp.afTeamPick'),[{val:'auto',lab:t('mp.afTeamAuto')},{val:'A',lab:t('mp.afTeamA')},{val:'B',lab:t('mp.afTeamB')}], _tp, function(v){ MP.arenaTeamPref=(v==='auto')?null:v; renderRoomCfg(); }, true); }
 }
 function renderRoomCfg(){
   var box=byId('lbCfg'); if(!box) return;
@@ -6924,12 +6927,13 @@ function afOnField(fieldData){
 }
 var AF_AI_FACES=['\ud83e\udd16','\ud83d\udc7e','\ud83d\udc79','\ud83e\udddf','\ud83e\uddb8','\ud83d\udd25','\ud83d\udc32','\ud83d\udc7a'];
 function afSpawnAI(){
-  if(!afIsHost()) return; if(!(typeof Net!=='undefined'&&Net.arenaRef&&Net.uid)) return;
-  if(!MP.arena) return; if(MP.arena._aiSpawned) return; var n=arenaAICount(); MP.arena._aiUids=[]; if(n<=0){ MP.arena._aiSpawned=true; return; } MP.arena._aiSpawned=true;
-  for(var i=1;i<=n;i++){ var uid='AI'+i; var st=(typeof arenaFighterStats==='function')?arenaFighterStats(uid):{hp:START.hp,atk:START.atk,def:START.def,cards:[]}; var team=(i%2===1)?'B':'A'; var ang=(i-1)/Math.max(1,n)*Math.PI*2, r=AF_CFG.ringR*0.6; var px=AF_CFG.w/2+Math.cos(ang)*r, py=AF_CFG.h/2+Math.sin(ang)*r;
-    MP.arena._aiUids.push(uid);
-    try{ var ref=Net.arenaRef.child('field/'+uid); ref.set({ px:Math.round(px*100)/100, py:Math.round(py*100)/100, team:team, face:AF_AI_FACES[(i-1)%AF_AI_FACES.length], name:'AI '+i, hp:(st.hp||START.hp), atk:(st.atk||START.atk), def:(st.def||START.def), cards:((st.cards&&st.cards.length)?st.cards:((typeof arenaAICards==='function')?arenaAICards(uid):[])), isAI:true, t:(Net.ts?Net.ts():Date.now()) }); ref.onDisconnect().remove(); }catch(e){}
-  }
+  if(typeof MP==='undefined' || !MP.arena) return; if(MP.arena._aiSpawned) return;
+  if(!afIsHost()) return; if(!(typeof Net!=='undefined'&&Net.arenaRef&&Net.uid)) return;   /* not bound yet -> afFrame retries next frame */
+  if(state.mode!=='arena') return;
+  var n=arenaAICount(); if(n<=0){ MP.arena._aiSpawned=true; MP.arena._aiUids=[]; return; }
+  var uids=[];
+  for(var i=1;i<=n;i++){ var uid='AI'+i; try{ var st=(typeof arenaFighterStats==='function')?arenaFighterStats(uid):{hp:START.hp,atk:START.atk,def:START.def,cards:[]}; var team=(i%2===1)?'B':'A'; var ang=(i-1)/Math.max(1,n)*Math.PI*2, r=AF_CFG.ringR*0.6; var px=AF_CFG.w/2+Math.cos(ang)*r, py=AF_CFG.h/2+Math.sin(ang)*r; var ref=Net.arenaRef.child('field/'+uid); ref.set({ px:Math.round(px*100)/100, py:Math.round(py*100)/100, team:team, face:AF_AI_FACES[(i-1)%AF_AI_FACES.length], name:'AI '+i, hp:(st.hp||START.hp), atk:(st.atk||START.atk), def:(st.def||START.def), cards:((st.cards&&st.cards.length)?st.cards:((typeof arenaAICards==='function')?arenaAICards(uid):[])), isAI:true, t:(Net.ts?Net.ts():Date.now()) }); ref.onDisconnect().remove(); uids.push(uid); }catch(e){} }
+  if(uids.length){ MP.arena._aiUids=uids; MP.arena._aiSpawned=true; }   /* only mark done once we actually wrote AI */
 }
 function afClearAI(){ if(!(typeof Net!=='undefined'&&Net.arenaRef)) return; var uids=(MP.arena&&MP.arena._aiUids)||[]; for(var i=0;i<uids.length;i++){ try{ Net.arenaRef.child('field/'+uids[i]).remove(); }catch(e){} } if(MP.arena){ MP.arena._aiUids=[]; MP.arena._aiSpawned=false; } }
 function afDraw(){
@@ -6981,7 +6985,7 @@ function afHideCardPop(){ var p=byId('afCardPop'); if(p) p.style.display='none';
 function afFrame(ts){
   var f=AField; if(!f) return;
   if(!f.last) f.last=ts; var dt=(ts-f.last)/1000; f.last=ts;
-  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); afRenderCards(); afRenderStats(); f.raf=requestAnimationFrame(afFrame);
+  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); afRenderCards(); afRenderStats(); try{ afSpawnAI(); }catch(e){} { var _afx=byId('afExit'); if(_afx && state.mode==='arena' && _afx.style.display!=='none') _afx.style.display='none'; } f.raf=requestAnimationFrame(afFrame);
 }
 function afKeyDown(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=true;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=true;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=true;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=true;} else return; if(e.preventDefault) e.preventDefault(); }
 function afKeyUp(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=false;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=false;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=false;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=false;} }
@@ -7667,7 +7671,7 @@ function startArenaRun(){
   state.player.defSkills=DEF_SKILLS.map(function(s){return s.id;});
   const tt=arenaTeams();
   MP.arena={ teams:tt, scoreA:0, scoreB:0, phase:'prep', ready:false, players:{}, _buys:0 };
-  MP.arena.myTeam=arenaMyTeam(tt);
+  MP.arena.myTeam=((MP.arenaTeamPref==='A'||MP.arenaTeamPref==='B')?MP.arenaTeamPref:arenaMyTeam(tt));   /* honour the team chosen in the waiting room */
   MP.arena.scoreA=0; MP.arena.scoreB=0; MP.arena.afResults=[]; MP.arena._afEnded=false;
   afOpen();
   try{ afSpawnAI(); }catch(e){}   /* host: put the configured AI onto the field so they count, render, and duel */
@@ -8718,11 +8722,11 @@ const I18N_AFSHOP={
 };
 (function mergeAfShop(){ for(const L in I18N_AFSHOP){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFSHOP[L].mp); } })();
 const I18N_AFTEAM={
- 'zh-Hant':{mp:{afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
- 'zh-Hans':{mp:{afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
- 'en':{mp:{afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
- 'ja':{mp:{afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
- 'ko':{mp:{afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
+ 'zh-Hant':{mp:{afTeamPick:'分隊',afTeamAuto:'自動',afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
+ 'zh-Hans':{mp:{afTeamPick:'分队',afTeamAuto:'自动',afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
+ 'en':{mp:{afTeamPick:'Team',afTeamAuto:'Auto',afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
+ 'ja':{mp:{afTeamPick:'チーム',afTeamAuto:'自動',afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
+ 'ko':{mp:{afTeamPick:'팀',afTeamAuto:'자동',afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
 };
 (function mergeAfTeam(){ for(const L in I18N_AFTEAM){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFTEAM[L].mp); } })();
 const I18N_AFDUEL={
@@ -9404,7 +9408,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·208'; }
+    bt.textContent='build 0618·210'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9412,7 +9416,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·208'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·210'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
