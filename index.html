@@ -195,7 +195,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afAdmBtn{ padding:11px 16px; border-radius:10px; background:linear-gradient(180deg,#f6d488,#c79a45 70%,#a87f2e); color:#2a1c06; border:none; font-weight:800; font-size:14px; cursor:pointer; box-shadow:0 3px 0 #7a5a1e; }
 .afAdmBtn.ghost{ background:#2c2350; color:#cbb9f0; box-shadow:0 3px 0 #1a1330; }
 .afRoster{ position:absolute; inset:0; z-index:9; align-items:center; justify-content:center; background:rgba(10,8,20,.78); }
-.afRosBox{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; max-height:92vh; overflow:auto; padding:16px; }
+.afRosBox{ display:flex; flex-direction:column; align-items:center; gap:14px; max-height:92vh; overflow:auto; padding:16px; }
 .afRosSect{ background:#1a1330; border:1px solid #6b5fa8; border-radius:12px; padding:10px 14px; }
 .afRosTeam{ font-weight:800; font-size:15px; margin-bottom:8px; padding:3px 10px; border-radius:6px; display:inline-block; }
 .afRosTeam.tA{ background:rgba(80,120,220,.3); color:#9ec1ff; } .afRosTeam.tB{ background:rgba(200,70,70,.3); color:#ff9e9e; }
@@ -204,8 +204,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afRosTable td{ padding:5px 9px; border-bottom:1px solid rgba(255,255,255,.06); }
 .afRosNm{ font-weight:700; white-space:nowrap; } .afRosAv{ margin-right:6px; font-size:16px; }
 .afRosB{ color:#6db3ff; font-weight:800; } .afRosCd{ max-width:240px; color:#cbb9f0; font-size:12px; } .afRosEmpty{ color:#7a6f9a; text-align:center; }
-.afRosCard{ display:inline-block; margin:2px 4px 2px 0; padding:2px 8px; border-radius:6px; background:#2c2350; border:1px solid #5a4d85; color:#e9e2ff; font-size:12px; cursor:pointer; }
-.afRosCard:hover{ background:#3a2e5e; border-color:#8a7ac0; }
+.afRosCard{ display:inline-block; margin:2px 4px 2px 0; padding:2px 7px; border-radius:5px; background:rgba(120,105,175,.16); border:none; color:#d8ccf5; font-size:12px; cursor:help; }
+.afRosCard:hover{ background:rgba(120,105,175,.34); }
 .afRosTip{ position:fixed; z-index:23; max-width:min(84vw,320px); background:#1a1530; border:1px solid #6b5fa8; border-radius:10px; padding:12px 14px; box-shadow:0 8px 26px rgba(0,0,0,.6); pointer-events:none; }
 .afRosTipName{ font-weight:800; color:#ffe6b8; font-size:15px; margin-bottom:4px; }
 .afRosTipType{ font-size:12px; color:#b9a7e0; margin-bottom:7px; }
@@ -713,7 +713,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 #cheatBadge button{background:#2a1c06;color:var(--gold);font-weight:800;border-radius:999px;padding:3px 11px;font-size:11px;cursor:pointer;border:none;}
 #adminEnterBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #6b4914;}
 #voiceMsg{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:240;background:rgba(20,6,6,.92);border:1px solid #b23b3b;color:#ff6b6b;font-weight:800;padding:8px 14px;border-radius:10px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.5);}
-#exitHint{position:absolute;left:14px;bottom:12px;z-index:150;display:none;align-items:center;gap:6px;
+#exitHint{position:fixed;left:14px;bottom:12px;z-index:9999;display:none;align-items:center;gap:6px;
   font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--gold);
   background:rgba(20,12,6,.5);border:1px solid rgba(232,176,75,.28);padding:7px 13px;border-radius:999px;
   box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:pointer;user-select:none;-webkit-user-select:none;
@@ -5052,20 +5052,55 @@ const HELP_MP_ITEMS = {
    ['🤝','<b>팀 공유</b>: 협동 / 팀 모드에서는 팀원이 주운 공격·방어 스킬북, 층 이동, 몬스터 도감이 팀 전체에 공유됩니다. 보석·열쇠·성수·물약은 각자 개별입니다.']
  ]
 };
+const HELP_ARENA_ITEMS = {
+ 'zh-Hant':[
+   ['⚔️','<b>自由競技場</b>：分隊 1v1 積分對戰。進場時抽卡強化生命／攻擊／防禦；長按 Tab（手機點「查看玩家」）可查看全員數值與抽到的卡牌。'],
+   ['⏱️','<b>流程</b>：等待 → 購買能力 → 輪流 1v1 對戰。等待時全員按「跳過等待」可提前開始；購買階段可用金錢強化。'],
+   ['🎮','<b>對戰操作</b>：方向鍵選技能；Z 用攻擊技能書、X 用防禦技能書、C 爆擊（耗能量）、V 深呼吸（回能量與體力）。手機點面板按鈕。被抽中的兩人在圈中對戰，其餘可切換自由活動／觀戰。'],
+   ['🏆','<b>勝利</b>：所有對戰結束後，隊伍積分較高的一隊獲勝。']
+ ],
+ 'zh-Hans':[
+   ['⚔️','<b>自由竞技场</b>：分队 1v1 积分对战。进场时抽卡强化生命／攻击／防御；长按 Tab（手机点「查看玩家」）可查看全员数值与抽到的卡牌。'],
+   ['⏱️','<b>流程</b>：等待 → 购买能力 → 轮流 1v1 对战。等待时全员按「跳过等待」可提前开始；购买阶段可用金钱强化。'],
+   ['🎮','<b>对战操作</b>：方向键选技能；Z 用攻击技能书、X 用防御技能书、C 爆击（耗能量）、V 深呼吸（回能量与体力）。手机点面板按钮。被抽中的两人在圈中对战，其余可切换自由活动／观战。'],
+   ['🏆','<b>胜利</b>：所有对战结束后，队伍积分较高的一队获胜。']
+ ],
+ 'en':[
+   ['⚔️','<b>Free Arena</b>: team 1v1 for points. On entry you draft cards to boost HP/ATK/DEF; hold Tab (mobile: tap "Players") to see everyone\u2019s stats and drafted cards.'],
+   ['⏱️','<b>Flow</b>: wait \u2192 buy phase \u2192 rounds of 1v1. During the wait, if everyone presses "Skip wait" it starts early; spend gold in the buy phase.'],
+   ['🎮','<b>Duel controls</b>: arrows pick a skill; Z uses the attack skill book, X the defence book, C crit (spends energy), V deep breath (restores energy & stamina). On mobile tap the panel buttons. The two drawn fighters duel in the ring; everyone else can toggle free-roam / spectate.'],
+   ['🏆','<b>Victory</b>: after all duels, the team with the higher score wins.']
+ ],
+ 'ja':[
+   ['⚔️','<b>アリーナ</b>：チーム 1v1 の得点戦。入場時にカードを引いて HP／攻撃／防御を強化。Tab 長押し（スマホは「プレイヤー」）で全員のステータスと引いたカードを確認できます。'],
+   ['⏱️','<b>流れ</b>：待機 → 購入 → 1v1 を順番に。待機中に全員が「待機スキップ」を押すと早く開始。購入フェーズでゴールドで強化。'],
+   ['🎮','<b>対戦操作</b>：方向キーで技を選択；Z 攻撃スキルブック、X 防御スキルブック、C クリティカル（エネルギー消費）、V 深呼吸（エネルギーと体力回復）。スマホはパネルのボタン。選ばれた2人がリングで対戦、他は自由移動／観戦を切替。'],
+   ['🏆','<b>勝利</b>：全対戦後、得点の高いチームが勝ちます。']
+ ],
+ 'ko':[
+   ['⚔️','<b>아레나</b>: 팀 1v1 점수전. 입장 시 카드를 뽑아 체력／공격／방어를 강화; Tab 길게(모바일은 "플레이어") 누르면 전원 능력치와 뽑은 카드를 볼 수 있습니다.'],
+   ['⏱️','<b>흐름</b>: 대기 → 구매 → 1v1 순서대로. 대기 중 전원이 "대기 건너뛰기"를 누르면 일찍 시작; 구매 단계에서 골드로 강화.'],
+   ['🎮','<b>대전 조작</b>: 방향키로 스킬 선택; Z 공격 스킬북, X 방어 스킬북, C 치명타(에너지 소모), V 심호흡(에너지·체력 회복). 모바일은 패널 버튼. 뽑힌 두 명이 링에서 대전, 나머지는 자유이동／관전 전환.'],
+   ['🏆','<b>승리</b>: 모든 대전 후 점수가 높은 팀이 승리합니다.']
+ ]
+};
 function openHelp(){
   byId('helpTitle').textContent=t('help.title');
   const hc=byId('helpClose'); if(hc) hc.textContent=t('help.start');
   const list=byId('helpList'); list.innerHTML='';
   const items=(I18N[state.lang].help.items||I18N['zh-Hant'].help.items);
   var _mpMode=!!(state.mode && state.mode!=='solo');
-  var _mpItems=_mpMode?((HELP_MP_ITEMS[state.lang])||HELP_MP_ITEMS['zh-Hant']||[]):[];
-  _mpItems.concat(items).forEach(function(pair){
+  var _isArena=(state.mode==='arena');
+  var _list2;
+  if(_isArena){ _list2=(HELP_ARENA_ITEMS[state.lang])||HELP_ARENA_ITEMS['zh-Hant']||[]; }   /* arena: its own help, no tower/solo items */
+  else { var _mpItems=_mpMode?((HELP_MP_ITEMS[state.lang])||HELP_MP_ITEMS['zh-Hant']||[]):[]; _list2=_mpItems.concat(items); }
+  _list2.forEach(function(pair){
     const it=document.createElement('div'); it.className='helpItem nohero';
     it.innerHTML='<div>'+pair[1]+'</div>';
     list.appendChild(it);
   });
   const pl=state.player; const sc=[];
-  if(pl){ ensureSkills(pl);
+  if(pl && !_isArena){ ensureSkills(pl);
     if(pl.hasManual) sc.push(t('help.kbManual'));
     if((pl.tpScrolls||0)>0) sc.push(t('help.kbTeleport'));
     if(effAtkSkillIds().length) sc.push(t('help.kbAtk'));
@@ -5547,7 +5582,7 @@ function toggleSettingsMenu(){
     var _soloGame=!!(typeof inGame==='function' && inGame() && state && state.mode==='solo');
     var _hb=byId('btnHome'); if(_hb){ var _hr=_hb.closest('.setRow'); if(_hr) _hr.style.display=_mpLive?'none':''; }   /* 主畫面／回到主畫面：多人遊戲進行中隱藏（此鈕為單機用） */
     var _nb=byId('btnNew');  if(_nb){ var _nr=_nb.closest('.setRow'); if(_nr) _nr.style.display=_soloGame?'':'none'; }   /* 重新開始：僅單機遊戲中顯示（大廳/主畫面/多人皆隱藏） */
-    var _vr=byId('setViewRow'); if(_vr){ _vr.style.display=_mpLive?'':'none'; if(_mpLive){ var _cur=mpViewPref(); var _vbs=_vr.querySelectorAll('.segBtn'); for(var _i=0;_i<_vbs.length;_i++){ _vbs[_i].classList.toggle('sel',(+_vbs[_i].dataset.sv)===_cur); } } }   /* 視野：每位玩家自行調整（僅多人遊戲中，單機為全圖） */
+    var _vr=byId('setViewRow'); if(_vr){ _vr.style.display=(_mpLive && !(typeof state!=='undefined' && state.mode==='arena'))?'':'none'; if(_mpLive){ var _cur=mpViewPref(); var _vbs=_vr.querySelectorAll('.segBtn'); for(var _i=0;_i<_vbs.length;_i++){ _vbs[_i].classList.toggle('sel',(+_vbs[_i].dataset.sv)===_cur); } } }   /* 視野：每位玩家自行調整（僅多人遊戲中，單機為全圖） */
     var _sb=byId('btnSave'); if(_sb){ var _sr=_sb.closest('.setRow'); if(_sr) _sr.style.display=_mpLive?'none':''; }   /* 存檔/讀檔：僅單機 */
     var _lb2=byId('btnLoot'); if(_lb2){ var _lr=_lb2.closest('.setRow'); if(_lr) _lr.style.display=_mpLive?'none':''; }   /* 戰利品：僅單機 */
   }catch(_e){}
@@ -5759,7 +5794,7 @@ function bindInput(){
 
   const cbtns=document.querySelectorAll('[data-close]');
   for(let i=0;i<cbtns.length;i++){
-    cbtns[i].addEventListener('click',function(ev){ const ov=ev.currentTarget.closest('.overlay'); if(ov) hide(ov.id); else updateExitHint(); });
+    cbtns[i].addEventListener('click',function(ev){ const ov=ev.currentTarget.closest('.overlay'); if(ov){ hide(ov.id); if(typeof state!=='undefined' && state.mode==='arena' && typeof AField!=='undefined' && AField && ov.id!=='arenaField'){ try{ show('arenaField'); }catch(e){} } } else updateExitHint(); });   /* re-show the arena field after closing a modal opened on top of it (fixes black screen) */
   }
   { const eh=byId('exitHint'); if(eh) eh.addEventListener('click', exitTopOverlay); }   /* touch: tap the corner hint to leave the dialog */
 
@@ -7107,7 +7142,7 @@ function afAdminSkipToBattle(){ if(!(typeof Account!=='undefined' && Account.isA
 var _rosTipTimer=null;
 function afShowCardTip(el,id){ var tip=byId('afRosTip'); if(!tip||!el) return; var c=cardById(id); if(!c) return; var nm=byId('afRosTipName'),tp=byId('afRosTipType'),ds=byId('afRosTipDesc'); if(nm) nm.textContent=cardName(id); if(tp) tp.textContent=(typeof cardTypeLabel==='function')?cardTypeLabel(c.type):(c.type==='active'?'主動':'被動'); if(ds) ds.textContent=cardDesc(id); tip.style.display='block'; tip.style.visibility='hidden'; var r=el.getBoundingClientRect(), tr=tip.getBoundingClientRect(); var W=(window.innerWidth||800), H=(window.innerHeight||600); var top=r.bottom+8; if(top+tr.height>H-8) top=r.top-tr.height-8; var left=r.left; if(left+tr.width>W-8) left=W-tr.width-8; tip.style.top=Math.max(8,top)+'px'; tip.style.left=Math.max(8,left)+'px'; tip.style.visibility='visible'; }
 function afHideCardTip(){ if(_rosTipTimer){ clearTimeout(_rosTipTimer); _rosTipTimer=null; } var tip=byId('afRosTip'); if(tip) tip.style.display='none'; }
-function afShowScoreboard(show){ var box=byId('afRoster'); if(!show) afHideCardTip(); if(!box) return; if(show && (typeof state==='undefined'||state.mode!=='arena')) show=false; if(show){ afRenderScoreboard(); box.style.display='flex'; } else { box.style.display='none'; } }
+function afShowScoreboard(show){ var box=byId('afRoster'); if(!show) afHideCardTip(); if(!box) return; if(show && (typeof state==='undefined'||state.mode!=='arena')) show=false; if(show){ if(box.style.display==='flex') return; afRenderScoreboard(); box.style.display='flex'; } else { box.style.display='none'; } }   /* already open -> keep the existing chips so the 1s hover timer isn't reset by Tab key-repeat */
 function afRenderStats(){
   var box=byId('afStats'); if(!box) return;
   var pl=(typeof state!=='undefined'&&state.player)||null;
@@ -9594,7 +9629,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·231'; }
+    bt.textContent='build 0618·233'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9602,7 +9637,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·231'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·233'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
