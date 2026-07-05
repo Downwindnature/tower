@@ -142,7 +142,12 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afDuelBanner{ position:absolute; left:0; right:0; top:44px; text-align:center; color:#f6d488; font-size:20px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
 .afScore{ position:absolute; left:0; right:0; top:16px; text-align:center; color:#fff; font-size:16px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
 .afCount{ position:absolute; left:50%; top:42%; transform:translate(-50%,-50%); color:#fff; font-size:96px; font-weight:900; pointer-events:none; z-index:6; text-shadow:0 3px 14px #000,0 0 26px rgba(246,212,136,.7); }
-.afFightPanel{ position:absolute; left:0; right:0; bottom:0; z-index:6; background:rgba(20,14,36,.85); border-top:1px solid #c79a45; padding:8px 12px 10px; color:#f3ead2; }
+.afFightPanel{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:8; background:linear-gradient(180deg,#241a3e,#1a1330); border:1px solid #c79a45; border-radius:14px; padding:16px 18px 14px; color:#f3ead2; width:min(94vw,560px); max-height:94vh; overflow:auto; box-shadow:0 12px 44px rgba(0,0,0,.65); }
+.afpCombatants{ margin-bottom:4px; }
+.afpHpBar{ height:7px; background:rgba(0,0,0,.5); border-radius:5px; overflow:hidden; margin:2px auto 4px; width:88%; }
+.afpHpFill{ display:block; height:100%; background:linear-gradient(90deg,#5fd06a,#8ee88f); transition:width .18s; }
+.afpMine{ margin-top:12px; border-top:1px solid rgba(199,154,69,.3); padding-top:10px; }
+.afpRes{ text-align:center; color:#e0b34a; font-weight:700; font-size:13px; margin-bottom:8px; }
 .afpRow{ display:flex; align-items:center; gap:8px; font-size:13px; margin:3px 0; }
 .afpName{ min-width:74px; max-width:74px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .afpBar{ flex:1; height:12px; background:rgba(0,0,0,.55); border-radius:6px; overflow:hidden; }
@@ -1788,8 +1793,33 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     </div>
   </div>
   <div class="afFightPanel" id="afFightPanel" style="display:none">
-    <div class="afpRow"><span class="afpName" id="afpAName"></span><span class="afpBar"><span class="afpBarFill" id="afpABar"></span></span><span class="afpHp" id="afpAHp"></span></div>
-    <div class="afpRow"><span class="afpName" id="afpBName"></span><span class="afpBar"><span class="afpBarFill" id="afpBBar"></span></span><span class="afpHp" id="afpBHp"></span></div>
+    <div class="combatants afpCombatants">
+      <div class="combatant me">
+        <div class="cname" id="afpAName"></div>
+        <div class="portrait"><span class="pg" id="afpAFace">🙂</span></div>
+        <div class="afpHpBar"><span class="afpHpFill" id="afpABar"></span></div>
+        <div class="cbNums">
+          <div class="cbRow"><span class="k afpStatK" data-k="hp">生命</span><span class="v num" id="afpAHp"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="atk">攻擊</span><span class="v num" id="afpAAtk"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="def">防禦</span><span class="v num" id="afpADef"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="en">能量</span><span class="v num" id="afpAEn"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="st">體力</span><span class="v num" id="afpAStam"></span></div>
+        </div>
+      </div>
+      <div class="cbMid"><span class="vs">⚔</span><span class="vs">VS</span></div>
+      <div class="combatant foe">
+        <div class="cname" id="afpBName"></div>
+        <div class="portrait"><span class="pg" id="afpBFace">🙂</span></div>
+        <div class="afpHpBar"><span class="afpHpFill" id="afpBBar"></span></div>
+        <div class="cbNums">
+          <div class="cbRow"><span class="k afpStatK" data-k="hp">生命</span><span class="v num" id="afpBHp"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="atk">攻擊</span><span class="v num" id="afpBAtk"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="def">防禦</span><span class="v num" id="afpBDef"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="en">能量</span><span class="v num" id="afpBEn"></span></div>
+          <div class="cbRow"><span class="k afpStatK" data-k="st">體力</span><span class="v num" id="afpBStam"></span></div>
+        </div>
+      </div>
+    </div>
     <div class="afpMine" id="afpMine" style="display:none"><div class="afpRes" id="afpRes"></div><div class="afpSkills" id="afpSkills"></div></div>
   </div>
   <button class="afSpectateBtn" id="afSpectateBtn" style="display:none">自由活動</button>
@@ -3996,8 +4026,8 @@ function autoRoundTick(){
 }
 /* admin mode: unlock every attack & defence skill book; reverts the instant admin mode is exited (logout). Player's genuinely-learned skills are never modified, so saves stay clean. */
 function _admSkAll(){ return (typeof Account!=='undefined' && !!Account.isAdmin); }
-function effAtkSkillIds(){ return _admSkAll() ? ATK_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.atkSkills)||[]); }
-function effDefSkillIds(){ return _admSkAll() ? DEF_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.defSkills)||[]); }
+function effAtkSkillIds(){ return (_admSkAll() && (typeof state==='undefined'||state.mode!=='solo')) ? ATK_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.atkSkills)||[]); }   /* admin all-skills override does NOT apply in solo — solo shows only learned books */
+function effDefSkillIds(){ return (_admSkAll() && (typeof state==='undefined'||state.mode!=='solo')) ? DEF_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.defSkills)||[]); }   /* solo: learned books only */
 function effSkillIds(kind){ return kind==='atk'?effAtkSkillIds():effDefSkillIds(); }
 function skLvOk(s){ return !!s && (_admSkAll() || (state.player&&state.player.lv>=s.lv)); }
 function refreshCombatButtons(){
@@ -6193,7 +6223,7 @@ const Net = {
     this.arenaRef=this.worldRef.child('arena');
     try{ this.presRef.child(this.uid).onDisconnect().remove(); }catch(e){}
     try{ this.membersRef.child(this.uid).onDisconnect().remove(); }catch(e){}
-    var _selfHb=this; if(this._lobbyHb){ clearInterval(this._lobbyHb); } this._lobbyHb=setInterval(function(){ try{ _selfHb.pushLobby(); }catch(e){} }, 12000);
+    var _selfHb=this; if(this._lobbyHb){ clearInterval(this._lobbyHb); } this._lobbyHb=setInterval(function(){ try{ _selfHb.pushLobby(); }catch(e){} }, 5000);
     this.track(this.metaRef,'value',function(s){ onMetaUpdate(s.val()); });
     this.track(this.membersRef,'value',function(s){ onMembersUpdate(s.val()||{}); });
     this.track(this.presRef,'value',function(s){ onPresenceUpdate(s.val()||{}); });
@@ -6632,6 +6662,7 @@ function defaultRoomCfg(){ return { floors:26, difficulty:'normal', countdown:tr
 function roomCfg(){ var d=defaultRoomCfg(), c=(MP.meta&&MP.meta.cfg)?MP.meta.cfg:null; if(!c) return d;
   return { floors:clamp((c.floors!=null?c.floors:d.floors)|0,26,51),
            mapSize:clamp((c.mapSize!=null?c.mapSize:((typeof MP!=='undefined'&&MP.mapSize)||d.mapSize))|0,20,48),
+           arenaTeamMode:(c.arenaTeamMode==='free'?'free':'random'),
            difficulty:(['easy','normal','hard','hell'].indexOf(c.difficulty)>=0?c.difficulty:d.difficulty),
            countdown:(c.countdown!=null?!!c.countdown:d.countdown),
            teamMethod:(['random','pick'].indexOf(c.teamMethod)>=0?c.teamMethod:d.teamMethod),
@@ -6652,7 +6683,12 @@ function renderRoomModeSel(box, mode){
       mseg(null,[{val:'solo',lab:t('mp.modeSolo')},{val:'team',lab:t('mp.modeTeam')}], l3, function(v){ commitMode(v==='team'?'raceteam':'race'); });
     }
   }
-  if(mode==='arena'){ var _tp=(MP.arenaTeamPref==='A'||MP.arenaTeamPref==='B')?MP.arenaTeamPref:'auto'; mseg(t('mp.afTeamPick'),[{val:'auto',lab:t('mp.afTeamAuto')},{val:'A',lab:t('mp.afTeamA')},{val:'B',lab:t('mp.afTeamB')}], _tp, function(v){ MP.arenaTeamPref=(v==='auto')?null:v; renderRoomCfg(); }, true); }
+  if(mode==='arena'){
+    var _c=(typeof roomCfg==='function')?roomCfg():{}; var _atm=(_c.arenaTeamMode==='free')?'free':'random';
+    var commitCfg=function(k,v){ if(!host) return; if(!MP.meta) return; if(!MP.meta.cfg) MP.meta.cfg={}; MP.meta.cfg[k]=v; if(typeof Net!=='undefined'&&Net.setRoomCfg) Net.setRoomCfg(MP.meta.cfg); renderRoomCfg(); };
+    mseg(t('mp.afTeamMethod'),[{val:'random',lab:t('mp.afTeamModeRandom')},{val:'free',lab:t('mp.afTeamModeFree')}], _atm, function(v){ commitCfg('arenaTeamMode',v); });   /* host only */
+    if(_atm==='free'){ var _tp=(MP.arenaTeamPref==='A'||MP.arenaTeamPref==='B')?MP.arenaTeamPref:'auto'; mseg(t('mp.afTeamPick'),[{val:'auto',lab:t('mp.afTeamAuto')},{val:'A',lab:t('mp.afTeamA')},{val:'B',lab:t('mp.afTeamB')}], _tp, function(v){ MP.arenaTeamPref=(v==='auto')?null:v; renderRoomCfg(); }, true); }   /* free: each player picks (auto=gray default) */
+  }
 }
 function renderRoomCfg(){
   var box=byId('lbCfg'); if(!box) return;
@@ -6763,7 +6799,7 @@ function lobbyRoomsFromSnap(v, now){
   for(var code in v){
     var r=v[code]; if(!r) continue;
     if((r.count||0)<=0) continue;                          /* empty rooms */
-    if((now-(r.updatedAt||0))>60000) continue;             /* abandoned rooms fade out (~60s without a heartbeat) */
+    if((now-(r.updatedAt||0))>16000){ try{ if(typeof Net!=='undefined' && Net.db && Net.worldId!==code){ Net.db.ref('lobby/'+code).remove(); Net.db.ref('worlds/'+code).remove(); } }catch(e){} continue; }   /* nobody's heartbeat for ~16s -> the room is empty: hide it AND prune it from Firebase so it doesn't linger */
     rooms.push({ code:code, mode:r.mode||'coop', host:r.host||'', name:(r.name||''), locked:!!r.locked, count:r.count||0, max:r.max||4, status:r.status||'lobby', createdAt:r.createdAt||0, floors:r.floors||26, diff:r.diff||'normal' });
   }
   rooms.sort(function(a,b){ if((a.status==='lobby')!==(b.status==='lobby')) return a.status==='lobby'?-1:1; return (b.createdAt||0)-(a.createdAt||0); });   /* joinable rooms first, then newest */
@@ -6877,7 +6913,7 @@ function computeRunScore(won){
   return { ability:ability, monster:monster, time:time, win:win, total:ability+monster+time+win, sec:sec };
 }
 const AF_CFG={ w:20, h:20, ringR:4, speed:7 };
-const AF_PHASE={ wait:60, shop:120, prep:15 };
+const AF_PHASE={ wait:60, shop:60, prep:15 };
 const AF_SHOPS=[{x:5,y:10},{x:15,y:10}];
 const AF_DUEL_POS={ A:{x:8,y:10}, B:{x:12,y:10} };
 let afPhaseTimer=null;
@@ -6897,6 +6933,8 @@ function afStep(dt){
   if(!f.frozen && !f.paused){
     f.px=clamp(f.px+ix*AF_CFG.speed*dt, 0, AF_CFG.w);
     f.py=clamp(f.py+iy*AF_CFG.speed*dt, 0, AF_CFG.h);
+    var _cx=AF_CFG.w/2, _cy=AF_CFG.h/2, _dx=f.px-_cx, _dy=f.py-_cy, _dd=Math.hypot(_dx,_dy);
+    if(_dd<AF_CFG.ringR){ if(_dd<0.001){ _dx=0; _dy=1; _dd=1; } var _s=AF_CFG.ringR/_dd; f.px=_cx+_dx*_s; f.py=_cy+_dy*_s; }   /* the ring is impassable: stay outside it */
   }
   var tx=f.frozen?(AF_CFG.w/2):f.px, ty=f.frozen?(AF_CFG.h/2):f.py;
   var k=Math.min(1, dt*10); f.cam.x += (tx-f.cam.x)*k; f.cam.y += (ty-f.cam.y)*k;
@@ -6932,7 +6970,7 @@ function afSpawnAI(){
   if(state.mode!=='arena') return;
   var n=arenaAICount(); if(n<=0){ MP.arena._aiSpawned=true; MP.arena._aiUids=[]; return; }
   var uids=[];
-  for(var i=1;i<=n;i++){ var uid='AI'+i; try{ var st=(typeof arenaFighterStats==='function')?arenaFighterStats(uid):{hp:START.hp,atk:START.atk,def:START.def,cards:[]}; var team=(i%2===1)?'B':'A'; var ang=(i-1)/Math.max(1,n)*Math.PI*2, r=AF_CFG.ringR*0.6; var px=AF_CFG.w/2+Math.cos(ang)*r, py=AF_CFG.h/2+Math.sin(ang)*r; var ref=Net.arenaRef.child('field/'+uid); ref.set({ px:Math.round(px*100)/100, py:Math.round(py*100)/100, team:team, face:AF_AI_FACES[(i-1)%AF_AI_FACES.length], name:'AI '+i, hp:(st.hp||START.hp), atk:(st.atk||START.atk), def:(st.def||START.def), cards:((st.cards&&st.cards.length)?st.cards:((typeof arenaAICards==='function')?arenaAICards(uid):[])), isAI:true, t:(Net.ts?Net.ts():Date.now()) }); ref.onDisconnect().remove(); uids.push(uid); }catch(e){} }
+  for(var i=1;i<=n;i++){ var uid='AI'+i; try{ var st=(typeof arenaFighterStats==='function')?arenaFighterStats(uid):{hp:START.hp,atk:START.atk,def:START.def,cards:[]}; var team=(i%2===1)?'B':'A'; var ang=(i-1)/Math.max(1,n)*Math.PI*2, r=AF_CFG.ringR+1.8;   /* AI stand OUTSIDE the ring */ var px=AF_CFG.w/2+Math.cos(ang)*r, py=AF_CFG.h/2+Math.sin(ang)*r; var ref=Net.arenaRef.child('field/'+uid); ref.set({ px:Math.round(px*100)/100, py:Math.round(py*100)/100, team:team, face:AF_AI_FACES[(i-1)%AF_AI_FACES.length], name:'AI '+i, hp:(st.hp||START.hp), atk:(st.atk||START.atk), def:(st.def||START.def), cards:((st.cards&&st.cards.length)?st.cards:((typeof arenaAICards==='function')?arenaAICards(uid):[])), isAI:true, t:(Net.ts?Net.ts():Date.now()) }); ref.onDisconnect().remove(); uids.push(uid); }catch(e){} }
   if(uids.length){ MP.arena._aiUids=uids; MP.arena._aiSpawned=true; }   /* only mark done once we actually wrote AI */
 }
 function afClearAI(){ if(!(typeof Net!=='undefined'&&Net.arenaRef)) return; var uids=(MP.arena&&MP.arena._aiUids)||[]; for(var i=0;i<uids.length;i++){ try{ Net.arenaRef.child('field/'+uids[i]).remove(); }catch(e){} } if(MP.arena){ MP.arena._aiUids=[]; MP.arena._aiSpawned=false; } }
@@ -7025,15 +7063,15 @@ function afTeamCounts(){ var a=0,b=0; var my=(typeof MP!=='undefined'&&MP.arena&
 function afPickTeam(team){ var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(ph!=='wait'&&ph!=='shop') return; if(team!=='A'&&team!=='B') return; if(typeof MP!=='undefined'&&MP.arena) MP.arena.myTeam=team; if(AField){ AField.team=team; AField.lastSync=0; afSync(); } afRenderTeamBar(); }
 function afRandomTeams(){ if(!afIsHost()) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(ph!=='wait'&&ph!=='shop') return; var ids=[Net.uid]; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(u!==Net.uid) ids.push(u); } ids=arenaShuffle(ids); var map={}, half=Math.ceil(ids.length/2); for(var k=0;k<ids.length;k++){ map[ids[k]]=(k<half)?'A':'B'; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('teamAssign').set(map); }catch(e){} } afOnTeamAssign(map); }
 function afOnTeamAssign(map){ if(!map || typeof MP==='undefined' || !MP.arena) return; MP.arena.teamAssign=map; var mine=map[Net.uid]; if(mine==='A'||mine==='B'){ MP.arena.myTeam=mine; if(AField){ AField.team=mine; AField.lastSync=0; afSync(); } } afRenderTeamBar(); }
-function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var showBar=(ph==='wait'||ph==='shop'); bar.style.display=showBar?'flex':'none'; if(!showBar) return; var cnt=afTeamCounts(), my=(MP.arena&&MP.arena.myTeam)||'A'; var ba=byId('afTeamA'), bb=byId('afTeamB'), br=byId('afTeamRand'); if(ba){ ba.textContent=t('mp.afTeamA')+' ('+cnt.A+')'; ba.classList.toggle('sel',my==='A'); } if(bb){ bb.textContent=t('mp.afTeamB')+' ('+cnt.B+')'; bb.classList.toggle('sel',my==='B'); } if(br){ br.style.display=afIsHost()?'':'none'; br.textContent=t('mp.afTeamRand'); } }
+function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var showBar=false; bar.style.display='none'; if(!showBar) return;   /* team selection moved to the waiting room; no in-field team bar */ var cnt=afTeamCounts(), my=(MP.arena&&MP.arena.myTeam)||'A'; var ba=byId('afTeamA'), bb=byId('afTeamB'), br=byId('afTeamRand'); if(ba){ ba.textContent=t('mp.afTeamA')+' ('+cnt.A+')'; ba.classList.toggle('sel',my==='A'); } if(bb){ bb.textContent=t('mp.afTeamB')+' ('+cnt.B+')'; bb.classList.toggle('sel',my==='B'); } if(br){ br.style.display=afIsHost()?'':'none'; br.textContent=t('mp.afTeamRand'); } }
 function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A')A.push(meUid); else if(my==='B')B.push(meUid); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')A.push(u); else if(tm==='B')B.push(u); } return {A:A,B:B}; }
 function afAllFieldUids(){ var ids=[Net.uid||'me']; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(ids.indexOf(u)<0) ids.push(u); } return ids; }
 function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myName||'你'); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; if(fp[uid]&&fp[uid].name) return fp[uid].name; var mem=MP.members||{}; if(mem[uid]&&mem[uid].name) return mem[uid].name; return uid; }
 function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+5000, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
 function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(d.sub==='result'){ if(Date.now()>=(d.resEndsAt||0)) afAdvanceMatch(); return; } if(Date.now()>=d.subEndsAt){ var started=false; if(d.sub==='lottery'){ d.sub='count'; d.subEndsAt=Date.now()+10000; } else if(d.sub==='count'){ d.sub='fight'; started=true; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } if(started) afFightStart(); afRenderDuelOverlay(); } }
 function afOnDuel(d){ if(typeof MP==='undefined'||!MP.arena) return; MP.arena.afDuel=d; afRenderDuelOverlay(); }
-function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'){ f.frozen=false; f.spectateFree=false; return; } var meUid=Net.uid||'me'; if(meUid===d.a){ f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
-function afRenderDuelOverlay(){ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; if(scoreEl) scoreEl.style.display='none'; return; } if(scoreEl){ if(d.sub==='count'||d.sub==='fight'||d.sub==='result'){ scoreEl.style.display=''; scoreEl.textContent=t('mp.afTeamA')+' '+(d.scoreA||0)+' : '+(d.scoreB||0)+' '+t('mp.afTeamB'); } else scoreEl.style.display='none'; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ var ids=afAllFieldUids(); var r1=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):na; var r2=ids.length?afDuelName(ids[Math.floor(Math.random()*ids.length)]):nb; ban.textContent=t('mp.afLottery')+'  '+r1+'  VS  '+r2; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
+function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'){ if(f._wasFighter){ if(f._preDuelPos){ f.px=f._preDuelPos.x; f.py=f._preDuelPos.y; } f._preDuelPos=null; f._wasFighter=false; } f.frozen=false; f.spectateFree=false; return; } var meUid=Net.uid||'me'; if(meUid===d.a){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
+function afRenderDuelOverlay(){ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; if(scoreEl) scoreEl.style.display='none'; return; } if(scoreEl){ if(d.sub==='count'||d.sub==='fight'||d.sub==='result'){ scoreEl.style.display=''; scoreEl.textContent=t('mp.afTeamA')+' '+(d.scoreA||0)+' : '+(d.scoreB||0)+' '+t('mp.afTeamB'); } else scoreEl.style.display='none'; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ ban.textContent=t('mp.afLottery')+'…'; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
 function afFinishField(){ var ar=MP.arena; if(!ar) return; ar.afDuel={sub:'done'}; var sA=ar.scoreA||0, sB=ar.scoreB||0, results=ar.afResults||[]; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); Net.arenaRef.child('afEnd').set({scoreA:sA, scoreB:sB, results:results}); }catch(e){} } afShowEnd(sA,sB,results); }
 function arenaAICards(uid){
   var seed=0, s=''+(uid||'AI'); for(var i=0;i<s.length;i++) seed=(seed*31+s.charCodeAt(i))>>>0; if(!seed) seed=12345;
@@ -7045,12 +7083,12 @@ function arenaAICards(uid){
 function afFighterStats(uid){ if(/^AI/.test(uid||'')){ var _st=arenaFighterStats(uid); if(_st && (!_st.cards || !_st.cards.length)) _st.cards=arenaAICards(uid); return _st; } if(uid===Net.uid){ var pl=state.player; return { uid:uid, name:(MP.myName||'你'), hp:pl.hp, atk:pl.atk, def:pl.def, thrA:START.thrA, ai:false, cards:(pl.arenaCards||[]) }; } var fp=(MP.arena&&MP.arena.fieldPlayers)||{}, f=fp[uid]||{}; return { uid:uid, name:f.name||uid, hp:f.hp||START.hp, atk:f.atk||START.atk, def:f.def||START.def, thrA:START.thrA, ai:false, cards:(f.cards||[]) }; }
 function afFightStart(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; if(ar.afD) return; ar.curPair=[d.a,d.b]; ar.afD={ A:arenaNewFighter(afFighterStats(d.a)), B:arenaNewFighter(afFighterStats(d.b)), aAct:null, bAct:null, round:0, over:false, result:null }; afFightStream(); if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ if(ar._afTimer) clearInterval(ar._afTimer); ar._afTimer=setInterval(afFightTick, ARENA_DUEL.tickMs); } }
 function afFightTick(){ var ar=MP.arena, D=ar&&ar.afD; if(!D||D.over) return; arenaApplyReqs(D); arenaAITick(D); arenaDuelRound(D); D.round++; var res=arenaJudgeFighters(D.A,D.B); if(res===null && D.round>=ARENA_DUEL.liveMaxRounds) res=arenaTieResult(D.A.hp,D.A.maxhp,D.B.hp,D.B.maxhp); if(res!==null){ D.over=true; D.result=res; } afFightStream(); if(D.over){ if(ar._afTimer){ clearInterval(ar._afTimer); ar._afTimer=null; } afFightStream(); afFightEnd(res); } }
-function afFightStream(){ var ar=MP.arena, D=ar&&ar.afD; if(!D) return; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afFight').set({ ahp:Math.round(D.A.hp), amax:D.A.maxhp, bhp:Math.round(D.B.hp), bmax:D.B.maxhp, aname:D.A.name, bname:D.B.name, aen:Math.round(D.A.en), astam:Math.round(D.A.stam), ben:Math.round(D.B.en), bstam:Math.round(D.B.stam), round:D.round, over:!!D.over, result:D.result||null, t:(Net.ts?Net.ts():Date.now()) }); }catch(e){} } }
+function afFightStream(){ var ar=MP.arena, D=ar&&ar.afD; if(!D) return; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afFight').set({ ahp:Math.round(D.A.hp), amax:D.A.maxhp, bhp:Math.round(D.B.hp), bmax:D.B.maxhp, aname:D.A.name, bname:D.B.name, aen:Math.round(D.A.en), astam:Math.round(D.A.stam), aatk:Math.round(D.A.atk), adef:Math.round(D.A.def), ben:Math.round(D.B.en), bstam:Math.round(D.B.stam), batk:Math.round(D.B.atk), bdef:Math.round(D.B.def), round:D.round, over:!!D.over, result:D.result||null, t:(Net.ts?Net.ts():Date.now()) }); }catch(e){} } }
 function afOnFight(snap){ if(typeof MP!=='undefined'&&MP.arena) MP.arena.afFightView=snap; }
 function afFightHp(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null; if(!ar) return null; var d=ar.afDuel; if(!d||(d.sub!=='fight'&&d.sub!=='result')) return null; var _amF=(d.a===Net.uid||d.b===Net.uid); if(!_amF && AField && AField.spectateFree) return null; if(MP.host && ar.afD) return {ahp:ar.afD.A.hp,amax:ar.afD.A.maxhp,bhp:ar.afD.B.hp,bmax:ar.afD.B.maxhp}; if(ar.afFightView){ var v=ar.afFightView; return {ahp:v.ahp,amax:v.amax,bhp:v.bhp,bmax:v.bmax}; } return null; }
 function afFightEnd(res){ var ar=MP.arena; if(!ar||!ar.afDuel) return; if(res==='A') ar.scoreA=(ar.scoreA||0)+1; else if(res==='B') ar.scoreB=(ar.scoreB||0)+1; ar.afResults=ar.afResults||[]; ar.afResults.push({ a:ar.afDuel.a, b:ar.afDuel.b, an:afDuelName(ar.afDuel.a), bn:afDuelName(ar.afDuel.b), result:res }); ar.afDuel.result=res; ar.afDuel.sub='result'; ar.afDuel.resEndsAt=Date.now()+3500; ar.afDuel.scoreA=ar.scoreA||0; ar.afDuel.scoreB=ar.scoreB||0; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set(ar.afDuel); }catch(e){} } afRenderDuelOverlay(); }
 function afAdvanceMatch(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d) return; d.fought=(d.fought||[]).concat([d.a,d.b]); ar.afD=null; ar.afFightView=null; afStartDuelSequence(); }
-function afShowEnd(sA,sB,results){ if(typeof MP!=='undefined'&&MP.arena){ if(MP.arena._afEnded) return; MP.arena._afEnded=true; } var winTxt=(sA>sB)? t('mp.arenaTeamWin',{team:'A'}) : (sB>sA? t('mp.arenaTeamWin',{team:'B'}) : t('mp.arenaTie')); { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); } { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } } { var e=byId('aeScore'); if(e) e.textContent='A '+sA+' : '+sB+' B'; } var list=byId('aeList'); if(list){ list.innerHTML=''; for(var i=0;i<results.length;i++){ var r=results[i], aw=(r.result==='A'), bw=(r.result==='B'), dr=(r.result==='draw'); var row=document.createElement('div'); row.className='aeRow'; var na=document.createElement('span'); na.className='aeNm'+(aw?' aeWinner':(bw?' aeLoser':'')); na.textContent=(r.an||afDuelName(r.a))+(aw?'  ✓':''); var mid=document.createElement('span'); mid.className='aeMid'+(dr?' aeDraw':''); mid.textContent=dr? t('mp.arenaDraw') : 'VS'; var nb=document.createElement('span'); nb.className='aeNm'+(bw?' aeWinner':(aw?' aeLoser':'')); nb.textContent=(bw?'✓  ':'')+(r.bn||afDuelName(r.b)); row.appendChild(na); row.appendChild(mid); row.appendChild(nb); list.appendChild(row); } } { var e=byId('aeBack'); if(e) e.textContent=t('mp.arenaBack'); } afClose(); show('arenaEnd'); }
+function afShowEnd(sA,sB,results){ if(typeof MP!=='undefined'&&MP.arena){ if(MP.arena._afEnded) return; MP.arena._afEnded=true; } var winTxt=(sA>sB)? (t('mp.afTeamA')+t('mp.afWin')) : (sB>sA? (t('mp.afTeamB')+t('mp.afWin')) : t('mp.arenaTie')); { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); } { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } } { var e=byId('aeScore'); if(e) e.textContent=t('mp.afTeamA')+' '+sA+' : '+sB+' '+t('mp.afTeamB'); } var list=byId('aeList'); if(list){ list.innerHTML=''; for(var i=0;i<results.length;i++){ var r=results[i], aw=(r.result==='A'), bw=(r.result==='B'), dr=(r.result==='draw'); var row=document.createElement('div'); row.className='aeRow'; var na=document.createElement('span'); na.className='aeNm'+(aw?' aeWinner':(bw?' aeLoser':'')); na.textContent=(r.an||afDuelName(r.a))+(aw?'  ✓':''); var mid=document.createElement('span'); mid.className='aeMid'+(dr?' aeDraw':''); mid.textContent=dr? t('mp.arenaDraw') : 'VS'; var nb=document.createElement('span'); nb.className='aeNm'+(bw?' aeWinner':(aw?' aeLoser':'')); nb.textContent=(bw?'✓  ':'')+(r.bn||afDuelName(r.b)); row.appendChild(na); row.appendChild(mid); row.appendChild(nb); list.appendChild(row); } } { var e=byId('aeBack'); if(e) e.textContent=t('mp.arenaBack'); } afClose(); show('arenaEnd'); }
 function afOnEnd(end){ if(end) afShowEnd(end.scoreA||0, end.scoreB||0, end.results||[]); }
 function afSkillPress(id){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; var side=(Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); if(!side) return; if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ var D=ar.afD; if(!D) return; var me=(side==='A')?D.A:D.B; var _ok=arenaIsCard(id)?arenaCanUseCard(me,id):arenaCanUse(me,id); if(!_ok){ try{ toast(t('cb.needEnStam')); }catch(e){} return; } D[(side==='A')?'aAct':'bAct']=id; } else { try{ Net.arenaRef.child('req/'+Net.uid).set({ skill:id, round:(ar.afFightView&&ar.afFightView.round)||0, at:(Net.ts?Net.ts():Date.now()) }); }catch(e){} ar._myReq=id; } afFightPanelRender(); }
 function afToggleSpectate(){ if(AField){ AField.spectateFree=!AField.spectateFree; afFightPanelRender(); } }
@@ -7064,7 +7102,9 @@ function afpBuildSkills(side){ var ar=MP.arena, D=ar&&ar.afD, host=(MP.host||!(t
     if(host&&me) b.disabled=!arenaCanUseCard(me,cid);
     b.onclick=(function(_id){ return function(){ afSkillPress(_id); }; })(cid); el.appendChild(b); });
 }
-function afFightPanelRender(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel, panel=byId('afFightPanel'), spec=byId('afSpectateBtn'); if(!panel) return; var inFight=d&&(d.sub==='fight'||d.sub==='result'); if(!inFight){ panel.style.display='none'; if(spec) spec.style.display='none'; return; } var meUid=Net.uid, amF=(d.a===meUid||d.b===meUid), side=(d.a===meUid)?'A':((d.b===meUid)?'B':null); var free=AField&&AField.spectateFree; if(spec){ if(!amF && d.sub==='fight'){ spec.style.display=''; spec.textContent= free? t('mp.afWatch') : t('mp.afRoam'); } else spec.style.display='none'; } if(!amF && free){ panel.style.display='none'; return; } panel.style.display=''; var hp=afFightHp()||{ahp:0,amax:1,bhp:0,bmax:1}; { var e=byId('afpAName'); if(e) e.textContent=afDuelName(d.a); } { var e=byId('afpBName'); if(e) e.textContent=afDuelName(d.b); } { var e=byId('afpABar'); if(e) e.style.width=(hp.amax>0?Math.max(0,Math.min(100,100*hp.ahp/hp.amax)):0)+'%'; } { var e=byId('afpBBar'); if(e) e.style.width=(hp.bmax>0?Math.max(0,Math.min(100,100*hp.bhp/hp.bmax)):0)+'%'; } { var e=byId('afpAHp'); if(e) e.textContent=Math.max(0,Math.round(hp.ahp))+'/'+hp.amax; } { var e=byId('afpBHp'); if(e) e.textContent=Math.max(0,Math.round(hp.bhp))+'/'+hp.bmax; } var mine=byId('afpMine'); if(amF && d.sub==='fight'){ if(mine) mine.style.display=''; var host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef)), D=ar.afD, en, stam; if(host&&D){ var me=(side==='A')?D.A:D.B; en=Math.round(me.en); stam=Math.round(me.stam); } else { var v=ar.afFightView||{}; en=Math.round((side==='A')?(v.aen||0):(v.ben||0)); stam=Math.round((side==='A')?(v.astam||0):(v.bstam||0)); } { var e=byId('afpRes'); if(e) e.textContent=t('cb.en')+' '+en+'   '+t('cb.st')+' '+stam; } afpBuildSkills(side); } else { if(mine) mine.style.display='none'; } }
+function afDuelFace(uid){ if(uid===Net.uid){ return (AField&&AField.face)||'🙂'; } var fp=(typeof MP!=='undefined'&&MP.arena&&MP.arena.fieldPlayers)||{}; return (fp[uid]&&fp[uid].face)||'🙂'; }
+function afFightStats(){ var ar=(typeof MP!=='undefined')?MP.arena:null; if(!ar) return null; var host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef)); if(host && ar.afD){ var D=ar.afD; return { A:{hp:D.A.hp,max:D.A.maxhp,atk:D.A.atk,def:D.A.def,en:D.A.en,stam:D.A.stam}, B:{hp:D.B.hp,max:D.B.maxhp,atk:D.B.atk,def:D.B.def,en:D.B.en,stam:D.B.stam} }; } var v=ar.afFightView; if(v){ return { A:{hp:v.ahp,max:v.amax,atk:v.aatk||0,def:v.adef||0,en:v.aen||0,stam:v.astam||0}, B:{hp:v.bhp,max:v.bmax,atk:v.batk||0,def:v.bdef||0,en:v.ben||0,stam:v.bstam||0} }; } return null; }
+function afFightPanelRender(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel, panel=byId('afFightPanel'), spec=byId('afSpectateBtn'); if(!panel) return; var inFight=d&&(d.sub==='fight'||d.sub==='result'); if(!inFight){ panel.style.display='none'; if(spec) spec.style.display='none'; return; } var meUid=Net.uid, amF=(d.a===meUid||d.b===meUid), side=(d.a===meUid)?'A':((d.b===meUid)?'B':null); var free=AField&&AField.spectateFree; if(spec){ if(!amF && d.sub==='fight'){ spec.style.display=''; spec.textContent= free? t('mp.afWatch') : t('mp.afRoam'); } else spec.style.display='none'; } if(!amF && free){ panel.style.display='none'; return; } panel.style.display=''; try{ panel.querySelectorAll('.afpStatK').forEach(function(el){ var k=el.getAttribute('data-k'); el.textContent=(k==='hp')?t('ui.hp'):(k==='atk')?t('ui.atk'):(k==='def')?t('ui.def'):(k==='en')?t('cb.en'):t('cb.st'); }); }catch(e){} var st=afFightStats()||{A:{hp:0,max:1,atk:0,def:0,en:0,stam:0},B:{hp:0,max:1,atk:0,def:0,en:0,stam:0}}; function setSide(sd,s,uid){ var nm=byId('afp'+sd+'Name'); if(nm) nm.textContent=afDuelName(uid); var fc=byId('afp'+sd+'Face'); if(fc) fc.textContent=afDuelFace(uid); var hp=byId('afp'+sd+'Hp'); if(hp) hp.textContent=Math.max(0,Math.round(s.hp))+' / '+s.max; var at=byId('afp'+sd+'Atk'); if(at) at.textContent=Math.round(s.atk); var df=byId('afp'+sd+'Def'); if(df) df.textContent=Math.round(s.def); var en=byId('afp'+sd+'En'); if(en) en.textContent=Math.round(s.en); var sm=byId('afp'+sd+'Stam'); if(sm) sm.textContent=Math.round(s.stam); var bar=byId('afp'+sd+'Bar'); if(bar) bar.style.width=(s.max>0?Math.max(0,Math.min(100,100*s.hp/s.max)):0)+'%'; } setSide('A',st.A,d.a); setSide('B',st.B,d.b); var mine=byId('afpMine'); if(amF && d.sub==='fight'){ if(mine) mine.style.display=''; var _my=(side==='A')?st.A:st.B; { var e=byId('afpRes'); if(e) e.textContent=t('cb.en')+' '+Math.round(_my.en)+'   '+t('cb.st')+' '+Math.round(_my.stam); } afpBuildSkills(side); } else { if(mine) mine.style.display='none'; } }
 function afIsHost(){ return (typeof MP==='undefined') || !MP.arena || MP.host || !(typeof Net!=='undefined'&&Net.arenaRef); }
 function afNextPhase(cur){ return cur==='wait'?'shop':(cur==='shop'?'prep':(cur==='prep'?'duel':null)); }
 function afSetPhase(name){
@@ -7671,7 +7711,8 @@ function startArenaRun(){
   state.player.defSkills=DEF_SKILLS.map(function(s){return s.id;});
   const tt=arenaTeams();
   MP.arena={ teams:tt, scoreA:0, scoreB:0, phase:'prep', ready:false, players:{}, _buys:0 };
-  MP.arena.myTeam=((MP.arenaTeamPref==='A'||MP.arenaTeamPref==='B')?MP.arenaTeamPref:arenaMyTeam(tt));   /* honour the team chosen in the waiting room */
+  var _atm2=((typeof roomCfg==='function' && roomCfg().arenaTeamMode==='free'))?'free':'random';
+  MP.arena.myTeam=((_atm2==='free' && (MP.arenaTeamPref==='A'||MP.arenaTeamPref==='B'))?MP.arenaTeamPref:arenaMyTeam(tt));   /* random -> auto-balanced ; free -> own pick (or auto/gray) */
   MP.arena.scoreA=0; MP.arena.scoreB=0; MP.arena.afResults=[]; MP.arena._afEnded=false;
   afOpen();
   try{ afSpawnAI(); }catch(e){}   /* host: put the configured AI onto the field so they count, render, and duel */
@@ -8293,10 +8334,10 @@ function arenaFinish(){
 function renderArenaEnd(){
   var ar=MP.arena, seq=ar&&ar.seq; if(!seq) return;
   var sA=seq.scoreA||0, sB=seq.scoreB||0, results=seq.results||[];
-  var winTxt=(sA>sB)? t('mp.arenaTeamWin',{team:'A'}) : (sB>sA? t('mp.arenaTeamWin',{team:'B'}) : t('mp.arenaTie'));
+  var winTxt=(sA>sB)? (t('mp.afTeamA')+t('mp.afWin')) : (sB>sA? (t('mp.afTeamB')+t('mp.afWin')) : t('mp.arenaTie'));
   { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); }
   { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } }
-  { var e=byId('aeScore'); if(e) e.textContent='A '+sA+' : '+sB+' B'; }
+  { var e=byId('aeScore'); if(e) e.textContent=t('mp.afTeamA')+' '+sA+' : '+sB+' '+t('mp.afTeamB'); }
   var list=byId('aeList'); if(list){ list.innerHTML='';
     for(var i=0;i<seq.pairs.length;i++){
       var pr=seq.pairs[i], r=results[i]||null;
@@ -8722,11 +8763,11 @@ const I18N_AFSHOP={
 };
 (function mergeAfShop(){ for(const L in I18N_AFSHOP){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFSHOP[L].mp); } })();
 const I18N_AFTEAM={
- 'zh-Hant':{mp:{afTeamPick:'分隊',afTeamAuto:'自動',afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
- 'zh-Hans':{mp:{afTeamPick:'分队',afTeamAuto:'自动',afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
- 'en':{mp:{afTeamPick:'Team',afTeamAuto:'Auto',afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
- 'ja':{mp:{afTeamPick:'チーム',afTeamAuto:'自動',afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
- 'ko':{mp:{afTeamPick:'팀',afTeamAuto:'자동',afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
+ 'zh-Hant':{mp:{afTeamMethod:'分隊方式',afTeamModeRandom:'隨機選隊',afTeamModeFree:'自由選隊',afTeamPick:'分隊',afTeamAuto:'自動',afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
+ 'zh-Hans':{mp:{afTeamMethod:'分队方式',afTeamModeRandom:'随机选队',afTeamModeFree:'自由选队',afTeamPick:'分队',afTeamAuto:'自动',afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
+ 'en':{mp:{afTeamMethod:'Team mode',afTeamModeRandom:'Random',afTeamModeFree:'Free pick',afTeamPick:'Team',afTeamAuto:'Auto',afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
+ 'ja':{mp:{afTeamMethod:'チーム分け',afTeamModeRandom:'ランダム',afTeamModeFree:'自由選択',afTeamPick:'チーム',afTeamAuto:'自動',afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
+ 'ko':{mp:{afTeamMethod:'팀 배정',afTeamModeRandom:'랜덤',afTeamModeFree:'자유 선택',afTeamPick:'팀',afTeamAuto:'자동',afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
 };
 (function mergeAfTeam(){ for(const L in I18N_AFTEAM){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFTEAM[L].mp); } })();
 const I18N_AFDUEL={
@@ -9408,7 +9449,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·210'; }
+    bt.textContent='build 0618·215'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9416,7 +9457,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·210'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·215'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
