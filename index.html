@@ -203,7 +203,9 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afRosTable th{ color:#b9a7e0; font-weight:700; padding:4px 9px; text-align:left; border-bottom:1px solid #4a3f6b; white-space:nowrap; }
 .afRosTable td{ padding:5px 9px; border-bottom:1px solid rgba(255,255,255,.06); }
 .afRosNm{ font-weight:700; white-space:nowrap; } .afRosAv{ margin-right:6px; font-size:16px; }
-.afRosB{ color:#6db3ff; font-weight:800; } .afRosCd{ max-width:220px; color:#cbb9f0; font-size:12px; } .afRosEmpty{ color:#7a6f9a; text-align:center; }
+.afRosB{ color:#6db3ff; font-weight:800; } .afRosCd{ max-width:240px; color:#cbb9f0; font-size:12px; } .afRosEmpty{ color:#7a6f9a; text-align:center; }
+.afRosCard{ display:inline-block; margin:2px 4px 2px 0; padding:2px 8px; border-radius:6px; background:#2c2350; border:1px solid #5a4d85; color:#e9e2ff; font-size:12px; cursor:pointer; }
+.afRosCard:hover{ background:#3a2e5e; border-color:#8a7ac0; }
 .afSpectateBtn{ position:absolute; left:50%; bottom:128px; transform:translateX(-50%); z-index:7; padding:9px 18px; border-radius:10px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:14px; cursor:pointer; }
 .afSkipBtn{ position:absolute; left:50%; top:46px; transform:translateX(-50%); z-index:5; padding:7px 16px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
 .afShopBtnUI{ position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:5; padding:10px 20px; border-radius:10px; background:#2e7d5b; color:#eafff3; border:1.5px solid #7cf0b0; font-weight:700; font-size:15px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.4); }
@@ -6715,12 +6717,17 @@ var _lbCfgOpen=true;
 function _lbCfgBindToggle(){ var t=byId('lbCfgToggle'); if(!t||t._bound) return; t._bound=true; t.addEventListener('click',function(){ _lbCfgOpen=!_lbCfgOpen; var b=byId('lbCfg'); if(b) b.style.display=_lbCfgOpen?'':'none'; var a=this.querySelector('.lbCfgArr'); if(a) a.textContent=_lbCfgOpen?'▾':'▸'; }); }
 function afCanStart(){
   if(typeof MP==='undefined' || MP.mode!=='arena') return {ok:true};
-  var _mem=MP.members||{}, _nH=Object.keys(_mem).length, _nAI=(typeof arenaAICount==='function')?arenaAICount():0;
-  if((_nH+_nAI) < 2) return {ok:false, why:'tooFew'};   /* need >= 2 participants (players or AI) */
+  var members=MP.members||{};
+  /* robust human list: members + self + host, deduped — the host must be checked even if not yet in the members snapshot */
+  var humans=Object.keys(members);
+  if(typeof Net!=='undefined' && Net.uid && humans.indexOf(Net.uid)<0) humans.push(Net.uid);
+  if(MP.meta && MP.meta.host && humans.indexOf(MP.meta.host)<0) humans.push(MP.meta.host);
+  var _nAI=(typeof arenaAICount==='function')?arenaAICount():0;
+  if((humans.length+_nAI) < 2) return {ok:false, why:'tooFew'};   /* need >= 2 participants (players or AI) */
   var mode=(typeof roomCfg==='function')?roomCfg().arenaTeamMode:'random'; if(mode!=='free') return {ok:true};   /* random = auto-balanced at start */
-  var members=MP.members||{}, teams=(MP.meta&&MP.meta.teams)||{};
-  for(var u in members){ if(teams[u]!=='A' && teams[u]!=='B') return {ok:false, why:'unpicked'}; }
-  var a=0,b=0; for(var u2 in members){ if(teams[u2]==='A')a++; else if(teams[u2]==='B')b++; }
+  var teams=(MP.meta&&MP.meta.teams)||{};
+  for(var i=0;i<humans.length;i++){ if(teams[humans[i]]!=='A' && teams[humans[i]]!=='B') return {ok:false, why:'unpicked'}; }   /* ANY human (incl. host) unpicked -> block */
+  var a=0,b=0; for(var j=0;j<humans.length;j++){ if(teams[humans[j]]==='A')a++; else if(teams[humans[j]]==='B')b++; }
   var ait=(typeof arenaAiTeams==='function')?arenaAiTeams():{}; for(var k in ait){ if(ait[k]==='A')a++; else if(ait[k]==='B')b++; }
   if(Math.abs(a-b)>1) return {ok:false, why:'unbalanced'};
   return {ok:true};
@@ -7081,12 +7088,13 @@ function afRenderScoreboard(){ var box=byId('afRoster'); if(!box) return; var al
   function sect(team){ var ps=all.filter(function(x){return x.team===team;}); var H='<div class="afRosSect"><div class="afRosTeam '+(team==='A'?'tA':'tB')+'">'+esc(t(team==='A'?'mp.afTeamA':'mp.afTeamB'))+' ('+ps.length+')</div>';
     H+='<table class="afRosTable"><thead><tr><th>'+esc(t('rank.name'))+'</th><th>'+esc(t('ui.hp'))+'</th><th>'+esc(t('ui.atk'))+'</th><th>'+esc(t('ui.def'))+'</th><th>'+esc(t('mp.afRosCards'))+'</th></tr></thead><tbody>';
     if(!ps.length) H+='<tr><td colspan="5" class="afRosEmpty">—</td></tr>';
-    ps.forEach(function(pp){ var cb=arenaCardStatBonus(pp,pp.cards); var cn=(pp.cards||[]).map(function(c){return esc(cardName(c));}).join('、')||'—';
+    ps.forEach(function(pp){ var cb=arenaCardStatBonus(pp,pp.cards); var cn=(pp.cards||[]).length?(pp.cards).map(function(c){return '<span class="afRosCard" data-card="'+esc(c)+'">'+esc(cardName(c))+'</span>';}).join(''):'—';
       H+='<tr><td class="afRosNm"><span class="afRosAv">'+esc(pp.face)+'</span>'+esc(pp.name)+(pp.self?' <b>('+esc(t('mp.you'))+')</b>':'')+'</td>';
       H+='<td>'+pp.hp+(cb.hp>0?' <span class="afRosB">+'+cb.hp+'</span>':'')+'</td><td>'+pp.atk+(cb.atk>0?' <span class="afRosB">+'+cb.atk+'</span>':'')+'</td><td>'+pp.def+(cb.def>0?' <span class="afRosB">+'+cb.def+'</span>':'')+'</td>';
       H+='<td class="afRosCd">'+cn+'</td></tr>'; });
     H+='</tbody></table></div>'; return H; }
-  box.innerHTML='<div class="afRosBox">'+sect('A')+sect('B')+'</div>'; }
+  box.innerHTML='<div class="afRosBox">'+sect('A')+sect('B')+'</div>';
+  Array.prototype.forEach.call(box.querySelectorAll('.afRosCard'),function(el){ el.addEventListener('click',function(ev){ ev.stopPropagation(); if(typeof afShowCardPop==='function') afShowCardPop(el.getAttribute('data-card')); }); }); }
 function afToggleArenaAdmin(){ if(!(typeof Account!=='undefined' && Account.isAdmin)){ try{ toast(t('acct.notAdmin')); }catch(e){} return; } if(typeof state==='undefined'||state.mode!=='arena') return; var box=byId('afAdmin'); if(!box) return; var vis=(box.style.display && box.style.display!=='none'); if(!vis){ var _tt=byId('afAdmTitle'); if(_tt) _tt.textContent=t('mp.afAdmTitle'); var _sk=byId('afAdmSkip'); if(_sk) _sk.textContent=t('mp.afAdmSkip'); var _cl=byId('afAdmClose'); if(_cl) _cl.textContent=t('mp.afAdmClose'); } box.style.display=vis?'none':'flex'; }
 function afAdminSkipToBattle(){ if(!(typeof Account!=='undefined' && Account.isAdmin)) return; if(!afIsHost()){ try{ toast(t('mp.afAdmHostOnly')); }catch(e){} return; } var d=(MP.arena&&MP.arena.afDuel)||null; if(d&&d.sub&&d.sub!=='done'){ return; } afSetPhase('prep'); var box=byId('afAdmin'); if(box) box.style.display='none'; }
 function afShowScoreboard(show){ var box=byId('afRoster'); if(!box) return; if(show && (typeof state==='undefined'||state.mode!=='arena')) show=false; if(show){ afRenderScoreboard(); box.style.display='flex'; } else { box.style.display='none'; } }
@@ -7130,7 +7138,7 @@ function afJoyMove(e){ if(!AField||!AField.joy) return; var tt=(e.touches&&e.tou
 function afJoyEnd(){ if(AField){ AField.joy=null; } afJoyKnob({x:0,y:0}); }
 function afJoyMoveMouse(e){ if(AField&&AField.joy){ afJoyMove(e); } }
 function afBind(){ document.addEventListener('keydown',afKeyDown); document.addEventListener('keyup',afKeyUp); { var _cpc=byId('afCardPopClose'); if(_cpc&&!_cpc._b){ _cpc._b=1; _cpc.addEventListener('click',afHideCardPop); } var _cp=byId('afCardPop'); if(_cp&&!_cp._b){ _cp._b=1; _cp.addEventListener('click',function(e){ if(e.target===_cp) afHideCardPop(); }); } } { var _as=byId('afAdmSkip'); if(_as&&!_as._b){ _as._b=1; _as.addEventListener('click',afAdminSkipToBattle); } var _ac=byId('afAdmClose'); if(_ac&&!_ac._b){ _ac._b=1; _ac.addEventListener('click',function(){ var b=byId('afAdmin'); if(b) b.style.display='none'; }); } }
-  { var _rb=byId('afRosterBtn'); if(_rb&&!_rb._b){ _rb._b=1; _rb.textContent=t('mp.afRosView'); _rb.addEventListener('click',function(){ var vis=(byId('afRoster').style.display && byId('afRoster').style.display!=='none'); afShowScoreboard(!vis); }); } var _rov=byId('afRoster'); if(_rov&&!_rov._b){ _rov._b=1; _rov.addEventListener('click',function(){ afShowScoreboard(false); }); } }
+  { var _rb=byId('afRosterBtn'); if(_rb&&!_rb._b){ _rb._b=1; _rb.textContent=t('mp.afRosView'); _rb.addEventListener('click',function(){ var vis=(byId('afRoster').style.display && byId('afRoster').style.display!=='none'); afShowScoreboard(!vis); }); } var _rov=byId('afRoster'); if(_rov&&!_rov._b){ _rov._b=1; _rov.addEventListener('click',function(e){ if(e.target===_rov) afShowScoreboard(false); }); } }
   var j=byId('afJoy'); if(j){ j.addEventListener('touchstart',afJoyStart,{passive:false}); j.addEventListener('touchmove',afJoyMove,{passive:false}); j.addEventListener('touchend',afJoyEnd); j.addEventListener('mousedown',afJoyStart); } window.addEventListener('mousemove',afJoyMoveMouse); window.addEventListener('mouseup',afJoyEnd); window.addEventListener('resize',afResize); }
 function afUnbind(){ document.removeEventListener('keydown',afKeyDown); document.removeEventListener('keyup',afKeyUp); window.removeEventListener('mousemove',afJoyMoveMouse); window.removeEventListener('mouseup',afJoyEnd); window.removeEventListener('resize',afResize); }
 function afOpen(){ afInit(); show('arenaField'); _afCardsKey=null; try{ afHideCardPop(); }catch(_e){} try{ updateBGM(true); }catch(_e){}   /* arena has its own BGM; switch off the mode-1 track on entry */
@@ -9576,7 +9584,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·228'; }
+    bt.textContent='build 0618·229'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9584,7 +9592,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·228'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·229'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
