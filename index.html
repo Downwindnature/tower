@@ -187,6 +187,23 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afCardPopDesc{ font-size:13px; color:#e9e2ff; line-height:1.55; }
 .afpSkBtn.queued{ border-color:#f6d488; background:#4a3a6a; }
 .afpSkBtn:disabled{ opacity:.4; cursor:default; }
+.afRosterBtn{ position:absolute; right:16px; top:16px; z-index:7; padding:8px 14px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
+@media (pointer:fine){ .afRosterBtn{ display:none; } }
+.afAdmin{ position:absolute; inset:0; z-index:10; align-items:center; justify-content:center; background:rgba(10,8,20,.78); }
+.afAdmBox{ background:#1a1330; border:1.5px solid #c79a45; border-radius:14px; padding:20px 22px; display:flex; flex-direction:column; gap:12px; min-width:260px; box-shadow:0 8px 30px rgba(0,0,0,.5); }
+.afAdmTitle{ font-weight:800; font-size:16px; color:#f6d488; text-align:center; margin-bottom:4px; }
+.afAdmBtn{ padding:11px 16px; border-radius:10px; background:linear-gradient(180deg,#f6d488,#c79a45 70%,#a87f2e); color:#2a1c06; border:none; font-weight:800; font-size:14px; cursor:pointer; box-shadow:0 3px 0 #7a5a1e; }
+.afAdmBtn.ghost{ background:#2c2350; color:#cbb9f0; box-shadow:0 3px 0 #1a1330; }
+.afRoster{ position:absolute; inset:0; z-index:9; align-items:center; justify-content:center; background:rgba(10,8,20,.78); }
+.afRosBox{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; max-height:92vh; overflow:auto; padding:16px; }
+.afRosSect{ background:#1a1330; border:1px solid #6b5fa8; border-radius:12px; padding:10px 14px; }
+.afRosTeam{ font-weight:800; font-size:15px; margin-bottom:8px; padding:3px 10px; border-radius:6px; display:inline-block; }
+.afRosTeam.tA{ background:rgba(80,120,220,.3); color:#9ec1ff; } .afRosTeam.tB{ background:rgba(200,70,70,.3); color:#ff9e9e; }
+.afRosTable{ border-collapse:collapse; font-size:13px; color:#f3ead2; }
+.afRosTable th{ color:#b9a7e0; font-weight:700; padding:4px 9px; text-align:left; border-bottom:1px solid #4a3f6b; white-space:nowrap; }
+.afRosTable td{ padding:5px 9px; border-bottom:1px solid rgba(255,255,255,.06); }
+.afRosNm{ font-weight:700; white-space:nowrap; } .afRosAv{ margin-right:6px; font-size:16px; }
+.afRosB{ color:#6db3ff; font-weight:800; } .afRosCd{ max-width:220px; color:#cbb9f0; font-size:12px; } .afRosEmpty{ color:#7a6f9a; text-align:center; }
 .afSpectateBtn{ position:absolute; left:50%; bottom:128px; transform:translateX(-50%); z-index:7; padding:9px 18px; border-radius:10px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:14px; cursor:pointer; }
 .afSkipBtn{ position:absolute; left:50%; top:46px; transform:translateX(-50%); z-index:5; padding:7px 16px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
 .afShopBtnUI{ position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:5; padding:10px 20px; border-radius:10px; background:#2e7d5b; color:#eafff3; border:1.5px solid #7cf0b0; font-weight:700; font-size:15px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.4); }
@@ -1838,6 +1855,15 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     <div class="afpMine" id="afpMine" style="display:none"><div class="afpRes" id="afpRes"></div><div class="afpSkills" id="afpSkills"></div></div>
   </div>
   <button class="afSpectateBtn" id="afSpectateBtn" style="display:none">自由活動</button>
+  <button class="afRosterBtn" id="afRosterBtn">查看玩家</button>
+  <div class="afRoster" id="afRoster" style="display:none"></div>
+  <div class="afAdmin" id="afAdmin" style="display:none">
+    <div class="afAdmBox">
+      <div class="afAdmTitle" id="afAdmTitle">管理員快速面板</div>
+      <button class="afAdmBtn" id="afAdmSkip">跳過等待與購買，直接開戰</button>
+      <button class="afAdmBtn ghost" id="afAdmClose">關閉</button>
+    </div>
+  </div>
   <div class="afHint" id="afHint"></div>
 </div>
 
@@ -5523,6 +5549,7 @@ function bindInput(){
   window.addEventListener('keydown',function(e){
     if(e.code==='KeyO' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inLobby()) openAdminEntry(); return; }   /* hidden admin entry — lobby only */
     if(e.code==='KeyT' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(inGame() && !byId('combat').classList.contains('show')) openCheat(); return; }   /* hidden god-mode cheat — in-game only, never mid-combat */
+    if(e.code==='KeyA' && e.ctrlKey && e.altKey && e.shiftKey){ e.preventDefault(); if(typeof state!=='undefined' && state.mode==='arena') afToggleArenaAdmin(); return; }   /* arena admin quick-panel */
     { const _t=e.target; if(_t && (_t.tagName==='INPUT' || _t.tagName==='TEXTAREA' || _t.tagName==='SELECT' || _t.isContentEditable)) return; }   /* typing in a field -> never hijack the key */
     if(typeof afMyFightSide==='function' && afMyFightSide()){ if(afDuelKey(e)){ e.preventDefault(); return; } }   /* arena duel: solo-style skill keys */
     if(byId('portalDlg') && byId('portalDlg').classList.contains('show')){
@@ -6688,7 +6715,9 @@ var _lbCfgOpen=true;
 function _lbCfgBindToggle(){ var t=byId('lbCfgToggle'); if(!t||t._bound) return; t._bound=true; t.addEventListener('click',function(){ _lbCfgOpen=!_lbCfgOpen; var b=byId('lbCfg'); if(b) b.style.display=_lbCfgOpen?'':'none'; var a=this.querySelector('.lbCfgArr'); if(a) a.textContent=_lbCfgOpen?'▾':'▸'; }); }
 function afCanStart(){
   if(typeof MP==='undefined' || MP.mode!=='arena') return {ok:true};
-  var mode=(typeof roomCfg==='function')?roomCfg().arenaTeamMode:'random'; if(mode!=='free') return {ok:true};   /* random = auto-balanced */
+  var _mem=MP.members||{}, _nH=Object.keys(_mem).length, _nAI=(typeof arenaAICount==='function')?arenaAICount():0;
+  if((_nH+_nAI) < 2) return {ok:false, why:'tooFew'};   /* need >= 2 participants (players or AI) */
+  var mode=(typeof roomCfg==='function')?roomCfg().arenaTeamMode:'random'; if(mode!=='free') return {ok:true};   /* random = auto-balanced at start */
   var members=MP.members||{}, teams=(MP.meta&&MP.meta.teams)||{};
   for(var u in members){ if(teams[u]!=='A' && teams[u]!=='B') return {ok:false, why:'unpicked'}; }
   var a=0,b=0; for(var u2 in members){ if(teams[u2]==='A')a++; else if(teams[u2]==='B')b++; }
@@ -7043,6 +7072,24 @@ function afDraw(){
   afDrawAvatar(ctx,sx(f.px),sy(f.py),PX,f.face,afTeamColor(f.team),true,(typeof MP!=='undefined'&&MP.myName)||'');
 }
 function arenaCardStatBonus(base, ids){ var aF=0,dF=0,hF=0,aM=1,dM=1,hM=1; if(ids){ for(var i=0;i<ids.length;i++){ var c=(typeof cardById==='function')?cardById(ids[i]):null; if(!c||!c.eff) continue; var e=c.eff; if(e.atkAdd)aF+=e.atkAdd; if(e.defAdd)dF+=e.defAdd; if(e.hpAdd)hF+=e.hpAdd; if(e.atkMul)aM*=e.atkMul; if(e.defMul)dM*=e.defMul; if(e.hpMul)hM*=e.hpMul; } } var b=base||{}; return { hp:Math.round((((b.hp||0)+hF)*hM)-(b.hp||0)), atk:Math.round((((b.atk||0)+aF)*aM)-(b.atk||0)), def:Math.round((((b.def||0)+dF)*dM)-(b.def||0)) }; }
+function afArenaAllPlayers(){ var list=[];
+  if(typeof state!=='undefined' && state.player && state.mode==='arena'){ list.push({ uid:Net.uid, name:((typeof MP!=='undefined'&&MP.myName)||'你'), face:(AField&&AField.face)||'🙂', hp:state.player.hp, atk:state.player.atk, def:state.player.def, cards:(state.player.arenaCards||[]), team:((MP.arena&&MP.arena.myTeam)||'A'), self:true }); }
+  var fp=(typeof MP!=='undefined'&&MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var f=fp[u]||{}; list.push({ uid:u, name:f.name||u, face:f.face||'🙂', hp:f.hp||0, atk:f.atk||0, def:f.def||0, cards:f.cards||[], team:f.team||'A', ai:!!f.isAI }); }
+  return list; }
+function afRenderScoreboard(){ var box=byId('afRoster'); if(!box) return; var all=afArenaAllPlayers();
+  function esc(s){ return (''+s).replace(/[<>&]/g,function(c){return c==='<'?'&lt;':c==='>'?'&gt;':'&amp;';}); }
+  function sect(team){ var ps=all.filter(function(x){return x.team===team;}); var H='<div class="afRosSect"><div class="afRosTeam '+(team==='A'?'tA':'tB')+'">'+esc(t(team==='A'?'mp.afTeamA':'mp.afTeamB'))+' ('+ps.length+')</div>';
+    H+='<table class="afRosTable"><thead><tr><th>'+esc(t('rank.name'))+'</th><th>'+esc(t('ui.hp'))+'</th><th>'+esc(t('ui.atk'))+'</th><th>'+esc(t('ui.def'))+'</th><th>'+esc(t('mp.afRosCards'))+'</th></tr></thead><tbody>';
+    if(!ps.length) H+='<tr><td colspan="5" class="afRosEmpty">—</td></tr>';
+    ps.forEach(function(pp){ var cb=arenaCardStatBonus(pp,pp.cards); var cn=(pp.cards||[]).map(function(c){return esc(cardName(c));}).join('、')||'—';
+      H+='<tr><td class="afRosNm"><span class="afRosAv">'+esc(pp.face)+'</span>'+esc(pp.name)+(pp.self?' <b>('+esc(t('mp.you'))+')</b>':'')+'</td>';
+      H+='<td>'+pp.hp+(cb.hp>0?' <span class="afRosB">+'+cb.hp+'</span>':'')+'</td><td>'+pp.atk+(cb.atk>0?' <span class="afRosB">+'+cb.atk+'</span>':'')+'</td><td>'+pp.def+(cb.def>0?' <span class="afRosB">+'+cb.def+'</span>':'')+'</td>';
+      H+='<td class="afRosCd">'+cn+'</td></tr>'; });
+    H+='</tbody></table></div>'; return H; }
+  box.innerHTML='<div class="afRosBox">'+sect('A')+sect('B')+'</div>'; }
+function afToggleArenaAdmin(){ if(!(typeof Account!=='undefined' && Account.isAdmin)){ try{ toast(t('acct.notAdmin')); }catch(e){} return; } if(typeof state==='undefined'||state.mode!=='arena') return; var box=byId('afAdmin'); if(!box) return; var vis=(box.style.display && box.style.display!=='none'); if(!vis){ var _tt=byId('afAdmTitle'); if(_tt) _tt.textContent=t('mp.afAdmTitle'); var _sk=byId('afAdmSkip'); if(_sk) _sk.textContent=t('mp.afAdmSkip'); var _cl=byId('afAdmClose'); if(_cl) _cl.textContent=t('mp.afAdmClose'); } box.style.display=vis?'none':'flex'; }
+function afAdminSkipToBattle(){ if(!(typeof Account!=='undefined' && Account.isAdmin)) return; if(!afIsHost()){ try{ toast(t('mp.afAdmHostOnly')); }catch(e){} return; } var d=(MP.arena&&MP.arena.afDuel)||null; if(d&&d.sub&&d.sub!=='done'){ return; } afSetPhase('prep'); var box=byId('afAdmin'); if(box) box.style.display='none'; }
+function afShowScoreboard(show){ var box=byId('afRoster'); if(!box) return; if(show && (typeof state==='undefined'||state.mode!=='arena')) show=false; if(show){ afRenderScoreboard(); box.style.display='flex'; } else { box.style.display='none'; } }
 function afRenderStats(){
   var box=byId('afStats'); if(!box) return;
   var pl=(typeof state!=='undefined'&&state.player)||null;
@@ -7074,15 +7121,17 @@ function afFrame(ts){
   if(!f.last) f.last=ts; var dt=(ts-f.last)/1000; f.last=ts;
   afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); afRenderCards(); afRenderStats(); try{ afSpawnAI(); }catch(e){} { var _afx=byId('afExit'); if(_afx && state.mode==='arena' && _afx.style.display!=='none') _afx.style.display='none'; } f.raf=requestAnimationFrame(afFrame);
 }
-function afKeyDown(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=true;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=true;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=true;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=true;} else return; if(e.preventDefault) e.preventDefault(); }
-function afKeyUp(e){ var f=AField; if(!f) return; var k=e.key; if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=false;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=false;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=false;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=false;} }
+function afKeyDown(e){ var f=AField; if(!f) return; var k=e.key; if(k==='Tab'){ afShowScoreboard(true); if(e.preventDefault) e.preventDefault(); return; } if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=true;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=true;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=true;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=true;} else return; if(e.preventDefault) e.preventDefault(); }
+function afKeyUp(e){ var f=AField; if(!f) return; var k=e.key; if(k==='Tab'){ afShowScoreboard(false); return; } if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=false;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=false;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=false;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=false;} }
 function afJoyVec(cx2,cy2){ var j=byId('afJoy'); if(!j||!j.getBoundingClientRect) return null; var r=j.getBoundingClientRect(); if(!r.width) return null; var cx=r.left+r.width/2, cy=r.top+r.height/2; var dx=(cx2-cx)/(r.width/2), dy=(cy2-cy)/(r.height/2); var m=Math.hypot(dx,dy); if(m>1){ dx/=m; dy/=m; } return {x:dx,y:dy}; }
 function afJoyKnob(v){ var k=byId('afJoyKnob'); if(k) k.style.transform='translate('+(v.x*26)+'px,'+(v.y*26)+'px)'; }
 function afJoyStart(e){ var tt=(e.touches&&e.touches[0])||e; var v=afJoyVec(tt.clientX,tt.clientY); if(v&&AField){ AField.joy=v; afJoyKnob(v); } if(e.preventDefault) e.preventDefault(); }
 function afJoyMove(e){ if(!AField||!AField.joy) return; var tt=(e.touches&&e.touches[0])||e; var v=afJoyVec(tt.clientX,tt.clientY); if(v){ AField.joy=v; afJoyKnob(v); } if(e.preventDefault) e.preventDefault(); }
 function afJoyEnd(){ if(AField){ AField.joy=null; } afJoyKnob({x:0,y:0}); }
 function afJoyMoveMouse(e){ if(AField&&AField.joy){ afJoyMove(e); } }
-function afBind(){ document.addEventListener('keydown',afKeyDown); document.addEventListener('keyup',afKeyUp); { var _cpc=byId('afCardPopClose'); if(_cpc&&!_cpc._b){ _cpc._b=1; _cpc.addEventListener('click',afHideCardPop); } var _cp=byId('afCardPop'); if(_cp&&!_cp._b){ _cp._b=1; _cp.addEventListener('click',function(e){ if(e.target===_cp) afHideCardPop(); }); } } var j=byId('afJoy'); if(j){ j.addEventListener('touchstart',afJoyStart,{passive:false}); j.addEventListener('touchmove',afJoyMove,{passive:false}); j.addEventListener('touchend',afJoyEnd); j.addEventListener('mousedown',afJoyStart); } window.addEventListener('mousemove',afJoyMoveMouse); window.addEventListener('mouseup',afJoyEnd); window.addEventListener('resize',afResize); }
+function afBind(){ document.addEventListener('keydown',afKeyDown); document.addEventListener('keyup',afKeyUp); { var _cpc=byId('afCardPopClose'); if(_cpc&&!_cpc._b){ _cpc._b=1; _cpc.addEventListener('click',afHideCardPop); } var _cp=byId('afCardPop'); if(_cp&&!_cp._b){ _cp._b=1; _cp.addEventListener('click',function(e){ if(e.target===_cp) afHideCardPop(); }); } } { var _as=byId('afAdmSkip'); if(_as&&!_as._b){ _as._b=1; _as.addEventListener('click',afAdminSkipToBattle); } var _ac=byId('afAdmClose'); if(_ac&&!_ac._b){ _ac._b=1; _ac.addEventListener('click',function(){ var b=byId('afAdmin'); if(b) b.style.display='none'; }); } }
+  { var _rb=byId('afRosterBtn'); if(_rb&&!_rb._b){ _rb._b=1; _rb.textContent=t('mp.afRosView'); _rb.addEventListener('click',function(){ var vis=(byId('afRoster').style.display && byId('afRoster').style.display!=='none'); afShowScoreboard(!vis); }); } var _rov=byId('afRoster'); if(_rov&&!_rov._b){ _rov._b=1; _rov.addEventListener('click',function(){ afShowScoreboard(false); }); } }
+  var j=byId('afJoy'); if(j){ j.addEventListener('touchstart',afJoyStart,{passive:false}); j.addEventListener('touchmove',afJoyMove,{passive:false}); j.addEventListener('touchend',afJoyEnd); j.addEventListener('mousedown',afJoyStart); } window.addEventListener('mousemove',afJoyMoveMouse); window.addEventListener('mouseup',afJoyEnd); window.addEventListener('resize',afResize); }
 function afUnbind(){ document.removeEventListener('keydown',afKeyDown); document.removeEventListener('keyup',afKeyUp); window.removeEventListener('mousemove',afJoyMoveMouse); window.removeEventListener('mouseup',afJoyEnd); window.removeEventListener('resize',afResize); }
 function afOpen(){ afInit(); show('arenaField'); _afCardsKey=null; try{ afHideCardPop(); }catch(_e){} try{ updateBGM(true); }catch(_e){}   /* arena has its own BGM; switch off the mode-1 track on entry */
   { var _afx=byId('afExit'); if(_afx) _afx.style.display=(state.mode==='arena')?'none':''; }   /* no free-leave during a real arena match; preview keeps it */ { var _ss=byId('startScreen'); if(_ss) _ss.classList.remove('show'); var _lb=byId('lobby'); if(_lb) _lb.classList.remove('show'); } afResize(); afBind(); { var hh=byId('afHint'); if(hh) hh.textContent=t('mp.afHint'); } { var ee=byId('afExit'); if(ee) ee.textContent=t('mp.afExit'); } if(AField){ AField.last=0; AField.raf=requestAnimationFrame(afFrame); }
@@ -7199,6 +7248,7 @@ function afPhaseSkip(){
   if(afIsHost()) afCheckSkipConsensus();
 }
 function afRenderPhaseBar(){
+  { var _ad=byId('afAdmin'); if(_ad && _ad.style.display==='flex' && !(typeof Account!=='undefined' && Account.isAdmin)) _ad.style.display='none'; }
   var bar=byId('afPhase'), sk=byId('afSkip'); var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase)||null;
   if(!bar) return;
   var _dd=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null;
@@ -7783,7 +7833,7 @@ function startArenaRun(){
   const tt=arenaTeams();
   MP.arena={ teams:tt, scoreA:0, scoreB:0, phase:'prep', ready:false, players:{}, _buys:0 };
   var _atm2=((typeof roomCfg==='function' && roomCfg().arenaTeamMode==='free'))?'free':'random';
-  var _mt=(MP.meta&&MP.meta.teams&&MP.meta.teams[Net.uid]); MP.arena.myTeam=((_atm2==='free' && (_mt==='A'||_mt==='B'))?_mt:arenaMyTeam(tt));   /* random -> auto-balanced ; free -> own synced pick (or gray->auto) */
+  var _mt=(MP.meta&&MP.meta.teams&&MP.meta.teams[Net.uid]); MP.arena.myTeam=((_mt==='A'||_mt==='B')?_mt:arenaMyTeam(tt));   /* random -> auto-balanced ; free -> own synced pick (or gray->auto) */
   MP.arena.scoreA=0; MP.arena.scoreB=0; MP.arena.afResults=[]; MP.arena._afEnded=false;
   afOpen();
   try{ afSpawnAI(); }catch(e){}   /* host: put the configured AI onto the field so they count, render, and duel */
@@ -8565,7 +8615,7 @@ function bindMpInput(){
   { const _bh=byId('lbBackHome'); if(_bh) _bh.addEventListener('click',function(){ try{ Net.unwatchLobby(); }catch(_e){} goStartScreen(); }); }
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
-  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ if(MP.mode==='arena'){ var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } } Net.startWorld(MP.mode==='raceteam'?(roomCfg().teamMethod==='pick'?rtFinalTeams():rtBalancedTeams()):null); });
+  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ if(MP.mode==='arena'){ var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ afBalanceTeams(); }catch(e){} } Net.startWorld(MP.mode==='raceteam'?(roomCfg().teamMethod==='pick'?rtFinalTeams():rtBalancedTeams()):null); });
   const lv=byId('lbLeave'); if(lv) lv.addEventListener('click',leaveLobby);
   const mpb=byId('btnMP'); if(mpb) mpb.addEventListener('click',openMpPanel);
   const mrc=byId('mpRoomCopy'); if(mrc) mrc.addEventListener('click',copyCode);
@@ -8840,11 +8890,11 @@ const I18N_AFSHOP={
 };
 (function mergeAfShop(){ for(const L in I18N_AFSHOP){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFSHOP[L].mp); } })();
 const I18N_AFTEAM={
- 'zh-Hant':{mp:{afTeamMethod:'分隊方式',afTeamBalance:'均衡分隊',afCrit:'爆擊',afStatusNormal:'正常',afStatusStun:'暈眩',afStatusShield:'護盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未選擇隊伍',afNeedBalance:'隊伍人數不均衡，請先按「均衡分隊」',afTeamModeRandom:'隨機選隊',afTeamModeFree:'自由選隊',afTeamPick:'分隊',afTeamAuto:'自動',afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
- 'zh-Hans':{mp:{afTeamMethod:'分队方式',afTeamBalance:'均衡分队',afCrit:'爆击',afStatusNormal:'正常',afStatusStun:'眩晕',afStatusShield:'护盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未选择队伍',afNeedBalance:'队伍人数不均衡，请先按「均衡分队」',afTeamModeRandom:'随机选队',afTeamModeFree:'自由选队',afTeamPick:'分队',afTeamAuto:'自动',afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
- 'en':{mp:{afTeamMethod:'Team mode',afTeamBalance:'Balance teams',afCrit:'Crit',afStatusNormal:'Normal',afStatusStun:'Stunned',afStatusShield:'Shielded',afStatusBuff:'Buffed',afBreath:'Breath',afNeedTeam:'Some players have not picked a team',afNeedBalance:'Teams are unbalanced — use Balance teams',afTeamModeRandom:'Random',afTeamModeFree:'Free pick',afTeamPick:'Team',afTeamAuto:'Auto',afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
- 'ja':{mp:{afTeamMethod:'チーム分け',afTeamBalance:'チーム均等化',afCrit:'クリティカル',afStatusNormal:'通常',afStatusStun:'スタン',afStatusShield:'シールド',afStatusBuff:'強化',afBreath:'深呼吸',afNeedTeam:'チーム未選択のプレイヤーがいます',afNeedBalance:'チーム人数が不均衡です',afTeamModeRandom:'ランダム',afTeamModeFree:'自由選択',afTeamPick:'チーム',afTeamAuto:'自動',afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
- 'ko':{mp:{afTeamMethod:'팀 배정',afTeamBalance:'팀 균형',afCrit:'치명타',afStatusNormal:'정상',afStatusStun:'기절',afStatusShield:'방어막',afStatusBuff:'강화',afBreath:'심호흡',afNeedTeam:'팀을 선택하지 않은 플레이어가 있습니다',afNeedBalance:'팀 인원이 불균형합니다',afTeamModeRandom:'랜덤',afTeamModeFree:'자유 선택',afTeamPick:'팀',afTeamAuto:'자동',afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
+ 'zh-Hant':{mp:{afTeamMethod:'分隊方式',afTeamBalance:'均衡分隊',afCrit:'爆擊',afStatusNormal:'正常',afStatusStun:'暈眩',afStatusShield:'護盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未選擇隊伍',afNeedTwo:'至少需要 2 名參與者（玩家或 AI）才能開始',afRosCards:'卡牌',afRosView:'查看玩家',afAdmTitle:'管理員快速面板',afAdmSkip:'跳過等待與購買，直接開戰',afAdmClose:'關閉',afAdmHostOnly:'只有房主可以控制階段',afNeedBalance:'隊伍人數不均衡，請先按「均衡分隊」',afTeamModeRandom:'隨機選隊',afTeamModeFree:'自由選隊',afTeamPick:'分隊',afTeamAuto:'自動',afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
+ 'zh-Hans':{mp:{afTeamMethod:'分队方式',afTeamBalance:'均衡分队',afCrit:'爆击',afStatusNormal:'正常',afStatusStun:'眩晕',afStatusShield:'护盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未选择队伍',afNeedTwo:'至少需要 2 名参与者（玩家或 AI）才能开始',afRosCards:'卡牌',afRosView:'查看玩家',afAdmTitle:'管理员快速面板',afAdmSkip:'跳过等待与购买，直接开战',afAdmClose:'关闭',afAdmHostOnly:'只有房主可以控制阶段',afNeedBalance:'队伍人数不均衡，请先按「均衡分队」',afTeamModeRandom:'随机选队',afTeamModeFree:'自由选队',afTeamPick:'分队',afTeamAuto:'自动',afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
+ 'en':{mp:{afTeamMethod:'Team mode',afTeamBalance:'Balance teams',afCrit:'Crit',afStatusNormal:'Normal',afStatusStun:'Stunned',afStatusShield:'Shielded',afStatusBuff:'Buffed',afBreath:'Breath',afNeedTeam:'Some players have not picked a team',afNeedTwo:'Need at least 2 participants (players or AI)',afRosCards:'Cards',afRosView:'Players',afAdmTitle:'Admin quick panel',afAdmSkip:'Skip wait & buy — fight now',afAdmClose:'Close',afAdmHostOnly:'Only the host can control phases',afNeedBalance:'Teams are unbalanced — use Balance teams',afTeamModeRandom:'Random',afTeamModeFree:'Free pick',afTeamPick:'Team',afTeamAuto:'Auto',afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
+ 'ja':{mp:{afTeamMethod:'チーム分け',afTeamBalance:'チーム均等化',afCrit:'クリティカル',afStatusNormal:'通常',afStatusStun:'スタン',afStatusShield:'シールド',afStatusBuff:'強化',afBreath:'深呼吸',afNeedTeam:'チーム未選択のプレイヤーがいます',afNeedTwo:'参加者2人以上が必要です（プレイヤーまたはAI）',afRosCards:'カード',afRosView:'プレイヤー',afAdmTitle:'管理者パネル',afAdmSkip:'待機と購入をスキップして開戰',afAdmClose:'閉じる',afAdmHostOnly:'ホストのみフェーズを制御できます',afNeedBalance:'チーム人数が不均衡です',afTeamModeRandom:'ランダム',afTeamModeFree:'自由選択',afTeamPick:'チーム',afTeamAuto:'自動',afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
+ 'ko':{mp:{afTeamMethod:'팀 배정',afTeamBalance:'팀 균형',afCrit:'치명타',afStatusNormal:'정상',afStatusStun:'기절',afStatusShield:'방어막',afStatusBuff:'강화',afBreath:'심호흡',afNeedTeam:'팀을 선택하지 않은 플레이어가 있습니다',afNeedTwo:'참가자가 2명 이상 필요합니다 (플레이어 또는 AI)',afRosCards:'카드',afRosView:'플레이어',afAdmTitle:'관리자 패널',afAdmSkip:'대기·구매 건너뛰고 전투',afAdmClose:'닫기',afAdmHostOnly:'호스트만 단계를 제어할 수 있습니다',afNeedBalance:'팀 인원이 불균형합니다',afTeamModeRandom:'랜덤',afTeamModeFree:'자유 선택',afTeamPick:'팀',afTeamAuto:'자동',afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
 };
 (function mergeAfTeam(){ for(const L in I18N_AFTEAM){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFTEAM[L].mp); } })();
 const I18N_AFDUEL={
@@ -9526,7 +9576,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·225'; }
+    bt.textContent='build 0618·228'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9534,7 +9584,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·225'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·228'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
