@@ -140,7 +140,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afJoyKnob{ position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; background:rgba(246,212,136,.85); box-shadow:0 2px 8px rgba(0,0,0,.4); }
 .afExitBtn{ position:absolute; right:18px; top:16px; z-index:5; padding:8px 14px; border-radius:9px; background:#3a2c55; color:#f3ead2; border:1.5px solid #c79a45; font-weight:700; cursor:pointer; }
 .afHint{ position:absolute; left:0; right:0; bottom:14px; text-align:center; color:#f6d488; font-size:12px; pointer-events:none; z-index:4; text-shadow:0 1px 3px #000; }
-.afPhase{ position:absolute; left:0; right:0; top:14px; text-align:center; color:#fff; font-size:18px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:4; text-shadow:0 1px 4px #000; }
+.afPhase{ position:absolute; left:0; right:0; top:34px; text-align:center; color:#fff; font-size:18px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:4; text-shadow:0 1px 4px #000; }
 .afDuelBanner{ position:absolute; left:0; right:0; top:34px; text-align:center; color:#f6d488; font-size:19px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
 .afScore{ position:absolute; left:0; right:0; top:8px; text-align:center; color:#fff; font-size:17px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:7; text-shadow:0 2px 6px #000; }
 .afCount{ position:absolute; left:0; right:0; top:62px; text-align:center; color:#fff; font-size:60px; font-weight:900; pointer-events:none; z-index:6; text-shadow:0 3px 14px #000,0 0 26px rgba(246,212,136,.7); }
@@ -9685,7 +9685,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·245'; }
+    bt.textContent='build 0618·246'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9693,7 +9693,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·245'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·246'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
