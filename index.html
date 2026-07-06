@@ -1730,6 +1730,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     <div class="lbField"><label id="lbMembersLab">玩家</label><div class="memberList" id="lbMembers"></div></div>
     <div id="lbTeamPick" style="display:none"></div>
     <button class="btn gold lbWide" id="lbStart">開始遊戲</button>
+    <p class="lbHint" id="lbBalanceHint" style="display:none;text-align:center;color:#ff9e6e;font-weight:700"></p>
     <p class="lbHint" id="lbWaiting" style="display:none;text-align:center">等待房主開始…</p>
     <div class="closeRow" style="justify-content:center"><button class="btn" id="lbLeave">離開房間</button></div>
   </div>
@@ -6723,7 +6724,7 @@ function openLobbyScreen(){
 
 /* ---------------------------- lobby ---------------------------- */
 function lobbySelectedMode(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; if(l1==='arena') return 'arena'; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l2==='coop') return 'coop'; var l3b=document.querySelector('#lbL3Seg .segBtn.sel'), l3=l3b?l3b.dataset.l3:'solo'; return (l3==='team')?'raceteam':'race'; }
-function lobbyUpdateModeMenu(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; var l2seg=byId('lbL2Seg'), l3seg=byId('lbL3Seg'); if(l1==='tower'){ if(l2seg) l2seg.style.display=''; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l3seg) l3seg.style.display=(l2==='race')?'':'none'; } else { if(l2seg) l2seg.style.display='none'; if(l3seg) l3seg.style.display='none'; } var d=byId('lbModeDesc'); if(d) d.textContent=t(modeDescKey(lobbySelectedMode())); { var _arena=(lobbySelectedMode()==='arena'); var _ms=byId('lbMapSeg'), _fx=byId('lbMapFixed'); if(_ms) _ms.style.display=_arena?'none':''; if(_fx) _fx.style.display=_arena?'':'none'; }   /* arena is always 20x20 -> show a fixed '20', not a selector */ try{ renderCreateCfg(); }catch(_e){} }
+function lobbyUpdateModeMenu(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; var l2seg=byId('lbL2Seg'), l3seg=byId('lbL3Seg'); if(l1==='tower'){ if(l2seg) l2seg.style.display=''; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l3seg) l3seg.style.display=(l2==='race')?'':'none'; } else { if(l2seg) l2seg.style.display='none'; if(l3seg) l3seg.style.display='none'; } var d=byId('lbModeDesc'); if(d) d.textContent=t(modeDescKey(lobbySelectedMode())); { var _arena=(lobbySelectedMode()==='arena'); var _ms=byId('lbMapSeg'), _fx=byId('lbMapFixed'); if(_ms) _ms.style.display=_arena?'none':''; if(_fx) _fx.style.display=_arena?'':'none'; var _mi=byId('lbMaxInput'); if(_mi){ _mi.step=_arena?'2':'1'; if(_arena){ var _v=parseInt(_mi.value,10)||4; _mi.value=Math.min(10,Math.max(2,Math.round(_v/2)*2)); } } }   /* arena is always 20x20 -> fixed map; and player count must be even (2/4/6/8/10) */ try{ renderCreateCfg(); }catch(_e){} }
 var _createCfg=null;
 function getCreateCfg(){ if(!_createCfg) _createCfg=defaultRoomCfg(); return _createCfg; }
 function hashPass(s){ s=String(s||''); if(!s) return ''; var h=5381; for(var i=0;i<s.length;i++){ h=((h*33)^s.charCodeAt(i))>>>0; } return h.toString(36); }
@@ -6752,7 +6753,7 @@ function renderCreateCfg(){
   if(mode==='race'||mode==='raceteam') seg(field('cfgCountdown'),[{val:true,lab:t('mp.cdOn')},{val:false,lab:t('mp.cdOff')}],!!c.countdown,function(v){ commit('countdown',v); });
   if(mode==='raceteam') seg(field('cfgTeamMethod'),[{val:'random',lab:t('mp.teamRandom')},{val:'pick',lab:t('mp.teamPick')}],c.teamMethod,function(v){ commit('teamMethod',v); });
 }
-function lobbySelectedMax(){ var el=byId('lbMaxInput'); var v=el?parseInt(el.value,10):4; if(!isFinite(v)) v=4; return clamp(v,2,10); }
+function lobbySelectedMax(){ var el=byId('lbMaxInput'); var v=el?parseInt(el.value,10):4; if(!isFinite(v)) v=4; var m=clamp(v,2,10); if(typeof lobbySelectedMode==='function' && lobbySelectedMode()==='arena') m=Math.min(10,Math.max(2,Math.round(m/2)*2)); return m; }
 function lobbySelectedMapSize(){ const b=document.querySelector('#lbMapSeg .segBtn.sel'); return b? (+b.dataset.map) : 30; }   /* host room setting */
 function lobbySelectedView(){ const b=document.querySelector('#lbViewSeg .segBtn.sel'); return b? (+b.dataset.view) : 11; }    /* per-client view */
 function modeDescKey(m){ return m==='race'?'mp.raceDesc':(m==='arena'?'mp.arenaDesc':'mp.coopDesc'); }
@@ -6899,6 +6900,7 @@ function renderLobby(){
     }
     if(MP.mode==='arena'){ var _ait=arenaAiTeams(), _aik=Object.keys(_ait); for(var _ai=0;_ai<_aik.length;_ai++){ var _atm=_ait[_aik[_ai]]; var _ar=document.createElement('div'); _ar.className='memberRow'; var _aav=document.createElement('span'); _aav.className='memberAv aiAv'; _aav.textContent=AF_AI_FACES[_ai%AF_AI_FACES.length]; var _anm=document.createElement('span'); _anm.textContent='AI '+(_ai+1); var _atb=document.createElement('span'); _atb.className='memberTeam '+(_atm==='A'?'teamA':'teamB'); _atb.textContent=t(_atm==='A'?'mp.afTeamA':'mp.afTeamB'); _ar.appendChild(_aav); _ar.appendChild(_anm); _ar.appendChild(_atb); ml.appendChild(_ar); } }   /* arena: show the configured AI in the roster too */
     const isHost=MP.meta && MP.meta.host===Net.uid;
+    { var _bh=byId('lbBalanceHint'); if(_bh){ var _showB=false; if(isHost && MP.mode==='arena'){ try{ var _ck=afCanStart(); if(!_ck.ok && _ck.why==='unbalanced') _showB=true; }catch(e){} } if(_showB){ _bh.textContent=(state.lang==='zh-Hans')?'两边必须平衡':(state.lang==='en')?'Teams must be balanced':(state.lang==='ja')?'両チームを均等に':(state.lang==='ko')?'양팀을 균형 있게':'兩邊必須平衡'; } _bh.style.display=_showB?'block':'none'; } }
     byId('lbStart').style.display=isHost?'inline-flex':'none';
     byId('lbWaiting').style.display=isHost?'none':'block';
     byId('lbStart').textContent=t('mp.start');
@@ -7019,11 +7021,11 @@ const ARENA_BUY={ hp:{inc:300,cost:100}, atk:{inc:3,cost:100}, def:{inc:3,cost:1
 let ARENA_BUY_BASE=25, ARENA_BUY_STEP=2;   /* purchase cost escalates: 1st buy = BASE, each further buy +STEP (any stat) */
 function arenaBuyCost(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null; return ARENA_BUY_BASE + ARENA_BUY_STEP*((ar&&ar._buys)||0); }
 let ARENA_GOLD=1012;
-const ARENA_AI_BUILD={ hp:1700, atk:16, def:16 };
-const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:560, liveMaxRounds:150 };
+const ARENA_AI_BUILD={ hp:900, atk:10, def:10 };
+const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:720, liveMaxRounds:150 };
 let DOT_HP_FRAC=0.02;   /* DoT per-round damage capped at this fraction of the target's max HP (scales across stat levels) */
-let RAMP_MAX_ROUNDS=20;   /* ramp bonuses (rampAtk/rampDef/rampTrue) stop accumulating after this many rounds' worth */
-let ARENA_SUDDEN_START=14, ARENA_SUDDEN_PCT=1.8;   /* after this many rounds, each further round adds ARENA_SUDDEN_PCT% of the defender's max HP as bonus damage -> guarantees a KO finish */
+let RAMP_MAX_ROUNDS=30;   /* ramp bonuses (rampAtk/rampDef/rampTrue) stop accumulating after this many rounds' worth */
+let ARENA_SUDDEN_START=25, ARENA_SUDDEN_PCT=1.8;   /* after this many rounds, each further round adds ARENA_SUDDEN_PCT% of the defender's max HP as bonus damage -> guarantees a KO finish */
 let LIFESTEAL_CAP=60;   /* aggregated lifesteal%% cap (guards extreme multi-card stacking) */
 let SUSTAIN_MULT=0.75;   /* global multiplier on sustained healing: lifesteal, regen, shield-on-hit/hurt (NOT opening shield) */
 let SCALE_ATK_MAX=1.2;   /* scaling ATK bonuses (ramp + hpToAtk + defToAtk) capped at this multiple of base ATK */
@@ -8303,8 +8305,8 @@ function arenaDuelRound(D){
   var aStun=!!A._stunned, bStun=!!B._stunned; A._stunned=false; B._stunned=false;
   if(aStun) aAct=null; if(bStun) bAct=null;
   var _aCrit=(aAct==='crit'), _bCrit=(bAct==='crit'), _aBr=(aAct==='breath'), _bBr=(bAct==='breath'), _aNoAtk=false, _bNoAtk=false;
-  if(_aCrit){ aAct=null; if(A.en>=20){ A.en=clamp(A.en-20,0,100); A._burstMul=1.8; } }
-  if(_bCrit){ bAct=null; if(B.en>=20){ B.en=clamp(B.en-20,0,100); B._burstMul=1.8; } }
+  if(_aCrit){ aAct=null; if(A.en>=20){ A.en=clamp(A.en-20,0,100); A._burstMul=2.0; } }
+  if(_bCrit){ bAct=null; if(B.en>=20){ B.en=clamp(B.en-20,0,100); B._burstMul=2.0; } }
   if(_aBr){ aAct=null; A.en=clamp(A.en+30,0,100); A.stam=clamp(A.stam+30,0,100); _aNoAtk=true; }
   if(_bBr){ bAct=null; B.en=clamp(B.en+30,0,100); B.stam=clamp(B.stam+30,0,100); _bNoAtk=true; }
   /* split active cards from skills; apply cards up front (they may buff this round) */
@@ -9685,7 +9687,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·248'; }
+    bt.textContent='build 0618·250'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9693,7 +9695,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·248'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·250'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
