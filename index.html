@@ -232,7 +232,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afRosTipType{ font-size:12px; color:#b9a7e0; margin-bottom:7px; }
 .afRosTipDesc{ font-size:13px; color:#e9e2ff; line-height:1.55; }
 .afSpectateBtn{ position:absolute; left:50%; bottom:128px; transform:translateX(-50%); z-index:7; padding:9px 18px; border-radius:10px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:14px; cursor:pointer; }
-.afSkipBtn{ position:absolute; left:50%; top:46px; transform:translateX(-50%); z-index:5; padding:7px 16px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
+.afSkipBtn{ position:absolute; left:50%; top:66px; transform:translateX(-50%); z-index:5; padding:7px 16px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
 .afShopBtnUI{ position:absolute; left:50%; bottom:92px; transform:translateX(-50%); z-index:5; padding:10px 20px; border-radius:10px; background:#2e7d5b; color:#eafff3; border:1.5px solid #7cf0b0; font-weight:700; font-size:15px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.4); }
 .afTeamBar{ position:absolute; left:50%; top:78px; transform:translateX(-50%); z-index:5; display:flex; gap:8px; }
 .afTeamBtn{ padding:6px 12px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; border:2px solid transparent; opacity:.65; }
@@ -7018,7 +7018,7 @@ function mpStartLoading(doWork, onDone){
 const ARENA_BUY={ hp:{inc:300,cost:100}, atk:{inc:3,cost:100}, def:{inc:3,cost:100} };
 let ARENA_BUY_BASE=25, ARENA_BUY_STEP=2;   /* purchase cost escalates: 1st buy = BASE, each further buy +STEP (any stat) */
 function arenaBuyCost(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null; return ARENA_BUY_BASE + ARENA_BUY_STEP*((ar&&ar._buys)||0); }
-let ARENA_GOLD=1000;
+let ARENA_GOLD=1012;
 const ARENA_AI_BUILD={ hp:1700, atk:16, def:16 };
 const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:560, liveMaxRounds:150 };
 let DOT_HP_FRAC=0.02;   /* DoT per-round damage capped at this fraction of the target's max HP (scales across stat levels) */
@@ -9685,7 +9685,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·246'; }
+    bt.textContent='build 0618·247'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9693,7 +9693,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·246'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·247'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
