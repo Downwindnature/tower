@@ -140,6 +140,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afJoyKnob{ position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; background:rgba(246,212,136,.85); box-shadow:0 2px 8px rgba(0,0,0,.4); }
 .afExitBtn{ position:absolute; right:18px; top:16px; z-index:5; padding:8px 14px; border-radius:9px; background:#3a2c55; color:#f3ead2; border:1.5px solid #c79a45; font-weight:700; cursor:pointer; }
 .afHint{ position:absolute; left:0; right:0; bottom:14px; text-align:center; color:#f6d488; font-size:12px; pointer-events:none; z-index:4; text-shadow:0 1px 3px #000; }
+.afGear{ position:absolute; right:12px; top:10px; z-index:11; width:38px; height:36px; border-radius:9px; background:rgba(0,0,0,.42); border:1px solid rgba(255,255,255,.28); color:#f6d488; font-size:18px; display:grid; place-items:center; cursor:pointer; }
 .afPhase{ position:absolute; left:0; right:0; top:34px; text-align:center; color:#fff; font-size:18px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:4; text-shadow:0 1px 4px #000; }
 .afDuelBanner{ position:absolute; left:0; right:0; top:34px; text-align:center; color:#f6d488; font-size:19px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:6; text-shadow:0 2px 6px #000; }
 .afScore{ position:absolute; left:0; right:0; top:8px; text-align:center; color:#fff; font-size:17px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:7; text-shadow:0 2px 6px #000; }
@@ -192,7 +193,12 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afStatBonus{ color:#6db3ff; font-weight:800; font-size:12px; margin-left:3px; }
 .afCards{ position:absolute; left:16px; bottom:16px; z-index:6; display:grid; grid-template-columns:repeat(2,1fr); gap:6px; width:216px; }
 @media (pointer:fine){ .afField .afJoy{ display:none; } }   /* desktop uses keyboard -> free the bottom-left corner for the cards */
-@media (pointer:coarse){ .afCards{ bottom:16px; } .afField .afJoy{ bottom:164px; } }   /* touch: joystick on top, the 2x2 cards below it */
+@media (pointer:coarse){ .afCards{ bottom:44px; } .afField .afJoy{ bottom:164px; }
+  .afFightPanel{ width:min(92vw,410px); max-height:80vh; padding:11px 11px 9px; }   /* #2 smaller combat panel on phones */
+  .afpCombatants .pg{ font-size:34px; } .afpName{ min-width:58px; max-width:58px; font-size:12px; } .afpStatus{ font-size:11px; margin-top:3px; }
+  .afpCombatants .cbRow{ font-size:12px; } .afpAct{ padding:7px 8px; font-size:12px; } .afpSwArr{ width:30px; font-size:13px; } .afpSkRow{ margin-bottom:5px; }
+  .afSpectateBtn{ bottom:22px; top:auto; z-index:9; }   /* #2 keep the free-roam/watch toggle below the panel and on top */
+}   /* touch: joystick on top, cards below (lifted clear of the bottom hint) */
 .afCardChip{ background:#2a2350; border:1px solid #6b5fa8; border-radius:8px; color:#e9e2ff; font-size:12px; font-weight:700; padding:7px 9px; cursor:pointer; text-align:left; box-shadow:0 2px 6px rgba(0,0,0,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .afCardChip:hover{ background:#3a3272; }
 .afCardChip.act{ border-color:#e0b34a; color:#ffe6b8; background:#3a2c1a; }
@@ -734,7 +740,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 #cheatBadge button{background:#2a1c06;color:var(--gold);font-weight:800;border-radius:999px;padding:3px 11px;font-size:11px;cursor:pointer;border:none;}
 #adminEnterBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #6b4914;}
 #voiceMsg{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:240;background:rgba(20,6,6,.92);border:1px solid #b23b3b;color:#ff6b6b;font-weight:800;padding:8px 14px;border-radius:10px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.5);}
-#exitHint{position:fixed;left:14px;bottom:12px;z-index:9999;display:none;align-items:center;gap:6px;
+#exitHint{position:absolute;left:14px;bottom:12px;z-index:20;display:none;align-items:center;gap:6px;
   font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--gold);
   background:rgba(20,12,6,.5);border:1px solid rgba(232,176,75,.28);padding:7px 13px;border-radius:999px;
   box-shadow:0 2px 10px rgba(0,0,0,.4);cursor:pointer;user-select:none;-webkit-user-select:none;
@@ -1836,6 +1842,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     <button class="afTeamBtn afTeamRand" id="afTeamRand" style="display:none">隨機分隊</button>
   </div>
   <div class="afScore" id="afScore" style="display:none"></div>
+  <button class="afGear" id="afGear" title="設定" aria-label="設定">⚙️</button>
   <div class="afDuelBanner" id="afDuelBanner" style="display:none"></div>
   <div class="afCount" id="afCount" style="display:none"></div>
   <div class="afStats" id="afStats" style="display:none">
@@ -2950,7 +2957,7 @@ function genFloorRaw(f){
   // ---- special gated treasures, cures, threshold staves & holy water ----
   if(f>=5 && f%6===1) placeBlocked('bigGold', true, ['y','b']);          // big gold: f%6 bucket (spread so floors aren't overloaded)
   if(f===3) placeBlocked('bestiary', true, ['y','b']);                  // monster manual: exactly one per run, guarded
-  if(f===4 && (typeof state!=='undefined') && state.mode==='solo') placeBlocked('tpScroll', true, ['y','b']);  // teleport scroll: one per solo run, guarded
+  if(f===4 && (typeof state!=='undefined') && (state.mode==='solo'||state.mode==='coop'||state.mode==='raceteam')) placeBlocked('tpScroll', true, ['y','b']);  // teleport scroll: solo AND mode 1 (coop/team-race), guarded
   if(f>=15 && f%2===1) placeBlocked('vialG', false, ['y','b']);          // cures only from floor 15+ (no weaken/poison mobs before then); frees early-floor gating slots
   if(f>=16 && f%2===0) placeBlocked('vialR', false, ['y','b']);
   if(f>=6 && f%6===0) placeBlocked('staff1', true, ['b','r']);          // +1 level: f%6 bucket (was every floor -> overloaded the gating)
@@ -4096,8 +4103,8 @@ function autoRoundTick(){
 }
 /* admin mode: unlock every attack & defence skill book; reverts the instant admin mode is exited (logout). Player's genuinely-learned skills are never modified, so saves stay clean. */
 function _admSkAll(){ return (typeof Account!=='undefined' && !!Account.isAdmin); }
-function effAtkSkillIds(){ return (_admSkAll() && (typeof state==='undefined'||state.mode!=='solo')) ? ATK_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.atkSkills)||[]); }   /* admin all-skills override does NOT apply in solo — solo shows only learned books */
-function effDefSkillIds(){ return (_admSkAll() && (typeof state==='undefined'||state.mode!=='solo')) ? DEF_SKILLS.map(function(s){return s.id;}) : ((state.player&&state.player.defSkills)||[]); }   /* solo: learned books only */
+function effAtkSkillIds(){ return (state.player&&state.player.atkSkills)||[]; }   /* only picked-up skill books are usable (solo AND mode 1) */
+function effDefSkillIds(){ return (state.player&&state.player.defSkills)||[]; }   /* only picked-up skill books are usable (solo AND mode 1) */
 function effSkillIds(kind){ return kind==='atk'?effAtkSkillIds():effDefSkillIds(); }
 function skLvOk(s){ return !!s && (_admSkAll() || (state.player&&state.player.lv>=s.lv)); }
 function refreshCombatButtons(){
@@ -4966,7 +4973,7 @@ function confirmSkillPick(){
 /* ============================== Teleport ============================== */
 function floorHasBlockTp(){ const d=curFloor(); if(!d||!d.ent) return false; for(let _y=0;_y<d.ent.length;_y++){ const _row=d.ent[_y]; if(!_row) continue; for(let _x=0;_x<_row.length;_x++){ const _e=_row[_x]; if(_e && _e.kind==='monster' && _e.foe && _e.foe.blockTp) return true; } } return false; }
 function openTeleport(){
-  if(state.mode!=='solo'){ toast(t('mp.tpDisabled')); return; }
+  if(state.mode!=='solo'&&state.mode!=='coop'&&state.mode!=='raceteam'){ toast(t('mp.tpDisabled')); return; }
   if(state.floor===SECRET_FLOOR){ toast(t('tp.inSecret')); return; }   /* 密室內禁用樓層傳送 */
   if(!state.cheatActive && !_admSkAll() && (state.player.tpScrolls||0)<=0){ toast(t('tp.needScroll')); return; }   /* normal play needs a scroll; admin/cheat does not */
   if(bossSealed(curFloor())){ toast(t('tp.bossLock')); return; }   /* can't teleport out of a boss arena until its boss is defeated */
@@ -4975,9 +4982,9 @@ function openTeleport(){
 }
 function renderTeleportContent(){
   byId('tpTitle').textContent=t('tp.title');
-  byId('tpDesc').textContent = state.cheatActive ? t('cheat.tpAny') : t('tp.descPerm');
+  byId('tpDesc').textContent = (state.cheatActive||_admSkAll()) ? t('cheat.tpAny') : t('tp.descPerm');
   const list=[];   // ascending: … B2, B1, 1, 2 … (admin = every floor, otherwise explored range)
-  if(state.cheatActive){ for(let f=-BASEMENT; f<=FLOORS; f++){ if(f!==0) list.push(f); } }
+  if(state.cheatActive||_admSkAll()){ for(let f=-BASEMENT; f<=FLOORS; f++){ if(f!==0) list.push(f); } }
   else { for(let f=state.minFloor; f<=state.maxFloor; f++){ if(f!==0) list.push(f); } }
   state.tpList=list;
   let idx=list.indexOf(state.floor);
@@ -5401,7 +5408,7 @@ function updateExitHint(){
   let openModal=null; for(let i=0;i<DISMISS_OVERLAYS.length;i++){ const o=byId(DISMISS_OVERLAYS[i]); if(o&&o.classList.contains('show')){ openModal=(o.querySelector&&o.querySelector('.modal'))||o; break; } }
   if(openModal){ let pc=true; try{ pc=!!(window.matchMedia&&window.matchMedia('(pointer:fine)').matches); }catch(e){}
     el.textContent=t(pc?'msg.exitHintPC':'msg.exitHintTouch');
-    try{ if(el.parentNode!==openModal) openModal.appendChild(el); }catch(_e){}      /* sit inside the open window, not the screen corner */
+    try{ if(openModal && openModal.style && (openModal.style.position==='' )) openModal.style.position='relative'; }catch(_e){} try{ if(el.parentNode!==openModal) openModal.appendChild(el); }catch(_e){}      /* sit inside the open window, not the screen corner */
     el.classList.add('show'); }
   else { el.classList.remove('show'); try{ if(el.parentNode&&el.parentNode!==document.body) document.body.appendChild(el); }catch(_e){} }
 }
@@ -5807,7 +5814,7 @@ function bindInput(){
 
   { const _bSet=byId('btnSettings'); const _menu=byId('settingsMenu');
     if(_bSet && _menu){
-      _bSet.addEventListener('click',function(ev){ ev.stopPropagation(); toggleSettingsMenu(); });
+      _bSet.addEventListener('click',function(ev){ ev.stopPropagation(); toggleSettingsMenu(); }); { var _ag=byId('afGear'); if(_ag) _ag.addEventListener('click',function(ev){ ev.stopPropagation(); toggleSettingsMenu(); }); }
       _menu.addEventListener('click',function(ev){ ev.stopPropagation(); });   /* clicks inside stay open (e.g. the language picker) */
       const acts=_menu.querySelectorAll('.iconbtn'); for(let i=0;i<acts.length;i++){ acts[i].addEventListener('click',function(){ _menu.classList.remove('open'); }); }   /* picking an action closes the menu */
       _menu.addEventListener('click',function(ev){ if(ev.target.closest('.iconbtn')||ev.target.closest('select')||ev.target.closest('option')) return; const row=ev.target.closest('.setRow'); if(!row||row.classList.contains('langRow')) return; const b=row.querySelector('.iconbtn'); if(b) b.click(); });   /* whole row is clickable, not just the icon */
@@ -6478,7 +6485,7 @@ function onMetaUpdate(meta){
   try{ if(Net.worldId) Net.pushLobby(); }catch(e){}
 }
 function onMembersUpdate(m){ MP.members=m||{}; try{ if(MP.meta && MP.meta.host && MP.members && !MP.members[MP.meta.host]){ var _hids=Object.keys(MP.members).sort(); if(_hids.length && _hids[0]===Net.uid && typeof Net!=='undefined' && Net.metaRef){ Net.metaRef.update({host:Net.uid}); } } }catch(e){}   /* host left -> the earliest remaining member becomes host */ renderRoster(); try{ if(Net.worldId) Net.pushLobby(); }catch(e){} if(byId('lobby').classList.contains('show')) renderLobby(); if(byId('mpPanel').classList.contains('show')) renderMpPanel(); }
-function onPresenceUpdate(p){
+function onPresenceUpdate(p){ if(typeof MP!=='undefined') MP._presLoaded=true;
   MP._lastPresence=p||{};
   const others={}; for(const uid in p){ if(uid===Net.uid) continue; others[uid]=p[uid]; }
   state.others=others;
@@ -6779,6 +6786,7 @@ function roomCfg(){ var d=defaultRoomCfg(), c=(MP.meta&&MP.meta.cfg)?MP.meta.cfg
            aiCount:clamp((c.aiCount!=null?c.aiCount:d.aiCount)|0,0,15) }; }
 var _lbCfgOpen=true;
 function _lbCfgBindToggle(){ var t=byId('lbCfgToggle'); if(!t||t._bound) return; t._bound=true; t.addEventListener('click',function(){ _lbCfgOpen=!_lbCfgOpen; var b=byId('lbCfg'); if(b) b.style.display=_lbCfgOpen?'':'none'; var a=this.querySelector('.lbCfgArr'); if(a) a.textContent=_lbCfgOpen?'▾':'▸'; }); }
+function afEnsureEvenTotal(){ if(typeof MP==='undefined'||MP.mode!=='arena') return; try{ var _mem=MP.members||{}; var _hu={}; Object.keys(_mem).forEach(function(u){ if(!/^AI/.test(u)) _hu[u]=1; }); if(typeof Net!=='undefined'&&Net.uid) _hu[Net.uid]=1; if(MP.meta&&MP.meta.host) _hu[MP.meta.host]=1; var _humans=Object.keys(_hu).length, _ai=(typeof arenaAICount==='function')?arenaAICount():0, _maxP=(MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10; if(((_humans+_ai)%2)===1){ var _na=((_humans+_ai+1)<=_maxP)?(_ai+1):Math.max(0,_ai-1); if(_na!==_ai){ MP.meta=MP.meta||{}; MP.meta.cfg=MP.meta.cfg||{}; MP.meta.cfg.aiCount=_na; if(MP.host && typeof Net!=='undefined' && Net.arenaRef){ try{ Net.arenaRef.parent.child('meta/cfg/aiCount').set(_na); }catch(e){} } } } }catch(e){} }
 function afCanStart(){
   if(typeof MP==='undefined' || MP.mode!=='arena') return {ok:true};
   var members=MP.members||{};
@@ -6945,7 +6953,7 @@ function lobbyRoomsFromSnap(v, now){
   for(var code in v){
     var r=v[code]; if(!r) continue;
     if((r.count||0)<=0) continue;                          /* empty rooms */
-    if((now-(r.updatedAt||0))>16000){ try{ if(typeof Net!=='undefined' && Net.db && Net.worldId!==code){ Net.db.ref('lobby/'+code).remove(); Net.db.ref('worlds/'+code).remove(); } }catch(e){} continue; }   /* nobody's heartbeat for ~16s -> the room is empty: hide it AND prune it from Firebase so it doesn't linger */
+    if((now-(r.updatedAt||0))>12000){ try{ if(typeof Net!=='undefined' && Net.db && Net.worldId!==code){ Net.db.ref('lobby/'+code).remove(); Net.db.ref('worlds/'+code).remove(); } }catch(e){} continue; }   /* nobody's heartbeat for ~16s -> the room is empty: hide it AND prune it from Firebase so it doesn't linger */
     rooms.push({ code:code, mode:r.mode||'coop', host:r.host||'', name:(r.name||''), locked:!!r.locked, count:r.count||0, max:r.max||4, status:r.status||'lobby', createdAt:r.createdAt||0, floors:r.floors||26, diff:r.diff||'normal' });
   }
   rooms.sort(function(a,b){ if((a.status==='lobby')!==(b.status==='lobby')) return a.status==='lobby'?-1:1; return (b.createdAt||0)-(a.createdAt||0); });   /* joinable rooms first, then newest */
@@ -6989,14 +6997,16 @@ function spectateRoom(code){
   });
 }
 function startTowerSpectate(){
-  hide('lobby'); state.mpStarted=true; state._spectator=true;
+  state.mpStarted=true; state._spectator=true;
   Net.ensureConfigLoaded().then(function(){
     if(isSummitMode(MP.mode)) FLOORS=clamp(((MP.meta&&MP.meta.cfg&&MP.meta.cfg.floors)|0)||26,26,51);
     newGame({ mode:MP.mode, seed:MP.seed, worldId:Net.worldId, mapSize:(isSummitMode(MP.mode)?roomCfg().mapSize:MP.mapSize), difficulty:(isSummitMode(MP.mode)?((MP.meta&&MP.meta.cfg&&MP.meta.cfg.difficulty)||'normal'):'normal') });
     state._spectator=true;
-    try{ onPresenceUpdate(MP._lastPresence||{}); }catch(e){}                 /* rebuild peer list from the cached snapshot */
-    if(enterSpectate()){ try{ toast(t('mp.specWatching')); }catch(e){} return; }
-    var tries=0; (function waitPeers(){ if(state.spectating||!Net.spectator) return; try{ onPresenceUpdate(MP._lastPresence||{}); }catch(e){} if(enterSpectate()){ try{ toast(t('mp.specWatching')); }catch(e){} return; } if(++tries<40) setTimeout(waitPeers,150); else { toast(t('mp.noRooms')); goStartScreen(); } })();
+    function _noOneMsg(){ return (state.lang==='zh-Hans')?'没有可观战的玩家':(state.lang==='en')?'No players to watch':(state.lang==='ja')?'観戦できるプレイヤーがいません':(state.lang==='ko')?'관전할 플레이어가 없습니다':'沒有可觀戰的玩家'; }
+    function _startWatch(){ hide('lobby'); try{ toast(t('mp.specWatching')); }catch(e){} }   /* only reveal the game once we have a peer to follow (never our own fresh avatar) */
+    MP._presLoaded=false; try{ onPresenceUpdate(MP._lastPresence||{}); }catch(e){}
+    if(enterSpectate()){ _startWatch(); return; }
+    var tries=0; (function waitPeers(){ if(state.spectating||!Net.spectator) return; try{ onPresenceUpdate(MP._lastPresence||{}); }catch(e){} if(enterSpectate()){ _startWatch(); return; } if(MP._presLoaded && aliveTeammates().length===0){ try{ toast(_noOneMsg()); }catch(e){} goStartScreen(); return; } if(++tries<24) setTimeout(waitPeers,150); else { try{ toast(_noOneMsg()); }catch(e){} goStartScreen(); } })();
   });
 }
 function mpStartLoading(doWork, onDone){
@@ -7022,7 +7032,7 @@ let ARENA_BUY_BASE=25, ARENA_BUY_STEP=2;   /* purchase cost escalates: 1st buy =
 function arenaBuyCost(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null; return ARENA_BUY_BASE + ARENA_BUY_STEP*((ar&&ar._buys)||0); }
 let ARENA_GOLD=1012;
 const ARENA_AI_BUILD={ hp:900, atk:10, def:10 };
-const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:720, liveMaxRounds:150 };
+const ARENA_DUEL={ maxRounds:400, frames:48, durMin:1400, durMax:4200, resultMs:2200, tickMs:800, liveMaxRounds:150 };
 let DOT_HP_FRAC=0.02;   /* DoT per-round damage capped at this fraction of the target's max HP (scales across stat levels) */
 let RAMP_MAX_ROUNDS=30;   /* ramp bonuses (rampAtk/rampDef/rampTrue) stop accumulating after this many rounds' worth */
 let ARENA_SUDDEN_START=25, ARENA_SUDDEN_PCT=1.8;   /* after this many rounds, each further round adds ARENA_SUDDEN_PCT% of the defender's max HP as bonus damage -> guarantees a KO finish */
@@ -7242,10 +7252,10 @@ function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(
 function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A')A.push(meUid); else if(my==='B')B.push(meUid); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')A.push(u); else if(tm==='B')B.push(u); } return {A:A,B:B}; }
 function afAllFieldUids(){ var ids=[Net.uid||'me']; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(ids.indexOf(u)<0) ids.push(u); } return ids; }
 function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myName||'你'); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; if(fp[uid]&&fp[uid].name) return fp[uid].name; var mem=MP.members||{}; if(mem[uid]&&mem[uid].name) return mem[uid].name; return uid; }
-function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+5000, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
-function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(d.sub==='result'){ if(Date.now()>=(d.resEndsAt||0)) afAdvanceMatch(); return; } if(Date.now()>=d.subEndsAt){ var started=false; if(d.sub==='lottery'){ d.sub='count'; d.subEndsAt=Date.now()+3000; } else if(d.sub==='count'){ d.sub='fight'; started=true; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } if(started) afFightStart(); afRenderDuelOverlay(); } }
+function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+1500, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
+function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(d.sub==='result'){ if(Date.now()>=(d.resEndsAt||0)) afAdvanceMatch(); return; } if(Date.now()>=d.subEndsAt){ var started=false; if(d.sub==='lottery'){ d.sub='reveal'; d.subEndsAt=Date.now()+3000; } else if(d.sub==='reveal'){ d.sub='count'; d.subEndsAt=Date.now()+3000; } else if(d.sub==='count'){ d.sub='fight'; started=true; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } if(started) afFightStart(); afRenderDuelOverlay(); } }
 function afOnDuel(d){ if(typeof MP==='undefined'||!MP.arena) return; MP.arena.afDuel=d; afRenderDuelOverlay(); }
-function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'){ if(f._wasFighter){ if(f._preDuelPos){ f.px=f._preDuelPos.x; f.py=f._preDuelPos.y; } f._preDuelPos=null; f._wasFighter=false; } f.frozen=false; return; }   /* keep the player's 自由活動/觀戰 choice between duels */ var meUid=Net.uid||'me'; if(meUid===d.a){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
+function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='reveal'||d.sub==='done'){ if(f._wasFighter){ if(f._preDuelPos){ f.px=f._preDuelPos.x; f.py=f._preDuelPos.y; } f._preDuelPos=null; f._wasFighter=false; } f.frozen=false; return; }   /* keep the player's 自由活動/觀戰 choice between duels */ var meUid=Net.uid||'me'; if(meUid===d.a){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
 function _playArenaCountdown(){ try{ var mv=(typeof effMusicVol==='function')?effMusicVol():0.7; var sv=(typeof effSfxVol==='function')?effSfxVol():0.7; var vol=Math.max(mv,sv); if(vol<=0) return; var files=['bgm-arena-count1.mp3','bgm-arena-count2.mp3']; var f=files[(Math.random()*files.length)|0]; if(typeof AField!=='undefined'&&AField&&AField._countAudio){ try{ AField._countAudio.pause(); }catch(e){} } var a=new Audio(f); a.volume=Math.min(1,Math.max(0.15,vol)); if(typeof AField!=='undefined'&&AField) AField._countAudio=a; var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){}); }catch(e){} }
 function afRenderDuelOverlay(){ try{ updateBGM(); }catch(_e){}   /* fight->fight track, result->end track, else calm */ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); var _ar=(typeof MP!=='undefined')?MP.arena:null; if(scoreEl){ if(typeof state!=='undefined'&&state.mode==='arena'&&_ar){ var _sA=(_ar.scoreA)||0,_sB=(_ar.scoreB)||0; if(d&&d.scoreA!=null){_sA=d.scoreA;_sB=d.scoreB;} scoreEl.style.display=''; scoreEl.textContent=t('mp.afTeamA')+' '+_sA+' : '+_sB+' '+t('mp.afTeamB'); } else scoreEl.style.display='none'; }   /* #2 score always visible at top */ if(typeof AField!=='undefined'&&AField && d && d.sub && d.sub!==AField._lastDuelSub){ AField._lastDuelSub=d.sub; if(d.sub==='count') _playArenaCountdown(); }   /* #6 pre-fight countdown sfx */ if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; return; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ ban.textContent=t('mp.afLottery')+'…'; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
 function afFinishField(){ var ar=MP.arena; if(!ar) return; ar.afDuel={sub:'done'}; var sA=ar.scoreA||0, sB=ar.scoreB||0, results=ar.afResults||[]; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); Net.arenaRef.child('afEnd').set({scoreA:sA, scoreB:sB, results:results}); }catch(e){} } afShowEnd(sA,sB,results); }
@@ -8726,7 +8736,7 @@ function bindMpInput(){
   { const _bh=byId('lbBackHome'); if(_bh) _bh.addEventListener('click',function(){ try{ Net.unwatchLobby(); }catch(_e){} goStartScreen(); }); }
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
-  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ if(MP.mode==='arena'){ var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } Net.startWorld(MP.mode==='raceteam'?(roomCfg().teamMethod==='pick'?rtFinalTeams():rtBalancedTeams()):null); });
+  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ if(MP.mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } Net.startWorld(MP.mode==='raceteam'?(roomCfg().teamMethod==='pick'?rtFinalTeams():rtBalancedTeams()):null); });
   const lv=byId('lbLeave'); if(lv) lv.addEventListener('click',leaveLobby);
   const mpb=byId('btnMP'); if(mpb) mpb.addEventListener('click',openMpPanel);
   const mrc=byId('mpRoomCopy'); if(mrc) mrc.addEventListener('click',copyCode);
@@ -9355,6 +9365,7 @@ function achCtx(){
     feat:(state&&state.feat)||{}, got:achEarnedCount() };
 }
 function checkAchievements(silent){
+  if(typeof state!=='undefined' && state.mode && state.mode!=='solo') return;   /* achievements are solo-only */
   if(typeof ACHIEVEMENTS==='undefined') return; const ctx=achCtx();
   for(let i=0;i<ACHIEVEMENTS.length;i++){ const a=ACHIEVEMENTS[i]; if(_achSet.has(a.id)) continue;
     let ok=false; try{ ok=!!a.test(ctx); }catch(e){}
@@ -9687,7 +9698,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·250'; }
+    bt.textContent='build 0618·256'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9695,7 +9706,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·250'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·256'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
