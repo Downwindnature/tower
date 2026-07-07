@@ -1608,10 +1608,9 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 <div class="overlay" id="startScreen"><div class="titleScreen">
   <div class="tsTitle" id="ssTitle">魔塔</div>
   <div class="tsMenu">
-    <button class="tsBtn tsStart" id="tsStart"><span id="tsStartLab">開始遊戲</span></button>
+    <button class="tsBtn" id="tsStart"><span id="tsStartLab">單機遊戲</span></button>
     <button class="tsBtn" id="tsResume" style="display:none"><span id="tsResumeLab">繼續遊戲</span></button>
     <button class="tsBtn" id="tsMP"><span id="tsMPLab">多人遊戲</span></button>
-    <button class="tsBtn" id="tsManual"><span id="tsManualLab">遊戲說明</span></button>
     <button class="tsBtn" id="tsRank"><span id="tsRankLab">排行榜</span></button>
   </div>
   <div class="tsAcct">
@@ -2615,21 +2614,13 @@ function pickShopType(f){
 
 /* ============================== Floor generation ============================== */
 function _monAbilityMul(m){ if(!m) return 1; var k=1;
-  if(m.trueDmg) k+=0.45;                                                             /* 無視防禦 */
-  if(m.trueTriple) k+=0.25;                                                          /* 防禦不足三倍 */
-  if(hasAb(m,'pierce')) k+=0.22;                                                     /* 無視一半防禦 */
-  if(hasAb(m,'solid')) k+=0.30;                                                      /* 你的傷害減半 -> 更肉 */
-  if(hasAb(m,'vampire') || (m.vampPct|0)>0) k+=0.22;                                 /* 吸血回復 */
-  if(m.revive || m.reviveInto) k+=0.40;                                              /* 死亡復活 -> 約等於雙倍血 */
-  if((m.statDownPct|0)>0||(m.statDownN|0)>0||(m.statDownDefPct|0)>0||(m.statDownDefN|0)>0) k+=0.20;   /* 削攻防 */
-  if((m.weakChance|0)>0 || m.ability==='weak' || hasAb(m,'weak')) k+=0.18;           /* 衰弱 */
-  if((m.poisonChance|0)>0 || m.ability==='poison' || hasAb(m,'poison')) k+=0.15;     /* 中毒 */
-  if(m.drains || (m.drainStam|0)>0 || (m.atkFatigue|0)>0) k+=0.15;                   /* 削體力 -> 易落空 */
-  if((m.drainEn|0)>0) k+=0.08;                                                       /* 吸能量 */
-  if(m.blockTp) k+=0.05;                                                             /* 禁傳送 */
-  return k; }   /* special abilities amplify danger beyond raw stats; all fields are cloud-configurable */
-function _monPower(m){ if(!m) return 0; var hits=Math.max(1,(m.atkcMax|0)||(m.atkc|0)||1); var atk=(m.atk||0)+(m.bonusDmg||0); return ((m.hp||0) + atk*hits*5 + (m.def||0)*4) * _monAbilityMul(m); }   /* LIVE combat-strength (cloud-aware): (HP + (ATK+bonus)*hits + DEF) x ability-danger multiplier */
-function _basementTier(m){ var lo=1e18,hi=0; for(var i=0;i<BASEMENT_MONSTERS.length;i++){ var b=BASEMENT_MONSTERS[i]; if(!((b.bMin|0)>0)) continue; var v=_monPower(b); if(v<lo)lo=v; if(v>hi)hi=v; } if(hi<=lo) return 0.5; return clamp((_monPower(m)-lo)/(hi-lo),0,1); }   /* recomputed every call over the ROSTER basement mobs (bMin>0), so it tracks cloud edits; 0=weakest, 1=strongest */
+  if(m.trueDmg) k+=0.45; if(m.trueTriple) k+=0.25; if(hasAb(m,'pierce')) k+=0.22; if(hasAb(m,'solid')) k+=0.30;
+  if(hasAb(m,'vampire') || (m.vampPct|0)>0) k+=0.22; if(m.revive || m.reviveInto) k+=0.40;
+  if((m.statDownPct|0)>0||(m.statDownN|0)>0||(m.statDownDefPct|0)>0||(m.statDownDefN|0)>0) k+=0.20;
+  if((m.weakChance|0)>0 || m.ability==='weak' || hasAb(m,'weak')) k+=0.18; if((m.poisonChance|0)>0 || m.ability==='poison' || hasAb(m,'poison')) k+=0.15;
+  if(m.drains || (m.drainStam|0)>0 || (m.atkFatigue|0)>0) k+=0.15; if((m.drainEn|0)>0) k+=0.08; if(m.blockTp) k+=0.05; return k; }
+function _monPower(m){ if(!m) return 0; var hits=Math.max(1,(m.atkcMax|0)||(m.atkc|0)||1); var atk=(m.atk||0)+(m.bonusDmg||0); return ((m.hp||0) + atk*hits*5 + (m.def||0)*4) * _monAbilityMul(m); }
+function _basementTier(m){ var lo=1e18,hi=0; for(var i=0;i<BASEMENT_MONSTERS.length;i++){ var b=BASEMENT_MONSTERS[i]; if(!((b.bMin|0)>0)) continue; var v=_monPower(b); if(v<lo)lo=v; if(v>hi)hi=v; } if(hi<=lo) return 0.5; return clamp((_monPower(m)-lo)/(hi-lo),0,1); }
 function _basementOnSurface(m, rf){ if(!hasSummit()) return false; if(!((m.bMin|0)>0)) return false; var dr=diffRank(curDifficulty()); if(dr<1) return false; var top=Math.max(1,FLOORS); var startFloor=Math.max(2,Math.round(top*((dr>=3)?0.15:(dr>=2)?0.40:0.62))); if(rf<startFloor) return false; var tier=_basementTier(m); var tierCap=(dr>=2)?1.0:0.55; if(tier>tierCap) return false; var zone=(rf-startFloor)/Math.max(1,(top-startFloor)); return tier <= zone*tierCap + 0.30; }   /* mode 1: basement mobs bleed onto later surface floors — earlier & deeper at higher difficulty; solo unchanged */
 function genFloorRaw(f){
   if(f===FLOORS) return genBossFloorRaw(f);
@@ -3280,7 +3271,7 @@ function genBossFloorRaw(f){
   if(GRID>11) return genBossFloorRawLarge(f);
   _realFloor=f;   // boss floor is real floor 25 — keep basement scaling from leaking into its mobs
   const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}   // all walls: a NARROW arena, not an open plaza
-  const _sp=stairPos(downFloor(f)); const start={x:clamp(_sp.x,1,GRID-2), y:2};   // ALWAYS land at the TOP entry (row 2), far from the boss — traverse the gauntlet DOWN to it (stairPos can land at either diagonal corner, which used to drop the player right beside the boss)
+  const _sp=stairPos(downFloor(f)); const start={x:clamp(_sp.x,1,GRID-2), y:2};   // ALWAYS land at the TOP entry (row 2), far from the boss — traverse the gauntlet DOWN to it
   const cx=5;
   for(let x=Math.min(start.x,cx); x<=Math.max(start.x,cx); x++) wall[2][x]=false;   // top passage: arrival -> central column
   for(let y=2; y<=7; y++) wall[y][cx]=false;                                        // central 1-wide gauntlet corridor
@@ -3886,8 +3877,8 @@ function descend(){
   try{ sfx('stairs'); }catch(e){}
   state.floor=nf; state.minFloor=Math.min(state.minFloor,nf); GRID=floorGrid(state.floor);
   ensureFloor(nf); const d=curFloor(); d.explored=true; try{ checkAchievements(); }catch(e){}
-  state.px=d.stairs.x; state.py=d.stairs.y;               /* land ON the up-staircase */
-  state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null;
+  if(bossSealed(d)){ state.px=d.start.x; state.py=d.start.y; state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null; }   /* live-boss floor: land on the down-staircase, never on the boss */
+  else { state.px=d.stairs.x; state.py=d.stairs.y; state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null; }
   state.target=null; poisonReset();
   renderAll(); mpPresence();
 }
@@ -5002,7 +4993,7 @@ function openTeleport(){
   if(state.mode!=='solo'&&state.mode!=='coop'&&state.mode!=='raceteam'){ toast(t('mp.tpDisabled')); return; }
   if(state.floor===SECRET_FLOOR){ toast(t('tp.inSecret')); return; }   /* 密室內禁用樓層傳送 */
   if(!state.cheatActive && !_admSkAll() && (state.player.tpScrolls||0)<=0){ toast(t('tp.needScroll')); return; }   /* normal play needs a scroll; admin/cheat does not */
-  if(bossSealed(curFloor())){ toast(t('tp.bossLock')); return; }   /* can't teleport out of a boss arena until its boss is defeated */
+  if(bossSealed(curFloor()) && !state.cheatActive && !_admSkAll()){ toast(t('tp.bossLock')); return; }   /* normal players can't teleport out of a boss arena until its boss is defeated; ADMIN always can */
   if(!state.cheatActive && floorHasBlockTp()){ toast(t('tp.blocked')); return; }   /* a living monster on this floor blocks teleport */
   renderTeleportContent(); show('teleport');
 }
@@ -5074,6 +5065,9 @@ function teleportTo(f){
        same floor              -> surface: DOWN-staircase (toward 1F);  basement: UP-staircase (toward B1) */
   var _landDown = (f>from) ? true : (f<from) ? false : (f>0);
   if(_landDown && d.start){                              /* DOWN-staircase */
+    state.px=d.start.x; state.py=d.start.y;
+    state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
+  } else if(bossSealed(d)){                              /* live-boss floor: land on the down-staircase, never on the boss */
     state.px=d.start.x; state.py=d.start.y;
     state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
   } else {                                               /* UP-staircase */
@@ -8919,11 +8913,11 @@ const I18N_ADMIN2 = {
 
 /* ---- title screen + leaderboard i18n ---- */
 const I18N_TS = {
-'zh-Hant':{ts:{start:'開始遊戲',manual:'遊戲說明',rank:'排行榜',resume:'繼續遊戲',mp:'多人遊戲'},rank:{title:'排行榜',empty:'目前還沒有破關紀錄',noCloud:'排行榜需要登入雲端帳號',name:'玩家',time:'時間',kills:'擊殺',namePh:'輸入暱稱'}},
-'zh-Hans':{ts:{start:'开始游戏',manual:'游戏说明',rank:'排行榜',resume:'继续游戏',mp:'多人游戏'},rank:{title:'排行榜',empty:'目前还没有通关纪录',noCloud:'排行榜需要登录云端账号',name:'玩家',time:'时间',kills:'击杀',namePh:'输入昵称'}},
-'en':{ts:{start:'Start Game',manual:'How to Play',rank:'Ranking',resume:'Resume',mp:'Multiplayer'},rank:{title:'Ranking',empty:'No clears recorded yet',noCloud:'Ranking needs a cloud account',name:'Player',time:'Time',kills:'Kills',namePh:'Enter a nickname'}},
-'ja':{ts:{start:'ゲーム開始',manual:'遊び方',rank:'ランキング',resume:'再開',mp:'マルチプレイ'},rank:{title:'ランキング',empty:'まだクリア記録がありません',noCloud:'ランキングはクラウドログインが必要です',name:'プレイヤー',time:'タイム',kills:'撃破',namePh:'ニックネームを入力'}},
-'ko':{ts:{start:'게임 시작',manual:'게임 설명',rank:'순위표',resume:'이어하기',mp:'멀티플레이'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치',namePh:'닉네임 입력'}}
+'zh-Hant':{ts:{start:'單機遊戲',manual:'遊戲說明',rank:'排行榜',resume:'繼續遊戲',mp:'多人遊戲'},rank:{title:'排行榜',empty:'目前還沒有破關紀錄',noCloud:'排行榜需要登入雲端帳號',name:'玩家',time:'時間',kills:'擊殺',namePh:'輸入暱稱'}},
+'zh-Hans':{ts:{start:'单机游戏',manual:'游戏说明',rank:'排行榜',resume:'继续游戏',mp:'多人游戏'},rank:{title:'排行榜',empty:'目前还没有通关纪录',noCloud:'排行榜需要登录云端账号',name:'玩家',time:'时间',kills:'击杀',namePh:'输入昵称'}},
+'en':{ts:{start:'Single Player',manual:'How to Play',rank:'Ranking',resume:'Resume',mp:'Multiplayer'},rank:{title:'Ranking',empty:'No clears recorded yet',noCloud:'Ranking needs a cloud account',name:'Player',time:'Time',kills:'Kills',namePh:'Enter a nickname'}},
+'ja':{ts:{start:'シングルプレイ',manual:'遊び方',rank:'ランキング',resume:'再開',mp:'マルチプレイ'},rank:{title:'ランキング',empty:'まだクリア記録がありません',noCloud:'ランキングはクラウドログインが必要です',name:'プレイヤー',time:'タイム',kills:'撃破',namePh:'ニックネームを入力'}},
+'ko':{ts:{start:'싱글 플레이',manual:'게임 설명',rank:'순위표',resume:'이어하기',mp:'멀티플레이'},rank:{title:'순위표',empty:'아직 클리어 기록이 없습니다',noCloud:'순위표는 클라우드 로그인이 필요합니다',name:'플레이어',time:'시간',kills:'처치',namePh:'닉네임 입력'}}
 };
 (function mergeTs(){ for(const L in I18N_TS){ if(!I18N[L]) continue; const o=I18N_TS[L]; for(const ns in o){ I18N[L][ns]=Object.assign({}, I18N[L][ns]||{}, o[ns]); } } })();
 (function mergeDrainStam(){ const S={
@@ -9727,7 +9721,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·266'; }
+    bt.textContent='build 0618·268'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9735,7 +9729,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·266'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·268'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
