@@ -5273,7 +5273,7 @@ function endScreen(win){
   const eb=byId('endBig'); eb.textContent= win?'🏆':''; eb.style.display= win?'':'none';
   const h=byId('endTitle'); h.textContent= win?t('end.winT'):t('end.loseT'); h.className= win?'vctry':'';
   byId('endDesc').textContent= win?t('end.winD'):t('end.loseD');
-  byId('endBtnLab').textContent=t('end.retry');
+  byId('endBtnLab').textContent=t('end.retry'); { var _er2=byId('endRestart'); if(_er2) _er2.classList.add('gold'); }
   { const _hl=byId('endHomeLab'); if(_hl) _hl.textContent=t('end.home'); }
   const pl=state.player; const es=byId('endStats');
   const cell=function(k,v){return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';};
@@ -5829,7 +5829,7 @@ function bindInput(){
   byId('btnNew').addEventListener('click',function(){ requestRestart(); });
   { const _hm=byId('btnHome'); if(_hm) _hm.addEventListener('click',function(){ if(state && state.mpStarted && state.mode && state.mode!=='solo'){ toast(t('mp.homeLocked')); return; } goStartScreen(); }); }
   { const _ap=byId('achPrev'); if(_ap) _ap.addEventListener('click',function(){ achStep(-1); }); const _an=byId('achNext'); if(_an) _an.addEventListener('click',function(){ achStep(1); }); }
-  byId('endRestart').addEventListener('click',function(){ if(state.mode==='solo'){ newGame({mode:'solo'}); } else { requestRestart(); } });
+  byId('endRestart').addEventListener('click',function(){ if(state.mode==='solo'){ newGame({mode:'solo'}); } else { hide('endScreen'); try{ if(typeof Net!=='undefined' && Net.metaRef && (!MP.meta || MP.meta.host===Net.uid)) Net.metaRef.update({status:'lobby'}); }catch(e){} try{ renderLobby(); }catch(e){} show('lobby'); } });   /* 再玩一次：回到房間等待室（不離開房間），房主把房間狀態重設回 lobby */
   { const _eh=byId('endHome'); if(_eh) _eh.addEventListener('click',goStartScreen); }
 
   byId('keysToggle').addEventListener('click',function(){ byId('keysBox').classList.toggle('open'); });
@@ -5868,15 +5868,17 @@ function requestRestart(){
 }
 
 /* ============================== Background music (per-floor, no overlap) ============================== */
-const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3', secret:'bgm-secret.mp3', mp_upper:'bgm-mp-upper.mp3', mp_topBoss:'bgm-mp-top-boss.mp3', mp_secret:'bgm-mp-secret.mp3', mp_arena:'bgm-mp-arena.mp3', arena_calm:'bgm-arena-calm.mp3', arena_end:'bgm-arena-end.mp3', arena_fight1:'bgm-arena-fight1.mp3', arena_fight2:'bgm-arena-fight2.mp3', arena_fight3:'bgm-arena-fight3.mp3', arena_fight4:'bgm-arena-fight4.mp3', arena_fight5:'bgm-arena-fight5.mp3' };   /* 模式1(攻略塔)：一般樓層(含1F/登頂)/boss房/密室；模式2(PVP競技場)：專屬曲。多人無地下層 */
+const BGM_FILES = { floor1:'bgm-floor1.mp3', upper:'bgm-upper.mp3', topBoss:'bgm-top-boss.mp3', basement:'bgm-basement.mp3', deepBoss:'bgm-deep-boss.mp3', secret:'bgm-secret.mp3', mp_upper:'bgm-mp-upper.mp3', mp_topBoss:'bgm-mp-top-boss.mp3', mp_secret:'bgm-mp-secret.mp3', mp_arena:'bgm-mp-arena.mp3', arena_calm:'bgm-arena-calm.mp3', arena_end:'bgm-arena-end.mp3', arena_fight1:'bgm-arena-fight1.mp3', arena_fight2:'bgm-arena-fight2.mp3', arena_fight3:'bgm-arena-fight3.mp3', arena_fight4:'bgm-arena-fight4.mp3', arena_fight5:'bgm-arena-fight5.mp3', midboss:'bgm-midboss.mp3', midbossAfter:'bgm-midboss-after.mp3', victory:'bgm-victory.mp3' };   /* 模式1(攻略塔)：一般樓層(含1F/登頂)/boss房/密室；模式2(PVP競技場)：專屬曲。多人無地下層 */
 function _arenaFightKey(d){ var dk=((d&&d.a)||'')+'|'+((d&&d.b)||''); var hsh=0; for(var i=0;i<dk.length;i++){ hsh=(hsh*31+dk.charCodeAt(i))|0; } return 'arena_fight'+(Math.abs(hsh)%5+1); }
 function bgmKeyForFloor(f){
   var base;
   if(f===SECRET_FLOOR) base='secret';                     // 密室專屬 BGM（進去這首，出去依所在樓層切回）
   else { var _bf=hasSummit()?FLOORS-1:FLOORS;             // boss floor (MP: FLOORS-1; solo: FLOORS)
     if(f===1) base='floor1';                              // 1F
-    else if(f===_bf) base='topBoss';                      // final boss floor
-    else if(hasSummit() && f===FLOORS) base='upper';      // summit (calm)
+    else if(_hardBossSwap() && f===_dragonFloor()) base='midboss';   // hard+ mid-boss (median) floor
+    else if(f===_bf) base=(!hasSummit() && state.floors && state.floors[f] && !bossSealed(state.floors[f])) ? 'victory' : 'topBoss';   // final boss floor; solo -> victory once the boss is down
+    else if(hasSummit() && f===FLOORS) base='victory';    // MP summit (登頂) -> victory BGM
+    else if(_hardBossSwap() && f>_dragonFloor() && f<_bf) base='midbossAfter';   // hard+ floors between the mid-boss and the final boss
     else if(f>=2 && f<_bf) base='upper';                  // content floors
     else if(f===-BASEMENT) base='deepBoss';               // B20 boss
     else if(f<0) base='basement';                         // B1-B19
@@ -6182,7 +6184,7 @@ const I18N_MP = {
   panelTitle:'多人資訊',soloNote:'你目前正在單機遊玩。',goMulti:'前往多人連線',ladder:'進度排行',teammates:'隊友',
   finished:'已登頂',floorShort:'樓',hpShort:'生',killsShort:'殺',rank:'名次',
   bossBy:'{name} 擊敗了魔王，魔塔被攻略！',raceWinYou:'你第一個登頂！',raceRank:'第 {n} 名登頂',raceDoneDesc:'你成功登頂了！',
-  coopWin:'你們合力攻略了魔塔！',backLobby:'返回大廳',tpDisabled:'多人模式停用樓層傳送',offline:'離線'}},
+  coopWin:'你們合力攻略了魔塔！',backLobby:'返回大廳',playAgain:'再玩一次',tpDisabled:'多人模式停用樓層傳送',offline:'離線'}},
 'zh-Hans':{mp:{startSub:'选择游玩方式',modeSingle:'单机冒险',modeMulti:'多人联机',notConfigured:'尚未配置 Firebase，目前仅能单机游玩',
   lobbyTitle:'联机大厅',name:'玩家名称',namePh:'输入你的名称',mode:'模式',race:'竞速',coop:'合作',arena:'擂台',
   raceDesc:'同一座塔、各自独立，比谁先登顶。',coopDesc:'共享同一座塔，清掉的怪物与宝物会同步给队友。',arenaDesc:'同一张地图的环形竞技场，分两队抽签 1v1，以胜场计分。',arenaPrep:'赛前准备',arenaTeam:'你的队伍',arenaBuy:'+{inc}（{cost} 金）',arenaBooks:'已持有全部攻击与防御技能书',arenaReady:'准备完成',arenaWait:'等待其他玩家…',arenaNoGold:'金币不足',arenaReadyMsg:'已准备，等待其他玩家',arenaAllReady:'全员就绪，即将开始',arenaMatch:'对战',arenaAI:'电脑',arenaYouFight:'你即将上场！',arenaWatching:'观战中',arenaFightSoon:'1v1 战斗即将登场（开发中）',arenaDoneSoon:'结算即将登场（开发中）',arenaWinner:'{name} 胜！',arenaDraw:'平手',arenaResult:'比赛结束',arenaTeamWin:'{team} 队获胜',arenaTie:'双方平手',arenaBack:'返回主画面',
@@ -6193,7 +6195,7 @@ const I18N_MP = {
   panelTitle:'多人信息',soloNote:'你目前正在单机游玩。',goMulti:'前往多人联机',ladder:'进度排行',teammates:'队友',
   finished:'已登顶',floorShort:'楼',hpShort:'生',killsShort:'杀',rank:'名次',
   bossBy:'{name} 击败了魔王，魔塔被攻略！',raceWinYou:'你第一个登顶！',raceRank:'第 {n} 名登顶',raceDoneDesc:'你成功登顶了！',
-  coopWin:'你们合力攻略了魔塔！',backLobby:'返回大厅',tpDisabled:'多人模式停用楼层传送',offline:'离线'}},
+  coopWin:'你们合力攻略了魔塔！',backLobby:'返回大厅',playAgain:'再玩一次',tpDisabled:'多人模式停用楼层传送',offline:'离线'}},
 'en':{mp:{startSub:'Choose how to play',modeSingle:'Single-player',modeMulti:'Multiplayer',notConfigured:'Firebase is not configured — single-player only for now',
   lobbyTitle:'Multiplayer Lobby',name:'Player name',namePh:'Enter your name',mode:'Mode',race:'Race',coop:'Co-op',arena:'Arena',
   raceDesc:'Same tower, separate runs — first to the top wins.',coopDesc:'Share one tower — monsters and loot you clear sync to teammates.',arenaDesc:'Ring arena on one map: two teams, lottery 1v1 duels, scored by wins.',arenaPrep:'Prep',arenaTeam:'Your team',arenaBuy:'+{inc} ({cost}g)',arenaBooks:'All attack & defense skill books owned',arenaReady:'Ready',arenaWait:'Waiting for others…',arenaNoGold:'Not enough gold',arenaReadyMsg:'Ready — waiting for others',arenaAllReady:'Everyone ready — starting',arenaMatch:'Match',arenaAI:'AI',arenaYouFight:'You\'re up next!',arenaWatching:'Watching',arenaFightSoon:'1v1 combat coming soon (WIP)',arenaDoneSoon:'Results coming soon (WIP)',arenaWinner:'{name} wins!',arenaDraw:'Draw',arenaResult:'Match over',arenaTeamWin:'Team {team} wins',arenaTie:'It\'s a tie',arenaBack:'Back to menu',
@@ -6204,7 +6206,7 @@ const I18N_MP = {
   panelTitle:'Multiplayer',soloNote:'You are playing single-player.',goMulti:'Go to multiplayer',ladder:'Progress',teammates:'Teammates',
   finished:'Reached top',floorShort:'F',hpShort:'HP',killsShort:'K',rank:'Rank',
   bossBy:'{name} slew the boss — the tower is cleared!',raceWinYou:'You reached the top first!',raceRank:'Reached top: rank {n}',raceDoneDesc:'You reached the summit!',
-  coopWin:'Together you cleared the tower!',backLobby:'Back to lobby',tpDisabled:'Teleport is disabled in multiplayer',offline:'offline'}},
+  coopWin:'Together you cleared the tower!',backLobby:'Back to lobby',playAgain:'Play again',tpDisabled:'Teleport is disabled in multiplayer',offline:'offline'}},
 'ja':{mp:{startSub:'遊び方を選択',modeSingle:'ひとりで冒険',modeMulti:'マルチプレイ',notConfigured:'Firebase 未設定のため、現在はシングルのみ',
   lobbyTitle:'ロビー',name:'プレイヤー名',namePh:'名前を入力',mode:'モード',race:'競争',coop:'協力',arena:'闘技場',
   raceDesc:'同じ塔・各自プレイ。先に頂上へ着いた人が勝ち。',coopDesc:'同じ塔を共有。倒した敵や取った宝が仲間と同期。',arenaDesc:'同じマップの円形闘技場。2チーム抽選1v1、勝利数で採点。',arenaPrep:'準備',arenaTeam:'あなたのチーム',arenaBuy:'+{inc}（{cost}金）',arenaBooks:'攻撃・防御スキル書をすべて所持',arenaReady:'準備完了',arenaWait:'他のプレイヤーを待っています…',arenaNoGold:'金貨が足りません',arenaReadyMsg:'準備完了、待機中',arenaAllReady:'全員準備完了、まもなく開始',arenaMatch:'対戦',arenaAI:'AI',arenaYouFight:'まもなく出場！',arenaWatching:'観戦中',arenaFightSoon:'1v1バトルは近日実装（開発中）',arenaDoneSoon:'結果は近日実装（開発中）',arenaWinner:'{name} の勝ち！',arenaDraw:'引き分け',arenaResult:'試合終了',arenaTeamWin:'{team} チームの勝利',arenaTie:'引き分け',arenaBack:'メニューに戻る',
@@ -6215,7 +6217,7 @@ const I18N_MP = {
   panelTitle:'マルチ情報',soloNote:'現在シングルでプレイ中です。',goMulti:'マルチへ',ladder:'進行度',teammates:'仲間',
   finished:'頂上到達',floorShort:'階',hpShort:'HP',killsShort:'撃破',rank:'順位',
   bossBy:'{name} がボスを倒し、塔を攻略！',raceWinYou:'一番乗りで頂上へ！',raceRank:'頂上到達 {n} 位',raceDoneDesc:'頂上に到達しました！',
-  coopWin:'力を合わせて塔を攻略！',backLobby:'ロビーへ',tpDisabled:'マルチでは階層転送は無効',offline:'オフライン'}},
+  coopWin:'力を合わせて塔を攻略！',backLobby:'ロビーへ',playAgain:'もう一度',tpDisabled:'マルチでは階層転送は無効',offline:'オフライン'}},
 'ko':{mp:{startSub:'플레이 방식 선택',modeSingle:'싱글 모험',modeMulti:'멀티플레이',notConfigured:'Firebase 미설정 — 현재는 싱글만 가능',
   lobbyTitle:'멀티 로비',name:'플레이어 이름',namePh:'이름 입력',mode:'모드',race:'경쟁',coop:'협력',arena:'투기장',
   raceDesc:'같은 탑·각자 플레이. 먼저 정상에 오르면 승리.',coopDesc:'같은 탑 공유. 처치한 몬스터·획득한 보물이 동료와 동기화.',arenaDesc:'같은 맵의 원형 투기장. 두 팀 추첨 1v1, 승수로 채점.',arenaPrep:'준비',arenaTeam:'내 팀',arenaBuy:'+{inc}（{cost}금）',arenaBooks:'공격·방어 스킬북 모두 보유',arenaReady:'준비 완료',arenaWait:'다른 플레이어 대기 중…',arenaNoGold:'금화 부족',arenaReadyMsg:'준비 완료, 대기 중',arenaAllReady:'전원 준비 완료, 곧 시작',arenaMatch:'대전',arenaAI:'AI',arenaYouFight:'곧 출전합니다!',arenaWatching:'관전 중',arenaFightSoon:'1v1 전투 곧 구현(개발 중)',arenaDoneSoon:'결산 곧 구현(개발 중)',arenaWinner:'{name} 승리!',arenaDraw:'무승부',arenaResult:'경기 종료',arenaTeamWin:'{team} 팀 승리',arenaTie:'무승부',arenaBack:'메뉴로',
@@ -6226,7 +6228,7 @@ const I18N_MP = {
   panelTitle:'멀티 정보',soloNote:'현재 싱글로 플레이 중입니다.',goMulti:'멀티로 이동',ladder:'진행도',teammates:'동료',
   finished:'정상 도달',floorShort:'층',hpShort:'생',killsShort:'처치',rank:'순위',
   bossBy:'{name} 이(가) 보스를 처치 — 탑을 클리어했습니다!',raceWinYou:'가장 먼저 정상에 올랐습니다!',raceRank:'정상 도달 {n}위',raceDoneDesc:'정상에 도달했습니다!',
-  coopWin:'힘을 합쳐 탑을 클리어했습니다!',backLobby:'로비로',tpDisabled:'멀티에서는 층 이동이 비활성화됩니다',offline:'오프라인'}}
+  coopWin:'힘을 합쳐 탑을 클리어했습니다!',backLobby:'로비로',playAgain:'다시 하기',tpDisabled:'멀티에서는 층 이동이 비활성화됩니다',offline:'오프라인'}}
 };
 (function mergeMp(){ for(const L in I18N_MP){ if(!I18N[L]) continue; I18N[L].mp = Object.assign({}, I18N[L].mp||{}, I18N_MP[L].mp); } })();
 
@@ -6672,7 +6674,7 @@ function rtShowResult(){
   es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv||1)+cell(t('end.kills'),state.kills||0)+cell(t('end.gold'),pl.gold||0);
   try{ renderRunScore(!!state.finished); }catch(e){}
   try{ rtRenderStandings(); }catch(e){}
-  byId('endBtnLab').textContent=t('mp.backLobby');
+  byId('endBtnLab').textContent=t('mp.playAgain'); { var _er=byId('endRestart'); if(_er) _er.classList.remove('gold'); }
   show('endScreen');
 }
 function computeRaceRank(){
@@ -6776,7 +6778,7 @@ function renderCreateCfg(){
   function seg(f,opts,cur,pick){ var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; b.addEventListener('click',function(){ pick(o.val); }); s.appendChild(b); }); f.appendChild(s); }
   var ff=field('cfgFloors'), st=document.createElement('div'); st.className='cfgStep';
   var mn=document.createElement('button'); mn.className='btn cfgStepBtn'; mn.textContent='-'; mn.addEventListener('click',function(){ commit('floors',clamp(c.floors-1,26,51)); }); st.appendChild(mn);
-  var vv=document.createElement('span'); vv.className='cfgStepVal'; vv.textContent=c.floors; st.appendChild(vv);
+  var vv=document.createElement('input'); vv.type='number'; vv.className='cfgStepVal'; vv.min=26; vv.max=51; vv.value=c.floors; vv.style.width='3.4em'; vv.style.textAlign='center'; vv.addEventListener('change',function(){ commit('floors',clamp(parseInt(vv.value,10)||26,26,51)); }); vv.addEventListener('keydown',function(e){ if(e.key==='Enter'){ vv.blur(); } }); st.appendChild(vv);
   var pl=document.createElement('button'); pl.className='btn cfgStepBtn'; pl.textContent='+'; pl.addEventListener('click',function(){ commit('floors',clamp(c.floors+1,26,51)); }); st.appendChild(pl);
   ff.appendChild(st);
   seg(field('cfgDifficulty'),[{val:'easy',lab:t('mp.diffEasy')},{val:'normal',lab:t('mp.diffNormal')},{val:'hard',lab:t('mp.diffHard')},{val:'hell',lab:t('mp.diffHell')}],c.difficulty,function(v){ commit('difficulty',v); });
@@ -6883,7 +6885,7 @@ function renderRoomCfg(){
   function seg(f,opts,cur,pick){ var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; if(host){ b.addEventListener('click',function(){ pick(o.val); }); } else { b.disabled=true; } s.appendChild(b); }); f.appendChild(s); }
   var ff=field('cfgFloors'), st=document.createElement('div'); st.className='cfgStep';
   if(host){ var mn=document.createElement('button'); mn.className='btn cfgStepBtn'; mn.textContent='-'; mn.addEventListener('click',function(){ commit('floors',clamp(c.floors-1,26,51)); }); st.appendChild(mn); }
-  var vv=document.createElement('span'); vv.className='cfgStepVal'; vv.textContent=c.floors; st.appendChild(vv);
+  var vv=document.createElement('input'); vv.type='number'; vv.className='cfgStepVal'; vv.min=26; vv.max=51; vv.value=c.floors; vv.style.width='3.4em'; vv.style.textAlign='center'; vv.addEventListener('change',function(){ commit('floors',clamp(parseInt(vv.value,10)||26,26,51)); }); vv.addEventListener('keydown',function(e){ if(e.key==='Enter'){ vv.blur(); } }); st.appendChild(vv);
   if(host){ var pl=document.createElement('button'); pl.className='btn cfgStepBtn'; pl.textContent='+'; pl.addEventListener('click',function(){ commit('floors',clamp(c.floors+1,26,51)); }); st.appendChild(pl); }
   ff.appendChild(st);
   seg(field('mapSizeLab'),[{val:25,lab:'25'},{val:30,lab:'30'},{val:35,lab:'35'},{val:40,lab:'40'}],c.mapSize,function(v){ commit('mapSize',v); });
@@ -8714,7 +8716,7 @@ function endScreenMp(win, mode, myRank, rank, byName){
   else if(win && mode==='coop'){ h.textContent=t('mp.coopWin'); h.className='vctry'; }
   else { h.textContent=t('end.loseT'); h.className=''; }
   byId('endDesc').textContent = win? (mode==='coop'? fmt(t('mp.bossBy'),{name:byName||t('mp.you')}) : t('mp.raceDoneDesc')) : t('end.loseD');
-  byId('endBtnLab').textContent=t('mp.backLobby');
+  byId('endBtnLab').textContent=t('mp.playAgain'); { var _er=byId('endRestart'); if(_er) _er.classList.remove('gold'); }
   const es=byId('endStats');
   const cell=function(k,v){ return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; };
   es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv)+cell(t('end.kills'),state.kills)+cell(t('end.gold'),pl.gold);
@@ -9721,7 +9723,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·268'; }
+    bt.textContent='build 0618·269'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9729,7 +9731,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·268'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·269'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
