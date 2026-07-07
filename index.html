@@ -5736,10 +5736,10 @@ function bindInput(){
       case ' ': case 'Enter': engage(); break;
       case 'e': case 'E': if(state.mode!=='arena' && state.player&&(state.player.hasManual||_admSkAll())){ openManual(); } else { used=false; } break;   // quick bestiary (disabled in arena)
       case 'p': case 'P': openAchPanel(); break;   // achievements
-      case 'f': case 'F': if((state.mode==='solo'||state.mode==='coop'||state.mode==='raceteam')&&state.player&&((state.player.tpScrolls||0)>0||state.cheatActive||_admSkAll())){ openTeleport(); } else { used=false; } break;   // quick teleport
+      case 'f': case 'F': if((state.mode==='solo'||state.mode==='coop'||state.mode==='raceteam')&&state.player){ openTeleport(); } else { used=false; } break;   // quick teleport (openTeleport gives feedback if no scroll)
       case 'y': case 'Y': if(state.player && effAtkSkillIds().length){ openSkillPicker('atk'); } else { used=false; } break;   // choose attack skill
       case 'u': case 'U': if(state.player && effDefSkillIds().length){ openSkillPicker('def'); } else { used=false; } break;   // choose defence skill
-      case 'b': case 'B': if(state.player){ openLoot(); } else { used=false; } break;   // loot / acquisitions record
+      case 'b': case 'B': if(state.player && state.mode==='solo'){ openLoot(); } else { used=false; } break;   // loot / acquisitions record (solo only)
       case 't': case 'T': if(state.mode!=='arena' && state.player&&state.player.portalGot){ togglePortalAim(); } else { used=false; } break;   // 任意門瞄準 (disabled in arena)
       default: used=false;
     }
@@ -9698,7 +9698,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·256'; }
+    bt.textContent='build 0618·257'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9706,7 +9706,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·256'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·257'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
