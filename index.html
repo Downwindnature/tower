@@ -3280,7 +3280,7 @@ function genBossFloorRaw(f){
   if(GRID>11) return genBossFloorRawLarge(f);
   _realFloor=f;   // boss floor is real floor 25 — keep basement scaling from leaking into its mobs
   const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}   // all walls: a NARROW arena, not an open plaza
-  const start=stairPos(downFloor(f));   // arrive aligned with the floor-below's up-stairs (top region, row 2)
+  const _sp=stairPos(downFloor(f)); const start={x:clamp(_sp.x,1,GRID-2), y:2};   // ALWAYS land at the TOP entry (row 2), far from the boss — traverse the gauntlet DOWN to it (stairPos can land at either diagonal corner, which used to drop the player right beside the boss)
   const cx=5;
   for(let x=Math.min(start.x,cx); x<=Math.max(start.x,cx); x++) wall[2][x]=false;   // top passage: arrival -> central column
   for(let y=2; y<=7; y++) wall[y][cx]=false;                                        // central 1-wide gauntlet corridor
@@ -9727,7 +9727,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·265'; }
+    bt.textContent='build 0618·266'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9735,7 +9735,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·265'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·266'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
