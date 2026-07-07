@@ -4984,7 +4984,7 @@ function renderTeleportContent(){
   byId('tpTitle').textContent=t('tp.title');
   byId('tpDesc').textContent = (state.cheatActive||_admSkAll()) ? t('cheat.tpAny') : t('tp.descPerm');
   const list=[];   // ascending: … B2, B1, 1, 2 … (admin = every floor, otherwise explored range)
-  if(state.cheatActive||_admSkAll()){ for(let f=-BASEMENT; f<=FLOORS; f++){ if(f!==0) list.push(f); } }
+  if(state.cheatActive||_admSkAll()){ var _tpLo=(state.mode==='solo')?-BASEMENT:1; for(let f=_tpLo; f<=FLOORS; f++){ if(f!==0) list.push(f); } }   /* mode 1 has no basement -> surface floors only */
   else { for(let f=state.minFloor; f<=state.maxFloor; f++){ if(f!==0) list.push(f); } }
   state.tpList=list;
   let idx=list.indexOf(state.floor);
@@ -5032,6 +5032,7 @@ function tpRenderReadout(){
   { const mp=byId('tpMap'); if(mp) mp.innerHTML=tpMiniMap(f); }
 }
 function teleportTo(f){
+  if(f<0 && state.mode!=='solo'){ hide('teleport'); return; }   /* mode 1: no basement floors */
   if(!state.cheatActive && !_admSkAll()){
     if((state.player.tpScrolls||0)<=0){ toast(t('tp.needScroll')); hide('teleport'); return; }
     /* teleport is permanent once a scroll has been picked up — no longer consumed */
@@ -9698,7 +9699,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·257'; }
+    bt.textContent='build 0618·258'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9706,7 +9707,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·257'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·258'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
