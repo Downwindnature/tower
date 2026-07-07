@@ -2148,7 +2148,7 @@ function diffCountMul(d){ var m={easy:0.7,normal:1.0,hard:1.3,hell:1.6}; return 
 function curDifficulty(){ return state.difficulty || 'normal'; }   /* solo is always 'normal' (baseline / original) */
 function hasSummit(){ return isSummitMode(state.mode); }   /* MP tower modes: final boss on FLOORS-1 + an empty summit on FLOORS (登頂). Solo keeps the ORIGINAL layout: boss on the top floor = clear. */
 function hasDown(f){ return f>-BASEMENT && f!==SECRET_FLOOR; }
-function bossSealed(d){ if(!d||!d.boss||state.cheatActive) return false; for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){ const e=d.ent[y]&&d.ent[y][x]; if(e&&e.isBoss) return true; } return false; }   /* boss floor with its boss still present -> no exit (until defeated); admin bypasses */
+function bossSealed(d){ if(!d||!d.boss) return false; var _n=(d.wall&&d.wall.length)||GRID; for(let y=0;y<_n;y++)for(let x=0;x<_n;x++){ const e=d.ent[y]&&d.ent[y][x]; if(e&&e.isBoss) return true; } return false; }   /* boss floor with its boss still present -> no exit (until defeated); admin bypasses */
 function upFloor(f){ const n=f+1; return n===0?1:n; }     /* skip the non-existent 0F */
 function downFloor(f){ const n=f-1; return n===0?-1:n; }
 function effFloor(f){ if(f>0){ var ct=FLOORS-2; if(ct<=24) return f; return clamp(Math.round(f*24/ct),1,24); } return clamp(19+(-f),20,24); }  /* content floors 1..(FLOORS-2) map onto the base 24-floor roster; basements draw from the top tier (B1->20 ... B5+->24) */
@@ -9727,7 +9727,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·264'; }
+    bt.textContent='build 0618·265'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9735,7 +9735,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·264'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·265'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
