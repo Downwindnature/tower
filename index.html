@@ -5829,7 +5829,7 @@ function bindInput(){
   byId('btnNew').addEventListener('click',function(){ requestRestart(); });
   { const _hm=byId('btnHome'); if(_hm) _hm.addEventListener('click',function(){ if(state && state.mpStarted && state.mode && state.mode!=='solo'){ toast(t('mp.homeLocked')); return; } goStartScreen(); }); }
   { const _ap=byId('achPrev'); if(_ap) _ap.addEventListener('click',function(){ achStep(-1); }); const _an=byId('achNext'); if(_an) _an.addEventListener('click',function(){ achStep(1); }); }
-  byId('endRestart').addEventListener('click',function(){ if(state.mode==='solo'){ newGame({mode:'solo'}); } else { hide('endScreen'); try{ if(typeof Net!=='undefined' && Net.metaRef && (!MP.meta || MP.meta.host===Net.uid)) Net.metaRef.update({status:'lobby'}); }catch(e){} try{ renderLobby(); }catch(e){} show('lobby'); } });   /* 再玩一次：回到房間等待室（不離開房間），房主把房間狀態重設回 lobby */
+  byId('endRestart').addEventListener('click',function(){ if(state.mode==='solo'){ newGame({mode:'solo'}); } else { hide('endScreen'); try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){} try{ _bgmStopWA(); }catch(e){} try{ if(typeof Net!=='undefined' && Net.metaRef && (!MP.meta || MP.meta.host===Net.uid)) Net.metaRef.update({status:'lobby'}); }catch(e){} try{ renderLobby(); }catch(e){} show('lobby'); } });   /* 再玩一次：回到房間等待室（不離開房間），房主把房間狀態重設回 lobby */
   { const _eh=byId('endHome'); if(_eh) _eh.addEventListener('click',goStartScreen); }
 
   byId('keysToggle').addEventListener('click',function(){ byId('keysBox').classList.toggle('open'); });
@@ -5992,7 +5992,7 @@ function updateBGM(force){
   }
   /* fallback: HTML5 <audio> (only when Web Audio is unavailable) */
   if(!_bgmAudio || typeof state==='undefined' || (state.floor==null && !(state.mode==='arena'))) return;
-  if(!want){ try{ _bgmAudio.pause(); }catch(e){} _bgmKey=null; return; }
+  if(!want){ try{ _bgmAudio.pause(); }catch(e){} try{ _bgmStopWA(); }catch(e){} _bgmKey=null; return; }
   if(want!==_bgmKey){ _bgmKey=want; var _fbk2=_bgmSoloFallbackKey(want); try{ _bgmAudio.onerror=_fbk2?function(){ _bgmAudio.onerror=null; try{ _bgmAudio.src=BGM_FILES[_fbk2]; if(effMusicVol()>0){ var _p2=_bgmAudio.play(); if(_p2&&_p2.catch) _p2.catch(function(){}); } }catch(e){} }:null; _bgmAudio.src=BGM_FILES[want]; }catch(e){} if(effMusicVol()>0){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); } }
   else if(force && effMusicVol()>0 && _bgmAudio.paused){ const p=_bgmAudio.play(); if(p&&p.catch) p.catch(function(){}); }
 }
@@ -6702,7 +6702,7 @@ function goStartScreen(){
   state.spectating=false; state.specUid=null;
   if(_wasMP){ state.player=null; state.over=false; }   /* left MP / lobby / room-create -> no resumable solo game, so no 繼續遊戲 button (solo mid-exit still keeps its player) */
   renderStartScreen(); show('startScreen'); renderMpButton(); try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(e){}   /* 回主畫面時收起成就提示，回遊戲再續播 */
-  try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){}
+  try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){} try{ _bgmStopWA(); }catch(e){}
   try{ _bgmStopWA(); }catch(e){}
 }
 function renderStartScreen(){
@@ -9723,7 +9723,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·269'; }
+    bt.textContent='build 0618·270'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9731,7 +9731,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·269'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·270'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
