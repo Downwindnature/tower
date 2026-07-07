@@ -2132,6 +2132,7 @@ const I18N = {
 /* ============================== Config ============================== */
 let FLOORS=25, ADMIN_FLOORS=25, GRID=11;          /* solo: top floor = final boss (original). MP tower modes add an empty summit ABOVE the boss (see hasSummit) */
 let MAP_N_SOLO=11;               /* single-player grid (admin 7..21); MP overrides GRID with the world's mapSize */
+let MP_BASE_GRID=11;             /* the room's configured map size — used for NORMAL floors; special floors (boss/summit/secret/basement-boss) use MAP_N_SOLO (view size) */
 const BASEMENT=20;               /* deepest basement = B20 (floor -20) */
 const SECRET_FLOOR=900;   /* sentinel floor id for the hidden 密室 (cross-holy-water vault) */
 let _realFloor=1;                /* real (possibly negative) floor of the level currently being generated */
@@ -2613,6 +2614,23 @@ function pickShopType(f){
 }
 
 /* ============================== Floor generation ============================== */
+function _monAbilityMul(m){ if(!m) return 1; var k=1;
+  if(m.trueDmg) k+=0.45;                                                             /* 無視防禦 */
+  if(m.trueTriple) k+=0.25;                                                          /* 防禦不足三倍 */
+  if(hasAb(m,'pierce')) k+=0.22;                                                     /* 無視一半防禦 */
+  if(hasAb(m,'solid')) k+=0.30;                                                      /* 你的傷害減半 -> 更肉 */
+  if(hasAb(m,'vampire') || (m.vampPct|0)>0) k+=0.22;                                 /* 吸血回復 */
+  if(m.revive || m.reviveInto) k+=0.40;                                              /* 死亡復活 -> 約等於雙倍血 */
+  if((m.statDownPct|0)>0||(m.statDownN|0)>0||(m.statDownDefPct|0)>0||(m.statDownDefN|0)>0) k+=0.20;   /* 削攻防 */
+  if((m.weakChance|0)>0 || m.ability==='weak' || hasAb(m,'weak')) k+=0.18;           /* 衰弱 */
+  if((m.poisonChance|0)>0 || m.ability==='poison' || hasAb(m,'poison')) k+=0.15;     /* 中毒 */
+  if(m.drains || (m.drainStam|0)>0 || (m.atkFatigue|0)>0) k+=0.15;                   /* 削體力 -> 易落空 */
+  if((m.drainEn|0)>0) k+=0.08;                                                       /* 吸能量 */
+  if(m.blockTp) k+=0.05;                                                             /* 禁傳送 */
+  return k; }   /* special abilities amplify danger beyond raw stats; all fields are cloud-configurable */
+function _monPower(m){ if(!m) return 0; var hits=Math.max(1,(m.atkcMax|0)||(m.atkc|0)||1); var atk=(m.atk||0)+(m.bonusDmg||0); return ((m.hp||0) + atk*hits*5 + (m.def||0)*4) * _monAbilityMul(m); }   /* LIVE combat-strength (cloud-aware): (HP + (ATK+bonus)*hits + DEF) x ability-danger multiplier */
+function _basementTier(m){ var lo=1e18,hi=0; for(var i=0;i<BASEMENT_MONSTERS.length;i++){ var b=BASEMENT_MONSTERS[i]; if(!((b.bMin|0)>0)) continue; var v=_monPower(b); if(v<lo)lo=v; if(v>hi)hi=v; } if(hi<=lo) return 0.5; return clamp((_monPower(m)-lo)/(hi-lo),0,1); }   /* recomputed every call over the ROSTER basement mobs (bMin>0), so it tracks cloud edits; 0=weakest, 1=strongest */
+function _basementOnSurface(m, rf){ if(!hasSummit()) return false; if(!((m.bMin|0)>0)) return false; var dr=diffRank(curDifficulty()); if(dr<1) return false; var top=Math.max(1,FLOORS); var startFloor=Math.max(2,Math.round(top*((dr>=3)?0.15:(dr>=2)?0.40:0.62))); if(rf<startFloor) return false; var tier=_basementTier(m); var tierCap=(dr>=2)?1.0:0.55; if(tier>tierCap) return false; var zone=(rf-startFloor)/Math.max(1,(top-startFloor)); return tier <= zone*tierCap + 0.30; }   /* mode 1: basement mobs bleed onto later surface floors — earlier & deeper at higher difficulty; solo unchanged */
 function genFloorRaw(f){
   if(f===FLOORS) return genBossFloorRaw(f);
   const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}
@@ -2698,10 +2716,13 @@ function genFloorRaw(f){
   const _ALLMON=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);   // unified pool; each monster carries its own surface (sMin/sMax) + basement-depth (bMin/bMax) ranges (admin Monsters tab)
   let roster;
   if(_realFloor>0){ const rf=f; const _dd=curDifficulty(); roster=_ALLMON.filter(function(m){
-      if(m.b20 || (m.sMin|0)<=0) return false;
-      if(diffRank(_dd) < diffRank(m.minDiff||'easy')) return false;                       // per-monster minDiff gate: only appears at/above its required difficulty
-      var emin=clamp(Math.round((m.sMin|0)*diffFactor(_dd)),1,(m.sMax|0));                 // difficulty shifts the lower bound (harder = tough mobs earlier)
-      return rf>=emin && rf<=(m.sMax|0);
+      if(m.b20) return false;
+      if((m.sMin|0)>0){
+        if(diffRank(_dd) < diffRank(m.minDiff||'easy')) return false;                     // per-monster minDiff gate
+        var emin=clamp(Math.round((m.sMin|0)*diffFactor(_dd)),1,(m.sMax|0));               // difficulty shifts the lower bound
+        return rf>=emin && rf<=(m.sMax|0);
+      }
+      return _basementOnSurface(m, rf);                                                    // Part B: basement mobs on the surface (mode 1, by difficulty)
     }); }   // surface floor: difficulty-adjusted roster for the DESIGN floor (content floors remap onto the base 24-floor roster on tall towers)
   else { const dp=-_realFloor; const _dd=curDifficulty(); roster=_ALLMON.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && diffRank(_dd)>=diffRank(m.minDiff||'easy') && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }   // basement: monsters whose basement-depth range covers this depth (minDiff gate applies; depth-based, no floor shift)
   { const _wl=(typeof FLOOR_WL!=='undefined'&&FLOOR_WL[_realFloor])?FLOOR_WL[_realFloor]:null; if(_wl&&_wl.length){ const _w=_ALLMON.filter(function(m){ return !m.b20 && _wl.indexOf(m.id)>=0; }); if(_w.length) roster=_w; } }   // per-floor whitelist (admin Map tab): if set, this floor spawns ONLY the listed monsters
@@ -3250,7 +3271,7 @@ function genBossFloorRawLarge(f){
   const _topD=effFloor(f-1);
   const tough=MONSTERS.filter(function(m){return m.maxF>=_topD;});
   const gFoe=function(){ return scaleFoe(weightedMonster(tough.length?tough:MONSTERS, _topD), _topD); };
-  data.ent[bossY][cx]={kind:'monster',foe:makeBoss(),isBoss:true};                       // boss sits ONE cell before the up-stairs in a 1-wide corridor -> must be beaten to pass
+  data.ent[bossY][cx]={kind:'monster',foe:_bossFoeForFloor(f),isBoss:true};                       // boss (dragon; Gordon on the top floor at hard+)
   [2,3,4].forEach(function(i){ const y=clamp(start.y+dy*i,0,GRID-1); if(!data.ent[y][cx] && !(cx===start.x&&y===start.y) && y!==bossY && y!==upY) data.ent[y][cx]={kind:'monster',foe:gFoe()}; });   // 3 gauntlet mobs, fought in order
   [[1,'potB'],[5,'potB']].forEach(function(s){ const y=clamp(start.y+dy*s[0],0,GRID-1); if(!wall[y][cx]&&!data.ent[y][cx]&&!(cx===start.x&&y===start.y)&&y!==bossY&&y!==upY) data.ent[y][cx]={kind:'item',item:s[1]}; });   // heals between fights
   return data;
@@ -3267,7 +3288,7 @@ function genBossFloorRaw(f){
   wall[start.y][start.x]=false;
   const stairs={x:cx,y:9};   // up-stairs to the summit, sitting under the boss — revealed only after the boss is beaten (bossSealed blocks it until then)
   const data={f:f,wall:wall,start:{x:start.x,y:start.y},stairs:{x:stairs.x,y:stairs.y},ent:emptyEnt(),lava:emptyLava(),explored:false,boss:true};
-  data.ent[9][cx]={kind:'monster',foe:makeBoss(),isBoss:true};                      // boss waits at the very bottom
+  data.ent[9][cx]={kind:'monster',foe:_bossFoeForFloor(f),isBoss:true};                      // boss (dragon; Gordon on the top floor at hard+)
   // gauntlet: several STRONG floor-24-tier mobs filling the 1-wide corridor — beaten in order, no way around
   const _topD=effFloor(f-1);   // design floor just below the boss floor (solo: effFloor(FLOORS-1); MP: effFloor(FLOORS-2)) = 24
   const tough=MONSTERS.filter(function(m){return m.maxF>=_topD;});
@@ -3325,7 +3346,12 @@ function wingsPackage(pl,levels){
 /* ============================== Rendering ============================== */
 /* camera-follow viewport: solo shows the whole map; MP shows a window centred on the player */
 function mpViewPref(){ try{ var v=parseInt(localStorage.getItem('mt_mpView'),10); if(v===9||v===11||v===13) return v; }catch(e){} return 11; }
-function viewSize(){ if(state.mode==='solo') return GRID; return Math.min(mpViewPref(), GRID); }
+function _hardBossSwap(){ return hasSummit() && diffRank(curDifficulty())>=2; }   /* hard+ MP tower: Tower Dragon -> median floor (mid-boss), Gordon -> final boss on top */
+function _dragonFloor(){ return Math.max(2, Math.min(FLOORS-2, Math.round(FLOORS/2))); }   /* median of the configured floors */
+function _bossFoeForFloor(f){ if(_hardBossSwap()){ if(f===FLOORS-1) return makeBasementBoss(); if(f===_dragonFloor()) return makeBoss(); } return makeBoss(); }   /* top = Gordon on hard+, median = dragon; otherwise dragon */
+function _isViewSizeFloor(f){ if(f===SECRET_FLOOR) return true; if(f===-BASEMENT) return true; if(_hardBossSwap() && f===_dragonFloor()) return true; if(hasSummit()) return (f===FLOORS || f===FLOORS-1); return (f===FLOORS); }   /* boss/summit/secret/basement-boss + (hard+) the dragon's median floor -> single-screen view size */
+function floorGrid(f){ return _isViewSizeFloor(f) ? MAP_N_SOLO : MP_BASE_GRID; }   /* solo: MP_BASE_GRID===MAP_N_SOLO so every floor is view size (unchanged) */
+function viewSize(){ if(state.mode==='solo') return GRID; if(GRID<=MAP_N_SOLO) return GRID; return Math.min(mpViewPref(), GRID); }   /* small (special) floors show whole; large floors use the MP window */
 function camOrigin(){ var V=viewSize(); var hx=V>>1; var cx=clamp((viewCX()||0)-hx,0,Math.max(0,GRID-V)); var cy=clamp((viewCY()||0)-hx,0,Math.max(0,GRID-V)); return {x:cx,y:cy,v:V}; }
 function sizeBoard(){
   const stage=byId('mapStage');
@@ -3823,7 +3849,7 @@ function tryMove(dx,dy){
 }
 function enterSecret(fromF, fromX, fromY){
   state.secretReturn={floor:fromF, px:fromX, py:fromY};   /* remember the magic-circle spot to return to */
-  state.floor=SECRET_FLOOR; ensureFloor(SECRET_FLOOR);
+  state.floor=SECRET_FLOOR; ensureFloor(SECRET_FLOOR); GRID=floorGrid(state.floor);
   const d=curFloor(); d.explored=true;
   state.px=d.start.x; state.py=d.start.y;
   state.noStairTrigger={x:d.start.x, y:d.start.y};        /* don't fire the exit tile on arrival */
@@ -3834,7 +3860,7 @@ function enterSecret(fromF, fromX, fromY){
 function exitSecret(){
   const r=state.secretReturn; if(!r) return;
   state.secretReturn=null;
-  state.floor=r.floor; ensureFloor(r.floor);
+  state.floor=r.floor; ensureFloor(r.floor); GRID=floorGrid(state.floor);
   const d=curFloor(); d.explored=true;
   state.px=r.px; state.py=r.py;                           /* back onto the magic circle */
   state.noStairTrigger={x:r.px, y:r.py};                  /* don't re-enter immediately on arrival */
@@ -3845,7 +3871,7 @@ function exitSecret(){
 function ascend(){
   if(!hasUp(state.floor)) return; try{ sfx('stairs'); }catch(e){}
   const nf=upFloor(state.floor);
-  state.floor=nf; state.maxFloor=Math.max(state.maxFloor,nf);
+  state.floor=nf; state.maxFloor=Math.max(state.maxFloor,nf); GRID=floorGrid(state.floor);
   ensureFloor(nf); const d=curFloor(); d.explored=true; try{ checkAchievements(); }catch(e){}
   state.px=d.start.x; state.py=d.start.y;                 /* land ON the down-staircase */
   state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
@@ -3858,7 +3884,7 @@ function descend(){
   const nf=downFloor(state.floor);
   if(nf<0 && !state.basementUnlocked) return;   // basement stays HIDDEN and sealed (no descent) until the tower is cleared + story — silent so the hidden stair isn't revealed
   try{ sfx('stairs'); }catch(e){}
-  state.floor=nf; state.minFloor=Math.min(state.minFloor,nf);
+  state.floor=nf; state.minFloor=Math.min(state.minFloor,nf); GRID=floorGrid(state.floor);
   ensureFloor(nf); const d=curFloor(); d.explored=true; try{ checkAchievements(); }catch(e){}
   state.px=d.stairs.x; state.py=d.stairs.y;               /* land ON the up-staircase */
   state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null;
@@ -5008,7 +5034,7 @@ function tpMiniMap(f){
   ensureFloor(f);
   const d=state.floors[f]; if(!d || !d.wall) return '';
   let cells='';
-  for(let y=0;y<GRID;y++){ for(let x=0;x<GRID;x++){
+  var _mn=(d.wall&&d.wall.length)||GRID; for(let y=0;y<_mn;y++){ for(let x=0;x<_mn;x++){
     let cls = d.wall[y][x] ? 'w' : 'o';
     if(d.lava && d.lava[y] && d.lava[y][x]) cls='lv';
     if(d.start && d.start.x===x && d.start.y===y) cls='dn';
@@ -5039,7 +5065,7 @@ function teleportTo(f){
   } else if(f<0){ state.basementUnlocked=true; }   /* admin: unlock basement navigation when dropping below ground */
   markFeat('teleport');
   const from=state.floor;
-  state.floor=f; ensureFloor(f);
+  state.floor=f; ensureFloor(f); GRID=floorGrid(state.floor);
   const d=curFloor();
   /* Land on the staircase that leads back toward the floor you came FROM.
      Floor value is the physical-height axis (1..FLOORS high above; B1=-1 … B20=-BASEMENT deep below), so a LARGER value = physically HIGHER.
@@ -5175,6 +5201,7 @@ function victory(){ try{ sfx('win'); }catch(e){} if(typeof state!=='undefined') 
 function onFinalBossDefeated(){ showStory('final', function(){ try{ victory(); }catch(e){ endScreen(true); } }); }
 function towerCleared(){
   state.busy=false;
+  if(state.mode!=='solo') return;               // mode 1 has NO basement — never unlock or show the basement hint
   if(state.basementUnlocked) return;            // already unlocked (e.g. re-fight after reload)
   showStory('boss', function(){
     state.basementUnlocked=true;
@@ -5368,6 +5395,7 @@ function genFloor(f){
   try{
     if(f===SECRET_FLOOR) return genSecretRoom();
     if(hasSummit()){                                       // MP tower modes: final boss on FLOORS-1, empty summit on FLOORS
+      if(_hardBossSwap() && f===_dragonFloor()) return genBossFloorRaw(f);   // hard+: Tower Dragon as a mid-boss on the median floor
       if(f===FLOORS-1) return genBossFloorRaw(f);
       if(f===FLOORS) return genSummitFloorRaw(f);
     } else {                                                // solo (ORIGINAL): boss sits on the top floor = clear, no summit
@@ -5385,7 +5413,7 @@ function genFloor(f){
   } finally{ RAND=prev; }
 }
 function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f)); try{ return genBossFloorRaw(f); } finally{ RAND=prev; } }
-function ensureFloor(f){ if(!state.floors[f]){ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } }
+function ensureFloor(f){ if(!state.floors[f]){ var _gPrev=GRID; GRID=floorGrid(f); try{ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } finally{ GRID=_gPrev; } } }
 function curFloor(){ return state.floors[state.floor]; }
 const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev','arenaPrep','arenaStage','arenaDuel','arenaEnd','arenaField','afShop','cardDraft'];
 function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} let modalOpen=false; try{ const _ovs=document.querySelectorAll('.overlay.show'); for(let _i=0;_i<_ovs.length;_i++){ if(_ovs[_i].id!=='startScreen'){ modalOpen=true; break; } } }catch(e){} ae.style.display = (isAdmin && !open && onMenu && !modalOpen) ? '' : 'none'; }
@@ -5565,10 +5593,10 @@ function newGame(opts){
   opts=opts||{};
   state.mode = opts.mode || 'solo';
   state.difficulty = opts.difficulty || 'normal';   /* solo -> normal (baseline); MP tower modes pass the room's difficulty */
-  GRID = (state.mode==='solo') ? MAP_N_SOLO : clamp((opts.mapSize|0)||30, 20, 48);   /* MP large map; solo keeps its (admin) grid */
+  MP_BASE_GRID = (state.mode==='solo') ? MAP_N_SOLO : clamp((opts.mapSize|0)||30, 20, 48); GRID = MP_BASE_GRID;   /* base = configured size; per-floor GRID set on floor change (special floors use view size) */
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
-  state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
+  state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; GRID=floorGrid(state.floor); state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
   state.raceEndsAt=0; state._raceCdEnded=false; try{ stopRaceCountdown(); }catch(e){}
   { var _secPool=[]; for(var _spf=3; _spf<=FLOORS-1; _spf++) _secPool.push(_spf); for(var _spb=1; _spb<=BASEMENT-1; _spb++) _secPool.push(-_spb); if(!_secPool.length) _secPool=[Math.max(1,Math.min(FLOORS,3))];
     state.secretFloor=_secPool[hashSeed(state.seed,777)%_secPool.length];
@@ -6418,7 +6446,7 @@ function onBossDefeated(){
   if(!hasSummit()){ towerCleared(); return; }   // solo (ORIGINAL): beating the top-floor boss clears the tower
   /* MP tower modes: the boss sits on FLOORS-1. Beating it only unseals the floor and reveals the up-stairs to the summit;
      登頂 (the real win / finish) fires when the player reaches the summit (FLOORS), in onSummitReached(). */
-  try{ toast(({'zh-Hant':'魔王倒下，通往頂層的階梯浮現了！','zh-Hans':'魔王倒下，通往顶层的阶梯浮现了！','en':'The boss falls — the stairs to the summit appear!','ja':'ボスを倒した！頂上への階段が現れた！','ko':'보스를 물리쳤다! 정상으로 가는 계단이 나타났다!'})[state.lang]||'…'); }catch(e){}
+  try{ var _topB=(state.floor===FLOORS-1); var _bm=_topB?({'zh-Hant':'魔王倒下，通往頂層的階梯浮現了！','zh-Hans':'魔王倒下，通往顶层的阶梯浮现了！','en':'The boss falls — the stairs to the summit appear!','ja':'ボスを倒した！頂上への階段が現れた！','ko':'보스를 물리쳤다! 정상으로 가는 계단이 나타났다!'}):({'zh-Hant':'巨龍倒下，前方的階梯開通了！','zh-Hans':'巨龙倒下，前方的阶梯开通了！','en':'The dragon falls — the way up opens!','ja':'ドラゴンを倒した！上への道が開けた！','ko':'드래곤을 쓰러뜨렸다! 위로 가는 길이 열렸다!'}); toast(_bm[state.lang]||'…'); }catch(e){}
   try{ renderAll(); }catch(e){}
   try{ mpPresence(true); }catch(e){}   // broadcast progress (boss cleared) to the room
 }
@@ -9499,7 +9527,7 @@ function applyConfig(cfg){
   if(cfg.map){
     if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,3,99);
     ADMIN_FLOORS=FLOORS;   /* solo / admin floor count; MP tower modes override FLOORS from the room config at start */
-    if(typeof cfg.map.grid==='number'){ GRID=clamp(cfg.map.grid|0,7,21); MAP_N_SOLO=GRID; }
+    if(typeof cfg.map.grid==='number'){ GRID=clamp(cfg.map.grid|0,7,21); MAP_N_SOLO=GRID; MP_BASE_GRID=GRID; }
     if(typeof cfg.map.loopChance==='number') MAPCFG.loopChance=clamp(cfg.map.loopChance,0,0.6);
     if(typeof cfg.map.shopChance==='number') MAPCFG.shopChance=clamp(cfg.map.shopChance,0,1);
   }
@@ -9550,7 +9578,7 @@ function restoreRun(s){
   if(s.hintFloor!==undefined) state.hintFloor=s.hintFloor;
   state.healPlaced=s.healPlaced||{};
   if(s.vaultKeys!==undefined) state.vaultKeys=s.vaultKeys;
-  state.floor=s.floor||1;
+  state.floor=s.floor||1; GRID=floorGrid(state.floor);
   if(!state.floors[state.floor]) ensureFloor(state.floor);
   const d=curFloor();
   state.px=(s.px!=null)? s.px : d.start.x;
@@ -9699,7 +9727,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·258'; }
+    bt.textContent='build 0618·264'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9707,7 +9735,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·258'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·264'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
