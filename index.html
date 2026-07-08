@@ -4522,7 +4522,7 @@ function combatWin(){
 }
 function combatLose(){
   if(_godClamp()){ try{ renderCombat(); state.busy=false; refreshCombatButtons(); }catch(e){} return; }
-  clearTimeout(combatTimer); try{ sfx('lose'); }catch(e){}
+  clearTimeout(combatTimer); try{ sfx('lose'); }catch(e){} try{ playDeathSfx(); }catch(e){}
   const c=state.combat; c.foe.hp=Math.max(0,state.player.hp);
   c.done=true; c.win=false; log('sys',t('msg.lose'),true);
   renderCombat(); showCombatEnd();
@@ -5255,7 +5255,7 @@ function tutNext(){ const _mS=t('tut.stepsM'); const _use=(!_isPC() && Array.isA
 function tutBack(){ if((state._tutI||0)>0){ state._tutI--; renderTutPage(); } }
 function tutSkip(){ hide('tutorial'); }
 function _godClamp(){ if(state.cheatActive && state.player){ if(state.player.hp<1) state.player.hp=1; return true; } return false; }
-function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } if(state.mode==='solo'){ endScreen(false); return; } state.over=true; state.busy=false; try{ mpPresence(true); }catch(e){} if(isSummitMode(state.mode) && enterSpectate()) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } try{ playDeathSfx(); }catch(e){} if(state.mode==='solo'){ endScreen(false); return; } state.over=true; state.busy=false; try{ mpPresence(true); }catch(e){} if(isSummitMode(state.mode) && enterSpectate()) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
 function renderRunScore(won){
   var el=byId('endScore'); if(!el) return;
   var s=computeRunScore(won);
@@ -5584,7 +5584,7 @@ function relocalizeOpen(){
 }
 
 /* ============================== New game ============================== */
-function newGame(opts){
+function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   opts=opts||{};
   state.mode = opts.mode || 'solo';
   state.difficulty = opts.difficulty || 'normal';   /* solo -> normal (baseline); MP tower modes pass the room's difficulty */
@@ -5830,7 +5830,7 @@ function bindInput(){
   byId('btnNew').addEventListener('click',function(){ requestRestart(); });
   { const _hm=byId('btnHome'); if(_hm) _hm.addEventListener('click',function(){ if(state && state.mpStarted && state.mode && state.mode!=='solo'){ toast(t('mp.homeLocked')); return; } goStartScreen(); }); }
   { const _ap=byId('achPrev'); if(_ap) _ap.addEventListener('click',function(){ achStep(-1); }); const _an=byId('achNext'); if(_an) _an.addEventListener('click',function(){ achStep(1); }); }
-  byId('endRestart').addEventListener('click',function(){ if(state.mode==='solo'){ newGame({mode:'solo'}); } else { hide('endScreen'); try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){} try{ _bgmStopWA(); }catch(e){} try{ if(typeof Net!=='undefined' && Net.metaRef && (!MP.meta || MP.meta.host===Net.uid)) Net.metaRef.update({status:'lobby'}); }catch(e){} try{ renderLobby(); }catch(e){} show('lobby'); } });   /* 再玩一次：回到房間等待室（不離開房間），房主把房間狀態重設回 lobby */
+  byId('endRestart').addEventListener('click',function(){ if(state.mode==='solo'){ newGame({mode:'solo'}); } else { hide('endScreen'); try{ stopDeathSfx(); }catch(e){} try{ if(_bgmAudio){ _bgmAudio.pause(); _bgmKey=null; } }catch(e){} try{ _bgmStopWA(); }catch(e){} try{ if(typeof Net!=='undefined' && Net.metaRef && (!MP.meta || MP.meta.host===Net.uid)) Net.metaRef.update({status:'lobby'}); }catch(e){} try{ renderLobby(); }catch(e){} show('lobby'); } });   /* 再玩一次：回到房間等待室（不離開房間），房主把房間狀態重設回 lobby */
   { const _eh=byId('endHome'); if(_eh) _eh.addEventListener('click',goStartScreen); }
 
   byId('keysToggle').addEventListener('click',function(){ byId('keysBox').classList.toggle('open'); });
@@ -6053,6 +6053,9 @@ const SFX_PRESETS = {
 };
 const SFX_PRESET_KEYS = Object.keys(SFX_PRESETS);
 let SFX_MAP = { hurt:'default', critHurt:'default', hit:'default', critHit:'default', miss:'whiff', dmg0:'thud' };   /* miss 音效：預設 whiff，可在後台指定自訂音效或設為 none 靜音 */
+let _deathAudio=null, _deathPlaying=false;
+function playDeathSfx(){ try{ if(typeof state==='undefined'||!(state.mode==='solo'||(typeof isSummitMode==='function'&&isSummitMode(state.mode)))) return; if(_deathPlaying) return; if(!_deathAudio){ _deathAudio=new Audio('sfx-death.mp3'); _deathAudio.addEventListener('ended',function(){ _deathPlaying=false; }); } _deathPlaying=true; try{ _deathAudio.currentTime=0; }catch(e){} if(effSfxVol()>0){ var p=_deathAudio.play(); if(p&&p.catch) p.catch(function(){}); } }catch(e){} }   /* 單機 / 模式1 玩家死亡瞬間播放；離開/退出時 stopDeathSfx() 停止 */
+function stopDeathSfx(){ try{ _deathPlaying=false; if(_deathAudio){ _deathAudio.pause(); try{ _deathAudio.currentTime=0; }catch(e){} } }catch(e){} }
 function sfx(name){
   if(!_sfxUnlocked || !_actx || !_sfxGain) return;
   if(effSfxVol()<=0) return;
@@ -6691,7 +6694,7 @@ function computeRaceRank(){
 }
 
 /* ---------------------------- start screen ---------------------------- */
-function goStartScreen(){
+function goStartScreen(){ try{ stopDeathSfx(); }catch(e){}
   var _wasMP=!!(state.mpStarted || state._inLobby || (state.mode && state.mode!=='solo') || (typeof Net!=='undefined' && Net.worldId));
   try{ clearTimeout(combatTimer); }catch(e){} state.combat=null; state.busy=false; state.target=null;   /* 退出回主畫面：強制中止戰鬥——取消回合排程，並把 state.combat 設為 null，逐發動畫/音效迴圈下一步即自停 */
   state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false; state.portalAim=false; state.portalTarget=null;
@@ -9724,7 +9727,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·272'; }
+    bt.textContent='build 0618·273'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9732,7 +9735,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·272'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·273'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -10478,8 +10481,9 @@ function collectAdminDraft(){
   { const _pf=byId('adminBody').querySelector('select[data-fxplayer]'); if(_pf){ if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}}; adminDraft.fx.player=_pf.value||''; } }
   { const _pc=byId('adminBody').querySelector('select[data-fxplayercrit]'); if(_pc){ if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}}; adminDraft.fx.playerCrit=_pc.value||''; } }
   { const _fc=byId('adminBody').querySelector('select[data-fxfoecrit]'); if(_fc){ if(!adminDraft.fx) adminDraft.fx={weapon:{},foe:{}}; adminDraft.fx.foeCrit=_fc.value||''; } }
+  if(!adminDraft.sounds) adminDraft.sounds={};
+  adminDraft.sounds.miss=SFX_MAP.miss; adminDraft.sounds.dmg0=SFX_MAP.dmg0;   /* miss / 傷害0 live in SFX_MAP (data-missfx/data-dmg0fx), not in a data-sound select -> mirror them so the cloud save keeps them */
   if(byId('adminBody').querySelector('select[data-sound]')){
-    if(!adminDraft.sounds) adminDraft.sounds={};
     byId('adminBody').querySelectorAll('select[data-sound]').forEach(function(sel){ adminDraft.sounds[sel.getAttribute('data-sound')]=sel.value; });
   }
 }
