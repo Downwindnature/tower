@@ -3342,7 +3342,7 @@ function _dragonFloor(){ return Math.max(2, Math.min(FLOORS-2, Math.round(FLOORS
 function _bossFoeForFloor(f){ if(_hardBossSwap()){ if(f===FLOORS-1) return makeBasementBoss(); if(f===_dragonFloor()) return makeBoss(); } return makeBoss(); }   /* top = Gordon on hard+, median = dragon; otherwise dragon */
 function _isViewSizeFloor(f){ if(f===SECRET_FLOOR) return true; if(f===-BASEMENT) return true; if(_hardBossSwap() && f===_dragonFloor()) return true; if(hasSummit()) return (f===FLOORS || f===FLOORS-1); return (f===FLOORS); }   /* boss/summit/secret/basement-boss + (hard+) the dragon's median floor -> single-screen view size */
 function floorGrid(f){ return _isViewSizeFloor(f) ? MAP_N_SOLO : MP_BASE_GRID; }   /* solo: MP_BASE_GRID===MAP_N_SOLO so every floor is view size (unchanged) */
-function viewSize(){ if(state.mode==='solo') return GRID; if(GRID<=MAP_N_SOLO) return GRID; return Math.min(mpViewPref(), GRID); }   /* small (special) floors show whole; large floors use the MP window */
+function viewSize(){ if(state.mode==='solo') return GRID; return Math.min(mpViewPref(), GRID); }   /* MP: window every floor at the per-client view; genuinely small floors (GRID<=view) still show whole via min() */
 function camOrigin(){ var V=viewSize(); var hx=V>>1; var cx=clamp((viewCX()||0)-hx,0,Math.max(0,GRID-V)); var cy=clamp((viewCY()||0)-hx,0,Math.max(0,GRID-V)); return {x:cx,y:cy,v:V}; }
 function sizeBoard(){
   const stage=byId('mapStage');
@@ -4467,7 +4467,7 @@ function _foeShowHits(seq, foeCrit, done){
     const h=seq[i]; i++;
     if(h && h.miss){ floatDmg('me','miss!','miss'); try{ sfx('miss'); }catch(_e){} }
     else if(h){
-      state.player.hp-=h.d; floatDmg('me','-'+h.d, h.crit?'crit':null); if(h.heal>0){ c2.foe.hp=c2.foe.hp+h.heal; floatDmg('foe','+'+h.heal,'heal'); }
+      state.player.hp-=h.d; if(h.d===0){ zeroDmgFx('me'); } else { floatDmg('me','-'+h.d, h.crit?'crit':null); } if(h.heal>0){ c2.foe.hp=c2.foe.hp+h.heal; floatDmg('foe','+'+h.heal,'heal'); }
       if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=h.crit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=h.crit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, h.crit, _fsnd); }catch(_e){} }
     }
     try{ renderCombat(); }catch(_e){}
@@ -9527,7 +9527,7 @@ function applyConfig(cfg){
   if(cfg.map){
     if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,3,99);
     ADMIN_FLOORS=FLOORS;   /* solo / admin floor count; MP tower modes override FLOORS from the room config at start */
-    if(typeof cfg.map.grid==='number'){ GRID=clamp(cfg.map.grid|0,7,21); MAP_N_SOLO=GRID; MP_BASE_GRID=GRID; }
+    if(typeof cfg.map.grid==='number'){ MAP_N_SOLO=clamp(cfg.map.grid|0,7,21); if(!(typeof state!=='undefined' && state.mode && typeof isSummitMode==='function' && isSummitMode(state.mode))){ GRID=MAP_N_SOLO; MP_BASE_GRID=MAP_N_SOLO; } }
     if(typeof cfg.map.loopChance==='number') MAPCFG.loopChance=clamp(cfg.map.loopChance,0,0.6);
     if(typeof cfg.map.shopChance==='number') MAPCFG.shopChance=clamp(cfg.map.shopChance,0,1);
   }
@@ -9727,7 +9727,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·273'; }
+    bt.textContent='build 0618·275'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9735,7 +9735,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·273'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·275'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
