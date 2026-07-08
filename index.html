@@ -4120,7 +4120,7 @@ function autoRoundTick(){
   playerAct('normal');   /* automatic normal attack */
 }
 /* admin mode: unlock every attack & defence skill book; reverts the instant admin mode is exited (logout). Player's genuinely-learned skills are never modified, so saves stay clean. */
-function _admSkAll(){ return (typeof Account!=='undefined' && !!Account.isAdmin); }
+function _admSkAll(){ return (typeof Account!=='undefined' && !!Account.isAdmin && typeof state!=='undefined' && !!state.cheatActive); }   /* admin gameplay perks (teleport-any / manual / skill unlock) require the in-game cheat; the owner plays as a NORMAL player until they enable it (admin PANEL access still uses Account.isAdmin directly) */
 function effAtkSkillIds(){ return (state.player&&state.player.atkSkills)||[]; }   /* only picked-up skill books are usable (solo AND mode 1) */
 function effDefSkillIds(){ return (state.player&&state.player.defSkills)||[]; }   /* only picked-up skill books are usable (solo AND mode 1) */
 function effSkillIds(kind){ return kind==='atk'?effAtkSkillIds():effDefSkillIds(); }
@@ -9727,7 +9727,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·275'; }
+    bt.textContent='build 0618·276'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9735,7 +9735,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·275'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·276'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
