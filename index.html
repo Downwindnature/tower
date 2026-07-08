@@ -9442,7 +9442,7 @@ function snapshotConfig(){
     arena: (typeof arenaSnapshotCfg==='function'?arenaSnapshotCfg():null),
     score: (typeof scoreSnapshotCfg==='function'?scoreSnapshotCfg():null),
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
-    map: { floors:FLOORS, grid:GRID, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },
+    map: { floors:FLOORS, grid:MAP_N_SOLO, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },   /* save the SOLO map size, NOT the live GRID (which is the large MP map during mode 1) — otherwise the MP size pollutes the single-player map */
     floorCfg: Object.assign({}, FLOOR_CFG),
     floorWL: (function(){ const o={}; for(const k in FLOOR_WL){ if(Array.isArray(FLOOR_WL[k])) o[k]=FLOOR_WL[k].slice(); } return o; })(),
     floorTr: Object.assign({}, FLOOR_TR),
@@ -9728,7 +9728,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·277'; }
+    bt.textContent='build 0618·278'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9736,7 +9736,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·277'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·278'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
