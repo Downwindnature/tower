@@ -138,7 +138,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 #afCanvas{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
 .afJoy{ position:absolute; left:24px; bottom:30px; width:108px; height:108px; border-radius:50%; background:rgba(0,0,0,.32); border:2px solid rgba(255,255,255,.22); touch-action:none; z-index:5; }
 .afJoyKnob{ position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px; border-radius:50%; background:rgba(246,212,136,.85); box-shadow:0 2px 8px rgba(0,0,0,.4); }
-.afExitBtn{ position:absolute; right:18px; top:16px; z-index:5; padding:8px 14px; border-radius:9px; background:#3a2c55; color:#f3ead2; border:1.5px solid #c79a45; font-weight:700; cursor:pointer; }
+.afExitBtn{ position:absolute; left:14px; right:auto; top:12px; z-index:8; padding:8px 14px; border-radius:9px; background:#3a2c55; color:#f3ead2; border:1.5px solid #c79a45; font-weight:700; cursor:pointer; }
 .afHint{ position:absolute; left:0; right:0; bottom:14px; text-align:center; color:#f6d488; font-size:12px; pointer-events:none; z-index:4; text-shadow:0 1px 3px #000; }
 .afGear{ position:absolute; right:12px; top:10px; z-index:11; width:38px; height:36px; border-radius:9px; background:rgba(0,0,0,.42); border:1px solid rgba(255,255,255,.28); color:#f6d488; font-size:18px; display:grid; place-items:center; cursor:pointer; }
 .afPhase{ position:absolute; left:0; right:0; top:34px; text-align:center; color:#fff; font-size:18px; font-weight:800; letter-spacing:1px; pointer-events:none; z-index:4; text-shadow:0 1px 4px #000; }
@@ -210,7 +210,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afCardPopDesc{ font-size:13px; color:#e9e2ff; line-height:1.55; }
 .afpSkBtn.queued{ border-color:#f6d488; background:#4a3a6a; }
 .afpSkBtn:disabled{ opacity:.4; cursor:default; }
-.afRosterBtn{ position:absolute; right:16px; top:16px; z-index:7; padding:8px 14px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
+.afRosterBtn{ position:absolute; right:16px; bottom:16px; top:auto; z-index:8; padding:8px 14px; border-radius:9px; background:#2c2350; color:#f6d488; border:1.5px solid #c79a45; font-weight:700; font-size:13px; cursor:pointer; }
 @media (pointer:fine){ .afRosterBtn{ display:none; } }
 .afAdmin{ position:absolute; inset:0; z-index:10; align-items:center; justify-content:center; background:rgba(10,8,20,.78); }
 .afAdmBox{ background:#1a1330; border:1.5px solid #c79a45; border-radius:14px; padding:20px 22px; display:flex; flex-direction:column; gap:12px; min-width:260px; box-shadow:0 8px 30px rgba(0,0,0,.5); }
@@ -3969,7 +3969,7 @@ FX_MAP.skillSfx={}; FX_MAP.abilitySfx={};   /* matching custom sounds for skills
 /* ===== custom uploaded attack media — images (GIF/PNG) for fx, short audio for sfx, kept in localStorage ===== */
 let CUSTOM_FX={}, CUSTOM_SFX={}, _customBuf={};
 let CUSTOM_FX_NAME={}, CUSTOM_SFX_NAME={};
-function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } try{ CUSTOM_FX_NAME=JSON.parse(localStorage.getItem('mt_cfxn')||'{}')||{}; }catch(e){ CUSTOM_FX_NAME={}; } try{ CUSTOM_SFX_NAME=JSON.parse(localStorage.getItem('mt_csfxn')||'{}')||{}; }catch(e){ CUSTOM_SFX_NAME={}; } try{ var _mm=localStorage.getItem('mt_missSfx'); if(_mm) SFX_MAP.miss=_mm; }catch(e){} }
+function loadCustomMedia(){ try{ CUSTOM_FX=JSON.parse(localStorage.getItem('mt_cfx')||'{}')||{}; }catch(e){ CUSTOM_FX={}; } try{ CUSTOM_SFX=JSON.parse(localStorage.getItem('mt_csfx')||'{}')||{}; }catch(e){ CUSTOM_SFX={}; } try{ CUSTOM_FX_NAME=JSON.parse(localStorage.getItem('mt_cfxn')||'{}')||{}; }catch(e){ CUSTOM_FX_NAME={}; } try{ CUSTOM_SFX_NAME=JSON.parse(localStorage.getItem('mt_csfxn')||'{}')||{}; }catch(e){ CUSTOM_SFX_NAME={}; } try{ var _mm=localStorage.getItem('mt_missSfx'); if(_mm) SFX_MAP.miss=_mm; }catch(e){} try{ var _dm=localStorage.getItem('mt_dmg0Sfx'); if(_dm) SFX_MAP.dmg0=_dm; }catch(e){} }
 function saveCustomMedia(){ try{ localStorage.setItem('mt_cfx', JSON.stringify(CUSTOM_FX)); }catch(e){} try{ localStorage.setItem('mt_csfx', JSON.stringify(CUSTOM_SFX)); }catch(e){} try{ localStorage.setItem('mt_cfxn', JSON.stringify(CUSTOM_FX_NAME)); }catch(e){} try{ localStorage.setItem('mt_csfxn', JSON.stringify(CUSTOM_SFX_NAME)); }catch(e){} }
 function _nextCustomId(map,pfx){ let i=1; while(map[pfx+i]) i++; return pfx+i; }
 loadCustomMedia();
@@ -4051,6 +4051,7 @@ function bindCustomMediaUI(){
     const fxn=ev.target.closest('[data-fxname]'); if(fxn){ collectAdminDraft(); CUSTOM_FX_NAME[fxn.getAttribute('data-fxname')]=(fxn.value||'').trim(); saveCustomMedia(); renderAdminBody(); return; }
     const sfn=ev.target.closest('[data-sfxname]'); if(sfn){ collectAdminDraft(); CUSTOM_SFX_NAME[sfn.getAttribute('data-sfxname')]=(sfn.value||'').trim(); saveCustomMedia(); renderAdminBody(); return; }
     const mfx=ev.target.closest('select[data-missfx]'); if(mfx){ SFX_MAP.miss=mfx.value||'whiff'; try{ localStorage.setItem('mt_missSfx', SFX_MAP.miss); }catch(e){} try{ if(SFX_MAP.miss!=='none') sfx('miss'); }catch(e){} return; }
+    const zfx=ev.target.closest('select[data-dmg0fx]'); if(zfx){ SFX_MAP.dmg0=zfx.value||'thud'; try{ localStorage.setItem('mt_dmg0Sfx', SFX_MAP.dmg0); }catch(e){} try{ if(SFX_MAP.dmg0!=='none') sfx('dmg0'); }catch(e){} return; }
     const wf=ev.target.closest('select[data-wlfloor]');
     if(wf){ collectAdminDraft(); _wlFloor=parseInt(wf.value,10)||1; renderAdminBody(); return; }
     const wm=ev.target.closest('input[data-wlmon]');
@@ -4281,7 +4282,7 @@ function ailRing(kind){ try{ const host=byId('mePortrait'); if(!host) return; co
 function zeroDmgFx(side){
   try{ floatDmg(side, '0', 'zero'); }catch(e){}
   try{ playAttackFx(side, 'punch', false, null, true); }catch(e){}
-  try{ sfxPlayPreset('thud'); }catch(e){}
+  try{ if(SFX_MAP.dmg0!=='none') sfx('dmg0'); }catch(e){}
 }
 function playerNormal(){ playerAct('normal'); }
 function staminaPop(n){ try{ var host=byId('cbMeStRow'); if(!host) return; var s=document.createElement('span'); s.className='stamPop'; s.textContent='+'+n+' '+t('cb.st'); host.appendChild(s); setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },1000); }catch(e){} }
@@ -6051,7 +6052,7 @@ const SFX_PRESETS = {
   whiff: function(){ _noise(0.11,0.13,0.0); _blip(320,0.05,'sine',0.07,0.0,150); }
 };
 const SFX_PRESET_KEYS = Object.keys(SFX_PRESETS);
-let SFX_MAP = { hurt:'default', critHurt:'default', hit:'default', critHit:'default', miss:'whiff' };   /* miss 音效：預設 whiff，可在後台指定自訂音效或設為 none 靜音 */
+let SFX_MAP = { hurt:'default', critHurt:'default', hit:'default', critHit:'default', miss:'whiff', dmg0:'thud' };   /* miss 音效：預設 whiff，可在後台指定自訂音效或設為 none 靜音 */
 function sfx(name){
   if(!_sfxUnlocked || !_actx || !_sfxGain) return;
   if(effSfxVol()<=0) return;
@@ -7280,7 +7281,7 @@ function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myNa
 function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+1500, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
 function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(d.sub==='result'){ if(Date.now()>=(d.resEndsAt||0)) afAdvanceMatch(); return; } if(Date.now()>=d.subEndsAt){ var started=false; if(d.sub==='lottery'){ d.sub='reveal'; d.subEndsAt=Date.now()+3000; } else if(d.sub==='reveal'){ d.sub='count'; d.subEndsAt=Date.now()+3000; } else if(d.sub==='count'){ d.sub='fight'; started=true; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } if(started) afFightStart(); afRenderDuelOverlay(); } }
 function afOnDuel(d){ if(typeof MP==='undefined'||!MP.arena) return; MP.arena.afDuel=d; afRenderDuelOverlay(); }
-function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; if(!d||!d.sub||d.sub==='lottery'||d.sub==='reveal'||d.sub==='done'){ if(f._wasFighter){ if(f._preDuelPos){ f.px=f._preDuelPos.x; f.py=f._preDuelPos.y; } f._preDuelPos=null; f._wasFighter=false; } f.frozen=false; return; }   /* keep the player's 自由活動/觀戰 choice between duels */ var meUid=Net.uid||'me'; if(meUid===d.a){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
+function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var _me0=(typeof Net!=='undefined'&&Net.uid)||'me'; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'||(d.sub==='reveal' && _me0!==d.a && _me0!==d.b)){ if(f._wasFighter){ if(f._preDuelPos){ f.px=f._preDuelPos.x; f.py=f._preDuelPos.y; } f._preDuelPos=null; f._wasFighter=false; } f.frozen=false; return; }   /* keep the player's 自由活動/觀戰 choice between duels */ var meUid=Net.uid||'me'; if(meUid===d.a){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
 function _playArenaCountdown(){ try{ var mv=(typeof effMusicVol==='function')?effMusicVol():0.7; var sv=(typeof effSfxVol==='function')?effSfxVol():0.7; var vol=Math.max(mv,sv); if(vol<=0) return; var files=['bgm-arena-count1.mp3','bgm-arena-count2.mp3']; var f=files[(Math.random()*files.length)|0]; if(typeof AField!=='undefined'&&AField&&AField._countAudio){ try{ AField._countAudio.pause(); }catch(e){} } var a=new Audio(f); a.volume=Math.min(1,Math.max(0.15,vol)); if(typeof AField!=='undefined'&&AField) AField._countAudio=a; var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){}); }catch(e){} }
 function afRenderDuelOverlay(){ try{ updateBGM(); }catch(_e){}   /* fight->fight track, result->end track, else calm */ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); var _ar=(typeof MP!=='undefined')?MP.arena:null; if(scoreEl){ if(typeof state!=='undefined'&&state.mode==='arena'&&_ar){ var _sA=(_ar.scoreA)||0,_sB=(_ar.scoreB)||0; if(d&&d.scoreA!=null){_sA=d.scoreA;_sB=d.scoreB;} scoreEl.style.display=''; scoreEl.textContent=t('mp.afTeamA')+' '+_sA+' : '+_sB+' '+t('mp.afTeamB'); } else scoreEl.style.display='none'; }   /* #2 score always visible at top */ if(typeof AField!=='undefined'&&AField && d && d.sub && d.sub!==AField._lastDuelSub){ AField._lastDuelSub=d.sub; if(d.sub==='count') _playArenaCountdown(); }   /* #6 pre-fight countdown sfx */ if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; return; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ ban.textContent=t('mp.afLottery')+'…'; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
 function afFinishField(){ var ar=MP.arena; if(!ar) return; ar.afDuel={sub:'done'}; var sA=ar.scoreA||0, sB=ar.scoreB||0, results=ar.afResults||[]; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); Net.arenaRef.child('afEnd').set({scoreA:sA, scoreB:sB, results:results}); }catch(e){} } afShowEnd(sA,sB,results); }
@@ -9723,7 +9724,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·270'; }
+    bt.textContent='build 0618·272'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9731,7 +9732,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·270'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·272'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -9847,6 +9848,13 @@ function _customSfxManager(){
   h+='<option value="whiff"'+(SFX_MAP.miss==='whiff'?' selected':'')+'>'+_msDef+'</option>';
   h+='<option value="none"'+(SFX_MAP.miss==='none'?' selected':'')+'>'+_msNone+'</option>';
   Object.keys(CUSTOM_SFX).forEach(function(id){ h+='<option value="'+id+'"'+(SFX_MAP.miss===id?' selected':'')+'>'+customSfxLabel(id)+'</option>'; });
+  h+='</select></div>';
+  var _z0Lab=(state.lang==='en'?'Zero-damage sound':(state.lang==='ko'?'0 데미지 소리':(state.lang==='ja'?'ダメージ0 の音':'傷害0 音效')));
+  var _z0Def=(state.lang==='en'?'Default (thud)':(state.lang==='ko'?'기본 (thud)':(state.lang==='ja'?'既定 (thud)':'預設（thud）')));
+  h+='<div class="adField" style="margin-top:12px"><label>'+_z0Lab+'</label><select data-dmg0fx>';
+  h+='<option value="thud"'+(SFX_MAP.dmg0==='thud'?' selected':'')+'>'+_z0Def+'</option>';
+  h+='<option value="none"'+(SFX_MAP.dmg0==='none'?' selected':'')+'>'+_msNone+'</option>';
+  Object.keys(CUSTOM_SFX).forEach(function(id){ h+='<option value="'+id+'"'+(SFX_MAP.dmg0===id?' selected':'')+'>'+customSfxLabel(id)+'</option>'; });
   h+='</select></div>';
   box.innerHTML=h; return box;
 }
