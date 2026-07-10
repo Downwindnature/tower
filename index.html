@@ -1614,7 +1614,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 </div></div>
 
 <!-- ===== Start screen ===== -->
-<div class="overlay" id="startScreen"><div class="titleScreen">
+<div class="overlay show" id="startScreen"><div class="titleScreen">
   <div class="tsTitle" id="ssTitle">魔塔</div>
   <div class="tsMenu">
     <button class="tsBtn" id="tsStart"><span id="tsStartLab">單機遊戲</span></button>
@@ -9741,7 +9741,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·285'; }
+    bt.textContent='build 0618·286'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9749,7 +9749,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·285'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·286'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
