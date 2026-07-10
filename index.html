@@ -198,11 +198,11 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .afCards{ position:absolute; left:16px; bottom:16px; z-index:6; display:grid; grid-template-columns:repeat(2,1fr); gap:6px; width:216px; }
 @media (pointer:fine){ .afField .afJoy{ display:none; } }   /* desktop uses keyboard -> free the bottom-left corner for the cards */
 @media (pointer:coarse){ .afCards{ bottom:16px; } .afShopBtnUI{ bottom:120px; } .afHint{ left:16px; right:auto; transform:none; bottom:280px; max-width:62%; text-align:left; } .afpCombatants .combatant.foe .cbRow{ flex-direction:row; } .afField .afJoy{ bottom:164px; }
-  .afFightPanel{ width:min(92vw,410px); max-height:80vh; padding:11px 11px 9px; }   /* #2 smaller combat panel on phones */
-  .afpCombatants .pg{ font-size:34px; } .afpName{ min-width:58px; max-width:58px; font-size:12px; } .afpStatus{ font-size:11px; margin-top:3px; }
+  .afFightPanel{ width:min(92vw,400px); max-height:82vh; padding:8px 10px 8px; } .afFightPanel .cbRow{ padding:2px 8px; font-size:11px; } .afFightPanel .cbNums{ gap:1px; } .afpMine .afpSkRow{ gap:5px; margin-top:4px; } .afpAct .kbd{ display:none; }   /* #2 compact combat panel + #3 no PC key hints (Z/X/C/V) on phones */
+  .afpCombatants .pg{ font-size:24px; } .afpName{ min-width:58px; max-width:58px; font-size:12px; } .afpStatus{ font-size:11px; margin-top:3px; }
   .afpCombatants.meB .combatant.foe{ order:-1; } .afpCombatants.meB .combatant.me{ order:1; }   /* mobile: when I'm side B, show ME first so both players see the same layout */
   .afpCombatants .cbRow{ font-size:12px; } .afpAct{ padding:7px 8px; font-size:12px; } .afpSwArr{ width:30px; font-size:13px; } .afpSkRow{ margin-bottom:5px; }
-  .afSpectateBtn{ right:16px; left:auto; bottom:62px; top:auto; transform:none; z-index:9; }   /* mobile: bottom-right, above the 查看玩家 button */
+  #afSpectateBtn{ right:16px; left:auto; bottom:62px; top:auto; transform:none; z-index:9; }   /* mobile: bottom-right, above 查看玩家 (ID beats the base .afSpectateBtn rule) */
 }   /* touch: joystick on top, cards below (lifted clear of the bottom hint) */
 .afCardChip{ background:#2a2350; border:1px solid #6b5fa8; border-radius:8px; color:#e9e2ff; font-size:12px; font-weight:700; padding:7px 9px; cursor:pointer; text-align:left; box-shadow:0 2px 6px rgba(0,0,0,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .afCardChip:hover{ background:#3a3272; }
@@ -9741,7 +9741,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·284'; }
+    bt.textContent='build 0618·285'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9749,7 +9749,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·284'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·285'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
