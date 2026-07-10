@@ -1087,6 +1087,10 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
   background:var(--stone-d);border:1px solid var(--line);margin-bottom:12px;}
 .rcLab{font-size:10px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;}
 .rcCode{font-family:var(--mono);font-size:26px;font-weight:800;letter-spacing:.28em;color:var(--txt);margin-top:2px;}
+.lbRow2{display:flex;gap:12px;align-items:flex-start;}
+.lbRow2 .lbFieldGrow{flex:1;min-width:0;}
+.lbAiSlot{flex:0 0 auto;}
+.lbAiSlot .lbField{margin:0;}
 .roomModeTag{display:inline-block;font-size:11px;font-weight:700;padding:3px 11px;border-radius:10px;margin-bottom:12px;
   background:rgba(155,108,255,.18);color:#c4a9ff;border:1px solid rgba(155,108,255,.35);}
 .memberList{display:flex;flex-direction:column;gap:7px;}
@@ -1721,8 +1725,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
         <button class="segBtn" data-l3="team"><span id="lbL3TeamLab">分隊</span></button>
       </div>
       <p class="lbHint" id="lbModeDesc"></p></div>
-    <div class="lbField"><label id="lbMaxLab">人數上限</label>
-      <input type="number" id="lbMaxInput" min="2" max="10" step="1" value="4" inputmode="numeric" autocomplete="off"></div>
+    <div class="lbRow2"><div class="lbField lbFieldGrow"><label id="lbMaxLab">人數上限</label>
+      <input type="number" id="lbMaxInput" min="2" max="10" step="1" value="4" inputmode="numeric" autocomplete="off"></div><div id="lbAiSlot" class="lbAiSlot"></div></div>
     <div class="lbField" id="lbMapField"><label id="lbMapLab">地圖大小</label>
       <div class="seg" id="lbMapSeg">
         <button class="segBtn" data-map="25">25</button>
@@ -6772,20 +6776,21 @@ function openLobbyScreen(){
 
 /* ---------------------------- lobby ---------------------------- */
 function lobbySelectedMode(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; if(l1==='arena') return 'arena'; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l2==='coop') return 'coop'; var l3b=document.querySelector('#lbL3Seg .segBtn.sel'), l3=l3b?l3b.dataset.l3:'solo'; return (l3==='team')?'raceteam':'race'; }
-function lobbyUpdateModeMenu(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; var l2seg=byId('lbL2Seg'), l3seg=byId('lbL3Seg'); if(l1==='tower'){ if(l2seg) l2seg.style.display=''; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l3seg) l3seg.style.display=(l2==='race')?'':'none'; } else { if(l2seg) l2seg.style.display='none'; if(l3seg) l3seg.style.display='none'; } var d=byId('lbModeDesc'); if(d) d.textContent=t(modeDescKey(lobbySelectedMode())); { var _arena=(lobbySelectedMode()==='arena'); var _ms=byId('lbMapSeg'), _fx=byId('lbMapFixed'); if(_ms) _ms.style.display=_arena?'none':''; if(_fx) _fx.style.display=_arena?'':'none'; var _mi=byId('lbMaxInput'); if(_mi){ _mi.step=_arena?'2':'1'; if(_arena){ var _v=parseInt(_mi.value,10)||4; _mi.value=Math.min(10,Math.max(2,Math.round(_v/2)*2)); } } }   /* arena is always 20x20 -> fixed map; and player count must be even (2/4/6/8/10) */ try{ renderCreateCfg(); }catch(_e){} }
+function lobbyUpdateModeMenu(){ var l1b=document.querySelector('#lbL1Seg .segBtn.sel'), l1=l1b?l1b.dataset.l1:'tower'; var l2seg=byId('lbL2Seg'), l3seg=byId('lbL3Seg'); if(l1==='tower'){ if(l2seg) l2seg.style.display=''; var l2b=document.querySelector('#lbL2Seg .segBtn.sel'), l2=l2b?l2b.dataset.l2:'coop'; if(l3seg) l3seg.style.display=(l2==='race')?'':'none'; } else { if(l2seg) l2seg.style.display='none'; if(l3seg) l3seg.style.display='none'; } var d=byId('lbModeDesc'); if(d) d.textContent=t(modeDescKey(lobbySelectedMode())); { var _arena=(lobbySelectedMode()==='arena'); var _mf=byId('lbMapField'); if(_mf) _mf.style.display=_arena?'none':''; var _mi=byId('lbMaxInput'); if(_mi){ _mi.step=_arena?'2':'1'; if(_arena){ var _v=parseInt(_mi.value,10)||4; _mi.value=Math.min(10,Math.max(2,Math.round(_v/2)*2)); } } }   /* arena is always 20x20 -> fixed map; and player count must be even (2/4/6/8/10) */ try{ renderCreateCfg(); }catch(_e){} }
 var _createCfg=null;
 function getCreateCfg(){ if(!_createCfg) _createCfg=defaultRoomCfg(); return _createCfg; }
 function hashPass(s){ s=String(s||''); if(!s) return ''; var h=5381; for(var i=0;i<s.length;i++){ h=((h*33)^s.charCodeAt(i))>>>0; } return h.toString(36); }
 function renderCreateCfg(){
   var box=byId('lbCreateCfg'); if(!box) return;
+  var _aiSlot=byId('lbAiSlot'); if(_aiSlot) _aiSlot.innerHTML='';
   var mode=lobbySelectedMode(); box.innerHTML='';
-  if(!isSummitMode(mode)){ box.style.display=''; var c0=getCreateCfg(); if(c0.aiCount==null) c0.aiCount=0; var _aiMax=Math.max(1,(lobbySelectedMax()||4)-1); if((c0.aiCount|0)>_aiMax){ getCreateCfg().aiCount=_aiMax; c0.aiCount=_aiMax; }
+  if(!isSummitMode(mode)){ var _aiBox=_aiSlot||box; var c0=getCreateCfg(); if(c0.aiCount==null) c0.aiCount=0; var _aiMax=Math.max(1,(lobbySelectedMax()||4)-1); if((c0.aiCount|0)>_aiMax){ getCreateCfg().aiCount=_aiMax; c0.aiCount=_aiMax; }
     var af=document.createElement('div'); af.className='lbField'; var al=document.createElement('label'); al.textContent=t('mp.cfgAiCount'); af.appendChild(al);
     var ast=document.createElement('div'); ast.className='cfgStep';
     var amn=document.createElement('button'); amn.className='btn cfgStepBtn'; amn.textContent='-'; amn.addEventListener('click',function(){ getCreateCfg().aiCount=clamp((getCreateCfg().aiCount|0)-1,0,_aiMax); renderCreateCfg(); }); ast.appendChild(amn);
     var avv=document.createElement('span'); avv.className='cfgStepVal'; avv.textContent=clamp(c0.aiCount|0,0,_aiMax); ast.appendChild(avv);
     var apl=document.createElement('button'); apl.className='btn cfgStepBtn'; apl.textContent='+'; apl.addEventListener('click',function(){ getCreateCfg().aiCount=clamp((getCreateCfg().aiCount|0)+1,0,_aiMax); renderCreateCfg(); }); ast.appendChild(apl);
-    af.appendChild(ast); box.appendChild(af); return;
+    af.appendChild(ast); _aiBox.appendChild(af); return;
   }
   box.style.display='';
   var c=getCreateCfg();
@@ -9744,7 +9749,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·288'; }
+    bt.textContent='build 0618·289'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9752,7 +9757,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·288'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·289'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
