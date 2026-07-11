@@ -1069,6 +1069,9 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .cfgStep{display:flex;align-items:center;gap:14px;}
 .cfgStepBtn{min-width:46px;padding:8px 0;font-size:18px;font-weight:800;line-height:1;}
 .cfgStepVal{font-size:22px;font-weight:800;color:var(--gold);min-width:44px;text-align:center;}
+input.cfgStepVal{background:var(--stone-d);border:1px solid var(--line);border-radius:9px;padding:6px 10px;box-sizing:border-box;font-family:inherit;color:var(--gold);outline:none;-moz-appearance:textfield;}   /* the editable floors number: dark box matching #lbMaxInput (the player-count field), not a bare white input with black text */
+input.cfgStepVal:focus{border-color:var(--gold-d);}
+input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .lbWide{width:100%;margin-top:4px;text-align:center;justify-content:center;}
 .lbOr{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--txt-faint);}
 .lbOr span{flex:1;height:1px;background:var(--line);}
@@ -3396,10 +3399,11 @@ function sizeBoard(){
     const avail=Math.min(w||320, h||220);
     tile=clamp(Math.floor((avail-30)/_V),14,56);
   } else {
-    /* DESKTOP: fit the board into the smaller of the stage's width/height */
+    /* DESKTOP: the board is a FIXED size that fills the stage; the view (9/11/13) is pure ZOOM — fewer tiles = bigger, more tiles = smaller. The board frame no longer grows/shrinks when you change the view. */
     const w=stage.clientWidth, h=stage.clientHeight;
     const avail=Math.min(w||320,h||320);
-    tile=clamp(Math.floor((avail-30)/_V),20,64);
+    const boardPx=Math.max(160, avail-24);
+    tile=Math.max(16, Math.floor(boardPx/_V));
   }
   state.tile=tile;
   const g=byId('grid');
@@ -3413,7 +3417,7 @@ function sizeBoard(){
       /* DESKTOP sidebar lines up with the board height. On touch (tablet/landscape) the panel keeps its natural height + scrolls. */
       var _mf=byId('mapFrame'), _fb=byId('floorBar'), _mw=byId('mapWrap'), _ms=byId('mapStage');
       var _gap=10; try{ if(_mw){ var _g=getComputedStyle(_mw).rowGap; if(_g&&_g.indexOf('px')>=0) _gap=parseFloat(_g)||10; } }catch(_e){}
-      var _boardH = Math.max((_mf && _mf.offsetHeight) ? _mf.offsetHeight : 0, GRID*tile + 24);
+      var _boardH = Math.max((_mf && _mf.offsetHeight) ? _mf.offsetHeight : 0, _V*tile + 24);   /* windowed board height (V tiles), not the whole GRID -> the left sidebar (keys at its bottom) lines up with the board */
       var _mt = (_fb && _fb.offsetHeight ? (_fb.offsetHeight + _gap) : 44);
       try{ if(_ms && _mw){ var _rMs=_ms.getBoundingClientRect(), _rMw=_mw.getBoundingClientRect(); if(_rMs.height&&_rMw.height) _mt=Math.max(0,Math.round(_rMs.top-_rMw.top)); } }catch(_e){}   /* align the sidebar top to the BOARD top, incl. the MP roster row above the map */
       var _capH = _boardH;
@@ -9831,7 +9835,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·293'; }
+    bt.textContent='build 0618·295'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9839,7 +9843,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·293'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·295'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
