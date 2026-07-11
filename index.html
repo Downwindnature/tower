@@ -756,7 +756,9 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px;
   background:rgba(6,4,12,.74);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);}
 .overlay.show{display:flex;animation:fadeIn .2s ease;}
-#startScreen.show{animation:none;opacity:1;}   /* main menu appears instantly & opaque so the game HUD behind it never flashes through on load */
+#startScreen.show{animation:none;opacity:1;}
+#lobby{background:#0c0918;}
+#lobby.show{animation:none;opacity:1;}   /* main menu appears instantly & opaque so the game HUD behind it never flashes through on load */
 .mpLoadBox{width:min(86vw,360px);text-align:center;}
 .mpLoadTitle{font-size:18px;font-weight:800;color:#f3ead2;margin-bottom:14px;letter-spacing:.04em;}
 .mpLoadTrack{width:100%;height:18px;background:#1a1430;border:1px solid rgba(255,255,255,.14);border-radius:10px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5);}
@@ -1067,7 +1069,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .cfgStep{display:flex;align-items:center;gap:14px;}
 .cfgStepBtn{min-width:46px;padding:8px 0;font-size:18px;font-weight:800;line-height:1;}
 .cfgStepVal{font-size:22px;font-weight:800;color:var(--gold);min-width:44px;text-align:center;}
-.lbWide{width:100%;margin-top:4px;}
+.lbWide{width:100%;margin-top:4px;text-align:center;justify-content:center;}
 .lbOr{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--txt-faint);}
 .lbOr span{flex:1;height:1px;background:var(--line);}
 .lbJoinRow{display:flex;gap:8px;}
@@ -1089,8 +1091,13 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .rcCode{font-family:var(--mono);font-size:26px;font-weight:800;letter-spacing:.28em;color:var(--txt);margin-top:2px;}
 .lbRow2{display:flex;gap:12px;align-items:flex-start;}
 .lbRow2 .lbFieldGrow{flex:1;min-width:0;}
-.lbAiSlot{flex:0 0 auto;}
+.lbAiSlot{flex:1;}
 .lbAiSlot .lbField{margin:0;}
+.lbRow2 input{width:100%;box-sizing:border-box;}
+.lbRow2 #lbMaxInput{width:100%;box-sizing:border-box;}
+.lbAiSlot .cfgStep{gap:6px;}
+.lbAiSlot .cfgStepBtn{min-width:36px;padding:9px 0;font-size:16px;}
+.lbAiSlot .cfgStepVal{flex:1;min-width:0;font-size:14px;font-weight:700;color:var(--txt);background:var(--stone-d);border:1px solid var(--line);border-radius:9px;padding:11px 4px;box-sizing:border-box;}
 .roomModeTag{display:inline-block;font-size:11px;font-weight:700;padding:3px 11px;border-radius:10px;margin-bottom:12px;
   background:rgba(155,108,255,.18);color:#c4a9ff;border:1px solid rgba(155,108,255,.35);}
 .memberList{display:flex;flex-direction:column;gap:7px;}
@@ -1707,10 +1714,10 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
     </div>
     <div id="lbCreatePanel" style="display:none">
     <div class="closeRow" style="justify-content:flex-start;margin-bottom:8px"><button class="btn" id="lbCreateBack"><span id="lbCreateBackLab">← 返回</span></button></div>
-    <div class="lbField"><label id="lbRoomNameLab">房間名稱</label>
+    <div class="lbRow2"><div class="lbField lbFieldGrow"><label id="lbRoomNameLab">房間名稱</label>
       <input type="text" id="lbRoomName" maxlength="16" placeholder="房間名稱（選填）" autocomplete="off"></div>
-    <div class="lbField"><label id="lbRoomPassLab">房間密碼</label>
-      <input type="text" id="lbRoomPass" maxlength="16" placeholder="設定密碼（選填）" autocomplete="off"></div>
+    <div class="lbField lbFieldGrow"><label id="lbRoomPassLab">房間密碼</label>
+      <input type="text" id="lbRoomPass" maxlength="16" placeholder="設定密碼（選填）" autocomplete="off"></div></div>
     <div class="lbField"><label id="lbModeLab">模式</label>
       <div class="seg" id="lbL1Seg">
         <button class="segBtn sel" data-l1="tower"><span id="lbL1TowerLab">攻略魔塔</span></button>
@@ -1745,6 +1752,18 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
       <button class="btn" id="lbCopy">複製</button>
     </div>
     <div class="roomModeTag" id="lbModeShow"></div>
+    <div id="lbRoomEdit" style="display:none;margin-bottom:10px">
+      <div class="lbRow2">
+        <div class="lbField lbFieldGrow"><label id="lbEditNameLab">房間名稱</label>
+          <input type="text" id="lbEditName" maxlength="16" autocomplete="off"></div>
+        <div class="lbField lbFieldGrow"><label id="lbEditPassLab">房間密碼</label>
+          <input type="text" id="lbEditPass" maxlength="16" autocomplete="off"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px">
+        <label id="lbEditClearWrap" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="lbEditPassClear"><span id="lbEditPassClearLab">移除密碼</span></label>
+        <button class="btn" id="lbEditSave">儲存變更</button>
+      </div>
+    </div>
     <button class="keysToggle lbCfgToggle" id="lbCfgToggle" style="display:none;margin-bottom:8px"><span id="lbCfgToggleLab">房間設定</span><span class="arr lbCfgArr">▾</span></button>
     <div id="lbCfg"></div>
     <div class="lbField"><label id="lbMembersLab">玩家</label><div class="memberList" id="lbMembers"></div></div>
@@ -6628,6 +6647,25 @@ function myShareTeamKey(){ if(typeof Net==='undefined'||!Net.worldId) return nul
 function grantSharedSkill(skillId){ var k=SKILL_KIND[skillId]; if(!k) return false; var pl=ensureSkills(state.player); if(!pl) return false; var arr=(k==='atk')?pl.atkSkills:pl.defSkills; if(arr.indexOf(skillId)>=0) return false; arr.push(skillId); /* shared grants USE only; the finder keeps the stat bonus */ if(k==='atk'){ if(!pl.atkEquip && pl.lv>=SKILL_BY_ID[skillId].lv) pl.atkEquip=skillId; } else { if(!pl.defEquip && pl.lv>=SKILL_BY_ID[skillId].lv) pl.defEquip=skillId; } return true; }
 function onSharedUpdate(data){ var tk=myShareTeamKey(); if(!tk||!data||!data[tk]) return; var sh=data[tk], pl=state.player; if(!pl) return; var ch=false; if(sh.skills){ for(var id in sh.skills){ if(sh.skills[id] && grantSharedSkill(id)) ch=true; } } if(sh.teleport && !pl._sharedTP){ pl._sharedTP=true; if((pl.tpScrolls||0)<=0) pl.tpScrolls=1; ch=true; } if(sh.manual && !pl.hasManual){ pl.hasManual=true; ch=true; } if(ch){ try{ renderStats(); }catch(e){} } }
 function rtBalancedTeams(){ var ids=[], m=MP.members||{}; for(var u in m) ids.push(u); if(Net.uid && ids.indexOf(Net.uid)<0) ids.push(Net.uid); shuffle(ids); var t={}; for(var i=0;i<ids.length;i++) t[ids[i]]=(i%2===0)?'A':'B'; return t; }
+function rtSyncRandomTeams(){
+  if(MP.mode!=='raceteam') return;
+  if(!(typeof roomCfg==='function' && roomCfg().teamMethod==='random')) return;
+  if(!(MP.meta && MP.meta.host===Net.uid)) return;   /* only the host assigns/writes the auto teams */
+  var members=MP.members||{}, ids=[]; for(var u in members) ids.push(u); if(Net.uid && ids.indexOf(Net.uid)<0) ids.push(Net.uid);
+  var cur=(MP.meta&&MP.meta.teams)||{};
+  var next={}, cntA=0, cntB=0, un=[];
+  ids.forEach(function(id){ var tm=cur[id]; if(tm==='A'){ next[id]='A'; cntA++; } else if(tm==='B'){ next[id]='B'; cntB++; } else un.push(id); });   /* keep present members' existing side (stable) */
+  shuffle(un);                                                                                   /* newcomers / first fill land randomly */
+  un.forEach(function(id){ if(cntA<=cntB){ next[id]='A'; cntA++; } else { next[id]='B'; cntB++; } });
+  var kA=[], kB=[]; for(var k in next){ if(next[k]==='A') kA.push(k); else kB.push(k); }
+  while(kA.length-kB.length>1){ var m1=kA.pop(); next[m1]='B'; kB.push(m1); }                     /* rebalance to within 1 */
+  while(kB.length-kA.length>1){ var m2=kB.pop(); next[m2]='A'; kA.push(m2); }
+  var sa=Object.keys(next).sort().map(function(x){ return x+':'+next[x]; }).join(',');
+  var sb=Object.keys(cur).sort().map(function(x){ return x+':'+cur[x]; }).join(',');
+  if(sa===sb) return;                                                                            /* unchanged -> don't rewrite (prevents a meta-update loop) */
+  if(MP.meta) MP.meta.teams=next;                                                                /* optimistic local so this render's badges + a fast re-render already see it */
+  if(typeof Net!=='undefined' && Net.setTeams) Net.setTeams(next);
+}
 function rtFinalTeams(){
   var members=MP.members||{}, picks=(MP.meta&&MP.meta.teams)||{}, ids=[];
   for(var u in members) ids.push(u); if(Net.uid && ids.indexOf(Net.uid)<0) ids.push(Net.uid); ids.sort();
@@ -6797,9 +6835,9 @@ function renderCreateCfg(){
   function commit(k,v){ getCreateCfg()[k]=v; renderCreateCfg(); }
   function field(key){ var f=document.createElement('div'); f.className='lbField'; var l=document.createElement('label'); l.textContent=t('mp.'+key); f.appendChild(l); box.appendChild(f); return f; }
   function seg(f,opts,cur,pick){ var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; b.addEventListener('click',function(){ pick(o.val); }); s.appendChild(b); }); f.appendChild(s); }
-  var ff=field('cfgFloors'), st=document.createElement('div'); st.className='cfgStep';
+  var ff=document.createElement('div'); ff.className='lbField'; { var _ffl=document.createElement('label'); _ffl.textContent=t('mp.cfgFloors'); ff.appendChild(_ffl); (_aiSlot||box).appendChild(ff); } var st=document.createElement('div'); st.className='cfgStep';
   var mn=document.createElement('button'); mn.className='btn cfgStepBtn'; mn.textContent='-'; mn.addEventListener('click',function(){ commit('floors',clamp(c.floors-1,26,51)); }); st.appendChild(mn);
-  var vv=document.createElement('input'); vv.type='number'; vv.className='cfgStepVal'; vv.min=26; vv.max=51; vv.value=c.floors; vv.style.width='3.4em'; vv.style.textAlign='center'; vv.addEventListener('change',function(){ commit('floors',clamp(parseInt(vv.value,10)||26,26,51)); }); vv.addEventListener('keydown',function(e){ if(e.key==='Enter'){ vv.blur(); } }); st.appendChild(vv);
+  var vv=document.createElement('input'); vv.type='number'; vv.className='cfgStepVal'; vv.min=26; vv.max=51; vv.value=c.floors; vv.style.textAlign='center'; vv.addEventListener('change',function(){ commit('floors',clamp(parseInt(vv.value,10)||26,26,51)); }); vv.addEventListener('keydown',function(e){ if(e.key==='Enter'){ vv.blur(); } }); st.appendChild(vv);
   var pl=document.createElement('button'); pl.className='btn cfgStepBtn'; pl.textContent='+'; pl.addEventListener('click',function(){ commit('floors',clamp(c.floors+1,26,51)); }); st.appendChild(pl);
   ff.appendChild(st);
   seg(field('cfgDifficulty'),[{val:'easy',lab:t('mp.diffEasy')},{val:'normal',lab:t('mp.diffNormal')},{val:'hard',lab:t('mp.diffHard')},{val:'hell',lab:t('mp.diffHell')}],c.difficulty,function(v){ commit('difficulty',v); });
@@ -6915,6 +6953,35 @@ function renderRoomCfg(){
   if(mode==='raceteam') seg(field('cfgTeamMethod'),[{val:'random',lab:t('mp.teamRandom')},{val:'pick',lab:t('mp.teamPick')}],c.teamMethod,function(v){ commit('teamMethod',v); });
   if(!host){ var hh=document.createElement('p'); hh.className='lbHint'; hh.textContent=t('mp.cfgHostOnly'); box.appendChild(hh); }
 }
+function syncRoomEditUI(){
+  var box=byId('lbRoomEdit'); if(!box) return;
+  var isHost=!!(MP.meta && MP.meta.host===Net.uid) && !!(typeof Net!=='undefined' && Net.worldId);
+  box.style.display=isHost?'':'none'; if(!isHost) return;
+  var nl=byId('lbEditNameLab'); if(nl) nl.textContent=t('mp.roomName');
+  var pl=byId('lbEditPassLab'); if(pl) pl.textContent=t('mp.roomPass');
+  var cl=byId('lbEditPassClearLab'); if(cl) cl.textContent=t('mp.editPassClear');
+  var sv=byId('lbEditSave'); if(sv) sv.textContent=t('mp.editSave');
+  var nm=byId('lbEditName'); if(nm && document.activeElement!==nm) nm.value=(MP.meta&&MP.meta.roomName)||'';   /* don't clobber while the host is typing */
+  var ps=byId('lbEditPass'); if(ps) ps.placeholder=t('mp.editPassPh');
+  var cc=byId('lbEditPassClear'), cw=byId('lbEditClearWrap'), _has=!!(MP.meta&&MP.meta.passHash);
+  if(cw) cw.style.display=_has?'':'none';   /* only offer "remove password" when one is set */
+  if(cc && !_has) cc.checked=false;
+}
+function saveRoomEdit(){
+  if(!(MP.meta && MP.meta.host===Net.uid)) return;                          /* host only */
+  if(!(typeof Net!=='undefined' && Net.metaRef)) return;
+  var nm=byId('lbEditName'), ps=byId('lbEditPass'), cc=byId('lbEditPassClear');
+  var newName=((nm&&nm.value)||'').trim().slice(0,16);
+  var newHash=(MP.meta&&MP.meta.passHash)||'';                              /* blank field = keep current */
+  if(cc && cc.checked){ newHash=''; }
+  else { var pv=((ps&&ps.value)||'').trim(); if(pv) newHash=(typeof hashPass==='function')?hashPass(pv):pv; }
+  if(MP.meta){ MP.meta.roomName=newName; MP.meta.passHash=newHash; }        /* optimistic local */
+  try{ Net.metaRef.update({ roomName:newName, passHash:newHash }); }catch(e){}
+  try{ Net.pushLobby(); }catch(e){}                                         /* refresh public list: name + lock */
+  if(ps) ps.value=''; if(cc) cc.checked=false;
+  try{ toast(t('mp.editSaved')); }catch(e){}
+  try{ if(byId('lobby').classList.contains('show')) renderLobby(); }catch(e){}
+}
 function renderLobby(){
   const joined=!!Net.worldId;
   byId('lobbyTitle').textContent=t('mp.lobbyTitle');
@@ -6939,7 +7006,9 @@ function renderLobby(){
     byId('lbCopy').textContent=t('mp.copy');
     byId('lbModeShow').textContent = ((MP.meta&&MP.meta.roomName)?(MP.meta.roomName+' · '):'') + ((MP.meta&&MP.meta.passHash)?'🔒 ':'') + t(modeLabelKey(MP.mode));
     renderRoomCfg(); { var _ct=byId('lbCfgToggleLab'); if(_ct) _ct.textContent=t('mp.roomSettings'); }
+    try{ rtSyncRandomTeams(); }catch(e){}   /* raceteam random: host pre-assigns balanced teams so everyone sees red/blue before start */
     renderTeamPick();
+    try{ syncRoomEditUI(); }catch(e){}   /* host can rename room / change password from the lobby */
     byId('lbMembersLab').textContent=t('mp.players');
     const ml=byId('lbMembers'); ml.innerHTML='';
     for(const uid in MP.members){
@@ -6949,7 +7018,7 @@ function renderLobby(){
       const tagYou=(uid===Net.uid)?(' ('+t('mp.you')+')'):'';
       const nm=document.createElement('span'); nm.textContent=(MP.members[uid].name||'?')+tagHost+tagYou;
       row.appendChild(av); row.appendChild(nm);
-      if(MP.mode==='arena'){ var _tm=(MP.meta&&MP.meta.teams&&MP.meta.teams[uid]); if(_tm==='A'||_tm==='B'){ var _tb=document.createElement('span'); _tb.className='memberTeam '+(_tm==='A'?'teamA':'teamB'); _tb.textContent=t(_tm==='A'?'mp.afTeamA':'mp.afTeamB'); row.appendChild(_tb); } }
+      var _showTeamBadge=(MP.mode==='arena')||(MP.mode==='raceteam' && typeof roomCfg==='function' && roomCfg().teamMethod==='random'); if(_showTeamBadge){ var _tm=(MP.meta&&MP.meta.teams&&MP.meta.teams[uid]); if(_tm==='A'||_tm==='B'){ var _tb=document.createElement('span'); _tb.className='memberTeam '+(_tm==='A'?'teamA':'teamB'); var _tkA=(MP.mode==='arena')?'mp.afTeamA':'mp.rtTeamA', _tkB=(MP.mode==='arena')?'mp.afTeamB':'mp.rtTeamB'; _tb.textContent=t(_tm==='A'?_tkA:_tkB); row.appendChild(_tb); } }
       ml.appendChild(row);
     }
     if(MP.mode==='arena'){ var _ait=arenaAiTeams(), _aik=Object.keys(_ait); for(var _ai=0;_ai<_aik.length;_ai++){ var _atm=_ait[_aik[_ai]]; var _ar=document.createElement('div'); _ar.className='memberRow'; var _aav=document.createElement('span'); _aav.className='memberAv aiAv'; _aav.textContent=AF_AI_FACES[_ai%AF_AI_FACES.length]; var _anm=document.createElement('span'); _anm.textContent='AI '+(_ai+1); var _atb=document.createElement('span'); _atb.className='memberTeam '+(_atm==='A'?'teamA':'teamB'); _atb.textContent=t(_atm==='A'?'mp.afTeamA':'mp.afTeamB'); _ar.appendChild(_aav); _ar.appendChild(_anm); _ar.appendChild(_atb); ml.appendChild(_ar); } }   /* arena: show the configured AI in the roster too */
@@ -8787,7 +8856,10 @@ function bindMpInput(){
   { const _bh=byId('lbBackHome'); if(_bh) _bh.addEventListener('click',function(){ try{ Net.unwatchLobby(); }catch(_e){} goStartScreen(); }); }
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
-  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ if(MP.mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } Net.startWorld(MP.mode==='raceteam'?(roomCfg().teamMethod==='pick'?rtFinalTeams():rtBalancedTeams()):null); });
+  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ var _mode=(typeof MP!=='undefined'&&MP.meta&&MP.meta.mode)||MP.mode; if(_mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } else if(_mode==='race'||_mode==='raceteam'){ var _np=(typeof rtAllPlayers==='function')?rtAllPlayers().length:1; if(_np<2){ toast(t('mp.afNeedTwo')); return; } if(_mode==='raceteam'){ var _tt=rtFinalTeams();   /* start uses the displayed teams (meta.teams: picks in pick-mode, host auto-assign in random-mode) */ var _ta=0,_tb=0,_uu; for(_uu in _tt){ if(_tt[_uu]==='A')_ta++; else if(_tt[_uu]==='B')_tb++; } if(_ta===0||_tb===0){ toast(t('mp.afNeedBalance')); return; } } } Net.startWorld(_mode==='raceteam'?rtFinalTeams():null); });   /* validate before starting for EVERY mode; use the authoritative room mode so a mode change can't slip a solo start through */
+  { var _res=byId('lbEditSave'); if(_res) _res.addEventListener('click',saveRoomEdit);
+    var _ren=byId('lbEditName'); if(_ren) _ren.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } });
+    var _rep=byId('lbEditPass'); if(_rep) _rep.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } }); }
   const lv=byId('lbLeave'); if(lv) lv.addEventListener('click',leaveLobby);
   const mpb=byId('btnMP'); if(mpb) mpb.addEventListener('click',openMpPanel);
   const mrc=byId('mpRoomCopy'); if(mrc) mrc.addEventListener('click',copyCode);
@@ -9013,6 +9085,16 @@ const I18N_CUST = {
 'en':{admin:{fxPlayerAtk:'Player attack FX (override)',fxUseWeapon:'Use weapon tier (default)',fxnCustom:'Custom FX',sndCustom:'Custom SFX',customFxTitle:'Custom attack FX (GIF / transparent PNG)',customSfxTitle:'Custom attack SFX (audio)',uploadFx:'+ Upload GIF / PNG',uploadSfx:'+ Upload audio',noCustomFx:'No custom FX yet — upload one.',noCustomSfx:'No custom SFX yet — upload one.',del:'Delete',customHint:'Media is uploaded together when you tap "Save to cloud", so it shows on other computers and phones too. Assign it to the player or a monster via the dropdowns above. Convert video to GIF before uploading and keep files small.',fxCompressing:'Compressing GIF…',fxTooBig:'GIF too large and could not be auto-compressed — use a smaller/shorter GIF or a transparent PNG.',audioBad:'Could not decode that audio — try another file.',audioAdded:'Custom sound added',fxAdded:'Custom effect added'}}
 };
 (function mergeCust(){ for(const L in I18N_CUST){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_CUST[L].admin); } })();
+(function mergeRoomEdit(){
+  var K={
+    'zh-Hant':{editSave:'儲存變更',editPassClear:'移除密碼',editPassPh:'留空＝不變更密碼',editSaved:'已更新房間設定'},
+    'zh-Hans':{editSave:'保存变更',editPassClear:'移除密码',editPassPh:'留空＝不修改密码',editSaved:'已更新房间设置'},
+    'en':{editSave:'Save changes',editPassClear:'Remove password',editPassPh:'Leave blank to keep',editSaved:'Room settings updated'},
+    'ja':{editSave:'変更を保存',editPassClear:'パスワード削除',editPassPh:'空欄＝変更しない',editSaved:'ルーム設定を更新しました'},
+    'ko':{editSave:'변경 저장',editPassClear:'비밀번호 제거',editPassPh:'비워두면 유지',editSaved:'방 설정이 업데이트되었습니다'}
+  };
+  for(var L in K){ if(I18N[L] && I18N[L].mp){ for(var k in K[L]) I18N[L].mp[k]=K[L][k]; } }
+})();
 const I18N_ARENA_CFG={
  'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'遞增上限R',arLsCap:'吸血上限%',arSustain:'續航倍率%',arScaleAtk:'進攻縮放%'}},
  'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'递增上限R',arLsCap:'吸血上限%',arSustain:'续航倍率%',arScaleAtk:'进攻缩放%'}},
@@ -9749,7 +9831,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·289'; }
+    bt.textContent='build 0618·293'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9757,7 +9839,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·289'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·293'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
