@@ -8860,7 +8860,7 @@ function bindMpInput(){
   { const _bh=byId('lbBackHome'); if(_bh) _bh.addEventListener('click',function(){ try{ Net.unwatchLobby(); }catch(_e){} goStartScreen(); }); }
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
-  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ var _mode=(typeof MP!=='undefined'&&MP.meta&&MP.meta.mode)||MP.mode; if(_mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } else if(_mode==='race'||_mode==='raceteam'){ var _np=(typeof rtAllPlayers==='function')?rtAllPlayers().length:1; if(_np<2){ toast(t('mp.afNeedTwo')); return; } if(_mode==='raceteam'){ var _tt=rtFinalTeams();   /* start uses the displayed teams (meta.teams: picks in pick-mode, host auto-assign in random-mode) */ var _ta=0,_tb=0,_uu; for(_uu in _tt){ if(_tt[_uu]==='A')_ta++; else if(_tt[_uu]==='B')_tb++; } if(_ta===0||_tb===0){ toast(t('mp.afNeedBalance')); return; } } } Net.startWorld(_mode==='raceteam'?rtFinalTeams():null); });   /* validate before starting for EVERY mode; use the authoritative room mode so a mode change can't slip a solo start through */
+  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ var _mode=(typeof MP!=='undefined'&&MP.meta&&MP.meta.mode)||MP.mode; if(_mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } else if(_mode==='race'||_mode==='raceteam'){ var _np=(typeof rtAllPlayers==='function')?rtAllPlayers().length:1; if(_np<2){ toast(t('mp.afNeedTwo')); return; } if(_mode==='raceteam'){ var _tt=rtFinalTeams();   /* start uses the displayed teams (meta.teams: picks in pick-mode, host auto-assign in random-mode) */ var _ta=0,_tb=0,_uu; for(_uu in _tt){ if(_tt[_uu]==='A')_ta++; else if(_tt[_uu]==='B')_tb++; } if(_ta!==_tb){ toast(t('mp.rtNeedEven',{a:_ta,b:_tb})); return; }   /* team race: both sides must have EQUAL players (blocks empty side + odd totals like 3 -> 2v1) */ } } Net.startWorld(_mode==='raceteam'?rtFinalTeams():null); });   /* validate before starting for EVERY mode; use the authoritative room mode so a mode change can't slip a solo start through */
   { var _res=byId('lbEditSave'); if(_res) _res.addEventListener('click',saveRoomEdit);
     var _ren=byId('lbEditName'); if(_ren) _ren.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } });
     var _rep=byId('lbEditPass'); if(_rep) _rep.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } }); }
@@ -9091,11 +9091,11 @@ const I18N_CUST = {
 (function mergeCust(){ for(const L in I18N_CUST){ if(!I18N[L]) continue; I18N[L].admin=Object.assign({}, I18N[L].admin||{}, I18N_CUST[L].admin); } })();
 (function mergeRoomEdit(){
   var K={
-    'zh-Hant':{editSave:'儲存變更',editPassClear:'移除密碼',editPassPh:'留空＝不變更密碼',editSaved:'已更新房間設定'},
-    'zh-Hans':{editSave:'保存变更',editPassClear:'移除密码',editPassPh:'留空＝不修改密码',editSaved:'已更新房间设置'},
-    'en':{editSave:'Save changes',editPassClear:'Remove password',editPassPh:'Leave blank to keep',editSaved:'Room settings updated'},
-    'ja':{editSave:'変更を保存',editPassClear:'パスワード削除',editPassPh:'空欄＝変更しない',editSaved:'ルーム設定を更新しました'},
-    'ko':{editSave:'변경 저장',editPassClear:'비밀번호 제거',editPassPh:'비워두면 유지',editSaved:'방 설정이 업데이트되었습니다'}
+    'zh-Hant':{editSave:'儲存變更',editPassClear:'移除密碼',editPassPh:'留空＝不變更密碼',editSaved:'已更新房間設定',rtNeedEven:'兩隊人數需相等才能開始（{a} vs {b}）'},
+    'zh-Hans':{editSave:'保存变更',editPassClear:'移除密码',editPassPh:'留空＝不修改密码',editSaved:'已更新房间设置',rtNeedEven:'两队人数需相等才能开始（{a} vs {b}）'},
+    'en':{editSave:'Save changes',editPassClear:'Remove password',editPassPh:'Leave blank to keep',editSaved:'Room settings updated',rtNeedEven:'Teams must be equal to start ({a} vs {b})'},
+    'ja':{editSave:'変更を保存',editPassClear:'パスワード削除',editPassPh:'空欄＝変更しない',editSaved:'ルーム設定を更新しました',rtNeedEven:'チーム人数を同じにしてください（{a} vs {b}）'},
+    'ko':{editSave:'변경 저장',editPassClear:'비밀번호 제거',editPassPh:'비워두면 유지',editSaved:'방 설정이 업데이트되었습니다',rtNeedEven:'양 팀 인원이 같아야 시작할 수 있습니다 ({a} vs {b})'}
   };
   for(var L in K){ if(I18N[L] && I18N[L].mp){ for(var k in K[L]) I18N[L].mp[k]=K[L][k]; } }
 })();
@@ -9835,7 +9835,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·295'; }
+    bt.textContent='build 0618·296'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9843,7 +9843,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·295'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·296'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
