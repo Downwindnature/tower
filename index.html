@@ -1059,8 +1059,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 #lbName,#lbCode{width:100%;padding:11px 13px;border-radius:9px;font-size:14px;font-family:inherit;color:var(--txt);
   background:var(--stone-d);border:1px solid var(--line);outline:none;}
 #lbName:focus,#lbCode:focus{border-color:var(--gold-d);}
-#lbMaxInput{width:96px;padding:11px 13px;border-radius:9px;font-size:14px;font-family:inherit;color:var(--txt);background:var(--stone-d);border:1px solid var(--line);outline:none;text-align:center;}
-#lbMaxInput:focus{border-color:var(--gold-d);}
+#lbMaxInput,#lbCfgMaxInput{width:96px;padding:11px 13px;border-radius:9px;font-size:14px;font-family:inherit;color:var(--txt);background:var(--stone-d);border:1px solid var(--line);outline:none;text-align:center;}
+#lbMaxInput:focus,#lbCfgMaxInput:focus{border-color:var(--gold-d);}
 .seg{display:flex;gap:6px;}
 .segBtn{flex:1;padding:10px;border-radius:9px;font-weight:700;font-size:13px;color:var(--txt-dim);
   background:linear-gradient(180deg,var(--stone-l),var(--stone));border:1px solid var(--line);box-shadow:0 2px 0 var(--stone-d);transition:.1s;}
@@ -1097,7 +1097,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 .lbAiSlot{flex:1;}
 .lbAiSlot .lbField{margin:0;}
 .lbRow2 input{width:100%;box-sizing:border-box;}
-.lbRow2 #lbMaxInput{width:100%;box-sizing:border-box;}
+.lbRow2 #lbMaxInput,.lbRow2 #lbCfgMaxInput{width:100%;box-sizing:border-box;}
 .lbAiSlot .cfgStep{gap:6px;}
 .lbAiSlot .cfgStepBtn{min-width:36px;padding:9px 0;font-size:16px;}
 .lbAiSlot .cfgStepVal{flex:1;min-width:0;font-size:14px;font-weight:700;color:var(--txt);background:var(--stone-d);border:1px solid var(--line);border-radius:9px;padding:11px 4px;box-sizing:border-box;}
@@ -9858,7 +9858,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·297'; }
+    bt.textContent='build 0618·298'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9866,7 +9866,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·297'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·298'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
