@@ -7289,7 +7289,7 @@ function afDraw(){
   var cxp=sx(AF_CFG.w/2), cyp=sy(AF_CFG.h/2), rr=AF_CFG.ringR*PX;
   ctx.fillStyle='rgba(246,212,136,.07)'; ctx.beginPath(); ctx.arc(cxp,cyp,rr,0,Math.PI*2); ctx.fill();
   ctx.strokeStyle='#f6d488'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(cxp,cyp,rr,0,Math.PI*2); ctx.stroke();
-  for(var _si=0;_si<AF_SHOPS.length;_si++){ var _s=AF_SHOPS[_si], _ssx=sx(_s.x), _ssy=sy(_s.y), _r=PX*0.6;
+  var _afSp=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(_afSp==='wait'||_afSp==='shop') for(var _si=0;_si<AF_SHOPS.length;_si++){ var _s=AF_SHOPS[_si], _ssx=sx(_s.x), _ssy=sy(_s.y), _r=PX*0.6;
     ctx.fillStyle='#2e7d5b'; ctx.fillRect(_ssx-_r,_ssy-_r,_r*2,_r*2);
     ctx.strokeStyle='#7cf0b0'; ctx.lineWidth=2; ctx.strokeRect(_ssx-_r,_ssy-_r,_r*2,_r*2);
     ctx.font='700 '+Math.round(PX*0.7)+'px sans-serif'; ctx.fillStyle='#eafff3'; ctx.textAlign='center'; ctx.textBaseline='middle'; try{ ctx.fillText('$',_ssx,_ssy); }catch(e){} }
@@ -9663,7 +9663,7 @@ function applyConfig(cfg){
   if(cfg.map){
     if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,3,99);
     ADMIN_FLOORS=FLOORS;   /* solo / admin floor count; MP tower modes override FLOORS from the room config at start */
-    if(typeof cfg.map.grid==='number'){ MAP_N_SOLO=clamp(cfg.map.grid|0,7,21); if(!(typeof state!=='undefined' && state.mode && typeof isSummitMode==='function' && isSummitMode(state.mode))){ GRID=MAP_N_SOLO; MP_BASE_GRID=MAP_N_SOLO; } }
+    if(typeof cfg.map.grid==='number' && (cfg.map.grid|0)!==21){ MAP_N_SOLO=clamp(cfg.map.grid|0,7,21); if(!(typeof state!=='undefined' && state.mode && typeof isSummitMode==='function' && isSummitMode(state.mode))){ GRID=MAP_N_SOLO; MP_BASE_GRID=MAP_N_SOLO; } }   /* migrate: 21 was the old default that bloated solo maps; ignore a stale cloud-saved 21 so single-player falls back to the classic 11 */
     if(typeof cfg.map.loopChance==='number') MAPCFG.loopChance=clamp(cfg.map.loopChance,0,0.6);
     if(typeof cfg.map.shopChance==='number') MAPCFG.shopChance=clamp(cfg.map.shopChance,0,1);
   }
@@ -9863,7 +9863,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·303'; }
+    bt.textContent='build 0618·304'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9871,7 +9871,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·303'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·304'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
