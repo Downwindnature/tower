@@ -7185,7 +7185,7 @@ let SUSTAIN_MULT=0.75;   /* global multiplier on sustained healing: lifesteal, r
 let SCALE_ATK_MAX=1.2;   /* scaling ATK bonuses (ramp + hpToAtk + defToAtk) capped at this multiple of base ATK */
 function arenaApplyCfg(a){
   if(!a) return;
-  if(a.gold!=null) ARENA_GOLD=a.gold;
+  if(a.gold!=null && a.gold!==1012) ARENA_GOLD=a.gold;   /* migrate: 1012 was the old default; ignore a stale cloud-saved 1012 so it falls back to the new 1000 */
   if(a.hpInc!=null) ARENA_BUY.hp.inc=a.hpInc;   if(a.hpCost!=null) ARENA_BUY.hp.cost=a.hpCost;
   if(a.atkInc!=null) ARENA_BUY.atk.inc=a.atkInc; if(a.atkCost!=null) ARENA_BUY.atk.cost=a.atkCost;
   if(a.defInc!=null) ARENA_BUY.def.inc=a.defInc; if(a.defCost!=null) ARENA_BUY.def.cost=a.defCost;
@@ -9863,7 +9863,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·302'; }
+    bt.textContent='build 0618·303'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9871,7 +9871,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·302'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·303'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
