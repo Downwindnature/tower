@@ -6928,6 +6928,29 @@ function renderRoomModeSel(box, mode){
     }
   }
 }
+function _roomMaxRowRC(box, host, rightEl, mode){
+  var row=document.createElement('div'); row.className='lbRow2';
+  var lf=document.createElement('div'); lf.className='lbField lbFieldGrow';
+  var ll=document.createElement('label'); ll.textContent=t('mp.maxPlayers'); lf.appendChild(ll);
+  var mi=document.createElement('input'); mi.type='number'; mi.id='lbCfgMaxInput'; mi.min=2; mi.max=10; mi.step=(mode==='arena')?'2':'1'; mi.inputMode='numeric'; mi.autocomplete='off';
+  mi.value=(MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):4;
+  if(host){
+    var commitMax=function(){
+      if(!(MP.meta && MP.meta.host===Net.uid)) return;
+      var mem=MP.members||{}, cur=0, _u; for(_u in mem) cur++; if(Net.uid && !(Net.uid in mem)) cur++;   /* current players */
+      var v=parseInt(mi.value,10); if(!isFinite(v)) v=4; v=clamp(v, Math.max(2,cur), 10);                /* can't drop below who's already in */
+      if(mode==='arena') v=Math.min(10,Math.max(2,Math.round(v/2)*2));                                   /* arena: even only */
+      mi.value=v; if(MP.meta) MP.meta.maxPlayers=v;
+      try{ if(typeof Net!=='undefined'&&Net.metaRef) Net.metaRef.update({maxPlayers:v}); }catch(e){}
+      try{ if(typeof Net!=='undefined'&&Net.pushLobby) Net.pushLobby(); }catch(e){}                      /* refresh public list max */
+      renderRoomCfg();
+    };
+    mi.addEventListener('change',commitMax); mi.addEventListener('keydown',function(e){ if(e.key==='Enter'){ mi.blur(); } });
+  } else { mi.disabled=true; }
+  lf.appendChild(mi); row.appendChild(lf);
+  var rs=document.createElement('div'); rs.className='lbAiSlot'; if(rightEl) rs.appendChild(rightEl); row.appendChild(rs);
+  box.appendChild(row);
+}
 function renderRoomCfg(){
   var box=byId('lbCfg'); if(!box) return;
   var mode=MP.mode; box.innerHTML=''; _lbCfgBindToggle(); var _tg=byId('lbCfgToggle'); if(_tg) _tg.style.display=''; box.style.display=(_lbCfgOpen?'':'none'); renderRoomModeSel(box, mode);
@@ -6938,7 +6961,7 @@ function renderRoomCfg(){
     if(host0){ var amn=document.createElement('button'); amn.className='btn cfgStepBtn'; amn.textContent='-'; amn.addEventListener('click',function(){ commit0('aiCount',clamp(((c0.aiCount!=null?c0.aiCount:1)|0)-1,0,_aiMax0)); }); ast.appendChild(amn); }
     var avv=document.createElement('span'); avv.className='cfgStepVal'; avv.textContent=(c0.aiCount!=null?c0.aiCount:1); ast.appendChild(avv);
     if(host0){ var apl=document.createElement('button'); apl.className='btn cfgStepBtn'; apl.textContent='+'; apl.addEventListener('click',function(){ commit0('aiCount',clamp(((c0.aiCount!=null?c0.aiCount:1)|0)+1,0,_aiMax0)); }); ast.appendChild(apl); }
-    af.appendChild(ast); box.appendChild(af);
+    af.appendChild(ast); _roomMaxRowRC(box, host0, af, mode);   /* row: player cap (left) + AI count (right) */
     if(!host0){ var hh=document.createElement('p'); hh.className='lbHint'; hh.textContent=t('mp.cfgHostOnly'); box.appendChild(hh); }
     return;
   }
@@ -6946,11 +6969,11 @@ function renderRoomCfg(){
   function commit(k,v){ var nc=roomCfg(); nc[k]=v; if(MP.meta) MP.meta.cfg=nc; if(typeof Net!=='undefined'&&Net.setRoomCfg) Net.setRoomCfg(nc); renderRoomCfg(); }
   function field(key){ var f=document.createElement('div'); f.className='lbField'; var l=document.createElement('label'); l.textContent=t('mp.'+key); f.appendChild(l); box.appendChild(f); return f; }
   function seg(f,opts,cur,pick){ var s=document.createElement('div'); s.className='seg'; opts.forEach(function(o){ var b=document.createElement('button'); b.className='segBtn'+(o.val===cur?' sel':''); b.textContent=o.lab; if(host){ b.addEventListener('click',function(){ pick(o.val); }); } else { b.disabled=true; } s.appendChild(b); }); f.appendChild(s); }
-  var ff=field('cfgFloors'), st=document.createElement('div'); st.className='cfgStep';
+  var ff=document.createElement('div'); ff.className='lbField'; { var _ffl=document.createElement('label'); _ffl.textContent=t('mp.cfgFloors'); ff.appendChild(_ffl); } var st=document.createElement('div'); st.className='cfgStep';
   if(host){ var mn=document.createElement('button'); mn.className='btn cfgStepBtn'; mn.textContent='-'; mn.addEventListener('click',function(){ commit('floors',clamp(c.floors-1,26,51)); }); st.appendChild(mn); }
   var vv=document.createElement('input'); vv.type='number'; vv.className='cfgStepVal'; vv.min=26; vv.max=51; vv.value=c.floors; vv.style.width='3.4em'; vv.style.textAlign='center'; vv.addEventListener('change',function(){ commit('floors',clamp(parseInt(vv.value,10)||26,26,51)); }); vv.addEventListener('keydown',function(e){ if(e.key==='Enter'){ vv.blur(); } }); st.appendChild(vv);
   if(host){ var pl=document.createElement('button'); pl.className='btn cfgStepBtn'; pl.textContent='+'; pl.addEventListener('click',function(){ commit('floors',clamp(c.floors+1,26,51)); }); st.appendChild(pl); }
-  ff.appendChild(st);
+  ff.appendChild(st); _roomMaxRowRC(box, host, ff, mode);   /* row: player cap (left) + floors (right), mirroring the create panel */
   seg(field('mapSizeLab'),[{val:25,lab:'25'},{val:30,lab:'30'},{val:35,lab:'35'},{val:40,lab:'40'}],c.mapSize,function(v){ commit('mapSize',v); });
   seg(field('cfgDifficulty'),[{val:'easy',lab:t('mp.diffEasy')},{val:'normal',lab:t('mp.diffNormal')},{val:'hard',lab:t('mp.diffHard')},{val:'hell',lab:t('mp.diffHell')}],c.difficulty,function(v){ commit('difficulty',v); });
   if(mode==='race'||mode==='raceteam') seg(field('cfgCountdown'),[{val:true,lab:t('mp.cdOn')},{val:false,lab:t('mp.cdOff')}],!!c.countdown,function(v){ commit('countdown',v); });
@@ -9835,7 +9858,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·296'; }
+    bt.textContent='build 0618·297'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9843,7 +9866,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·296'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·297'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
