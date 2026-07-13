@@ -3382,6 +3382,7 @@ function _dragonFloor(){ return Math.max(2, Math.min(FLOORS-2, Math.round(FLOORS
 function _bossFoeForFloor(f){ if(_hardBossSwap()){ if(f===FLOORS-1) return makeBasementBoss(); if(f===_dragonFloor()) return makeBoss(); } return makeBoss(); }   /* top = Gordon on hard+, median = dragon; otherwise dragon */
 function _isViewSizeFloor(f){ if(f===SECRET_FLOOR) return true; if(f===-BASEMENT) return true; if(_hardBossSwap() && f===_dragonFloor()) return true; if(hasSummit()) return (f===FLOORS || f===FLOORS-1); return (f===FLOORS); }   /* boss/summit/secret/basement-boss + (hard+) the dragon's median floor -> single-screen view size */
 function floorGrid(f){ return _isViewSizeFloor(f) ? MAP_N_SOLO : MP_BASE_GRID; }   /* solo: MP_BASE_GRID===MAP_N_SOLO so every floor is view size (unchanged) */
+function curFloorGrid(f){ var fl=(typeof state!=='undefined'&&state.floors)?state.floors[f]:null; if(fl&&fl.wall&&fl.wall.length) return fl.wall.length; return floorGrid(f); }   /* an ALREADY-generated floor keeps its real grid, so a save made at a different map size (e.g. an old 21x21 solo save) still renders & moves correctly; brand-new floors use the configured size */
 function viewSize(){ if(state.mode==='solo') return GRID; return Math.min(mpViewPref(), GRID); }   /* MP: window every floor at the per-client view; genuinely small floors (GRID<=view) still show whole via min() */
 function camOrigin(){ var V=viewSize(); var hx=V>>1; var cx=clamp((viewCX()||0)-hx,0,Math.max(0,GRID-V)); var cy=clamp((viewCY()||0)-hx,0,Math.max(0,GRID-V)); return {x:cx,y:cy,v:V}; }
 function sizeBoard(){
@@ -3881,7 +3882,7 @@ function tryMove(dx,dy){
 }
 function enterSecret(fromF, fromX, fromY){
   state.secretReturn={floor:fromF, px:fromX, py:fromY};   /* remember the magic-circle spot to return to */
-  state.floor=SECRET_FLOOR; ensureFloor(SECRET_FLOOR); GRID=floorGrid(state.floor);
+  state.floor=SECRET_FLOOR; ensureFloor(SECRET_FLOOR); GRID=curFloorGrid(state.floor);
   const d=curFloor(); d.explored=true;
   state.px=d.start.x; state.py=d.start.y;
   state.noStairTrigger={x:d.start.x, y:d.start.y};        /* don't fire the exit tile on arrival */
@@ -3892,7 +3893,7 @@ function enterSecret(fromF, fromX, fromY){
 function exitSecret(){
   const r=state.secretReturn; if(!r) return;
   state.secretReturn=null;
-  state.floor=r.floor; ensureFloor(r.floor); GRID=floorGrid(state.floor);
+  state.floor=r.floor; ensureFloor(r.floor); GRID=curFloorGrid(state.floor);
   const d=curFloor(); d.explored=true;
   state.px=r.px; state.py=r.py;                           /* back onto the magic circle */
   state.noStairTrigger={x:r.px, y:r.py};                  /* don't re-enter immediately on arrival */
@@ -3903,7 +3904,7 @@ function exitSecret(){
 function ascend(){
   if(!hasUp(state.floor)) return; try{ sfx('stairs'); }catch(e){}
   const nf=upFloor(state.floor);
-  state.floor=nf; state.maxFloor=Math.max(state.maxFloor,nf); GRID=floorGrid(state.floor);
+  state.floor=nf; state.maxFloor=Math.max(state.maxFloor,nf); GRID=curFloorGrid(state.floor);
   ensureFloor(nf); const d=curFloor(); d.explored=true; try{ checkAchievements(); }catch(e){}
   state.px=d.start.x; state.py=d.start.y;                 /* land ON the down-staircase */
   state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;
@@ -3916,7 +3917,7 @@ function descend(){
   const nf=downFloor(state.floor);
   if(nf<0 && !state.basementUnlocked) return;   // basement stays HIDDEN and sealed (no descent) until the tower is cleared + story — silent so the hidden stair isn't revealed
   try{ sfx('stairs'); }catch(e){}
-  state.floor=nf; state.minFloor=Math.min(state.minFloor,nf); GRID=floorGrid(state.floor);
+  state.floor=nf; state.minFloor=Math.min(state.minFloor,nf); GRID=curFloorGrid(state.floor);
   ensureFloor(nf); const d=curFloor(); d.explored=true; try{ checkAchievements(); }catch(e){}
   if(bossSealed(d)){ state.px=d.start.x; state.py=d.start.y; state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null; }   /* live-boss floor: land on the down-staircase, never on the boss */
   else { state.px=d.stairs.x; state.py=d.stairs.y; state.noStairTrigger=hasUp(d.f)? {x:d.stairs.x,y:d.stairs.y} : null; }
@@ -5098,7 +5099,7 @@ function teleportTo(f){
   } else if(f<0){ state.basementUnlocked=true; }   /* admin: unlock basement navigation when dropping below ground */
   markFeat('teleport');
   const from=state.floor;
-  state.floor=f; ensureFloor(f); GRID=floorGrid(state.floor);
+  state.floor=f; ensureFloor(f); GRID=curFloorGrid(state.floor);
   const d=curFloor();
   /* Land on the staircase that leads back toward the floor you came FROM.
      Floor value is the physical-height axis (1..FLOORS high above; B1=-1 … B20=-BASEMENT deep below), so a LARGER value = physically HIGHER.
@@ -5449,7 +5450,7 @@ function genFloor(f){
   } finally{ RAND=prev; }
 }
 function genBossFloor(f){ const prev=RAND; RAND=mulberry32(hashSeed(state.seed,f)); try{ return genBossFloorRaw(f); } finally{ RAND=prev; } }
-function ensureFloor(f){ if(!state.floors[f]){ var _gPrev=GRID; GRID=floorGrid(f); try{ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } finally{ GRID=_gPrev; } } }
+function ensureFloor(f){ if(!state.floors[f]){ var _gPrev=GRID; GRID=curFloorGrid(f); try{ state.floors[f]=genFloor(f); if(state.mode==='coop') applyClearedToFloor(state.floors[f]); } finally{ GRID=_gPrev; } } }
 function curFloor(){ return state.floors[state.floor]; }
 const OVERLAY_IDS=['combat','shop','manual','teleport','help','endScreen','authScreen','adminScreen','adminLogin','story','introCine','cheatModal','skillPicker','tutorial','audioPanel','loot','savePanel','rankPanel','achPanel','portalDlg','monPrev','arenaPrep','arenaStage','arenaDuel','arenaEnd','arenaField','afShop','cardDraft'];
 function _syncAdminEnterBtn(){ const ae=byId('adminEnterBtn'); if(!ae) return; const open=!!(byId('adminScreen')&&byId('adminScreen').classList.contains('show')); const isAdmin=(typeof Account!=='undefined' && Account.user && Account.isAdmin); let onMenu=true; try{ onMenu=(typeof inLobby==='function')?inLobby():true; }catch(e){} let modalOpen=false; try{ const _ovs=document.querySelectorAll('.overlay.show'); for(let _i=0;_i<_ovs.length;_i++){ if(_ovs[_i].id!=='startScreen'){ modalOpen=true; break; } } }catch(e){} ae.style.display = (isAdmin && !open && onMenu && !modalOpen) ? '' : 'none'; }
@@ -5632,7 +5633,7 @@ function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   MP_BASE_GRID = (state.mode==='solo') ? MAP_N_SOLO : clamp((opts.mapSize|0)||30, 20, 48); GRID = MP_BASE_GRID;   /* base = configured size; per-floor GRID set on floor change (special floors use view size) */
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
-  state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; GRID=floorGrid(state.floor); state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
+  state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; GRID=curFloorGrid(state.floor); state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
   state.raceEndsAt=0; state._raceCdEnded=false; try{ stopRaceCountdown(); }catch(e){}
   { var _secPool=[]; for(var _spf=3; _spf<=FLOORS-1; _spf++) _secPool.push(_spf); for(var _spb=1; _spb<=BASEMENT-1; _spb++) _secPool.push(-_spb); if(!_secPool.length) _secPool=[Math.max(1,Math.min(FLOORS,3))];
     state.secretFloor=_secPool[hashSeed(state.seed,777)%_secPool.length];
@@ -9714,7 +9715,7 @@ function restoreRun(s){
   if(s.hintFloor!==undefined) state.hintFloor=s.hintFloor;
   state.healPlaced=s.healPlaced||{};
   if(s.vaultKeys!==undefined) state.vaultKeys=s.vaultKeys;
-  state.floor=s.floor||1; GRID=floorGrid(state.floor);
+  state.floor=s.floor||1; GRID=curFloorGrid(state.floor);
   if(!state.floors[state.floor]) ensureFloor(state.floor);
   const d=curFloor();
   state.px=(s.px!=null)? s.px : d.start.x;
@@ -9863,7 +9864,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·304'; }
+    bt.textContent='build 0618·305'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9871,7 +9872,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·304'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·305'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
