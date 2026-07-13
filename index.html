@@ -2533,6 +2533,7 @@ function computeDamage(atk,def,thrA,thrD){ return dmgUp(atk,def,thrA); }   // le
 function scaleFoe(base,f){
   // Main tower: stats are FIXED per type (the base value IS the in-game value, regardless of floor).
   // Basements are different: mobs start at the floor-20+ tier and grow MORE terrifying the deeper you go.
+  if(!base) base=(typeof MONSTERS!=='undefined'&&MONSTERS[0])||{minF:1,maxhp:1,hp:1,atk:1,def:1,gold:0,exp:0};   /* defensive: never crash if a floor's monster roster came back empty */
   const mf=base.minF||1;
   const mult=1;   // 數值固定：地上、地下都用各怪設定的原始數值，不隨樓層/深度縮放（同原版魔塔）
   const r=Math.round;
@@ -5629,6 +5630,7 @@ function relocalizeOpen(){
 function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   opts=opts||{};
   state.mode = opts.mode || 'solo';
+  if(state.mode==='solo'){ FLOORS=25; }   /* single-player is ALWAYS the classic 25 surface floors (basement fixed at -20); independent of the cloud/MP floor config */
   state.difficulty = opts.difficulty || 'normal';   /* solo -> normal (baseline); MP tower modes pass the room's difficulty */
   MP_BASE_GRID = (state.mode==='solo') ? MAP_N_SOLO : clamp((opts.mapSize|0)||30, 20, 48); GRID = MP_BASE_GRID;   /* base = configured size; per-floor GRID set on floor change (special floors use view size) */
   state.worldId = opts.worldId || null;
@@ -9864,7 +9866,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·306'; }
+    bt.textContent='build 0618·307'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9872,7 +9874,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·306'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·307'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
