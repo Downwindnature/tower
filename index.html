@@ -3382,7 +3382,7 @@ function _dragonFloor(){ return Math.max(2, Math.min(FLOORS-2, Math.round(FLOORS
 function _bossFoeForFloor(f){ if(_hardBossSwap()){ if(f===FLOORS-1) return makeBasementBoss(); if(f===_dragonFloor()) return makeBoss(); } return makeBoss(); }   /* top = Gordon on hard+, median = dragon; otherwise dragon */
 function _isViewSizeFloor(f){ if(f===SECRET_FLOOR) return true; if(f===-BASEMENT) return true; if(_hardBossSwap() && f===_dragonFloor()) return true; if(hasSummit()) return (f===FLOORS || f===FLOORS-1); return (f===FLOORS); }   /* boss/summit/secret/basement-boss + (hard+) the dragon's median floor -> single-screen view size */
 function floorGrid(f){ return _isViewSizeFloor(f) ? MAP_N_SOLO : MP_BASE_GRID; }   /* solo: MP_BASE_GRID===MAP_N_SOLO so every floor is view size (unchanged) */
-function curFloorGrid(f){ var fl=(typeof state!=='undefined'&&state.floors)?state.floors[f]:null; if(fl&&fl.wall&&fl.wall.length) return fl.wall.length; return floorGrid(f); }   /* an ALREADY-generated floor keeps its real grid, so a save made at a different map size (e.g. an old 21x21 solo save) still renders & moves correctly; brand-new floors use the configured size */
+function curFloorGrid(f){ var fls=(typeof state!=='undefined'&&state.floors)||{}; var fl=fls[f]; if(fl&&fl.wall&&fl.wall.length) return fl.wall.length; if(typeof state!=='undefined' && state.mode==='solo'){ for(var _k in fls){ var _g=fls[_k]&&fls[_k].wall&&fls[_k].wall.length; if(_g) return _g; } }   /* SOLO: a not-yet-generated floor matches the save's existing grid, so an old 21x21 save stays fully consistent (no grid change between floors mid-save) */ return floorGrid(f); }   /* an ALREADY-generated floor keeps its real grid; brand-new floors / games use the configured size */
 function viewSize(){ if(state.mode==='solo') return GRID; return Math.min(mpViewPref(), GRID); }   /* MP: window every floor at the per-client view; genuinely small floors (GRID<=view) still show whole via min() */
 function camOrigin(){ var V=viewSize(); var hx=V>>1; var cx=clamp((viewCX()||0)-hx,0,Math.max(0,GRID-V)); var cy=clamp((viewCY()||0)-hx,0,Math.max(0,GRID-V)); return {x:cx,y:cy,v:V}; }
 function sizeBoard(){
@@ -9864,7 +9864,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·305'; }
+    bt.textContent='build 0618·306'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9872,7 +9872,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·305'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·306'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
