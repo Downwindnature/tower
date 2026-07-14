@@ -305,6 +305,22 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .rosterChip.me{box-shadow:0 0 0 2px rgba(246,212,136,.55);}
 .rosterChip .dot{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex-shrink:0;}
 .rosterChip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rosterChip.fuseChip{cursor:pointer;background:rgba(120,70,200,.5);border-color:#b98cff;color:#fff;pointer-events:auto;}
+.rosterChip.fuseChip.act{background:rgba(150,60,190,.9);border-color:#e0a8ff;box-shadow:0 0 0 2px rgba(224,168,255,.5);}
+.fusePanel{z-index:120;}
+.fuseBox{width:min(340px,92vw);max-height:80vh;overflow:auto;background:#140f22;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.fuseHd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:16px;font-weight:800;color:#e7dcff;}
+.fuseHd button{background:transparent;border:none;color:#cbb8f0;font-size:16px;cursor:pointer;}
+.fuseNote{font-size:13px;color:#c8bce6;margin-bottom:8px;line-height:1.5;}
+.fuseMem{font-size:13px;color:#b3a6d6;padding:2px 0;}
+.fuseRow{display:block;width:100%;text-align:left;padding:9px 12px;margin:5px 0;border-radius:10px;background:#221a38;border:1px solid rgba(255,255,255,.1);color:#f0e9ff;font-size:14px;font-weight:600;cursor:pointer;}
+.fuseRow:hover{background:#2c2247;}
+.fuseAct{display:block;width:100%;padding:10px;margin-top:10px;border-radius:10px;border:none;font-size:14px;font-weight:800;cursor:pointer;color:#fff;}
+.fuseAct.join{background:#7a46c8;}
+.fuseAct.leave{background:#c8763a;}
+.fuseAct.dissolve{background:#c0455e;}
+.fuseBtnA{position:fixed;top:52px;right:12px;z-index:110;padding:6px 14px;border-radius:14px;background:rgba(120,70,200,.72);border:2px solid #b98cff;color:#fff;font-size:13px;font-weight:800;cursor:pointer;}
+.fuseBtnA.act{background:rgba(150,60,190,.92);border-color:#e0a8ff;box-shadow:0 0 0 2px rgba(224,168,255,.5);}
 .spectateBar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:5px 8px;border-radius:14px;background:rgba(10,7,20,.84);border:1px solid rgba(255,255,255,.16);z-index:8;}
 .apTeam{text-align:center;font-size:13px;color:#c9bfe0;margin:2px 0 10px;}
 .apGold{text-align:center;font-size:15px;font-weight:800;color:#f6d488;margin-bottom:12px;}
@@ -759,6 +775,7 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .overlay.show{display:flex;animation:fadeIn .2s ease;}
 #startScreen.show{animation:none;opacity:1;}
 #lobby{background:#0c0918;}
+#mpLoad{background:#0a0714;backdrop-filter:none;-webkit-backdrop-filter:none;}   /* opaque loading screen so the previous single-player board never shows through while the multiplayer game loads */
 #lobby.show{animation:none;opacity:1;}   /* main menu appears instantly & opaque so the game HUD behind it never flashes through on load */
 .mpLoadBox{width:min(86vw,360px);text-align:center;}
 .mpLoadTitle{font-size:18px;font-weight:800;color:#f3ead2;margin-bottom:14px;letter-spacing:.04em;}
@@ -2185,6 +2202,135 @@ function diffRank(d){ var r={easy:0,normal:1,hard:2,hell:3}; return (r[d]!=null)
 function diffFactor(d){ var f={easy:1.30,normal:1.0,hard:0.65,hell:0.45}; return f[d]||1.0; }   /* multiplies each monster's min floor: <1 pulls late-game mobs earlier (harder), >1 pushes them later (easier) */
 function diffCountMul(d){ var m={easy:0.7,normal:1.0,hard:1.3,hell:1.6}; return m[d]||1.0; }   /* 怪物數量隨難度調整：越難怪越多（單機恆為 normal = x1，不受影響） */
 function curDifficulty(){ return state.difficulty || 'normal'; }   /* solo is always 'normal' (baseline / original) */
+
+/* ============================================================================
+   FUSION (合體) ENGINE — Phase A: precise stat math + original-stat bookkeeping.
+   A fusion group has ONE carrier and N fusers. The carrier's LIVE stats become:
+       carrier_base + Σ( fuser_base × fuseFactor(N) )     for each of atk / def / hp / lv
+   fuseFactor(N) shrinks as more people fuse (anti-solo-carry). Every change
+   recomputes from the STORED ORIGINALS (never accumulates on live stats), so
+   add / remove / dissolve are always exact and fully reversible.
+   (Not yet wired into the MP game — Phases B/C integrate raceteam & arena.)
+   ============================================================================ */
+var FUSE_KEYS=['atk','def','hp','lv'];
+var FUSE_FACTORS=[0,0.70,0.55,0.45,0.38,0.33,0.29,0.26,0.24];   /* index = number of fusers; 1->70%,2->55%,3->45%,4->38%… then gently lower */
+function fuseFactor(n){ n=n|0; if(n<=0) return 0; return (n<FUSE_FACTORS.length)?FUSE_FACTORS[n]:FUSE_FACTORS[FUSE_FACTORS.length-1]; }
+function _fuseSnap(o){ var s={}; for(var i=0;i<FUSE_KEYS.length;i++){ var k=FUSE_KEYS[i]; s[k]=(o&&typeof o[k]==='number'&&isFinite(o[k]))?o[k]:0; } return s; }
+/* new fusion group targeting carrierUid */
+function fuseCreate(carrierUid){ return { carrier:carrierUid, fusers:[], orig:{} }; }
+/* remember a participant's ORIGINAL stats exactly once (carrier included) */
+function fuseRemember(fs, uid, statObj){ if(fs && uid!=null && !fs.orig[uid]) fs.orig[uid]=_fuseSnap(statObj); }
+/* the carrier's fused totals, computed fresh from the stored originals */
+function fuseCompute(fs){ var out=_fuseSnap(null); if(!fs) return out; var f=fuseFactor(fs.fusers.length); var base=fs.orig[fs.carrier]||_fuseSnap(null); for(var i=0;i<FUSE_KEYS.length;i++){ var k=FUSE_KEYS[i]; var sum=base[k]||0; for(var j=0;j<fs.fusers.length;j++){ var o=fs.orig[fs.fusers[j]]; if(o) sum+=Math.round((o[k]||0)*f); } out[k]=sum; } return out; }
+/* add a fuser (stores their originals); returns the recomputed carrier totals */
+function fuseAdd(fs, uid, statObj){ if(!fs||uid==null||uid===fs.carrier) return fuseCompute(fs); fuseRemember(fs, uid, statObj); if(fs.fusers.indexOf(uid)<0) fs.fusers.push(uid); return fuseCompute(fs); }
+/* remove ONE fuser; returns { carrier: recomputed carrier totals, restored: that fuser's ORIGINAL stats } */
+function fuseRemove(fs, uid){ if(!fs) return {carrier:_fuseSnap(null),restored:null}; var idx=fs.fusers.indexOf(uid); var restored=fs.orig[uid]?_fuseSnap(fs.orig[uid]):null; if(idx>=0) fs.fusers.splice(idx,1); if(uid!==fs.carrier) delete fs.orig[uid]; return { carrier:fuseCompute(fs), restored:restored }; }
+/* fully dissolve; returns a map uid->ORIGINAL stats for EVERY participant (carrier + all fusers) to restore, then clears the group */
+function fuseDissolveAll(fs){ var out={}; if(fs){ for(var u in fs.orig) out[u]=_fuseSnap(fs.orig[u]); fs.fusers=[]; fs.orig={}; } return out; }
+
+/* ===== FUSION — Phase B1: apply the engine to LIVE player stat objects (atk/def/hp/lv) =====
+   atk/def/lv are static -> the carrier's live value is SET to the fused total and restored on dissolve.
+   hp is a live pool that ALSO drops from combat -> we track the carrier's HP BONUS (fs._hpBonus) and
+   only ever move hp by the bonus DELTA, so combat damage is preserved ("HP going down is a fact")
+   while the borrowed hp is added/removed exactly. Fusers spectate (don't fight), so their hp is
+   untouched during fusion and simply restored to their own original on leave/dissolve.
+   playersById: a map uid -> live stat object {atk,def,hp,lv} (e.g. state.player / synced member stats). */
+function fuseApply(fs, playersById){
+  if(!fs||!playersById) return; var carrier=playersById[fs.carrier]; if(!carrier) return;
+  var tot=fuseCompute(fs);                                   /* fused totals from the stored originals */
+  carrier.atk=tot.atk; carrier.def=tot.def; carrier.lv=tot.lv;   /* static stats -> set directly */
+  var ownHp=((fs.orig[fs.carrier]&&fs.orig[fs.carrier].hp)||0);
+  var newBonus=tot.hp-ownHp, oldBonus=fs._hpBonus||0;         /* borrowed hp = fused total - carrier's own original */
+  carrier.hp=(carrier.hp||0)+(newBonus-oldBonus);            /* move hp by the bonus DELTA (keeps combat damage) */
+  fs._hpBonus=newBonus; if(carrier.hp<1) carrier.hp=1;
+}
+/* add a fuser to a live fusion and re-apply the carrier (records the fuser's originals from their live stats) */
+function fuseAddLive(fs, uid, playersById){ if(!fs||!playersById) return; var p=playersById[uid]; if(!p) return; fuseAdd(fs, uid, p); fuseApply(fs, playersById); }
+/* remove ONE fuser: restore that fuser to their OWN original, then re-apply the carrier (factor rose for the rest) */
+function fuseRemoveLive(fs, uid, playersById){ if(!fs||!playersById) return; var oo=fs.orig[uid], p=playersById[uid]; var idx=fs.fusers.indexOf(uid); if(idx>=0) fs.fusers.splice(idx,1); if(p&&oo){ p.atk=oo.atk; p.def=oo.def; p.hp=oo.hp; p.lv=oo.lv; } if(uid!==fs.carrier) delete fs.orig[uid]; fuseApply(fs, playersById); }
+/* fully dissolve: carrier restores atk/def/lv & sheds the borrowed hp (KEEPS its combat damage); every fuser restores its own original */
+function fuseUndo(fs, playersById){
+  if(!fs||!playersById) return; var carrier=playersById[fs.carrier];
+  if(carrier){ var o=fs.orig[fs.carrier]||_fuseSnap(null); carrier.atk=o.atk; carrier.def=o.def; carrier.lv=o.lv; carrier.hp=(carrier.hp||0)-(fs._hpBonus||0); if(carrier.hp<1) carrier.hp=1; }
+  for(var j=0;j<fs.fusers.length;j++){ var u=fs.fusers[j], pp=playersById[u], oo=fs.orig[u]; if(pp&&oo){ pp.atk=oo.atk; pp.def=oo.def; pp.hp=oo.hp; pp.lv=oo.lv; } }
+  fs._hpBonus=0; fs.fusers=[]; fs.orig={};
+}
+
+/* ===== FUSION — Phase B2: raceteam team-sync + carrier apply + fuser spectate =====
+   The team's fusion lives at shared/{teamKey}/fusion = { carrier:uid, fusers:{uid:{atk,def,hp,lv}} }.
+   Presence carries no atk/def/lv, so a fuser writes its OWN originals when it joins. The carrier keeps
+   a persistent engine state (MP._fuseFs) so _hpBonus / originals stay exact across every sync. */
+function fuseTeamKey(){ if(state.mode==='arena'){ return (typeof MP!=='undefined'&&MP.arena&&MP.arena.myTeam)||null; } return (typeof myShareTeamKey==='function')?myShareTeamKey():null; }
+function fuseFbRef(){ var tk=fuseTeamKey(); if(!tk||typeof Net==='undefined') return null; try{ if(state.mode==='arena'){ return Net.arenaRef?Net.arenaRef.child('fusion/'+tk):null; } return Net.worldRef?Net.worldRef.child('shared/'+tk+'/fusion'):null; }catch(e){ return null; } }
+/* ---- actions (write to Firebase) ---- */
+function fuseInitiate(carrierUid){ var r=fuseFbRef(); if(r&&carrierUid){ try{ r.child('carrier').set(carrierUid); }catch(e){} } }
+function fuseJoinMe(){ var r=fuseFbRef(), pl=state.player, u=(typeof Net!=='undefined')&&Net.uid; if(r&&pl&&u){ try{ r.child('fusers/'+u).set({atk:pl.atk|0,def:pl.def|0,hp:pl.hp|0,lv:pl.lv|0}); }catch(e){} } }
+function fuseLeaveMe(){ var r=fuseFbRef(), u=(typeof Net!=='undefined')&&Net.uid; if(r&&u){ try{ r.child('fusers/'+u).remove(); }catch(e){} } }
+function fuseDissolveTeam(){ var r=fuseFbRef(); if(r){ try{ r.remove(); }catch(e){} } }
+/* ---- local apply helpers ---- */
+function _fuseCarrierEnd(){ if(MP._fuseFs && state.player){ var pm={}; pm[MP._fuseFs.carrier]=state.player; fuseUndo(MP._fuseFs, pm); } MP._fuseFs=null; }
+function _fuseFuserSpectate(carrier){ if(!carrier) return; state.spectating=true; state.specUid=carrier; state._fuseSpec=true; state.target=null; state.portalAim=false; try{ if(typeof renderSpectate==='function') renderSpectate(); }catch(e){} try{ if(typeof renderRoster==='function') renderRoster(); }catch(e){} }
+function _fuseFuserRelease(){ if(state._fuseSpec){ state._fuseSpec=false; state.spectating=false; state.specUid=null; var bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); } }
+/* ---- reconcile: called on every shared-state update ---- */
+function fuseReconcile(fusion){
+  MP._fuseState=fusion||null;
+  var pl=state.player, myUid=(typeof Net!=='undefined'&&Net.uid)||null; if(!pl||!myUid) return;
+  var carrier=(fusion&&fusion.carrier)||null, fusers=(fusion&&fusion.fusers)||{};
+  var iAmCarrier=!!(carrier&&carrier===myUid), iAmFuser=!!(carrier&&carrier!==myUid&&fusers[myUid]!=null);
+  /* carrier side: mirror the fuser set into the engine state, then apply */
+  if(iAmCarrier){
+    if(!MP._fuseFs){ MP._fuseFs=fuseCreate(myUid); fuseRemember(MP._fuseFs, myUid, pl); }
+    for(var u in fusers){ if(u===myUid) continue; if(MP._fuseFs.fusers.indexOf(u)<0){ fuseRemember(MP._fuseFs, u, fusers[u]); MP._fuseFs.fusers.push(u); } }
+    for(var k=MP._fuseFs.fusers.length-1;k>=0;k--){ var uu=MP._fuseFs.fusers[k]; if(fusers[uu]==null){ MP._fuseFs.fusers.splice(k,1); delete MP._fuseFs.orig[uu]; } }
+    var pm={}; pm[myUid]=pl; fuseApply(MP._fuseFs, pm);
+    try{ renderStats(); }catch(e){}
+  } else if(MP._fuseFs){ _fuseCarrierEnd(); try{ renderStats(); }catch(e){} }
+  /* fuser side: forced spectate on the carrier (spectating already blocks movement) */
+  if(iAmFuser){ if(state.mode==='raceteam') _fuseFuserSpectate(carrier); }
+  else if(state._fuseSpec){ _fuseFuserRelease(); try{ if(typeof renderAll==='function') renderAll(); }catch(e){} }
+}
+
+/* ===== FUSION — Phase D: raceteam UI (button in the roster + a small action panel) ===== */
+function fuseUiActive(){ return (state.mode==='raceteam'||state.mode==='arena') && !state._inLobby && !!state.player; }
+function fuseTeammates(){ if(state.mode==='arena'){ var my=(MP.arena&&MP.arena.myTeam)||'A', o=[{uid:Net.uid,name:MP.myName||t('mp.you'),me:true}], fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(!/^AI/.test(u) && fp[u]&&fp[u].team===my) o.push({uid:u,name:fp[u].name||'?'}); } return o; } var all=(typeof rtAllPlayers==='function')?rtAllPlayers():[], out=[], myTeam=(typeof rtMyTeam==='function')?rtMyTeam():'A'; for(var i=0;i<all.length;i++){ if(rtTeamOf(all[i].uid)===myTeam) out.push(all[i]); } return out; }
+function fuseBtnLabel(){ var f=MP._fuseState; if(f&&f.carrier){ var n=f.fusers?Object.keys(f.fusers).length:0; return t('mp.fuseOn')+n; } return t('mp.fuse'); }
+function fuseUiEnsure(){
+  if(byId('fusePanel')) return;
+  var pan=document.createElement('div'); pan.id='fusePanel'; pan.className='overlay fusePanel';
+  var box=document.createElement('div'); box.className='fuseBox';
+  var hd=document.createElement('div'); hd.className='fuseHd';
+  var ti=document.createElement('span'); ti.textContent=t('mp.fuse'); hd.appendChild(ti);
+  var cl=document.createElement('button'); cl.id='fuseClose'; cl.textContent='✕'; cl.onclick=closeFusePanel; hd.appendChild(cl);
+  var body=document.createElement('div'); body.id='fuseBody';
+  box.appendChild(hd); box.appendChild(body); pan.appendChild(box);
+  pan.addEventListener('click', function(e){ if(e.target===pan) closeFusePanel(); });
+  document.body.appendChild(pan);
+  if(!byId('fuseBtnA')){ var ab=document.createElement('button'); ab.id='fuseBtnA'; ab.className='fuseBtnA'; ab.style.display='none'; ab.onclick=openFusePanel; document.body.appendChild(ab); }
+}
+function renderFuseBtnArena(){ fuseUiEnsure(); var b=byId('fuseBtnA'); if(!b) return; if(state.mode==='arena' && fuseUiActive()){ b.style.display=''; b.textContent=fuseBtnLabel(); b.classList.toggle('act', !!(MP._fuseState&&MP._fuseState.carrier)); } else { b.style.display='none'; } }
+function closeFusePanel(){ var pan=byId('fusePanel'); if(pan) pan.classList.remove('show'); }
+function openFusePanel(){
+  if(!fuseUiActive()) return; fuseUiEnsure();
+  var pan=byId('fusePanel'), body=byId('fuseBody'); if(!pan||!body) return;
+  var f=MP._fuseState, myUid=Net.uid, carrier=(f&&f.carrier)||null, fusers=(f&&f.fusers)||{};
+  var iAmCarrier=!!(carrier&&carrier===myUid), iAmFuser=!!(carrier&&carrier!==myUid&&fusers[myUid]);
+  var mem=fuseTeammates(); function nameOf(u){ for(var i=0;i<mem.length;i++){ if(mem[i].uid===u) return mem[i].name; } return '?'; }
+  while(body.firstChild) body.removeChild(body.firstChild);
+  var note=document.createElement('div'); note.className='fuseNote';
+  if(!carrier){
+    note.textContent=t('mp.fusePick'); body.appendChild(note);
+    for(var i=0;i<mem.length;i++){ (function(m){ var b=document.createElement('button'); b.className='fuseRow'; b.textContent=m.name+(m.me?(' ('+t('mp.you')+')'):''); b.onclick=function(){ fuseInitiate(m.uid); closeFusePanel(); try{ toast(t('mp.fuseStarted')); }catch(e){} }; body.appendChild(b); })(mem[i]); }
+  } else {
+    note.textContent=fmt(t('mp.fuseStatus'),{n:nameOf(carrier),c:Object.keys(fusers).length}); body.appendChild(note);
+    for(var u in fusers){ var mm=document.createElement('div'); mm.className='fuseMem'; mm.textContent='• '+nameOf(u); body.appendChild(mm); }
+    var act=document.createElement('button'); act.className='fuseAct';
+    if(iAmCarrier){ act.classList.add('dissolve'); act.textContent=t('mp.fuseDissolve'); act.onclick=function(){ fuseDissolveTeam(); closeFusePanel(); }; body.appendChild(act); }
+    else if(iAmFuser){ act.classList.add('leave'); act.textContent=t('mp.fuseLeave'); act.onclick=function(){ fuseLeaveMe(); closeFusePanel(); }; body.appendChild(act); }
+    else { act.classList.add('join'); act.textContent=t('mp.fuseJoin'); act.onclick=function(){ fuseJoinMe(); closeFusePanel(); }; body.appendChild(act); }
+  }
+  pan.classList.add('show');
+}
 function hasSummit(){ return isSummitMode(state.mode); }   /* MP tower modes: final boss on FLOORS-1 + an empty summit on FLOORS (登頂). Solo keeps the ORIGINAL layout: boss on the top floor = clear. */
 function hasDown(f){ return f>-BASEMENT && f!==SECRET_FLOOR; }
 function bossSealed(d){ if(!d||!d.boss) return false; var _n=(d.wall&&d.wall.length)||GRID; for(let y=0;y<_n;y++)for(let x=0;x<_n;x++){ const e=d.ent[y]&&d.ent[y][x]; if(e&&e.isBoss) return true; } return false; }   /* boss floor with its boss still present -> no exit (until defeated); admin bypasses */
@@ -2984,17 +3130,26 @@ function genFloorRaw(f){
   }
   // weapons & shields: one per designated main floor, sealed in a dead-end behind a strong guard
   // above ground (1-25): iron -> silver -> knight only
-  if(_realFloor===4)  placeBlocked('ironSword',   true, null);
-  if(_realFloor===7)  placeBlocked('ironShield',  true, null);
-  if(_realFloor===11) placeBlocked('silverSword', true, null);
-  if(_realFloor===14) placeBlocked('silverShield',true, null);
-  if(_realFloor===19) placeBlocked('knightSword', true, null);
-  if(_realFloor===23) placeBlocked('knightShield',true, null);
-  // holy & divine gear: BASEMENT-only, in the mid-to-late depths, behind tough guards
-  if(_realFloor===-8)  placeBlocked('holySword',   true, null);
-  if(_realFloor===-11) placeBlocked('holyShield',  true, null);
-  if(_realFloor===-14) placeBlocked('divineSword', true, null);
-  if(_realFloor===-17) placeBlocked('divineShield',true, null);
+  if(!hasSummit()){
+    // SOLO (original layout): surface iron->silver->knight; holy & divine gated in the BASEMENT
+    if(_realFloor===4)  placeBlocked('ironSword',   true, null);
+    if(_realFloor===7)  placeBlocked('ironShield',  true, null);
+    if(_realFloor===11) placeBlocked('silverSword', true, null);
+    if(_realFloor===14) placeBlocked('silverShield',true, null);
+    if(_realFloor===19) placeBlocked('knightSword', true, null);
+    if(_realFloor===23) placeBlocked('knightShield',true, null);
+    if(_realFloor===-8)  placeBlocked('holySword',   true, null);
+    if(_realFloor===-11) placeBlocked('holyShield',  true, null);
+    if(_realFloor===-14) placeBlocked('divineSword', true, null);
+    if(_realFloor===-17) placeBlocked('divineShield',true, null);
+  } else {
+    /* MP mode-1: floor count is configurable (26-51) and there is NO basement, so spread ALL FIVE tiers of BOTH sword & shield across the surface, scaled to the tower height and kept below the boss floor. */
+    var _gTop=Math.max(6, FLOORS-1);
+    var _gSw=['ironSword','silverSword','knightSword','holySword','divineSword'], _gSh=['ironShield','silverShield','knightShield','holyShield','divineShield'];
+    var _gSwF=[0.15,0.32,0.48,0.65,0.82], _gShF=[0.22,0.38,0.55,0.72,0.90];
+    var _gFloor=function(fr){ return clamp(Math.round(_gTop*fr),2,Math.max(2,FLOORS-2)); };
+    for(var _gi=0;_gi<5;_gi++){ if(_realFloor===_gFloor(_gSwF[_gi])) placeBlocked(_gSw[_gi], true, null); if(_realFloor===_gFloor(_gShF[_gi])) placeBlocked(_gSh[_gi], true, null); }
+  }
 
   // ----- collectible skill books: spread across the tower + basement (found behind a mob or a door) -----
   // skill books: NEVER on the earliest floors and NEVER roadside — each sits behind a tougher monster (strongGuard) OR a higher-tier (blue/red) door.
@@ -4129,9 +4284,10 @@ function playAttackFx(side, kind, crit, snd, noSnd){
 }
 function playEventFx(side, mapName, key){ try{ const m=FX_MAP[mapName]; if(m && m[key]) playAttackFx(side, m[key], false, null, true); const sm=FX_MAP[mapName+'Sfx']; const sId=sm&&sm[key]; if(sId){ if(CUSTOM_SFX[sId]) playCustomSfx(sId); else if(SFX_PRESETS[sId]) sfxPlayPreset(sId); } }catch(e){} }
 function openCombat(x,y,ent){
-  const foe=ent.foe;
+  let foe=ent.foe;
   /* refresh presentation fields (FX / sound / image / face) from the LIVE template so admin edits apply even to monsters that were already placed on the map before the edit — keeps FX consistent with the name, which is already looked up live */
   try{ var _tplC=_monTemplateById(foe.id); if(_tplC){ foe.atkFx=_tplC.atkFx||null; foe.atkSfx=_tplC.atkSfx||null; foe.critFx=_tplC.critFx||null; foe.critSfx=_tplC.critSfx||null; foe.img=_tplC.img||null; if(_tplC.face) foe.face=_tplC.face; } }catch(_e){}
+  foe=Object.assign({}, foe);   /* combat runs on a COPY: statMatch / huangu / weak & HP damage never mutate the live floor monster, so the bestiary always shows the monster's ORIGINAL atk/def (stat-match applies only in the actual fight) */
   try{ document.querySelectorAll('.dmgnum').forEach(function(_e){ if(_e.parentNode) _e.parentNode.removeChild(_e); }); }catch(_e){}   /* 清掉上一場殘留的傷害數字 */
   try{ document.querySelectorAll('.atkfx').forEach(function(_e){ if(_e.parentNode) _e.parentNode.removeChild(_e); }); }catch(_e){}   /* 清掉上一場殘留的攻擊特效 */
   state.combat={ x:x,y:y,ent:ent,foe:foe, foeMaxHp:foe.maxhp, foePreHp:foe.hp,
@@ -5921,7 +6077,7 @@ function bgmKeyForFloor(f){
   else { var _bf=hasSummit()?FLOORS-1:FLOORS;             // boss floor (MP: FLOORS-1; solo: FLOORS)
     if(f===1) base='floor1';                              // 1F
     else if(_hardBossSwap() && f===_dragonFloor()) base='midboss';   // hard+ mid-boss (median) floor
-    else if(f===_bf) base=(!hasSummit() && state.floors && state.floors[f] && !bossSealed(state.floors[f])) ? 'victory' : 'topBoss';   // final boss floor; solo -> victory once the boss is down
+    else if(f===_bf) base='topBoss';   // final boss floor: KEEP the boss music even after the boss is defeated (no victory-music swap)
     else if(hasSummit() && f===FLOORS) base='victory';    // MP summit (登頂) -> victory BGM
     else if(_hardBossSwap() && f>_dragonFloor() && f<_bf) base='midbossAfter';   // hard+ floors between the mid-boss and the final boss
     else if(f>=2 && f<_bf) base='upper';                  // content floors
@@ -6603,6 +6759,7 @@ function renderRoster(){
     const nm=document.createElement('div'); nm.className='nm'; nm.textContent=name;
     chip.appendChild(dot); chip.appendChild(nm); host.appendChild(chip);
   }
+  if(fuseUiActive()){ var _fb=document.createElement('button'); _fb.className='rosterChip fuseChip'+((MP._fuseState&&MP._fuseState.carrier)?' act':''); _fb.textContent=fuseBtnLabel(); _fb.onclick=openFusePanel; host.insertBefore(_fb, host.firstChild); }
   host.classList.add('show');
 }
 /* ---------------------------- spectate (dead player follows alive teammates) ---------------------------- */
@@ -6654,7 +6811,7 @@ function rtMyTeam(){ return rtTeamOf(Net.uid); }
 /* ---- team item sharing: coop = one team ('all'); raceteam = your side ('A'/'B'); everything else = no sharing ---- */
 function myShareTeamKey(){ if(typeof Net==='undefined'||!Net.worldId) return null; if(MP.mode==='coop') return 'all'; if(MP.mode==='raceteam') return rtMyTeam(); return null; }
 function grantSharedSkill(skillId){ var k=SKILL_KIND[skillId]; if(!k) return false; var pl=ensureSkills(state.player); if(!pl) return false; var arr=(k==='atk')?pl.atkSkills:pl.defSkills; if(arr.indexOf(skillId)>=0) return false; arr.push(skillId); /* shared grants USE only; the finder keeps the stat bonus */ if(k==='atk'){ if(!pl.atkEquip && pl.lv>=SKILL_BY_ID[skillId].lv) pl.atkEquip=skillId; } else { if(!pl.defEquip && pl.lv>=SKILL_BY_ID[skillId].lv) pl.defEquip=skillId; } return true; }
-function onSharedUpdate(data){ var tk=myShareTeamKey(); if(!tk||!data||!data[tk]) return; var sh=data[tk], pl=state.player; if(!pl) return; var ch=false; if(sh.skills){ for(var id in sh.skills){ if(sh.skills[id] && grantSharedSkill(id)) ch=true; } } if(sh.teleport && !pl._sharedTP){ pl._sharedTP=true; if((pl.tpScrolls||0)<=0) pl.tpScrolls=1; ch=true; } if(sh.manual && !pl.hasManual){ pl.hasManual=true; ch=true; } if(ch){ try{ renderStats(); }catch(e){} } }
+function onSharedUpdate(data){ var tk=myShareTeamKey(); if(!tk) return; var sh=(data&&data[tk])||{}, pl=state.player; if(!pl) return; var ch=false; if(sh.skills){ for(var id in sh.skills){ if(sh.skills[id] && grantSharedSkill(id)) ch=true; } } if(sh.teleport && !pl._sharedTP){ pl._sharedTP=true; if((pl.tpScrolls||0)<=0) pl.tpScrolls=1; ch=true; } if(sh.manual && !pl.hasManual){ pl.hasManual=true; ch=true; } if(ch){ try{ renderStats(); }catch(e){} } try{ fuseReconcile(sh.fusion||null); }catch(e){} }
 function rtBalancedTeams(){ var ids=[], m=MP.members||{}; for(var u in m) ids.push(u); if(Net.uid && ids.indexOf(Net.uid)<0) ids.push(Net.uid); shuffle(ids); var t={}; for(var i=0;i<ids.length;i++) t[ids[i]]=(i%2===0)?'A':'B'; return t; }
 function rtSyncRandomTeams(){
   if(MP.mode!=='raceteam') return;
@@ -6961,6 +7118,7 @@ function renderRoomCfg(){
   var mode=MP.mode; box.innerHTML=''; _lbCfgBindToggle(); var _tg=byId('lbCfgToggle'); if(_tg) _tg.style.display=''; box.style.display=(_lbCfgOpen?'':'none'); renderRoomModeSel(box, mode);
   if(!isSummitMode(mode)){ var host0=!!(MP.meta && MP.meta.host===Net.uid), c0=roomCfg(); var _aiMax0=Math.max(1,((MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10)-1);
     function commit0(k,v){ var nc=roomCfg(); nc[k]=v; if(MP.meta) MP.meta.cfg=nc; if(typeof Net!=='undefined'&&Net.setRoomCfg) Net.setRoomCfg(nc); renderRoomCfg(); }
+    { var _hum0=0,_m0=MP.members||{}; for(var _u0 in _m0){ if(!/^AI/.test(_u0)) _hum0++; } if(typeof Net!=='undefined'&&Net.uid&&!(Net.uid in _m0)) _hum0++; if(_hum0<1)_hum0=1; _aiMax0=Math.max(0,((MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10)-_hum0); if(host0 && (c0.aiCount|0) > _aiMax0){ commit0('aiCount', _aiMax0); return; } }   /* #4: AI count can't exceed the player cap — when the host lowers 人數上限, AI auto-reduces so (humans + AI) fits */
     var af=document.createElement('div'); af.className='lbField'; var al=document.createElement('label'); al.textContent=t('mp.cfgAiCount'); af.appendChild(al);
     var ast=document.createElement('div'); ast.className='cfgStep';
     if(host0){ var amn=document.createElement('button'); amn.className='btn cfgStepBtn'; amn.textContent='-'; amn.addEventListener('click',function(){ commit0('aiCount',clamp(((c0.aiCount!=null?c0.aiCount:1)|0)-1,0,_aiMax0)); }); ast.appendChild(amn); }
@@ -7353,7 +7511,7 @@ function afHideCardPop(){ var p=byId('afCardPop'); if(p) p.style.display='none';
 function afFrame(ts){
   var f=AField; if(!f) return;
   if(!f.last) f.last=ts; var dt=(ts-f.last)/1000; f.last=ts;
-  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); afRenderCards(); afRenderStats(); try{ afSpawnAI(); }catch(e){} { var _afx=byId('afExit'); if(_afx && state.mode==='arena' && _afx.style.display!=='none') _afx.style.display='none'; } f.raf=requestAnimationFrame(afFrame);
+  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); afRenderCards(); afRenderStats(); try{ renderFuseBtnArena(); }catch(e){} try{ afSpawnAI(); }catch(e){} { var _afx=byId('afExit'); if(_afx && state.mode==='arena' && _afx.style.display!=='none') _afx.style.display='none'; } f.raf=requestAnimationFrame(afFrame);
 }
 function afKeyDown(e){ var f=AField; if(!f) return; var k=e.key; if(k==='Tab'){ afShowScoreboard(true); if(e.preventDefault) e.preventDefault(); return; } if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=true;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=true;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=true;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=true;} else return; if(e.preventDefault) e.preventDefault(); }
 function afKeyUp(e){ var f=AField; if(!f) return; var k=e.key; if(k==='Tab'){ afShowScoreboard(false); if(typeof afHideCardTip==='function') afHideCardTip(); return; } if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=false;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=false;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=false;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=false;} }
@@ -7396,7 +7554,8 @@ function afPickTeam(team){ var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.p
 function afRandomTeams(){ if(!afIsHost()) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(ph!=='wait'&&ph!=='shop') return; var ids=[Net.uid]; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(u!==Net.uid) ids.push(u); } ids=arenaShuffle(ids); var map={}, half=Math.ceil(ids.length/2); for(var k=0;k<ids.length;k++){ map[ids[k]]=(k<half)?'A':'B'; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('teamAssign').set(map); }catch(e){} } afOnTeamAssign(map); }
 function afOnTeamAssign(map){ if(!map || typeof MP==='undefined' || !MP.arena) return; MP.arena.teamAssign=map; var mine=map[Net.uid]; if(mine==='A'||mine==='B'){ MP.arena.myTeam=mine; if(AField){ AField.team=mine; AField.lastSync=0; afSync(); } } afRenderTeamBar(); }
 function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var showBar=false; bar.style.display='none'; if(!showBar) return;   /* team selection moved to the waiting room; no in-field team bar */ var cnt=afTeamCounts(), my=(MP.arena&&MP.arena.myTeam)||'A'; var ba=byId('afTeamA'), bb=byId('afTeamB'), br=byId('afTeamRand'); if(ba){ ba.textContent=t('mp.afTeamA')+' ('+cnt.A+')'; ba.classList.toggle('sel',my==='A'); } if(bb){ bb.textContent=t('mp.afTeamB')+' ('+cnt.B+')'; bb.classList.toggle('sel',my==='B'); } if(br){ br.style.display=afIsHost()?'':'none'; br.textContent=t('mp.afTeamRand'); } }
-function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A')A.push(meUid); else if(my==='B')B.push(meUid); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')A.push(u); else if(tm==='B')B.push(u); } return {A:A,B:B}; }
+function _afFuseOut(uid,team){ var fu=(MP.arena&&MP.arena.fusion&&MP.arena.fusion[team])||null; return !!(fu && fu.carrier && fu.carrier!==uid && fu.fusers && fu.fusers[uid]); }
+function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A'){ if(!_afFuseOut(meUid,'A'))A.push(meUid); } else if(my==='B'){ if(!_afFuseOut(meUid,'B'))B.push(meUid); } var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A'){ if(!_afFuseOut(u,'A'))A.push(u); } else if(tm==='B'){ if(!_afFuseOut(u,'B'))B.push(u); } } return {A:A,B:B}; }
 function afAllFieldUids(){ var ids=[Net.uid||'me']; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(ids.indexOf(u)<0) ids.push(u); } return ids; }
 function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myName||'你'); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; if(fp[uid]&&fp[uid].name) return fp[uid].name; var mem=MP.members||{}; if(mem[uid]&&mem[uid].name) return mem[uid].name; return uid; }
 function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+1500, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
@@ -8142,6 +8301,7 @@ function onArenaUpdate(data){
   if(data && data.afDuel) afOnDuel(data.afDuel);
   if(data && data.afFight) afOnFight(data.afFight);
   if(data && data.afEnd) afOnEnd(data.afEnd);
+  { MP.arena.fusion=(data&&data.fusion)||{}; var _fmt=(MP.arena.myTeam)||'A'; try{ fuseReconcile((MP.arena.fusion[_fmt])||null); }catch(e){} }   /* arena fusion: carrier gets combined stats; fused players are excluded from the duel lottery (afFieldTeams) */
   if(MP.arena){ MP.arena.skipReady=(data&&data.skipReady)||{}; if(MP.host) afCheckSkipConsensus(); }   /* skip-wait consensus */
   arenaCheckAllReady();
 }
@@ -9130,6 +9290,13 @@ const I18N_CUST = {
   };
   for(var L in K){ if(I18N[L] && I18N[L].mp){ for(var k in K[L]) I18N[L].mp[k]=K[L][k]; } }
 })();
+(function(){ var F={
+  'zh-Hant':{fuse:'合體',fuseOn:'合體·',fusePick:'選擇載體（能力疊加到此人身上）：',fuseStatus:'載體：{n}　·　合體者 {c} 人',fuseDissolve:'解散合體',fuseLeave:'退出合體',fuseJoin:'加入合體',fuseStarted:'已發起合體'},
+  'zh-Hans':{fuse:'合体',fuseOn:'合体·',fusePick:'选择载体（能力叠加到此人身上）：',fuseStatus:'载体：{n}　·　合体者 {c} 人',fuseDissolve:'解散合体',fuseLeave:'退出合体',fuseJoin:'加入合体',fuseStarted:'已发起合体'},
+  'en':{fuse:'Fuse',fuseOn:'Fused·',fusePick:'Pick the carrier (stats stack onto them):',fuseStatus:'Carrier: {n} · {c} fused',fuseDissolve:'Dissolve',fuseLeave:'Leave fusion',fuseJoin:'Join fusion',fuseStarted:'Fusion started'},
+  'ja':{fuse:'合体',fuseOn:'合体·',fusePick:'合体先を選択（能力が加算されます）：',fuseStatus:'合体先：{n}　·　合体者 {c} 人',fuseDissolve:'合体を解除',fuseLeave:'合体から抜ける',fuseJoin:'合体に参加',fuseStarted:'合体を開始しました'},
+  'ko':{fuse:'합체',fuseOn:'합체·',fusePick:'합체 대상 선택(능력이 합산됨):',fuseStatus:'대상: {n} · 합체 {c}명',fuseDissolve:'합체 해제',fuseLeave:'합체 나가기',fuseJoin:'합체 참가',fuseStarted:'합체 시작'}
+}; for(var L in F){ if(I18N[L] && I18N[L].mp){ for(var k in F[L]) I18N[L].mp[k]=F[L][k]; } } })();
 const I18N_ARENA_CFG={
  'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'遞增上限R',arLsCap:'吸血上限%',arSustain:'續航倍率%',arScaleAtk:'進攻縮放%'}},
  'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'递增上限R',arLsCap:'吸血上限%',arSustain:'续航倍率%',arScaleAtk:'进攻缩放%'}},
@@ -9543,6 +9710,7 @@ function markFeat(name){ if(typeof state==='undefined') return; if(!state.feat) 
 let _achQueue=[], _achBusy=false;
 function achPopup(a){ _achQueue.push(a); if(!_achBusy) _achNext(); }
 function _achNext(){
+  if(typeof state!=='undefined' && state.mode && state.mode!=='solo'){ _achQueue=[]; _achBusy=false; return; }   /* achievements are solo-only — never replay queued solo achievements after switching to multiplayer */
   if(!_achQueue.length){ _achBusy=false; return; }
   if(typeof inLobby==='function' && inLobby()){ _achBusy=true; setTimeout(_achNext, 600); return; }   /* 主畫面（標題）暫停成就提示，回到遊戲自動續播 */
   _achBusy=true; const a=_achQueue.shift(); const el=byId('achToast'); if(!el){ _achBusy=false; return; }
@@ -9866,7 +10034,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·307'; }
+    bt.textContent='build 0618·315'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -9874,7 +10042,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·307'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·315'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
