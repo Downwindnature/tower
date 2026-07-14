@@ -2201,6 +2201,18 @@ function isSummitMode(m){ return m==='coop'||m==='race'||m==='raceteam'; }
 function diffRank(d){ var r={easy:0,normal:1,hard:2,hell:3}; return (r[d]!=null)?r[d]:1; }
 function diffFactor(d){ var f={easy:1.30,normal:1.0,hard:0.65,hell:0.45}; return f[d]||1.0; }   /* multiplies each monster's min floor: <1 pulls late-game mobs earlier (harder), >1 pushes them later (easier) */
 function diffCountMul(d){ var m={easy:0.7,normal:1.0,hard:1.3,hell:1.6}; return m[d]||1.0; }   /* 怪物數量隨難度調整：越難怪越多（單機恆為 normal = x1，不受影響） */
+/* MP mode-1 TREASURE COMPENSATION: monsters scale UP with difficulty (earlier + more), but the classic
+   loot doesn't — so on multiplayer towers we boost stat treasure by difficulty (harder = more capital)
+   and, for COOP (shared map, loot is split), by the party size. Solo is left at the ORIGINAL balance. */
+function mpTrBonus(){
+  if(!hasSummit()) return 1;                                  // solo is ALWAYS 'normal' -> classic loot already fits it; untouched
+  var d=(typeof curDifficulty==='function')?curDifficulty():'normal';
+  var diffMul=({easy:1.1,normal:1.0,hard:1.4,hell:1.8})[d]||1.0;   /* easy gets a small +10% loot bump so it feels genuinely forgiving; hard/hell scale up for the challenge; solo never reaches here */
+  if(state.mode!=='coop') return diffMul;                      // raceteam/etc: every player has their OWN map, so diffMul is already PER-PLAYER — party size never dilutes it (2 players on Hell each get x1.8 on their own tower)
+  var n=0,m=(typeof MP!=='undefined'&&MP.members)||{}; for(var u in m) n++; if(n<1)n=1;   // coop: ONE shared map, loot is split -> scale up so even a SMALL team on a hard difficulty gets enough per head
+  return Math.min(3.5, diffMul*(1+0.6*(n-1)));
+}
+function gemGain(id){ var b=itemGainN(id); if((id==='gemR'||id==='gemB') && hasSummit()) return Math.max(1, Math.round(b*mpTrBonus())); return b; }
 function curDifficulty(){ return state.difficulty || 'normal'; }   /* solo is always 'normal' (baseline / original) */
 
 /* ============================================================================
@@ -2786,7 +2798,8 @@ function buildItemPool(f){
   /* common pickups that may appear anywhere; bigGold, staffs (thrA/thrD), cure vials,
      bestiary and teleport scroll are placed specially (gated / guarded / tucked away). */
   const p=[]; const add=function(id,n){for(let i=0;i<n;i++)p.push(id);};
-  add('potR', f>=4?3:2); add('potB', f>=3?2:1);   // loose pickups = basic potions only; gems/feathers/staffs/weapons/books are all GATED now
+  add('potR', f>=4?3:2); add('potB', f>=3?2:1);   // loose pickups = basic potions (solo keeps this exactly)
+  if(hasSummit()){ var _g=Math.max(1,Math.round(mpTrBonus())); add('gemR', _g); add('gemB', _g); }   // MP mode-1: also drop stat gems loose so there's atk/def capital to keep up with the harder scaling
   return p;
 }
 function pickShopType(f){
@@ -3182,7 +3195,7 @@ function genFloorRaw(f){
   // items
   const itemPool=buildItemPool(f);
   const _trMul=(typeof FLOOR_TR!=='undefined'&&FLOOR_TR[_realFloor]!=null)?FLOOR_TR[_realFloor]:1;   // per-floor treasure density (admin Map tab)
-  const itemCount=clamp(Math.round((2+Math.floor(f/4))*_trMul),0,12);   // loose pickups (potions) only; gated weapons/books/gems/gold keep their fixed placement
+  const itemCount=clamp(Math.round((2+Math.floor(f/4))*_trMul*mpTrBonus()),0,16);   // loose pickups (potions) only; gated weapons/books/gems/gold keep their fixed placement
   let ip=0;
   const ic=shuffle(free());
   for(let i=0;i<ic.length;i++){ if(ip>=itemCount) break; const c=ic[i]; data.ent[c.y][c.x]={kind:'item',item:pick(itemPool)}; ip++; }
@@ -4098,7 +4111,7 @@ function pickUpSkillBook(kind, skillId){
 function pickGainText(id){
   const A=t('msg.gAtk'), D=t('msg.gDef'), H=t('msg.gHp'), G=t('msg.gGold'), E=t('msg.gExp');
   const g=ITEM_GAIN_DEF[id];
-  if(g){ const n=itemGainN(id); switch(g.s){ case 'hp': return fmt(H,{n:n}); case 'atk': return fmt(A,{n:n}); case 'def': return fmt(D,{n:n}); case 'gold': return fmt(G,{n:n}); case 'exp': return fmt(E,{n:n}); } }
+  if(g){ const n=gemGain(id); switch(g.s){ case 'hp': return fmt(H,{n:n}); case 'atk': return fmt(A,{n:n}); case 'def': return fmt(D,{n:n}); case 'gold': return fmt(G,{n:n}); case 'exp': return fmt(E,{n:n}); } }
   return '';
 }
 function pickUp(id){
@@ -4112,8 +4125,8 @@ function pickUp(id){
     case 'potB': pl.hp+=itemGainN('potB'); break;
     case 'vialR': if(pl.status==='weak'){pl.weakStacks=0; pl.status='normal'; toast(t('msg.cureWeak')); renderStats();} else {toast(t('msg.noCure'));} return;
     case 'vialG': if(pl.status==='poison'){pl.status='normal'; pl.poisonStep=0; toast(t('msg.curePoison')); renderStats();} else {toast(t('msg.noCure'));} return;
-    case 'gemR': pl.atk+=itemGainN('gemR'); break;
-    case 'gemB': pl.def+=itemGainN('gemB'); break;
+    case 'gemR': pl.atk+=gemGain('gemR'); break;
+    case 'gemB': pl.def+=gemGain('gemB'); break;
     case 'bigGold': pl.gold+=itemGainN('bigGold'); break;
     case 'feather': pl.exp+=itemGainN('feather'); break;
     case 'tpScroll': pl.tpScrolls++; toast(t('msg.gotTeleport')); hintOnce('teleF'); if(typeof myShareTeamKey==='function'&&myShareTeamKey()&&typeof Net!=='undefined'&&Net.pushShared) Net.pushShared({teleport:true}); break;
@@ -10034,7 +10047,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·315'; }
+    bt.textContent='build 0618·318'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10042,7 +10055,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·315'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·318'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
