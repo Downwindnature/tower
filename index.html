@@ -2304,8 +2304,8 @@ function fuseReconcile(fusion){
 }
 
 /* ===== FUSION — Phase D: raceteam UI (button in the roster + a small action panel) ===== */
-function fuseUiActive(){ return (state.mode==='raceteam'||state.mode==='arena') && !state._inLobby && !!state.player; }
-function fuseTeammates(){ if(state.mode==='arena'){ var my=(MP.arena&&MP.arena.myTeam)||'A', o=[{uid:Net.uid,name:MP.myName||t('mp.you'),me:true}], fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(!/^AI/.test(u) && fp[u]&&fp[u].team===my) o.push({uid:u,name:fp[u].name||'?'}); } return o; } var all=(typeof rtAllPlayers==='function')?rtAllPlayers():[], out=[], myTeam=(typeof rtMyTeam==='function')?rtMyTeam():'A'; for(var i=0;i<all.length;i++){ if(rtTeamOf(all[i].uid)===myTeam) out.push(all[i]); } return out; }
+function fuseUiActive(){ return (state.mode==='raceteam'||state.mode==='coop'||state.mode==='arena') && !state._inLobby && !!state.player; }
+function fuseTeammates(){ if(state.mode==='arena'){ var my=(MP.arena&&MP.arena.myTeam)||'A', o=[{uid:Net.uid,name:MP.myName||t('mp.you'),me:true}], fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(!/^AI/.test(u) && fp[u]&&fp[u].team===my) o.push({uid:u,name:fp[u].name||'?'}); } return o; } var all=(typeof rtAllPlayers==='function')?rtAllPlayers():[]; if(state.mode==='coop') return all;   /* coop = one team, everyone is a teammate */ var out=[], myTeam=(typeof rtMyTeam==='function')?rtMyTeam():'A'; for(var i=0;i<all.length;i++){ if(rtTeamOf(all[i].uid)===myTeam) out.push(all[i]); } return out; }
 function fuseBtnLabel(){ var f=MP._fuseState; if(f&&f.carrier){ var n=f.fusers?Object.keys(f.fusers).length:0; return t('mp.fuseOn')+n; } return t('mp.fuse'); }
 function fuseUiEnsure(){
   if(byId('fusePanel')) return;
@@ -5293,6 +5293,20 @@ function teleportTo(f){
 }
 
 /* ============================== Help / tip ============================== */
+/* competitive vs non-competitive one-line tag shown at the top of the help for each mode */
+const HELP_MODE_TAG = {
+  coop:{ 'zh-Hant':'🤝 <b>非競技 · 組隊攻略</b>：全隊合作、共用同一張地圖與寶物，一起攻上頂層。','zh-Hans':'🤝 <b>非竞技 · 组队攻略</b>：全队合作、共用同一张地图与宝物，一起攻上顶层。','en':'🤝 <b>Non-competitive · Co-op Tower</b>: the whole team works together, sharing one map and its loot, to reach the summit together.','ja':'🤝 <b>非競技 · 協力タワー</b>：チーム全員で同じマップと宝物を共有し、協力して頂上を目指します。','ko':'🤝 <b>비경쟁 · 협동 타워</b>: 한 팀이 같은 맵과 보물을 공유하며 함께 정상에 오릅니다.' },
+  race:{ 'zh-Hant':'🏁 <b>競技 · 個人競速</b>：同一份地圖版面、各自獨立進度與寶物，比誰先登頂。','zh-Hans':'🏁 <b>竞技 · 个人竞速</b>：同一份地图版面、各自独立进度与宝物，比谁先登顶。','en':'🏁 <b>Competitive · Solo Race</b>: same map layout, but each player has independent progress and loot — first to the summit wins.','ja':'🏁 <b>競技 · 個人レース</b>：同じマップ配置ですが進行と宝物は各自独立。先に頂上へ着いた人が勝ち。','ko':'🏁 <b>경쟁 · 개인 레이스</b>: 같은 맵 배치지만 진행과 보물은 각자 독립. 먼저 정상에 오른 사람이 승리.' },
+  raceteam:{ 'zh-Hant':'🏁 <b>競技 · 分隊競速</b>：分兩隊、各自獨立進度與寶物，比哪一隊先登頂。','zh-Hans':'🏁 <b>竞技 · 分队竞速</b>：分两队、各自独立进度与宝物，比哪一队先登顶。','en':'🏁 <b>Competitive · Team Race</b>: two teams, each player with independent progress and loot — first team to the summit wins.','ja':'🏁 <b>競技 · チームレース</b>：2チームに分かれ、進行と宝物は各自独立。先に頂上へ着いたチームの勝ち。','ko':'🏁 <b>경쟁 · 팀 레이스</b>: 두 팀으로 나뉘며 진행과 보물은 각자 독립. 먼저 정상에 오른 팀이 승리.' }
+};
+/* fusion (合體) help — only shown for TEAM modes (co-op / team race / arena) */
+const HELP_FUSE_ITEMS = {
+  'zh-Hant':[['🔗','<b>合體（組隊限定）</b>：點隊友列（競技場在右上角）的「合體」鈕，指定一名<b>載體</b>，隊友的攻／防／生命／等級會依人數<b>遞減曲線</b>疊加到載體身上（人越多每人加成越低，避免單刷）。被合體者<b>強制觀戰載體、無法移動</b>；載體帶著加成前進或對戰。載體或被合體者<b>都可隨時解除</b>，解除後各自恢復原本能力（載體保留戰鬥中受到的傷害）。']],
+  'zh-Hans':[['🔗','<b>合体（组队限定）</b>：点队友列（竞技场在右上角）的「合体」钮，指定一名<b>载体</b>，队友的攻／防／生命／等级会依人数<b>递减曲线</b>叠加到载体身上（人越多每人加成越低，避免单刷）。被合体者<b>强制观战载体、无法移动</b>；载体带着加成前进或对战。载体或被合体者<b>都可随时解除</b>，解除后各自恢复原本能力（载体保留战斗中受到的伤害）。']],
+  'en':[['🔗','<b>Fusion (team modes only)</b>: tap the "Fuse" button in the teammate bar (top-right in the arena) and pick a <b>carrier</b>. Teammates\u2019 ATK/DEF/HP/Level stack onto the carrier on a <b>diminishing curve</b> (more people = less per head, to stop solo-carrying). Fused players are <b>locked into spectating the carrier</b> and cannot move; the carrier advances / fights with the combined power. Either the carrier or a fused player can <b>dissolve at any time</b>, restoring everyone\u2019s own stats (the carrier keeps any damage it took).']],
+  'ja':[['🔗','<b>合体（チームモード限定）</b>：仲間バー（アリーナは右上）の「合体」ボタンから<b>キャリア</b>を指定します。仲間の攻／防／HP／レベルが<b>逓減カーブ</b>でキャリアに加算されます（人数が多いほど一人あたりの加算は小さく、単独無双を防止）。合体した人は<b>キャリアの強制観戦となり移動不可</b>。キャリアはその合計値で進行／対戦します。キャリアでも合体側でも<b>いつでも解除</b>でき、各自の能力に戻ります（キャリアは受けたダメージを保持）。']],
+  'ko':[['🔗','<b>합체(팀 모드 전용)</b>: 팀원 바(아레나는 우측 상단)의 "합체" 버튼으로 <b>캐리어</b>를 지정합니다. 팀원의 공/방/체력/레벨이 <b>체감 곡선</b>으로 캐리어에 합산됩니다(인원이 많을수록 1인당 보너스는 감소, 단독 캐리 방지). 합체된 플레이어는 <b>캐리어를 강제 관전하며 이동할 수 없습니다</b>. 캐리어는 합산된 능력으로 진행/대전합니다. 캐리어나 합체된 플레이어 <b>누구나 언제든 해제</b>할 수 있고, 해제하면 각자 원래 능력으로 돌아갑니다(캐리어는 받은 피해를 유지).']]
+};
 const HELP_MP_ITEMS = {
  'zh-Hant':[
    ['🌐','<b>多人連線</b>：全員共用同一張地圖。攻略模式須抵達頂層；競技場為分隊 1v1 計分。遊戲進行中無法重新開始或返回主畫面，陣亡後可觀戰隊友。'],
@@ -5357,6 +5371,9 @@ function openHelp(){
   var _list2;
   if(_isArena){ _list2=(HELP_ARENA_ITEMS[state.lang])||HELP_ARENA_ITEMS['zh-Hant']||[]; }   /* arena: its own help, no tower/solo items */
   else { var _mpItems=_mpMode?((HELP_MP_ITEMS[state.lang])||HELP_MP_ITEMS['zh-Hant']||[]):[]; _list2=_mpItems.concat(items); }
+  var _mtag=(HELP_MODE_TAG[state.mode]&&(HELP_MODE_TAG[state.mode][state.lang]||HELP_MODE_TAG[state.mode]['zh-Hant']))||null;
+  var _fz=(state.mode==='coop'||state.mode==='raceteam'||state.mode==='arena')?((HELP_FUSE_ITEMS[state.lang])||HELP_FUSE_ITEMS['zh-Hant']||[]):[];
+  _list2=(_mtag?[['',_mtag]]:[]).concat(_list2, _fz);
   _list2.forEach(function(pair){
     const it=document.createElement('div'); it.className='helpItem nohero';
     it.innerHTML='<div>'+pair[1]+'</div>';
@@ -6628,7 +6645,7 @@ const Net = {
 
 /* ---------------------------- MP runtime state ---------------------------- */
 const MP = { meta:null, members:{}, mode:'solo', seed:0, mapSize:30, host:false, myName:'', _lastPresence:{}, arena:null };
-let __presTimer=null, __presDirty=false;
+let __presTimer=null, __presDirty=false, __presLast=0;
 
 function rngFreshSeed_exists(){}  /* rngFreshSeed defined in engine */
 
@@ -6642,11 +6659,13 @@ function mpPresence(force){
   if(state.mode==='solo' || !Net.presRef || Net.spectator) return;
   __presDirty=true;
   if(force){ flushPresence(); return; }
+  var _now=Date.now(), _gap=80;   /* leading-edge: a normal move pushes near-instantly; only rapid bursts are throttled to ~12/s so others see your ACTUAL position with no perceptible lag */
+  if(_now-__presLast>=_gap){ flushPresence(); return; }
   if(__presTimer) return;
-  __presTimer=setTimeout(flushPresence,200);
+  __presTimer=setTimeout(flushPresence, _gap-(_now-__presLast));
 }
 function flushPresence(){
-  __presTimer=null; if(!__presDirty) return; __presDirty=false;
+  __presTimer=null; if(!__presDirty) return; __presDirty=false; __presLast=Date.now();
   if(state.mode==='solo' || !Net.presRef || !state.player || Net.spectator) return;
   Net.setPresence({ name:MP.myName||'', floor:state.floor, x:state.px, y:state.py,
     hp:state.player.hp, maxFloor:state.maxFloor, kills:state.kills,
@@ -6703,9 +6722,10 @@ function coopVictory(byUid){
 /* ---------------------------- shared-state apply (coop) ---------------------------- */
 function applyClearedToFloor(d){
   if(!d) return; const fc=state.cleared[d.f]; if(!fc) return;
+  const _g=(d.wall&&d.wall.length)||GRID;   /* use THIS floor's own grid, not the global one: a clear on a 30x30 floor must still apply while you're standing on a smaller (view-size) floor */
   for(const key in fc){
     const parts=key.split('_'); const x=+parts[0], y=+parts[1];
-    if(!(x>=0&&y>=0&&x<GRID&&y<GRID)) continue;
+    if(!(x>=0&&y>=0&&x<_g&&y<_g)) continue;
     const e=d.ent[y][x]; if(!e) continue;
     const tt=fc[key].t;
     if(tt==='mon' && e.kind==='monster'){ if(!(d.boss && e.foe.boss)) d.ent[y][x]=null; }
@@ -7036,7 +7056,8 @@ function arenaTeams(){ /* joined members + configured AI count, split into two e
   const A=[], B=[]; ids.forEach(function(id,i){ (i%2===0?A:B).push(id); });
   let ai=1; while(A.length<per){ A.push('AI'+(ai++)); } while(B.length<per){ B.push('AI'+(ai++)); }
   return {A:A, B:B, per:per}; }
-function getNameInput(){ return (myStoredName()||'').slice(0,12); }
+function guestName(){ var g=''; try{ g=(localStorage.getItem('mt_guest')||'').trim(); }catch(e){} if(!g){ g=((typeof t==='function'?t('mp.guest'):'')||'訪客')+'-'+Math.floor(10000+Math.random()*90000); try{ localStorage.setItem('mt_guest', g); }catch(e){} } return g; }
+function getNameInput(){ return (myStoredName()||guestName()).slice(0,12); }   /* no name set -> a persistent 訪客-##### guest name, so players can jump into multiplayer without naming themselves */
 
 function defaultRoomCfg(){ return { floors:26, difficulty:'normal', countdown:true, teamMethod:'random', aiCount:0, mapSize:30, arenaTeamMode:'free' }; }
 function roomCfg(){ var d=defaultRoomCfg(), c=(MP.meta&&MP.meta.cfg)?MP.meta.cfg:null; if(!c) return d;
@@ -7128,7 +7149,9 @@ function _roomMaxRowRC(box, host, rightEl, mode){
 }
 function renderRoomCfg(){
   var box=byId('lbCfg'); if(!box) return;
-  var mode=MP.mode; box.innerHTML=''; _lbCfgBindToggle(); var _tg=byId('lbCfgToggle'); if(_tg) _tg.style.display=''; box.style.display=(_lbCfgOpen?'':'none'); renderRoomModeSel(box, mode);
+  var mode=MP.mode; box.innerHTML=''; var _isHost=!!(MP.meta && MP.meta.host===Net.uid); var _tg=byId('lbCfgToggle');
+  if(!_isHost){ if(_tg) _tg.style.display='none'; box.style.display='none'; return; }   /* non-host players don't see the host's room settings — the mode is still shown by the #lbModeShow tag */
+  _lbCfgBindToggle(); if(_tg) _tg.style.display=''; box.style.display=(_lbCfgOpen?'':'none'); renderRoomModeSel(box, mode);
   if(!isSummitMode(mode)){ var host0=!!(MP.meta && MP.meta.host===Net.uid), c0=roomCfg(); var _aiMax0=Math.max(1,((MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10)-1);
     function commit0(k,v){ var nc=roomCfg(); nc[k]=v; if(MP.meta) MP.meta.cfg=nc; if(typeof Net!=='undefined'&&Net.setRoomCfg) Net.setRoomCfg(nc); renderRoomCfg(); }
     { var _hum0=0,_m0=MP.members||{}; for(var _u0 in _m0){ if(!/^AI/.test(_u0)) _hum0++; } if(typeof Net!=='undefined'&&Net.uid&&!(Net.uid in _m0)) _hum0++; if(_hum0<1)_hum0=1; _aiMax0=Math.max(0,((MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10)-_hum0); if(host0 && (c0.aiCount|0) > _aiMax0){ commit0('aiCount', _aiMax0); return; } }   /* #4: AI count can't exceed the player cap — when the host lowers 人數上限, AI auto-reduces so (humans + AI) fits */
@@ -9310,6 +9333,7 @@ const I18N_CUST = {
   'ja':{fuse:'合体',fuseOn:'合体·',fusePick:'合体先を選択（能力が加算されます）：',fuseStatus:'合体先：{n}　·　合体者 {c} 人',fuseDissolve:'合体を解除',fuseLeave:'合体から抜ける',fuseJoin:'合体に参加',fuseStarted:'合体を開始しました'},
   'ko':{fuse:'합체',fuseOn:'합체·',fusePick:'합체 대상 선택(능력이 합산됨):',fuseStatus:'대상: {n} · 합체 {c}명',fuseDissolve:'합체 해제',fuseLeave:'합체 나가기',fuseJoin:'합체 참가',fuseStarted:'합체 시작'}
 }; for(var L in F){ if(I18N[L] && I18N[L].mp){ for(var k in F[L]) I18N[L].mp[k]=F[L][k]; } } })();
+(function(){ var G={'zh-Hant':'訪客','zh-Hans':'访客','en':'Guest','ja':'ゲスト','ko':'게스트'}; for(var L in G){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.guest=G[L]; } })();
 const I18N_ARENA_CFG={
  'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'遞增上限R',arLsCap:'吸血上限%',arSustain:'續航倍率%',arScaleAtk:'進攻縮放%'}},
  'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'递增上限R',arLsCap:'吸血上限%',arSustain:'续航倍率%',arScaleAtk:'进攻缩放%'}},
@@ -10047,7 +10071,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·318'; }
+    bt.textContent='build 0618·321'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10055,7 +10079,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·318'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·321'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
