@@ -2346,7 +2346,23 @@ function fuseDissolveTeam(){ var r=fuseFbRef(); if(r){ try{ r.remove(); }catch(e
 /* ---- local apply helpers ---- */
 function _fuseCarrierEnd(){ if(MP._fuseFs && state.player){ var fs=MP._fuseFs, pl=state.player, pays=null; for(var i=fs.fusers.length-1;i>=0;i--){ (pays=pays||{})[fs.fusers[i]]=fusePayoutFor(fs, fs.fusers[i], pl); }   /* pay everyone out BEFORE the group is cleared */ var pm={}; pm[fs.carrier]=pl; fuseUndo(fs, pm); if(pays) try{ fusePayWrite(pays); }catch(e){} } MP._fuseFs=null; }
 function _fuseFuserSpectate(carrier){ if(!carrier) return; var was=(state.specUid!==carrier||!state._fuseSpec); state.spectating=true; state.specUid=carrier; state._fuseSpec=true; state.target=null; state.portalAim=false; try{ if(typeof renderSpectate==='function') renderSpectate(); }catch(e){} try{ if(typeof renderRoster==='function') renderRoster(); }catch(e){} if(was){ try{ if(typeof mpPresence==='function') mpPresence(true); }catch(e){} try{ if(typeof renderAll==='function') renderAll(); }catch(e){} } }
-function _fuseFuserRelease(){ if(state._fuseSpec){ state._fuseSpec=false; state.spectating=false; state.specUid=null; var bar=byId('spectateBar'); if(bar) bar.classList.remove('show'); } }
+function _fuseFuserRelease(){
+  if(!state._fuseSpec) return;
+  var cu=state.specUid, o=(cu&&state.others)?state.others[cu]:null;
+  state._fuseSpec=false; state.spectating=false; state.specUid=null;
+  var bar=byId('spectateBar'); if(bar) bar.classList.remove('show');
+  /* land ON the carrier: the fuser was physically carried there, so leaving the fusion must NOT snap them back to wherever they fused */
+  if(o && typeof o.floor==='number' && typeof o.x==='number' && typeof o.y==='number'){
+    try{
+      state.floor=o.floor|0; state.maxFloor=Math.max(state.maxFloor|0, state.floor); GRID=curFloorGrid(state.floor);
+      ensureFloor(state.floor); var d=curFloor(); if(d) d.explored=true;
+      state.px=o.x|0; state.py=o.y|0; state.target=null;
+      state.noStairTrigger={x:state.px,y:state.py};   /* don't auto-trigger a staircase we happen to land on */
+      try{ poisonReset(); }catch(e){}
+      try{ mpPresence(true); }catch(e){}
+    }catch(e){}
+  }
+}
 /* ---- reconcile: called on every shared-state update ---- */
 function fuseReconcile(fusion){
   MP._fuseState=fusion||null;
@@ -3664,7 +3680,12 @@ function sizeBoard(){
     } else { sp.style.height=''; sp.style.marginTop=''; }
   }
 }
-function renderAll(){ sizeBoard(); renderMap(); sizeBoard(); renderStats(); try{ updateBGM(); }catch(e){} }   /* 2nd sizeBoard runs AFTER renderMap so the sidebar height is measured against the FILLED board (fixes first-entry collapse) */
+function renderAll(){ sizeBoard(); renderMap(); sizeBoard(); renderStats(); try{ updateBGM(); }catch(e){} }
+function _relayoutSoon(){   /* at game start the board is measured while overlays are still hiding, so the very first fit can be wrong until something (a move) forces a re-render — re-fit once the layout has actually settled */
+  var go=function(){ try{ if(state.player) sizeBoard(); }catch(e){} };
+  try{ requestAnimationFrame(function(){ go(); requestAnimationFrame(go); }); }catch(e){}
+  setTimeout(go,120); setTimeout(go,400); setTimeout(go,900);
+}   /* 2nd sizeBoard runs AFTER renderMap so the sidebar height is measured against the FILLED board (fixes first-entry collapse) */
 function glyph(ch){const s=document.createElement('span'); s.className='glyph-ent'; s.textContent=ch; return s;}
 function flaskEl(color){ const w=document.createElement('div'); w.className='potion '+(color==='b'?'pb':'pr');
   const neck=document.createElement('i'); neck.className='pf-neck'; const body=document.createElement('i'); body.className='pf-body'; const shine=document.createElement('i'); shine.className='pf-shine';
@@ -5911,7 +5932,7 @@ function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;   /* spawn sits on the floor-1 down-staircase */
   ['combat','shop','manual','teleport','endScreen','startScreen','lobby','mpPanel'].forEach(hide);
   state._cineActive = (state.mode==='solo' && !opts.skipIntro);
-  applyLang(); renderAll();
+  applyLang(); renderAll(); _relayoutSoon();
   if(state.mode==='solo' && !opts.skipIntro){ try{ showIntroCine(function(){ try{ updateBGM(true); }catch(e){} }); }catch(e){ state._cineActive=false; } }
   mpOnNewGame();
 }
@@ -6545,6 +6566,7 @@ const Net = {
       this.app = (firebase.apps && firebase.apps.length) ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
       this.auth = firebase.auth(); this.db = firebase.database();
       const self=this;
+      try{ this.db.ref('.info/serverTimeOffset').on('value', function(s){ self._tsOff=s.val()||0; }); }catch(e){}   /* keep a live server-clock offset for the lobby freshness check */
       if(!this._cfgLoaded){ this._cfgLoaded=true; this.loadConfig(); }   // gameConfig is public-read -> apply custom data even for logged-out players
       this.auth.onAuthStateChanged(function(u){
         if(u){
@@ -6579,6 +6601,7 @@ const Net = {
     });
   },
   ts(){ try{ return firebase.database.ServerValue.TIMESTAMP; }catch(e){ return Date.now(); } },
+  now(){ return Date.now()+(this._tsOff||0); },   /* SERVER-aligned clock: lobby timestamps are written by the server, so comparing them against a skewed local Date.now() made brand-new rooms look stale */
   code(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=c.charAt(Math.floor(Math.random()*c.length)); return s; },
   ensureReady(){
     const self=this;
@@ -6692,11 +6715,17 @@ const Net = {
     try{ this.db.ref('lobby/'+id).update({ mode:(m.mode||MP.mode||'coop'), host:hostName, name:(m.roomName||''), locked:(m.passHash?true:false), count:cnt, max:(m.maxPlayers||4), status:(m.status||'lobby'), createdAt:(m.createdAt||this.ts()), updatedAt:this.ts(), floors:((m.cfg&&m.cfg.floors)||26), diff:((m.cfg&&m.cfg.difficulty)||'normal') }); }catch(e){}
   },
   watchLobby(cb){
-    var self=this; try{ this._lobbyBrowseRef=this.db.ref('lobby'); }catch(e){ return; }
-    this._lobbyBrowseCb=function(s){ try{ cb(lobbyRoomsFromSnap(s.val()||{}, Date.now())); }catch(e){} };
-    this._lobbyBrowseRef.on('value', this._lobbyBrowseCb);
+    var self=this; this._lobbyWatchWanted=true;
+    var attach=function(){
+      if(!self._lobbyWatchWanted || self._lobbyBrowseCb) return;
+      try{ self._lobbyBrowseRef=self.db.ref('lobby'); }catch(e){ return; }
+      self._lobbyBrowseCb=function(s){ try{ cb(lobbyRoomsFromSnap(s.val()||{}, self.now())); }catch(e){} };
+      self._lobbyBrowseRef.on('value', self._lobbyBrowseCb);
+    };
+    if(this.ready && this.db) attach();
+    else this.ensureReady().then(function(){ attach(); });   /* opening the lobby right after page load used to attach NOTHING (Firebase wasn't authed yet, so db.ref threw and we silently bailed) — that's why new rooms only showed up after a page refresh */
   },
-  unwatchLobby(){ if(this._lobbyBrowseRef&&this._lobbyBrowseCb){ try{ this._lobbyBrowseRef.off('value', this._lobbyBrowseCb); }catch(e){} } this._lobbyBrowseRef=null; this._lobbyBrowseCb=null; },
+  unwatchLobby(){ this._lobbyWatchWanted=false; if(this._lobbyBrowseRef&&this._lobbyBrowseCb){ try{ this._lobbyBrowseRef.off('value', this._lobbyBrowseCb); }catch(e){} } this._lobbyBrowseRef=null; this._lobbyBrowseCb=null; },
   leaveWorld(){
     var id=this.worldId, self=this;
     if(this._lobbyHb){ clearInterval(this._lobbyHb); this._lobbyHb=null; }
@@ -7360,7 +7389,8 @@ function lobbyRoomsFromSnap(v, now){
   for(var code in v){
     var r=v[code]; if(!r) continue;
     if((r.count||0)<=0) continue;                          /* empty rooms */
-    if((now-(r.updatedAt||0))>12000){ try{ if(typeof Net!=='undefined' && Net.db && Net.worldId!==code){ Net.db.ref('lobby/'+code).remove(); Net.db.ref('worlds/'+code).remove(); } }catch(e){} continue; }   /* nobody's heartbeat for ~16s -> the room is empty: hide it AND prune it from Firebase so it doesn't linger */
+    var _stale=now-(r.updatedAt||0);
+    if(_stale>12000){ if(_stale>60000){ try{ if(typeof Net!=='undefined' && Net.db && Net.worldId!==code){ Net.db.ref('lobby/'+code).remove(); Net.db.ref('worlds/'+code).remove(); } }catch(e){} } continue; }   /* no heartbeat for 12s -> hide it; only PRUNE after a full minute, so a brief clock/network hiccup can never delete somebody's live room */
     rooms.push({ code:code, mode:r.mode||'coop', host:r.host||'', name:(r.name||''), locked:!!r.locked, count:r.count||0, max:r.max||4, status:r.status||'lobby', createdAt:r.createdAt||0, floors:r.floors||26, diff:r.diff||'normal' });
   }
   rooms.sort(function(a,b){ if((a.status==='lobby')!==(b.status==='lobby')) return a.status==='lobby'?-1:1; return (b.createdAt||0)-(a.createdAt||0); });   /* joinable rooms first, then newest */
@@ -10137,7 +10167,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·322'; }
+    bt.textContent='build 0618·323'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10145,7 +10175,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·322'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·323'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
