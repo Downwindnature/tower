@@ -7771,7 +7771,21 @@ function afSkillPress(id){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=a
 function afFighterStatus(f){ if(!f) return ''; if(f._stunned) return 'stun'; if((f.shieldHits||0)>0 || (f._shield||0)>0 || (f._block||0)>0) return 'shield'; if((f.atkBuff||0)>0 || (f._rampAtk||0)>0) return 'buff'; return ''; }
 function afStatusLabel(code){ return code==='stun'?t('mp.afStatusStun'):code==='shield'?t('mp.afStatusShield'):code==='buff'?t('mp.afStatusBuff'):t('mp.afStatusNormal'); }
 function afMyFightSide(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return null; return (Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); }
+function afActiveCards(side){   /* the player's ACTIVE cards, in exactly the order the fight panel shows them, so number keys line up with the buttons */
+  var ar=(typeof MP!=='undefined'&&MP.arena)||null, D=ar&&ar.afD;
+  var host=(MP.host||!(typeof Net!=='undefined'&&Net.arenaRef));
+  var me=(host&&D)?((side==='A')?D.A:D.B):null;
+  var list=(host&&me)?(me.cards||[]):((state.player&&state.player.arenaCards)||[]);
+  var out=[]; (list||[]).forEach(function(cid){ var cc=(typeof cardById==='function')?cardById(cid):null; if(cc&&cc.type==='active') out.push(cid); });
+  return out;
+}
 function afDuelKey(e){ if(!AField) return false; var k=e.key, nA=ATK_SKILLS.length, nD=DEF_SKILLS.length;
+  if(k>='1' && k<='4'){   /* PC: number row 1-4 fires your active cards (there can be at most four) */
+    var _sd=(typeof afMyFightSide==='function')?afMyFightSide():null;
+    var _cs=afActiveCards(_sd), _ix=(+k)-1;
+    if(_cs[_ix]){ afSkillPress(_cs[_ix]); return true; }
+    return false;
+  }
   if(k==='Alt'){ if(!e.repeat){ AField._afBook=(AField._afBook?0:1); afFightPanelRender(); } return true; }
   if(k==='ArrowUp'){ AField._afBook=0; afFightPanelRender(); return true; }
   if(k==='ArrowDown'){ AField._afBook=1; afFightPanelRender(); return true; }
@@ -7795,7 +7809,8 @@ function afpBuildSkills(side){ var ar=MP.arena, D=ar&&ar.afD, host=(MP.host||!(t
     +'<div class="afpSkRow"><button class="afpSwArr" data-a="dp">\u25c0</button>'+act('defS','def',defS.id,skillName(defS.id),'X')+'<button class="afpSwArr" data-a="dn">\u25b6</button></div>'
     +'<div class="afpSkRow2">'+act('crit','crit','crit',t('mp.afCrit'),'C')+act('breath','breath','breath',t('mp.afBreath'),'V')+'</div>';
   var _myC=(host&&me)?(me.cards||[]):((state.player&&state.player.arenaCards)||[]); var cardsHtml='';
-  (_myC||[]).forEach(function(cid){ var cc=(typeof cardById==='function')?cardById(cid):null; if(!cc||cc.type!=='active') return; var uses=(host&&me&&me._cardUses)?(me._cardUses[cid]||0):null; var cq=(host&&D)?(D[(side==='A')?'aAct':'bAct']===cid):(ar._myReq===cid); var cdis=(host&&me)?!arenaCanUseCard(me,cid,_foeS):false; cardsHtml+='<button class="afpAct afpCardBtn'+(cq?' queued':'')+'" data-c="'+esc(cid)+'"'+(cdis?' disabled':'')+'>'+esc(cardName(cid))+(uses!=null?(' \u00d7'+uses):'')+'</button>'; });
+  var _cNo=0;
+  (_myC||[]).forEach(function(cid){ var cc=(typeof cardById==='function')?cardById(cid):null; if(!cc||cc.type!=='active') return; var uses=(host&&me&&me._cardUses)?(me._cardUses[cid]||0):null; var cq=(host&&D)?(D[(side==='A')?'aAct':'bAct']===cid):(ar._myReq===cid); var cdis=(host&&me)?!arenaCanUseCard(me,cid,_foeS):false; _cNo++; cardsHtml+='<button class="afpAct afpCardBtn'+(cq?' queued':'')+'" data-c="'+esc(cid)+'"'+(cdis?' disabled':'')+'><span class="afpSkN">'+esc(cardName(cid))+(uses!=null?(' \u00d7'+uses):'')+'</span>'+(_cNo<=4?('<span class="kbd">'+_cNo+'</span>'):'')+'</button>'; });
   if(cardsHtml) html+='<div class="afpSkRow2">'+cardsHtml+'</div>';
   el.innerHTML=html;
   { var _bk=(AField&&AField._afBook)||0; el.classList.toggle('book-def', _bk===1); el.classList.toggle('book-atk', _bk!==1); }
@@ -10237,7 +10252,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·331'; }
+    bt.textContent='build 0618·332'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10245,7 +10260,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·331'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·332'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
