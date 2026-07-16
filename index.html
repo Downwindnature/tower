@@ -7219,7 +7219,6 @@ function roomCfg(){ var d=defaultRoomCfg(), c=(MP.meta&&MP.meta.cfg)?MP.meta.cfg
            aiCount:clamp((c.aiCount!=null?c.aiCount:d.aiCount)|0,0,15) }; }
 var _lbCfgOpen=true;
 function _lbCfgBindToggle(){ var t=byId('lbCfgToggle'); if(!t||t._bound) return; t._bound=true; t.addEventListener('click',function(){ _lbCfgOpen=!_lbCfgOpen; var b=byId('lbCfg'); if(b) b.style.display=_lbCfgOpen?'':'none'; var a=this.querySelector('.lbCfgArr'); if(a) a.textContent=_lbCfgOpen?'▾':'▸'; }); }
-function afEnsureEvenTotal(){ if(typeof MP==='undefined'||MP.mode!=='arena') return; try{ var _mem=MP.members||{}; var _hu={}; Object.keys(_mem).forEach(function(u){ if(!/^AI/.test(u)) _hu[u]=1; }); if(typeof Net!=='undefined'&&Net.uid) _hu[Net.uid]=1; if(MP.meta&&MP.meta.host) _hu[MP.meta.host]=1; var _humans=Object.keys(_hu).length, _ai=(typeof arenaAICount==='function')?arenaAICount():0, _maxP=(MP.meta&&MP.meta.maxPlayers)?(MP.meta.maxPlayers|0):10; if(((_humans+_ai)%2)===1){ var _na=((_humans+_ai+1)<=_maxP)?(_ai+1):Math.max(0,_ai-1); if(_na!==_ai){ MP.meta=MP.meta||{}; MP.meta.cfg=MP.meta.cfg||{}; MP.meta.cfg.aiCount=_na; if(MP.host && typeof Net!=='undefined' && Net.arenaRef){ try{ Net.arenaRef.parent.child('meta/cfg/aiCount').set(_na); }catch(e){} } } } }catch(e){} }
 function afCanStart(){
   if(typeof MP==='undefined' || MP.mode!=='arena') return {ok:true};
   var members=MP.members||{};
@@ -7849,6 +7848,7 @@ function afSetPhase(name){
 function afStartPhases(){ if(afIsHost()){ afSetPhase('wait'); } }
 function afPhaseTick(){
   var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase)||null; if(!ph){ afRenderPhaseBar(); return; }
+  if(ph.name!=='wait' && typeof _draft!=='undefined' && _draft){ try{ _draftAutoFinish(); }catch(e){} }   /* the wait is over: nobody enters a duel with an unfinished hand */
   if(afIsHost() && ph.name==='wait') afCheckSkipConsensus();
   if(afIsHost() && (ph.name==='wait'||ph.name==='shop') && Date.now()>=ph.endsAt){ var nx=afNextPhase(ph.name); if(nx) afSetPhase(nx); }
   afDuelTick();
@@ -8454,6 +8454,17 @@ function _draftRerollSlot(slot){
   var avail=CARD_POOL.filter(function(c){ return chosen.indexOf(c.id)<0 && curIds.indexOf(c.id)<0; });   /* 換一張沒被選過、也不在目前 3 張裡的新卡 */
   if(!avail.length) return;
   _draft.current[slot]=avail[_draftPickWeighted(avail)]; _draft.rerolls[slot]--; _draftRender();
+}
+function _draftAutoFinish(){   /* wait phase is over and this player still hasn't picked 4 -> the system finishes the draft for them (AI already always holds 4 via arenaAICards) */
+  if(!_draft) return;
+  var guard=0;
+  while(_draft && (_draft.picks||0)<4 && guard++<24){
+    var cur=_draft.current||[];
+    if(!cur.length){ try{ _draftDeal(); }catch(e){ break; } cur=(_draft&&_draft.current)||[]; if(!cur.length) break; }
+    try{ _draftPick(Math.floor(Math.random()*cur.length)); }catch(e){ break; }   /* _draftPick re-deals, and calls _draftFinish itself once it hits 4 */
+  }
+  if(_draft) _draftFinish();   /* pool exhausted -> close with whatever was picked */
+  try{ toast(t('mp.afAutoDraft')); }catch(e){}
 }
 function _draftFinish(){ var picked=_draft.chosen.slice(); if(typeof MP!=='undefined'&&MP.arena) MP.arena.myCards=picked; if(state.player) state.player.arenaCards=picked; hide('cardDraft'); var cb=_draft.onDone; _draft=null; if(typeof cb==='function') cb(); }
 
@@ -9272,7 +9283,7 @@ function bindMpInput(){
   { const _bh=byId('lbBackHome'); if(_bh) _bh.addEventListener('click',function(){ try{ Net.unwatchLobby(); }catch(_e){} goStartScreen(); }); }
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
-  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ var _mode=(typeof MP!=='undefined'&&MP.meta&&MP.meta.mode)||MP.mode; if(_mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='odd'? t('mp.afNeedEven',{n:_chk.tot}) : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } else if(_mode==='race'||_mode==='raceteam'){ var _np=(typeof rtAllPlayers==='function')?rtAllPlayers().length:1; if(_np<2){ toast(t('mp.afNeedTwo')); return; } if(_mode==='raceteam'){ var _tt=rtFinalTeams();   /* start uses the displayed teams (meta.teams: picks in pick-mode, host auto-assign in random-mode) */ var _ta=0,_tb=0,_uu; for(_uu in _tt){ if(_tt[_uu]==='A')_ta++; else if(_tt[_uu]==='B')_tb++; } if(_ta!==_tb){ toast(t('mp.rtNeedEven',{a:_ta,b:_tb})); return; }   /* team race: both sides must have EQUAL players (blocks empty side + odd totals like 3 -> 2v1) */ } } Net.startWorld(_mode==='raceteam'?rtFinalTeams():null); });   /* validate before starting for EVERY mode; use the authoritative room mode so a mode change can't slip a solo start through */
+  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ var _mode=(typeof MP!=='undefined'&&MP.meta&&MP.meta.mode)||MP.mode; if(_mode==='arena'){ var _chk=afCanStart();   /* NO silent auto-fix here: afEnsureEvenTotal() used to bump the host's AI count to force an even total, which meant this gate could never actually fire (1 human + 8 AI = 9 silently became 10 and started). The host must fix the count themselves. */ if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='odd'? t('mp.afNeedEven',{n:_chk.tot}) : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } else if(_mode==='race'||_mode==='raceteam'){ var _np=(typeof rtAllPlayers==='function')?rtAllPlayers().length:1; if(_np<2){ toast(t('mp.afNeedTwo')); return; } if(_mode==='raceteam'){ var _tt=rtFinalTeams();   /* start uses the displayed teams (meta.teams: picks in pick-mode, host auto-assign in random-mode) */ var _ta=0,_tb=0,_uu; for(_uu in _tt){ if(_tt[_uu]==='A')_ta++; else if(_tt[_uu]==='B')_tb++; } if(_ta!==_tb){ toast(t('mp.rtNeedEven',{a:_ta,b:_tb})); return; }   /* team race: both sides must have EQUAL players (blocks empty side + odd totals like 3 -> 2v1) */ } } Net.startWorld(_mode==='raceteam'?rtFinalTeams():null); });   /* validate before starting for EVERY mode; use the authoritative room mode so a mode change can't slip a solo start through */
   { var _res=byId('lbEditSave'); if(_res) _res.addEventListener('click',saveRoomEdit);
     var _ren=byId('lbEditName'); if(_ren) _ren.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } });
     var _rep=byId('lbEditPass'); if(_rep) _rep.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } }); }
@@ -9526,6 +9537,13 @@ const I18N_CUST = {
  'ja':'参加人数は偶数でなければ開始できません（現在 {n} 人）—— AI 数か人数を調整してください',
  'ko':'참가 인원은 짝수여야 시작할 수 있습니다(현재 {n}명) —— AI 수나 인원을 조정하세요'
 }; for(var L in E){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afNeedEven=E[L]; } })();
+(function(){ var D={
+ 'zh-Hant':'等待時間結束，系統已自動為你抽完 4 張卡',
+ 'zh-Hans':'等待时间结束，系统已自动为你抽完 4 张卡',
+ 'en':'The wait is over — the system drafted your remaining cards',
+ 'ja':'待機時間終了 —— システムが残りのカードを自動で選びました',
+ 'ko':'대기 시간 종료 —— 시스템이 남은 카드를 자동으로 뽑았습니다'
+}; for(var L in D){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afAutoDraft=D[L]; } })();
 const I18N_ARENA_CFG={
  'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'遞增上限R',arLsCap:'吸血上限%',arSustain:'續航倍率%',arScaleAtk:'進攻縮放%'}},
  'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'递增上限R',arLsCap:'吸血上限%',arSustain:'续航倍率%',arScaleAtk:'进攻缩放%'}},
@@ -10263,7 +10281,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·333'; }
+    bt.textContent='build 0618·335'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10271,7 +10289,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·333'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·335'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
