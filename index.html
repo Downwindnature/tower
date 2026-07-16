@@ -319,8 +319,6 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .fuseAct.join{background:#7a46c8;}
 .fuseAct.leave{background:#c8763a;}
 .fuseAct.dissolve{background:#c0455e;}
-.fuseBtnA{position:fixed;top:52px;right:12px;z-index:110;padding:6px 14px;border-radius:14px;background:rgba(120,70,200,.72);border:2px solid #b98cff;color:#fff;font-size:13px;font-weight:800;cursor:pointer;}
-.fuseBtnA.act{background:rgba(150,60,190,.92);border-color:#e0a8ff;box-shadow:0 0 0 2px rgba(224,168,255,.5);}
 .spectateBar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:5px 8px;border-radius:14px;background:rgba(10,7,20,.84);border:1px solid rgba(255,255,255,.16);z-index:8;}
 .apTeam{text-align:center;font-size:13px;color:#c9bfe0;margin:2px 0 10px;}
 .apGold{text-align:center;font-size:15px;font-weight:800;color:#f6d488;margin-bottom:12px;}
@@ -2319,7 +2317,7 @@ function fusePayoutFor(fs, uid, pl){
   }
   return out;
 }
-function fusePayRef(){ if(typeof Net==='undefined') return null; try{ if(state.mode==='arena'){ return Net.arenaRef?Net.arenaRef.child('fusePayout'):null; } var tk=fuseTeamKey(); if(!tk) return null; return Net.worldRef?Net.worldRef.child('shared/'+tk+'/fusePayout'):null; }catch(e){ return null; } }
+function fusePayRef(){ if(typeof Net==='undefined') return null; try{ var tk=fuseTeamKey(); if(!tk) return null; return Net.worldRef?Net.worldRef.child('shared/'+tk+'/fusePayout'):null; }catch(e){ return null; } }
 function fusePayWrite(map){ var r=fusePayRef(); if(!r||!map) return; for(var u in map){ try{ r.child(u).set(map[u]); }catch(e){} } }
 /* a released fuser picks up their payout exactly once */
 function fusePayoutApply(pay){
@@ -2336,10 +2334,11 @@ function fusePayoutApply(pay){
    The team's fusion lives at shared/{teamKey}/fusion = { carrier:uid, fusers:{uid:{atk,def,hp,lv}} }.
    Presence carries no atk/def/lv, so a fuser writes its OWN originals when it joins. The carrier keeps
    a persistent engine state (MP._fuseFs) so _hpBonus / originals stay exact across every sync. */
-function fuseTeamKey(){ if(state.mode==='arena'){ return (typeof MP!=='undefined'&&MP.arena&&MP.arena.myTeam)||null; } return (typeof myShareTeamKey==='function')?myShareTeamKey():null; }
-function fuseFbRef(){ var tk=fuseTeamKey(); if(!tk||typeof Net==='undefined') return null; try{ if(state.mode==='arena'){ return Net.arenaRef?Net.arenaRef.child('fusion/'+tk):null; } return Net.worldRef?Net.worldRef.child('shared/'+tk+'/fusion'):null; }catch(e){ return null; } }
+function fuseTeamKey(){ if(!fuseModeOk()) return null; return (typeof myShareTeamKey==='function')?myShareTeamKey():null; }
+function fuseModeOk(){ return state.mode==='coop' || state.mode==='raceteam'; }   /* FUSION IS MODE-1 (攻略魔塔) ONLY — the free arena (mode 2) never uses it */
+function fuseFbRef(){ var tk=fuseTeamKey(); if(!tk||typeof Net==='undefined') return null; try{ return Net.worldRef?Net.worldRef.child('shared/'+tk+'/fusion'):null; }catch(e){ return null; } }
 /* ---- actions (write to Firebase) ---- */
-function fuseInitiate(carrierUid){ var r=fuseFbRef(); if(r&&carrierUid){ try{ r.child('carrier').set(carrierUid); }catch(e){} } }
+function fuseInitiate(carrierUid){ var r=fuseFbRef(); if(r&&carrierUid){ try{ r.set({carrier:carrierUid}); }catch(e){} } }   /* set() (not child.set) wipes any stale fusers/dead flag from an earlier fusion */
 function fuseJoinMe(){ var r=fuseFbRef(), pl=state.player, u=(typeof Net!=='undefined')&&Net.uid; if(r&&pl&&u){ try{ var _kk=_fuseKeySnap(pl.keys); r.child('fusers/'+u).set({atk:pl.atk|0,def:pl.def|0,hp:pl.hp|0,lv:pl.lv|0,keys:_kk}); if(pl.keys){ for(var i=0;i<FUSE_KEYCOLS.length;i++) pl.keys[FUSE_KEYCOLS[i]]=0; }   /* keys are LENT to the carrier in full; a fair share comes back on release */ try{ renderStats(); }catch(e2){} }catch(e){} } }
 function fuseLeaveMe(){ var r=fuseFbRef(), u=(typeof Net!=='undefined')&&Net.uid; if(r&&u){ try{ r.child('fusers/'+u).remove(); }catch(e){} } }
 function fuseDissolveTeam(){ var r=fuseFbRef(); if(r){ try{ r.remove(); }catch(e){} } }
@@ -2364,10 +2363,43 @@ function _fuseFuserRelease(){
   }
 }
 /* ---- reconcile: called on every shared-state update ---- */
+function _fuseInRoom(uid){   /* still actually in the room? (members/presence are auto-pruned on disconnect) */
+  if(!uid) return false;
+  if(typeof Net!=='undefined' && Net.uid===uid) return true;
+  var m=(typeof MP!=='undefined'&&MP.members)||{}, p=(typeof MP!=='undefined'&&MP._lastPresence)||{};
+  return !!(m[uid]||p[uid]);
+}
+function _fuseDeadUid(uid){   /* died in battle (still in the room, flagged via presence) */
+  if(!uid) return false;
+  if(typeof Net!=='undefined' && Net.uid===uid) return !!state.over;
+  var p=(typeof MP!=='undefined'&&MP._lastPresence)||{};
+  return !!(p[uid]&&p[uid].over);
+}
 function fuseReconcile(fusion){
   MP._fuseState=fusion||null;
   var pl=state.player, myUid=(typeof Net!=='undefined'&&Net.uid)||null; if(!pl||!myUid) return;
   var carrier=(fusion&&fusion.carrier)||null, fusers=(fusion&&fusion.fusers)||{};
+  /* ===== lifecycle rules ===== */
+  if(carrier){
+    /* (a) ANY participant (carrier OR fuser) LEFT the game -> the whole fusion dissolves; nobody is left in a half-broken fusion. Leaving is not a death, so everybody simply gets their own stats back and must fuse again. */
+    var _left=!_fuseInRoom(carrier);
+    if(!_left){ for(var _q in fusers){ if(!_fuseInRoom(_q)){ _left=true; break; } } }
+    if(_left){ try{ fuseDissolveTeam(); }catch(e){} fusion=null; MP._fuseState=null; carrier=null; fusers={}; }
+  }
+  if(carrier){
+    var _cDead=!!(fusion&&fusion.dead) || _fuseDeadUid(carrier);
+    /* (b) the CARRIER DIED -> every fused member dies with it: only the carrier could act (movement, combat), so it carried the whole team's life */
+    if(_cDead && carrier!==myUid && fusers[myUid]!=null && !state.over){
+      MP._fuseState=null; state._fuseSpec=false; state.spectating=false; state.specUid=null;
+      var _bar=byId('spectateBar'); if(_bar) _bar.classList.remove('show');
+      try{ fuseLeaveMe(); }catch(e){}
+      pl.hp=0; try{ renderStats(); }catch(e){}
+      try{ defeat(); }catch(e){}
+      return;
+    }
+    /* the dead carrier's group is cleaned up once every fused member has been released */
+    if(_cDead && !Object.keys(fusers).length){ try{ fuseDissolveTeam(); }catch(e){} fusion=null; MP._fuseState=null; carrier=null; fusers={}; }
+  }
   var iAmCarrier=!!(carrier&&carrier===myUid), iAmFuser=!!(carrier&&carrier!==myUid&&fusers[myUid]!=null);
   /* carrier side: mirror the fuser set into the engine state, then apply */
   if(iAmCarrier){
@@ -2380,13 +2412,30 @@ function fuseReconcile(fusion){
     try{ renderStats(); }catch(e){}
   } else if(MP._fuseFs){ _fuseCarrierEnd(); try{ renderStats(); }catch(e){} }
   /* fuser side: forced spectate on the carrier (spectating already blocks movement) */
-  if(iAmFuser){ if(state.mode!=='arena') _fuseFuserSpectate(carrier); }   /* every tower mode (coop / raceteam / race): the fused player is locked to the carrier's view and cannot move. Arena instead excludes them from the duel lottery. */
+  if(iAmFuser){ _fuseFuserSpectate(carrier); }   /* the fused player is locked to the carrier's view and cannot move */
   else if(state._fuseSpec){ _fuseFuserRelease(); try{ if(typeof renderAll==='function') renderAll(); }catch(e){} }
 }
 
 /* ===== FUSION — Phase D: raceteam UI (button in the roster + a small action panel) ===== */
-function fuseUiActive(){ return (state.mode==='raceteam'||state.mode==='coop'||state.mode==='arena') && !state._inLobby && !!state.player; }
-function fuseTeammates(){ if(state.mode==='arena'){ var my=(MP.arena&&MP.arena.myTeam)||'A', o=[{uid:Net.uid,name:MP.myName||t('mp.you'),me:true}], fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(!/^AI/.test(u) && fp[u]&&fp[u].team===my) o.push({uid:u,name:fp[u].name||'?'}); } return o; } var all=(typeof rtAllPlayers==='function')?rtAllPlayers():[]; if(state.mode==='coop') return all;   /* coop = one team, everyone is a teammate */ var out=[], myTeam=(typeof rtMyTeam==='function')?rtMyTeam():'A'; for(var i=0;i<all.length;i++){ if(rtTeamOf(all[i].uid)===myTeam) out.push(all[i]); } return out; }
+function fuseQuitCleanup(){   /* leaving a run: a participant leaving ALWAYS ends the fusion for everyone — publish that first (while state.mode is still the MP mode), then wipe all local traces so the next game can never inherit stale fusion data */
+  try{ var f=MP._fuseState, me=(typeof Net!=='undefined')&&Net.uid;
+    if(f && f.carrier && me && typeof fuseModeOk==='function' && fuseModeOk() && (f.carrier===me || (f.fusers && f.fusers[me]!=null))) fuseDissolveTeam();
+  }catch(e){}
+  try{ var r=fusePayRef(); if(r && Net.uid) r.child(Net.uid).remove(); }catch(e){}   /* no unclaimed payout left behind */
+  try{ fuseUiReset(); }catch(e){}
+}
+function fuseUiReset(){   /* wipe every trace of fusion UI/state (used when leaving a run) */
+  try{ MP._fuseState=null; MP._fuseFs=null; }catch(e){}
+  state._fuseSpec=false; state._fusePayDone={};
+  var pan=byId('fusePanel'); if(pan) pan.classList.remove('show');
+  var host=byId('mpRoster'); if(host){ var b=host.querySelector('.fuseChip'); if(b && b.parentNode) b.parentNode.removeChild(b); }
+}
+function fuseUiActive(){
+  if(!fuseModeOk() || state._inLobby || !state.player || state.over) return false;
+  if(MP._fuseState && MP._fuseState.carrier) return true;   /* an ACTIVE fusion stays reachable so it can always be dissolved, even if a teammate just dropped */
+  return fuseTeammates().length>=2;   /* alone in the room (or the only one on your team) -> nobody to fuse with, so no button */
+}
+function fuseTeammates(){ var all=(typeof rtAllPlayers==='function')?rtAllPlayers():[]; if(state.mode==='coop') return all;   /* coop = one team, everyone is a teammate */ var out=[], myTeam=(typeof rtMyTeam==='function')?rtMyTeam():'A'; for(var i=0;i<all.length;i++){ if(rtTeamOf(all[i].uid)===myTeam) out.push(all[i]); } return out; }
 function fuseBtnLabel(){ var f=MP._fuseState; if(f&&f.carrier){ var n=f.fusers?Object.keys(f.fusers).length:0; return t('mp.fuseOn')+n; } return t('mp.fuse'); }
 function fuseUiEnsure(){
   if(byId('fusePanel')) return;
@@ -2399,9 +2448,7 @@ function fuseUiEnsure(){
   box.appendChild(hd); box.appendChild(body); pan.appendChild(box);
   pan.addEventListener('click', function(e){ if(e.target===pan) closeFusePanel(); });
   document.body.appendChild(pan);
-  if(!byId('fuseBtnA')){ var ab=document.createElement('button'); ab.id='fuseBtnA'; ab.className='fuseBtnA'; ab.style.display='none'; ab.onclick=openFusePanel; document.body.appendChild(ab); }
 }
-function renderFuseBtnArena(){ fuseUiEnsure(); var b=byId('fuseBtnA'); if(!b) return; if(state.mode==='arena' && fuseUiActive()){ b.style.display=''; b.textContent=fuseBtnLabel(); b.classList.toggle('act', !!(MP._fuseState&&MP._fuseState.carrier)); } else { b.style.display='none'; } }
 function closeFusePanel(){ var pan=byId('fusePanel'); if(pan) pan.classList.remove('show'); }
 function openFusePanel(){
   if(!fuseUiActive()) return; fuseUiEnsure();
@@ -4436,7 +4483,7 @@ function refreshCombatButtons(){
     dBtn.classList.toggle('armed', c.defArmed===pl.defEquip || (pl.defEquip==='shendun' && c.shendunHits>0)); }
   else { byId('cbDefLab').textContent=t('cb.defUse'); byId('cbDefCost').textContent=''; dBtn.disabled=true; }
   { const _fB=byId('cbFlee'); if(_fB){ const _nf=!!(c.foe&&c.foe.noFlee); _fB.disabled=(_nf||state.busy||c.done); _fB.style.opacity=_nf?'0.45':''; } }
-  { const _bB=byId('cbBreath'); if(_bB) _bB.disabled=(state.busy||c.done); }
+  { const _bB=byId('cbBreath'); if(_bB){ var _stFull=(c.meStam>=100); _bB.disabled=(state.busy||c.done||_stFull); _bB.style.opacity=_stFull?'0.45':''; } }   /* stamina already full -> nothing to recover: deep breath would only skip your turn and hand the foe a free hit */
   updateCritBtn();
 }
 /* in-combat skill switching — pick among the attack/defence skills you already own */
@@ -4587,6 +4634,7 @@ function playerNormal(){ playerAct('normal'); }
 function staminaPop(n){ try{ var host=byId('cbMeStRow'); if(!host) return; var s=document.createElement('span'); s.className='stamPop'; s.textContent='+'+n+' '+t('cb.st'); host.appendChild(s); setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },1000); }catch(e){} }
 function deepBreath(){
   const c=state.combat; if(!c||c.done||c.ended||state.busy) return;
+  if(c.meStam>=100) return;   /* full stamina -> deep breath does nothing (it only restores stamina), so the button/V key must be a no-op instead of wasting the round */
   if(c.playerStun){ c.playerStun=false; log('sys',t('msg.msStun')); renderCombat(); state.busy=true; refreshCombatButtons(); clearTimeout(combatTimer); combatTimer=setTimeout(foeTurn,260); return; }   /* 結晶盾束縛時，深呼吸也會被消耗掉這回合 */
   var before=c.meStam; c.meStam=clamp(c.meStam+breathAmt(),0,100); var gained=Math.round(c.meStam-before);
   staminaPop(gained);                                   /* 體力那排跳出「+N 體力」水藍提示，1 秒後消失 */
@@ -5388,11 +5436,11 @@ const HELP_MODE_TAG = {
 };
 /* fusion (合體) help — only shown for TEAM modes (co-op / team race / arena) */
 const HELP_FUSE_ITEMS = {
-  'zh-Hant':[['🔗','<b>合體（組隊限定）</b>：點隊友列（競技場在右上角）的「合體」鈕，指定一名<b>載體</b>，隊友的攻／防／生命／等級會依人數<b>遞減曲線</b>疊加到載體身上（人越多每人加成越低，避免單刷）。被合體者<b>強制觀戰載體、無法移動</b>；載體帶著加成前進或對戰。載體或被合體者<b>都可隨時解除</b>，解除後各自恢復原本能力（載體保留戰鬥中受到的傷害）。']],
-  'zh-Hans':[['🔗','<b>合体（组队限定）</b>：点队友列（竞技场在右上角）的「合体」钮，指定一名<b>载体</b>，队友的攻／防／生命／等级会依人数<b>递减曲线</b>叠加到载体身上（人越多每人加成越低，避免单刷）。被合体者<b>强制观战载体、无法移动</b>；载体带着加成前进或对战。载体或被合体者<b>都可随时解除</b>，解除后各自恢复原本能力（载体保留战斗中受到的伤害）。']],
-  'en':[['🔗','<b>Fusion (team modes only)</b>: tap the "Fuse" button in the teammate bar (top-right in the arena) and pick a <b>carrier</b>. Teammates\u2019 ATK/DEF/HP/Level stack onto the carrier on a <b>diminishing curve</b> (more people = less per head, to stop solo-carrying). Fused players are <b>locked into spectating the carrier</b> and cannot move; the carrier advances / fights with the combined power. Either the carrier or a fused player can <b>dissolve at any time</b>, restoring everyone\u2019s own stats (the carrier keeps any damage it took).']],
-  'ja':[['🔗','<b>合体（チームモード限定）</b>：仲間バー（アリーナは右上）の「合体」ボタンから<b>キャリア</b>を指定します。仲間の攻／防／HP／レベルが<b>逓減カーブ</b>でキャリアに加算されます（人数が多いほど一人あたりの加算は小さく、単独無双を防止）。合体した人は<b>キャリアの強制観戦となり移動不可</b>。キャリアはその合計値で進行／対戦します。キャリアでも合体側でも<b>いつでも解除</b>でき、各自の能力に戻ります（キャリアは受けたダメージを保持）。']],
-  'ko':[['🔗','<b>합체(팀 모드 전용)</b>: 팀원 바(아레나는 우측 상단)의 "합체" 버튼으로 <b>캐리어</b>를 지정합니다. 팀원의 공/방/체력/레벨이 <b>체감 곡선</b>으로 캐리어에 합산됩니다(인원이 많을수록 1인당 보너스는 감소, 단독 캐리 방지). 합체된 플레이어는 <b>캐리어를 강제 관전하며 이동할 수 없습니다</b>. 캐리어는 합산된 능력으로 진행/대전합니다. 캐리어나 합체된 플레이어 <b>누구나 언제든 해제</b>할 수 있고, 해제하면 각자 원래 능력으로 돌아갑니다(캐리어는 받은 피해를 유지).']]
+  'zh-Hant':[['\U0001F517','<b>\u5408\u9ad4\uff08\u653b\u7565\u9b54\u5854\u00b7\u7d44\u968a\u9650\u5b9a\uff09</b>\uff1a\u9ede\u968a\u53cb\u5217\u7684\u300c\u5408\u9ad4\u300d\u9215\uff0c\u6307\u5b9a\u4e00\u540d<b>\u8f09\u9ad4</b>\uff0c\u968a\u53cb\u7684\u653b\uff0f\u9632\uff0f\u751f\u547d\uff0f\u7b49\u7d1a\u6703\u4f9d\u4eba\u6578<b>\u905e\u6e1b\u66f2\u7dda</b>\u758a\u52a0\u5230\u8f09\u9ad4\u8eab\u4e0a\uff08\u4eba\u8d8a\u591a\u6bcf\u4eba\u52a0\u6210\u8d8a\u4f4e\uff0c\u907f\u514d\u55ae\u5237\uff09\uff1b\u9470\u5319\u5247<b>\u5168\u984d\u52a0\u7e3d\u3001\u4e0d\u8d70\u66f2\u7dda</b>\u3002\u88ab\u5408\u9ad4\u8005<b>\u5f37\u5236\u89c0\u6230\u8f09\u9ad4\u3001\u7121\u6cd5\u79fb\u52d5</b>\uff0c\u4eba\u5f62\u6703\u5f9e\u5730\u5716\u4e0a\u6d88\u5931\uff1b\u8f09\u9ad4\u5e36\u8457\u52a0\u6210\u524d\u9032\uff0c\u5408\u9ad4\u671f\u9593\u53d6\u5f97\u7684\u7d93\u9a57\u3001\u91d1\u5e63\u8207\u5be6\u7269\u90fd\u8a08\u5165\u8f09\u9ad4\u3002\u8f09\u9ad4\u6216\u88ab\u5408\u9ad4\u8005<b>\u90fd\u53ef\u96a8\u6642\u89e3\u9664</b>\uff1b\u89e3\u9664\u5f8c\u843d\u5728\u8f09\u9ad4\u7684\u4f4d\u7f6e\uff0c\u5404\u81ea\u6062\u5fa9\u539f\u672c\u80fd\u529b\uff0c\u5408\u9ad4\u671f\u9593\u7684\u6240\u5f97 <b>9 \u6210\u7559\u7d66\u8f09\u9ad4\u30011 \u6210\u5e73\u5206\u7d66\u5408\u9ad4\u8005</b>\u3002<b>\u81ea\u7531\u7af6\u6280\u5834\u4e0d\u63a1\u7528\u5408\u9ad4\u3002</b>']],
+  'zh-Hans':[['\U0001F517','<b>\u5408\u4f53\uff08\u653b\u7565\u9b54\u5854\u00b7\u7ec4\u961f\u9650\u5b9a\uff09</b>\uff1a\u70b9\u961f\u53cb\u5217\u7684\u300c\u5408\u4f53\u300d\u94ae\uff0c\u6307\u5b9a\u4e00\u540d<b>\u8f7d\u4f53</b>\uff0c\u961f\u53cb\u7684\u653b\uff0f\u9632\uff0f\u751f\u547d\uff0f\u7b49\u7ea7\u4f1a\u4f9d\u4eba\u6570<b>\u9012\u51cf\u66f2\u7ebf</b>\u53e0\u52a0\u5230\u8f7d\u4f53\u8eab\u4e0a\uff08\u4eba\u8d8a\u591a\u6bcf\u4eba\u52a0\u6210\u8d8a\u4f4e\uff0c\u907f\u514d\u5355\u5237\uff09\uff1b\u94a5\u5319\u5219<b>\u5168\u989d\u52a0\u603b\u3001\u4e0d\u8d70\u66f2\u7ebf</b>\u3002\u88ab\u5408\u4f53\u8005<b>\u5f3a\u5236\u89c2\u6218\u8f7d\u4f53\u3001\u65e0\u6cd5\u79fb\u52a8</b>\uff0c\u4eba\u5f62\u4f1a\u4ece\u5730\u56fe\u4e0a\u6d88\u5931\uff1b\u8f7d\u4f53\u5e26\u7740\u52a0\u6210\u524d\u8fdb\uff0c\u5408\u4f53\u671f\u95f4\u53d6\u5f97\u7684\u7ecf\u9a8c\u3001\u91d1\u5e01\u4e0e\u5b9e\u7269\u90fd\u8ba1\u5165\u8f7d\u4f53\u3002\u8f7d\u4f53\u6216\u88ab\u5408\u4f53\u8005<b>\u90fd\u53ef\u968f\u65f6\u89e3\u9664</b>\uff1b\u89e3\u9664\u540e\u843d\u5728\u8f7d\u4f53\u7684\u4f4d\u7f6e\uff0c\u5404\u81ea\u6062\u590d\u539f\u672c\u80fd\u529b\uff0c\u5408\u4f53\u671f\u95f4\u7684\u6240\u5f97 <b>9 \u6210\u7559\u7ed9\u8f7d\u4f53\u30011 \u6210\u5e73\u5206\u7ed9\u5408\u4f53\u8005</b>\u3002<b>\u81ea\u7531\u7ade\u6280\u573a\u4e0d\u91c7\u7528\u5408\u4f53\u3002</b>']],
+  'en':[['\U0001F517','<b>Fusion (Tower mode, team play only)</b>: tap the "Fuse" button in the teammate bar and pick a <b>carrier</b>. Teammates\u2019 ATK/DEF/HP/Level stack onto the carrier on a <b>diminishing curve</b> (more people = less per head, to stop solo-carrying); keys are lent <b>in full, with no curve</b>. Fused players are <b>locked into spectating the carrier and cannot move</b> \u2014 their avatar vanishes from the map. The carrier advances with the combined power, and all EXP, gold and pickups earned while fused go to the carrier. Either the carrier or a fused player can <b>dissolve at any time</b>: everyone lands at the carrier\u2019s spot and gets their own stats back, and what was earned while fused is split <b>90% to the carrier, 10% shared among the fused</b>. <b>The free arena does not use fusion.</b>']],
+  'ja':[['\U0001F517','<b>\u5408\u4f53\uff08\u9b54\u5854\u653b\u7565\u30fb\u30c1\u30fc\u30e0\u9650\u5b9a\uff09</b>\uff1a\u4ef2\u9593\u30d0\u30fc\u306e\u300c\u5408\u4f53\u300d\u30dc\u30bf\u30f3\u304b\u3089<b>\u30ad\u30e3\u30ea\u30a2</b>\u3092\u6307\u5b9a\u3057\u307e\u3059\u3002\u4ef2\u9593\u306e\u653b\uff0f\u9632\uff0fHP\uff0f\u30ec\u30d9\u30eb\u304c<b>\u9013\u6e1b\u30ab\u30fc\u30d6</b>\u3067\u30ad\u30e3\u30ea\u30a2\u306b\u52a0\u7b97\u3055\u308c\uff08\u4eba\u6570\u304c\u591a\u3044\u307b\u3069\u4e00\u4eba\u3042\u305f\u308a\u306f\u5c0f\u3055\u304f\u3001\u5358\u72ec\u7121\u53cc\u3092\u9632\u6b62\uff09\u3001\u9375\u306f<b>\u5168\u984d\u3067\u5408\u7b97\uff08\u30ab\u30fc\u30d6\u306a\u3057\uff09</b>\u3002\u5408\u4f53\u3057\u305f\u4eba\u306f<b>\u30ad\u30e3\u30ea\u30a2\u306e\u5f37\u5236\u89b3\u6226\u3068\u306a\u308a\u79fb\u52d5\u4e0d\u53ef</b>\u3067\u3001\u30de\u30c3\u30d7\u4e0a\u304b\u3089\u59ff\u304c\u6d88\u3048\u307e\u3059\u3002\u5408\u4f53\u4e2d\u306b\u5f97\u305f\u7d4c\u9a13\u30fb\u91d1\u8ca8\u30fb\u30a2\u30a4\u30c6\u30e0\u306f\u3059\u3079\u3066\u30ad\u30e3\u30ea\u30a2\u306e\u3082\u306e\u3002\u30ad\u30e3\u30ea\u30a2\u3067\u3082\u5408\u4f53\u5074\u3067\u3082<b>\u3044\u3064\u3067\u3082\u89e3\u9664</b>\u3067\u304d\u3001\u89e3\u9664\u5f8c\u306f\u30ad\u30e3\u30ea\u30a2\u306e\u4f4d\u7f6e\u306b\u964d\u308a\u3001\u5404\u81ea\u306e\u80fd\u529b\u306b\u623b\u308a\u307e\u3059\u3002\u5408\u4f53\u4e2d\u306e\u53ce\u7a6b\u306f<b>9 \u5272\u304c\u30ad\u30e3\u30ea\u30a2\u30011 \u5272\u3092\u5408\u4f53\u8005\u3067\u5747\u5206</b>\u3002<b>\u30d5\u30ea\u30fc\u30a2\u30ea\u30fc\u30ca\u3067\u306f\u5408\u4f53\u3092\u4f7f\u7528\u3057\u307e\u305b\u3093\u3002</b>']],
+  'ko':[['\U0001F517','<b>\ud569\uccb4(\ub9c8\ud0d1 \uacf5\ub7b5 \u00b7 \ud300 \uc804\uc6a9)</b>: \ud300\uc6d0 \ubc14\uc758 "\ud569\uccb4" \ubc84\ud2bc\uc73c\ub85c <b>\uce90\ub9ac\uc5b4</b>\ub97c \uc9c0\uc815\ud569\ub2c8\ub2e4. \ud300\uc6d0\uc758 \uacf5/\ubc29/\uccb4\ub825/\ub808\ubca8\uc774 <b>\uccb4\uac10 \uace1\uc120</b>\uc73c\ub85c \uce90\ub9ac\uc5b4\uc5d0 \ud569\uc0b0\ub418\uba70(\uc778\uc6d0\uc774 \ub9ce\uc744\uc218\ub85d 1\uc778\ub2f9 \ubcf4\ub108\uc2a4\ub294 \uac10\uc18c, \ub2e8\ub3c5 \uce90\ub9ac \ubc29\uc9c0), \uc5f4\uc1e0\ub294 <b>\uace1\uc120 \uc5c6\uc774 \uc804\uc561 \ud569\uc0b0</b>\ub429\ub2c8\ub2e4. \ud569\uccb4\ub41c \ud50c\ub808\uc774\uc5b4\ub294 <b>\uce90\ub9ac\uc5b4\ub97c \uac15\uc81c \uad00\uc804\ud558\uba70 \uc774\ub3d9\ud560 \uc218 \uc5c6\uace0</b>, \ub9f5\uc5d0\uc11c \ubaa8\uc2b5\uc774 \uc0ac\ub77c\uc9d1\ub2c8\ub2e4. \ud569\uccb4 \uc911 \uc5bb\uc740 \uacbd\ud5d8\u00b7\uae08\ud654\u00b7\uc544\uc774\ud15c\uc740 \ubaa8\ub450 \uce90\ub9ac\uc5b4\uc5d0\uac8c \uac11\ub2c8\ub2e4. \uce90\ub9ac\uc5b4\ub098 \ud569\uccb4\ub41c \ud50c\ub808\uc774\uc5b4 <b>\ub204\uad6c\ub098 \uc5b8\uc81c\ub4e0 \ud574\uc81c</b>\ud560 \uc218 \uc788\uc73c\uba70, \ud574\uc81c \ud6c4\uc5d0\ub294 \uce90\ub9ac\uc5b4\uc758 \uc704\uce58\uc5d0 \ub0b4\ub9ac\uace0 \uac01\uc790 \uc6d0\ub798 \ub2a5\ub825\uc73c\ub85c \ub3cc\uc544\uac11\ub2c8\ub2e4. \ud569\uccb4 \uc911 \uc5bb\uc740 \uac83\uc740 <b>9\ud560\uc740 \uce90\ub9ac\uc5b4, 1\ud560\uc740 \ud569\uccb4\uc790\uc5d0\uac8c \uade0\ub4f1 \ubd84\ubc30</b>. <b>\uc790\uc720 \uacbd\uae30\uc7a5\uc740 \ud569\uccb4\ub97c \uc0ac\uc6a9\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.</b>']]
 };
 const HELP_MP_ITEMS = {
  'zh-Hant':[
@@ -5459,7 +5507,7 @@ function openHelp(){
   if(_isArena){ _list2=(HELP_ARENA_ITEMS[state.lang])||HELP_ARENA_ITEMS['zh-Hant']||[]; }   /* arena: its own help, no tower/solo items */
   else { var _mpItems=_mpMode?((HELP_MP_ITEMS[state.lang])||HELP_MP_ITEMS['zh-Hant']||[]):[]; _list2=_mpItems.concat(items); }
   var _mtag=(HELP_MODE_TAG[state.mode]&&(HELP_MODE_TAG[state.mode][state.lang]||HELP_MODE_TAG[state.mode]['zh-Hant']))||null;
-  var _fz=(state.mode==='coop'||state.mode==='raceteam'||state.mode==='arena')?((HELP_FUSE_ITEMS[state.lang])||HELP_FUSE_ITEMS['zh-Hant']||[]):[];
+  var _fz=(state.mode==='coop'||state.mode==='raceteam')?((HELP_FUSE_ITEMS[state.lang])||HELP_FUSE_ITEMS['zh-Hant']||[]):[];   /* fusion is 攻略魔塔 (mode 1) team play only — never the free arena */
   _list2=(_mtag?[['',_mtag]]:[]).concat(_list2, _fz);
   _list2.forEach(function(pair){
     const it=document.createElement('div'); it.className='helpItem nohero';
@@ -5571,7 +5619,7 @@ function tutNext(){ const _mS=t('tut.stepsM'); const _use=(!_isPC() && Array.isA
 function tutBack(){ if((state._tutI||0)>0){ state._tutI--; renderTutPage(); } }
 function tutSkip(){ hide('tutorial'); }
 function _godClamp(){ if(state.cheatActive && state.player){ if(state.player.hp<1) state.player.hp=1; return true; } return false; }
-function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } try{ playDeathSfx(); }catch(e){} if(state.mode==='solo'){ endScreen(false); return; } state.over=true; state.busy=false; try{ mpPresence(true); }catch(e){} if(isSummitMode(state.mode) && enterSpectate()) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
+function defeat(){ if(_godClamp()){ try{renderStats();}catch(e){} return; } try{ playDeathSfx(); }catch(e){} if(state.mode==='solo'){ endScreen(false); return; } state.over=true; state.busy=false; try{ var _ff=MP._fuseState; if(_ff && _ff.carrier===Net.uid && typeof fuseModeOk==='function' && fuseModeOk()){ var _fr=fuseFbRef(); if(_fr) _fr.child('dead').set(true); } }catch(e){}   /* carrier death takes the whole fused team down with it */ try{ mpPresence(true); }catch(e){} if(isSummitMode(state.mode) && enterSpectate()) return; endScreenMp(false, state.mode, null, (state.mode==='race')?computeRaceRank():null, null); }
 function renderRunScore(won){
   var el=byId('endScore'); if(!el) return;
   var s=computeRunScore(won);
@@ -5734,7 +5782,7 @@ function show(id){
   byId(id).classList.add('show');
   updateExitHint(); _syncAdminEnterBtn();
 }
-function hide(id){ byId(id).classList.remove('show'); updateExitHint(); _syncAdminEnterBtn(); }
+function hide(id){ var _el=byId(id); if(_el) _el.classList.remove('show'); updateExitHint(); _syncAdminEnterBtn(); }   /* null-safe: some overlays (e.g. #fusePanel) are created lazily, so hiding one that doesn't exist yet must be a no-op — it used to throw and abort the whole caller (goStartScreen) mid-way */
 function inLobby(){ return byId('startScreen').classList.contains('show'); }   /* admin entry is allowed only in the lobby */
 function anyOverlayOpen(){
   for(let i=0;i<OVERLAY_IDS.length;i++){ if(byId(OVERLAY_IDS[i]).classList.contains('show')) return true; }
@@ -5903,7 +5951,8 @@ function relocalizeOpen(){
 function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   opts=opts||{};
   state.mode = opts.mode || 'solo';
-  if(state.mode==='solo'){ FLOORS=25; }   /* single-player is ALWAYS the classic 25 surface floors (basement fixed at -20); independent of the cloud/MP floor config */
+  if(state.mode==='solo'){ FLOORS=25; }
+  try{ fuseUiReset(); }catch(e){}   /* a fresh run never inherits the previous game's fusion data/cache */   /* single-player is ALWAYS the classic 25 surface floors (basement fixed at -20); independent of the cloud/MP floor config */
   state.difficulty = opts.difficulty || 'normal';   /* solo -> normal (baseline); MP tower modes pass the room's difficulty */
   MP_BASE_GRID = (state.mode==='solo') ? MAP_N_SOLO : clamp((opts.mapSize|0)||30, 20, 48); GRID = MP_BASE_GRID;   /* base = configured size; per-floor GRID set on floor change (special floors use view size) */
   state.worldId = opts.worldId || null;
@@ -7044,11 +7093,13 @@ function computeRaceRank(){
 /* ---------------------------- start screen ---------------------------- */
 function goStartScreen(){ try{ stopDeathSfx(); }catch(e){}
   var _wasMP=!!(state.mpStarted || state._inLobby || (state.mode && state.mode!=='solo') || (typeof Net!=='undefined' && Net.worldId));
+  try{ fuseQuitCleanup(); }catch(e){}   /* MUST run before state.mode flips to solo below, or fuseFbRef() can't resolve the room */
   try{ clearTimeout(combatTimer); }catch(e){} state.combat=null; state.busy=false; state.target=null;   /* 退出回主畫面：強制中止戰鬥——取消回合排程，並把 state.combat 設為 null，逐發動畫/音效迴圈下一步即自停 */
   state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false; state.portalAim=false; state.portalTarget=null;
   if(Net.worldId) Net.leaveWorld();
-  ['combat','shop','manual','teleport','endScreen','lobby','mpPanel','arenaField','afShop','arenaPrep','arenaStage','arenaDuel','arenaEnd'].forEach(hide);
+  ['combat','shop','manual','teleport','endScreen','lobby','mpPanel','arenaField','afShop','arenaPrep','arenaStage','arenaDuel','arenaEnd','fusePanel'].forEach(hide);
   { const _r=byId('mpRoster'); if(_r) _r.classList.remove('show'); const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
+  try{ fuseUiReset(); }catch(e){}   /* leaving a run must not leave the fusion panel/button (or a stale 合體·N label) on screen */
   try{ stopRaceCountdown(); }catch(e){} state.raceEndsAt=0; state._raceCdEnded=false;
   try{ Net.unwatchLobby(); }catch(e){} state._spectator=false;
   state.spectating=false; state.specUid=null;
@@ -7643,7 +7694,7 @@ function afHideCardPop(){ var p=byId('afCardPop'); if(p) p.style.display='none';
 function afFrame(ts){
   var f=AField; if(!f) return;
   if(!f.last) f.last=ts; var dt=(ts-f.last)/1000; f.last=ts;
-  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); afRenderCards(); afRenderStats(); try{ renderFuseBtnArena(); }catch(e){} try{ afSpawnAI(); }catch(e){} { var _afx=byId('afExit'); if(_afx && state.mode==='arena' && _afx.style.display!=='none') _afx.style.display='none'; } f.raf=requestAnimationFrame(afFrame);
+  afApplyDuelPositions(); afStep(dt); afSync(); afDraw(); afRenderShopBtn(); afRenderDuelOverlay(); afFightPanelRender(); afRenderCards(); afRenderStats(); try{ afSpawnAI(); }catch(e){} { var _afx=byId('afExit'); if(_afx && state.mode==='arena' && _afx.style.display!=='none') _afx.style.display='none'; } f.raf=requestAnimationFrame(afFrame);
 }
 function afKeyDown(e){ var f=AField; if(!f) return; var k=e.key; if(k==='Tab'){ afShowScoreboard(true); if(e.preventDefault) e.preventDefault(); return; } if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=true;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=true;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=true;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=true;} else return; if(e.preventDefault) e.preventDefault(); }
 function afKeyUp(e){ var f=AField; if(!f) return; var k=e.key; if(k==='Tab'){ afShowScoreboard(false); if(typeof afHideCardTip==='function') afHideCardTip(); return; } if(k==='ArrowLeft'||k==='a'||k==='A'){f.keys.left=false;} else if(k==='ArrowRight'||k==='d'||k==='D'){f.keys.right=false;} else if(k==='ArrowUp'||k==='w'||k==='W'){f.keys.up=false;} else if(k==='ArrowDown'||k==='s'||k==='S'){f.keys.down=false;} }
@@ -7686,8 +7737,7 @@ function afPickTeam(team){ var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.p
 function afRandomTeams(){ if(!afIsHost()) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; if(ph!=='wait'&&ph!=='shop') return; var ids=[Net.uid]; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(u!==Net.uid) ids.push(u); } ids=arenaShuffle(ids); var map={}, half=Math.ceil(ids.length/2); for(var k=0;k<ids.length;k++){ map[ids[k]]=(k<half)?'A':'B'; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('teamAssign').set(map); }catch(e){} } afOnTeamAssign(map); }
 function afOnTeamAssign(map){ if(!map || typeof MP==='undefined' || !MP.arena) return; MP.arena.teamAssign=map; var mine=map[Net.uid]; if(mine==='A'||mine==='B'){ MP.arena.myTeam=mine; if(AField){ AField.team=mine; AField.lastSync=0; afSync(); } } afRenderTeamBar(); }
 function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase&&MP.arena.phase.name)||null; var showBar=false; bar.style.display='none'; if(!showBar) return;   /* team selection moved to the waiting room; no in-field team bar */ var cnt=afTeamCounts(), my=(MP.arena&&MP.arena.myTeam)||'A'; var ba=byId('afTeamA'), bb=byId('afTeamB'), br=byId('afTeamRand'); if(ba){ ba.textContent=t('mp.afTeamA')+' ('+cnt.A+')'; ba.classList.toggle('sel',my==='A'); } if(bb){ bb.textContent=t('mp.afTeamB')+' ('+cnt.B+')'; bb.classList.toggle('sel',my==='B'); } if(br){ br.style.display=afIsHost()?'':'none'; br.textContent=t('mp.afTeamRand'); } }
-function _afFuseOut(uid,team){ var fu=(MP.arena&&MP.arena.fusion&&MP.arena.fusion[team])||null; return !!(fu && fu.carrier && fu.carrier!==uid && fu.fusers && fu.fusers[uid]); }
-function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A'){ if(!_afFuseOut(meUid,'A'))A.push(meUid); } else if(my==='B'){ if(!_afFuseOut(meUid,'B'))B.push(meUid); } var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A'){ if(!_afFuseOut(u,'A'))A.push(u); } else if(tm==='B'){ if(!_afFuseOut(u,'B'))B.push(u); } } return {A:A,B:B}; }
+function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A')A.push(meUid); else if(my==='B')B.push(meUid); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')A.push(u); else if(tm==='B')B.push(u); } return {A:A,B:B}; }   /* the arena never uses fusion, so everyone on the team is in the duel lottery */
 function afAllFieldUids(){ var ids=[Net.uid||'me']; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(ids.indexOf(u)<0) ids.push(u); } return ids; }
 function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myName||'你'); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; if(fp[uid]&&fp[uid].name) return fp[uid].name; var mem=MP.members||{}; if(mem[uid]&&mem[uid].name) return mem[uid].name; return uid; }
 function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+1500, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
@@ -7714,7 +7764,7 @@ function afFightEnd(res){ var ar=MP.arena; if(!ar||!ar.afDuel) return; if(res===
 function afAdvanceMatch(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d) return; d.fought=(d.fought||[]).concat([d.a,d.b]); ar.afD=null; ar.afFightView=null; afStartDuelSequence(); }
 function afShowEnd(sA,sB,results){ if(typeof MP!=='undefined'&&MP.arena){ if(MP.arena._afEnded) return; MP.arena._afEnded=true; } var winTxt=(sA>sB)? (t('mp.afTeamA')+t('mp.afWin')) : (sB>sA? (t('mp.afTeamB')+t('mp.afWin')) : t('mp.arenaTie')); { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); } { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } } { var e=byId('aeScore'); if(e) e.textContent=t('mp.afTeamA')+' '+sA+' : '+sB+' '+t('mp.afTeamB'); } var list=byId('aeList'); if(list){ list.innerHTML=''; for(var i=0;i<results.length;i++){ var r=results[i], aw=(r.result==='A'), bw=(r.result==='B'), dr=(r.result==='draw'); var row=document.createElement('div'); row.className='aeRow'; var na=document.createElement('span'); na.className='aeNm'+(aw?' aeWinner':(bw?' aeLoser':'')); na.textContent=(r.an||afDuelName(r.a))+(aw?'  ✓':''); var mid=document.createElement('span'); mid.className='aeMid'+(dr?' aeDraw':''); mid.textContent=dr? t('mp.arenaDraw') : 'VS'; var nb=document.createElement('span'); nb.className='aeNm'+(bw?' aeWinner':(aw?' aeLoser':'')); nb.textContent=(bw?'✓  ':'')+(r.bn||afDuelName(r.b)); row.appendChild(na); row.appendChild(mid); row.appendChild(nb); list.appendChild(row); } } { var e=byId('aeBack'); if(e) e.textContent=t('mp.arenaBack'); } afClose(); show('arenaEnd'); try{ updateBGM(); }catch(_e){}   /* 最終結算：平時曲 */ }
 function afOnEnd(end){ if(end) afShowEnd(end.scoreA||0, end.scoreB||0, end.results||[]); }
-function afSkillPress(id){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; var side=(Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); if(!side) return; if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ var D=ar.afD; if(!D) return; var me=(side==='A')?D.A:D.B; var _spFoe=(side==='A')?D.B:D.A; var _ok=(id==='crit')?(me.en>=20):(id==='breath')?true:(arenaIsCard(id)?arenaCanUseCard(me,id,_spFoe):arenaCanUse(me,id,_spFoe)); if(!_ok){ try{ toast(t('cb.needEnStam')); }catch(e){} return; } D[(side==='A')?'aAct':'bAct']=id; } else { try{ Net.arenaRef.child('req/'+Net.uid).set({ skill:id, round:(ar.afFightView&&ar.afFightView.round)||0, at:(Net.ts?Net.ts():Date.now()) }); }catch(e){} ar._myReq=id; } afFightPanelRender(); }
+function afSkillPress(id){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return; var side=(Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); if(!side) return; if(MP.host || !(typeof Net!=='undefined'&&Net.arenaRef)){ var D=ar.afD; if(!D) return; var me=(side==='A')?D.A:D.B; var _spFoe=(side==='A')?D.B:D.A; var _ok=(id==='crit')?(me.en>=20):(id==='breath')?((me.stam|0)<100||(me.en|0)<100):(arenaIsCard(id)?arenaCanUseCard(me,id,_spFoe):arenaCanUse(me,id,_spFoe));   /* arena breath restores BOTH energy and stamina, so it's only pointless when both are already full */ if(!_ok){ try{ toast(t('cb.needEnStam')); }catch(e){} return; } D[(side==='A')?'aAct':'bAct']=id; } else { try{ Net.arenaRef.child('req/'+Net.uid).set({ skill:id, round:(ar.afFightView&&ar.afFightView.round)||0, at:(Net.ts?Net.ts():Date.now()) }); }catch(e){} ar._myReq=id; } afFightPanelRender(); }
 function afFighterStatus(f){ if(!f) return ''; if(f._stunned) return 'stun'; if((f.shieldHits||0)>0 || (f._shield||0)>0 || (f._block||0)>0) return 'shield'; if((f.atkBuff||0)>0 || (f._rampAtk||0)>0) return 'buff'; return ''; }
 function afStatusLabel(code){ return code==='stun'?t('mp.afStatusStun'):code==='shield'?t('mp.afStatusShield'):code==='buff'?t('mp.afStatusBuff'):t('mp.afStatusNormal'); }
 function afMyFightSide(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel; if(!d||d.sub!=='fight') return null; return (Net.uid===d.a)?'A':((Net.uid===d.b)?'B':null); }
@@ -7736,7 +7786,7 @@ function afpBuildSkills(side){ var ar=MP.arena, D=ar&&ar.afD, host=(MP.host||!(t
   var nA=ATK_SKILLS.length, nD=DEF_SKILLS.length; var ai=((((AField&&AField._afAtkIdx)||0)%nA)+nA)%nA, di=((((AField&&AField._afDefIdx)||0)%nD)+nD)%nD; var atkS=ATK_SKILLS[ai], defS=DEF_SKILLS[di];
   var qd=(host&&D)?D[(side==='A')?'aAct':'bAct']:(ar._myReq||null);
   function esc(s){ return (''+s).replace(/[<>&]/g,function(c){return c==='<'?'&lt;':c==='>'?'&gt;':'&amp;';}); }
-  var _foeS=(host&&D)?((side==='A')?D.B:D.A):null; function dis(id){ if(!(host&&me)) return false; return (id==='crit')?(me.en<20):(id==='breath')?false:!arenaCanUse(me,id,_foeS); }
+  var _foeS=(host&&D)?((side==='A')?D.B:D.A):null; function dis(id){ if(!(host&&me)) return false; return (id==='crit')?(me.en<20):(id==='breath')?((me.stam|0)>=100&&(me.en|0)>=100):!arenaCanUse(me,id,_foeS); }
   function act(cls,a,id,label,kbd){ return '<button class="afpAct '+cls+(qd===id?' queued':'')+'" data-a="'+a+'"'+(dis(id)?' disabled':'')+'><span class="afpSkN">'+esc(label)+'</span><span class="kbd">'+kbd+'</span></button>'; }
   var html='<div class="afpSkRow"><button class="afpSwArr" data-a="ap">\u25c0</button>'+act('atkS','atk',atkS.id,skillName(atkS.id),'Z')+'<button class="afpSwArr" data-a="an">\u25b6</button></div>'
     +'<div class="afpSkRow"><button class="afpSwArr" data-a="dp">\u25c0</button>'+act('defS','def',defS.id,skillName(defS.id),'X')+'<button class="afpSwArr" data-a="dn">\u25b6</button></div>'
@@ -8433,7 +8483,6 @@ function onArenaUpdate(data){
   if(data && data.afDuel) afOnDuel(data.afDuel);
   if(data && data.afFight) afOnFight(data.afFight);
   if(data && data.afEnd) afOnEnd(data.afEnd);
-  { MP.arena.fusion=(data&&data.fusion)||{}; var _fmt=(MP.arena.myTeam)||'A'; try{ fuseReconcile((MP.arena.fusion[_fmt])||null); }catch(e){} try{ fusePayoutApply((data&&data.fusePayout)||null); }catch(e){} }   /* arena fusion: carrier gets combined stats; fused players are excluded from the duel lottery (afFieldTeams) */
   if(MP.arena){ MP.arena.skipReady=(data&&data.skipReady)||{}; if(MP.host) afCheckSkipConsensus(); }   /* skip-wait consensus */
   arenaCheckAllReady();
 }
@@ -10167,7 +10216,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·323'; }
+    bt.textContent='build 0618·328'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10175,7 +10224,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·323'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·328'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
