@@ -7223,18 +7223,22 @@ function afEnsureEvenTotal(){ if(typeof MP==='undefined'||MP.mode!=='arena') ret
 function afCanStart(){
   if(typeof MP==='undefined' || MP.mode!=='arena') return {ok:true};
   var members=MP.members||{};
-  /* robust human list: members + self + host, deduped — the host must be checked even if not yet in the members snapshot */
-  var humans=Object.keys(members);
+  /* robust human list: members + self + host, deduped — the host must be checked even if not yet in the members snapshot.
+     AI ids can already sit in members, so filter them out or they'd be counted twice against arenaAICount(). */
+  var humans=Object.keys(members).filter(function(u){ return !/^AI/.test(u); });
   if(typeof Net!=='undefined' && Net.uid && humans.indexOf(Net.uid)<0) humans.push(Net.uid);
   if(MP.meta && MP.meta.host && humans.indexOf(MP.meta.host)<0) humans.push(MP.meta.host);
   var _nAI=(typeof arenaAICount==='function')?arenaAICount():0;
-  if((humans.length+_nAI) < 2) return {ok:false, why:'tooFew'};   /* need >= 2 participants (players or AI) */
-  var mode=(typeof roomCfg==='function')?roomCfg().arenaTeamMode:'random'; if(mode!=='free') return {ok:true};   /* random = auto-balanced at start */
+  var _tot=humans.length+_nAI;
+  if(_tot < 2) return {ok:false, why:'tooFew'};   /* need >= 2 participants (players or AI) */
+  if(_tot % 2) return {ok:false, why:'odd', tot:_tot};   /* an ODD total can never split into two equal sides: 3/5/7/9 used to slip straight through in random-team mode */
+  var mode=(typeof roomCfg==='function')?roomCfg().arenaTeamMode:'random';
   var teams=(MP.meta&&MP.meta.teams)||{};
+  if(mode!=='free') return {ok:true};   /* random: afBalanceTeams() splits an even total exactly in half at start */
   for(var i=0;i<humans.length;i++){ if(teams[humans[i]]!=='A' && teams[humans[i]]!=='B') return {ok:false, why:'unpicked'}; }   /* ANY human (incl. host) unpicked -> block */
   var a=0,b=0; for(var j=0;j<humans.length;j++){ if(teams[humans[j]]==='A')a++; else if(teams[humans[j]]==='B')b++; }
   var ait=(typeof arenaAiTeams==='function')?arenaAiTeams():{}; for(var k in ait){ if(ait[k]==='A')a++; else if(ait[k]==='B')b++; }
-  if(Math.abs(a-b)>1) return {ok:false, why:'unbalanced'};
+  if(a!==b) return {ok:false, why:'unbalanced', a:a, b:b};   /* must be EQUAL, not merely within one (2v1 is not a fair arena) */
   return {ok:true};
 }
 function afBalanceTeams(){
@@ -8597,7 +8601,7 @@ function arenaAIBuyWeights(cards){
 function arenaAIBuild(uid){
   var seed=(typeof MP!=='undefined'&&MP.seed)?MP.seed:1;
   var h=hashSeed(seed>>>0, _aiHash(uid))>>>0;
-  var buys=Math.max(0, Math.floor((ARENA_GOLD||0)/Math.max(1,ARENA_BUY.atk.cost)));   // total purchases available (same budget as a player)
+  var buys=Math.max(0, Math.floor((ARENA_GOLD||0)/Math.max(1,(typeof arenaBuyCost==='function')?arenaBuyCost():ARENA_BUY_BASE)));   // spend the WHOLE budget, at the price a real player actually pays (arenaBuyCost, flat 25) — the old ARENA_BUY.*.cost field is vestigial (100) and quietly gave every AI only a quarter of a player's purchases
   var hp=START.hp, atk=START.atk, def=START.def;
   var cards=(typeof arenaAICards==='function')?arenaAICards(uid):[];   // the AI reads its OWN drafted cards
   var wt=arenaAIBuyWeights(cards);                                     // and spends its ability points to match them (not a random personality)
@@ -9268,7 +9272,7 @@ function bindMpInput(){
   { const _bh=byId('lbBackHome'); if(_bh) _bh.addEventListener('click',function(){ try{ Net.unwatchLobby(); }catch(_e){} goStartScreen(); }); }
   const j=byId('lbJoin'); if(j) j.addEventListener('click',doJoin);
   const cp=byId('lbCopy'); if(cp) cp.addEventListener('click',copyCode);
-  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ var _mode=(typeof MP!=='undefined'&&MP.meta&&MP.meta.mode)||MP.mode; if(_mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } else if(_mode==='race'||_mode==='raceteam'){ var _np=(typeof rtAllPlayers==='function')?rtAllPlayers().length:1; if(_np<2){ toast(t('mp.afNeedTwo')); return; } if(_mode==='raceteam'){ var _tt=rtFinalTeams();   /* start uses the displayed teams (meta.teams: picks in pick-mode, host auto-assign in random-mode) */ var _ta=0,_tb=0,_uu; for(_uu in _tt){ if(_tt[_uu]==='A')_ta++; else if(_tt[_uu]==='B')_tb++; } if(_ta!==_tb){ toast(t('mp.rtNeedEven',{a:_ta,b:_tb})); return; }   /* team race: both sides must have EQUAL players (blocks empty side + odd totals like 3 -> 2v1) */ } } Net.startWorld(_mode==='raceteam'?rtFinalTeams():null); });   /* validate before starting for EVERY mode; use the authoritative room mode so a mode change can't slip a solo start through */
+  const st=byId('lbStart'); if(st) st.addEventListener('click',function(){ var _mode=(typeof MP!=='undefined'&&MP.meta&&MP.meta.mode)||MP.mode; if(_mode==='arena'){ afEnsureEvenTotal(); var _chk=afCanStart(); if(!_chk.ok){ toast(_chk.why==='tooFew'? t('mp.afNeedTwo') : _chk.why==='odd'? t('mp.afNeedEven',{n:_chk.tot}) : _chk.why==='unpicked'? t('mp.afNeedTeam') : t('mp.afNeedBalance')); return; } try{ if(roomCfg().arenaTeamMode!=='free') afBalanceTeams(); }catch(e){} } else if(_mode==='race'||_mode==='raceteam'){ var _np=(typeof rtAllPlayers==='function')?rtAllPlayers().length:1; if(_np<2){ toast(t('mp.afNeedTwo')); return; } if(_mode==='raceteam'){ var _tt=rtFinalTeams();   /* start uses the displayed teams (meta.teams: picks in pick-mode, host auto-assign in random-mode) */ var _ta=0,_tb=0,_uu; for(_uu in _tt){ if(_tt[_uu]==='A')_ta++; else if(_tt[_uu]==='B')_tb++; } if(_ta!==_tb){ toast(t('mp.rtNeedEven',{a:_ta,b:_tb})); return; }   /* team race: both sides must have EQUAL players (blocks empty side + odd totals like 3 -> 2v1) */ } } Net.startWorld(_mode==='raceteam'?rtFinalTeams():null); });   /* validate before starting for EVERY mode; use the authoritative room mode so a mode change can't slip a solo start through */
   { var _res=byId('lbEditSave'); if(_res) _res.addEventListener('click',saveRoomEdit);
     var _ren=byId('lbEditName'); if(_ren) _ren.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } });
     var _rep=byId('lbEditPass'); if(_rep) _rep.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); saveRoomEdit(); } }); }
@@ -9515,6 +9519,13 @@ const I18N_CUST = {
   'ko':{fuse:'합체',fuseOn:'합체·',fusePick:'합체 대상 선택(능력이 합산됨):',fuseStatus:'대상: {n} · 합체 {c}명',fuseDissolve:'합체 해제',fuseLeave:'합체 나가기',fuseJoin:'합체 참가',fuseStarted:'합체 시작'}
 }; for(var L in F){ if(I18N[L] && I18N[L].mp){ for(var k in F[L]) I18N[L].mp[k]=F[L][k]; } } })();
 (function(){ var G={'zh-Hant':'訪客','zh-Hans':'访客','en':'Guest','ja':'ゲスト','ko':'게스트'}; for(var L in G){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.guest=G[L]; } })();
+(function(){ var E={
+ 'zh-Hant':'參加人數需為雙數才能開始（目前 {n} 人）——請增減 AI 數量或玩家',
+ 'zh-Hans':'参加人数需为双数才能开始（目前 {n} 人）——请增减 AI 数量或玩家',
+ 'en':'The total must be an even number to start (currently {n}) — adjust the AI count or players',
+ 'ja':'参加人数は偶数でなければ開始できません（現在 {n} 人）—— AI 数か人数を調整してください',
+ 'ko':'참가 인원은 짝수여야 시작할 수 있습니다(현재 {n}명) —— AI 수나 인원을 조정하세요'
+}; for(var L in E){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afNeedEven=E[L]; } })();
 const I18N_ARENA_CFG={
  'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'遞增上限R',arLsCap:'吸血上限%',arSustain:'續航倍率%',arScaleAtk:'進攻縮放%'}},
  'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'递增上限R',arLsCap:'吸血上限%',arSustain:'续航倍率%',arScaleAtk:'进攻缩放%'}},
@@ -10252,7 +10263,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·332'; }
+    bt.textContent='build 0618·333'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10260,7 +10271,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·332'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·333'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
