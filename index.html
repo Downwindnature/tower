@@ -1376,6 +1376,19 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 .statRow>.v, .cbRow>.v{ margin-left:7px; }   /* the value never hugs the colon */
 .statList .statRow>.v{ flex:1 1 auto; text-align:center; }   /* left column: every value centred */
 .statList .statRow{ gap:4px; }
+
+/* ---- bestiary row: portrait box on the left, three label:value lines on the right ---- */
+.monRow{align-items:flex-start;}
+.monRow>.mFace{flex:0 0 auto;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:26px;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.25);}
+.monRow>.info{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:3px;}
+.monRow .mLn{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;}
+.monRow .mFld{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap;}
+.monRow .mK{font-size:11px;color:var(--txt-dim);font-weight:600;}
+.monRow .mV{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--txt);}
+.monRow .mFld:has(.tagAb){white-space:normal;}
+.monRow .mV .tagAb{margin-right:3px;}
+.monRow .mNone{font-size:11px;color:var(--txt-dim);}
+@media(max-width:520px){ .monRow .mLn{gap:3px 9px;} .monRow .mK{font-size:10px;} .monRow .mV{font-size:12px;} }
 </style>
 </head>
 <body>
@@ -5077,14 +5090,16 @@ function renderManual(){
     const pred=predictDamage(foe);
     const row=document.createElement('div'); row.className='shopOpt monRow'+(idx===state.manualIdx?' sel':'');
     const abTag=abList(foe).map(function(_a){return '<span class="tagAb '+_a+'">'+t('ab.'+_a)+'</span>';}).join('')+(foe.drains?('<span class="tagAb drain">'+t('ab.drain')+'</span>'):'');
+    var _fld=function(k,v,cls){ return '<span class="mFld"><span class="mK">'+k+':</span><span class="mV'+(cls?' '+cls:'')+'">'+v+'</span></span>'; };
+    var _ab=abTag||('<span class="mNone">'+t('manual.effNone')+'</span>');
+    var _cnt=(foe.atkcMax&&foe.atkcMax>(foe.atkc||1)) ? ((foe.atkc||1)+'~'+foe.atkcMax) : String(foe.atkc||1);   /* attack count straight from the cloud-configured foe */
     row.innerHTML=
-      '<div style="font-size:26px;width:40px;text-align:center">'+(foe.img?('<img src="'+foe.img+'" alt="" style="width:34px;height:34px;object-fit:contain;border-radius:5px;vertical-align:middle">'):foe.face)+'</div>'+
-      '<div class="info"><div class="ttl">'+monName(foe)+' '+abTag+'</div>'+
-      '<div class="mstats">HP <span class="num">'+foe.maxhp+'</span> · '+t('cb.atk')+' <span class="num">'+foe.atk+'</span> · '+t('cb.def')+' <span class="num">'+foe.def+'</span>'+
-      (((foe.atkc||1)>1||(foe.atkcMax||0)>0)?(' · '+t('ab.multi')):'')+' · '+t('shop.gold')+' <span class="num">'+foe.gold+'</span> · '+t('shop.exp')+' <span class="num">'+foe.exp+'</span></div></div>'+
-      '<div class="dmgpred"><div class="k">'+(pred.killable?fmt(t('manual.kill'),{n:pred.rounds}):t('manual.cantHurt'))+'</div>'+
-      '<div class="v '+pred.cls+'">'+(pred.killable?(''+pred.dmg):'—')+'</div>'+
-      '<div class="k">'+t('manual.take')+'</div></div>';
+      '<div class="mFace">'+(foe.img?('<img src="'+foe.img+'" alt="" style="width:34px;height:34px;object-fit:contain;border-radius:5px">'):foe.face)+'</div>'+
+      '<div class="info">'+
+        '<div class="mLn">'+_fld(t('manual.mName'), monName(foe))+_fld(t('manual.mAb'), _ab)+'</div>'+
+        '<div class="mLn">'+_fld(t('manual.mHp'), foe.maxhp)+_fld(t('manual.mAtk'), foe.atk)+_fld(t('manual.mDef'), foe.def)+'</div>'+
+        '<div class="mLn">'+_fld(t('manual.mAtkc'), _cnt)+_fld(t('manual.mDmg'), (pred.killable?(''+pred.dmg):'\u2014'), pred.cls)+_fld(t('shop.exp'), foe.exp)+_fld(t('shop.gold'), foe.gold)+'</div>'+
+      '</div>';
     row.addEventListener('click',function(){ state.manualIdx=idx; state.manualDetail=true; renderManual(); });   /* mobile: tap a monster to view full info */
     body.appendChild(row);
   });
@@ -5606,7 +5621,7 @@ function showStory(key, onDone){
   state._stKey=key;
   state._stPages = t('story.'+key) || []; state._stI=0; state._stDone=onDone||null;
   byId('storyTitle').textContent = t('story.'+key+'T');
-  { const _gm={intro:'📜',boss:'',final:'👹'}; const _ge=byId('storyGlyph'); if(_ge){ const _g=(_gm[key]!=null?_gm[key]:'📜'); _ge.textContent=_g; _ge.style.display=_g?'':'none'; } }
+  { const _gm={intro:'📜',boss:'',final:''};   /* the final boss's last words carry themselves — no emoji above them */ const _ge=byId('storyGlyph'); if(_ge){ const _g=(_gm[key]!=null?_gm[key]:'📜'); _ge.textContent=_g; _ge.style.display=_g?'':'none'; } }
   renderStoryPage(); show('story');
 }
 function renderStoryPage(){
@@ -5661,7 +5676,8 @@ function endScreen(win){
   const pl=state.player; const es=byId('endStats');
   const cell=function(k,v){return '<div class="es"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';};
   es.innerHTML=cell(t('end.floor'),state.floor)+cell(t('end.lv'),pl.lv)+cell(t('end.kills'),state.kills)+
-               cell(t('end.gold'),pl.gold)+cell(t('end.atk'),effAtk(pl))+cell(t('end.def'),effDef(pl));
+               cell(t('end.gold'),pl.gold)+cell(t('end.atk'),effAtk(pl))+cell(t('end.def'),effDef(pl))+
+               cell(t('end.time'), fmtDur(state.startTime?(Date.now()-state.startTime):0));
   try{ renderRunScore(win); }catch(e){}
   { const _rw=byId('endRankWrap'), _rb=byId('endRankBtn'), _ri=byId('endRankName');
     if(_rw&&_rb){ const _can = win && (typeof Net!=='undefined' && Net.db && Net.uid);
@@ -7566,6 +7582,12 @@ const SCORE_CFG={ abAtk:1, abDef:1, abLv:20, monKill:12, monFloor:20, timeBase:6
 const SCORE_KEYS=['abAtk','abDef','abLv','monKill','monFloor','timeBase','timeRate','winBonus'];
 function scoreApplyCfg(s){ if(!s) return; SCORE_KEYS.forEach(function(k){ if(s[k]!=null) SCORE_CFG[k]=s[k]; }); }
 function scoreSnapshotCfg(){ return Object.assign({}, SCORE_CFG); }
+function fmtDur(ms){   /* run duration as H:MM:SS (or M:SS under an hour) */
+  var s=Math.max(0,Math.floor((ms||0)/1000));
+  var hh=Math.floor(s/3600), mm=Math.floor((s%3600)/60), ss=s%60;
+  var p=function(n){ return (n<10?'0':'')+n; };
+  return hh>0 ? (hh+':'+p(mm)+':'+p(ss)) : (mm+':'+p(ss));
+}
 function computeRunScore(won){
   var pl=(state&&state.player)||{};
   var atk=(typeof effAtk==='function')?effAtk(pl):(pl.atk||0);
@@ -9563,6 +9585,8 @@ const I18N_CUST = {
  'ja':'待機時間終了 —— システムが残りのカードを自動で選びました',
  'ko':'대기 시간 종료 —— 시스템이 남은 카드를 자동으로 뽑았습니다'
 }; for(var L in D){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afAutoDraft=D[L]; } })();
+(function(){ var M={"zh-Hant": {"mName": "怪物名稱", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻擊力", "mDef": "防禦力", "mAtkc": "攻擊次數", "mDmg": "估計傷害"}, "zh-Hans": {"mName": "怪物名称", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻击力", "mDef": "防御力", "mAtkc": "攻击次数", "mDmg": "估计伤害"}, "en": {"mName": "Name", "mAb": "Ability", "mHp": "HP", "mAtk": "ATK", "mDef": "DEF", "mAtkc": "Hits", "mDmg": "Est. damage"}, "ja": {"mName": "名前", "mAb": "特殊能力", "mHp": "HP", "mAtk": "攻撃力", "mDef": "防御力", "mAtkc": "攻撃回数", "mDmg": "推定ダメージ"}, "ko": {"mName": "이름", "mAb": "특수 능력", "mHp": "생명", "mAtk": "공격력", "mDef": "방어력", "mAtkc": "공격 횟수", "mDmg": "예상 피해"}}; for(var L in M){ if(I18N[L]&&I18N[L].manual){ for(var k in M[L]) I18N[L].manual[k]=M[L][k]; } }
+  var E={"zh-Hant": "用時時間", "zh-Hans": "用时时间", "en": "Time", "ja": "所要時間", "ko": "소요 시간"}; for(var L2 in E){ if(I18N[L2]&&I18N[L2].end) I18N[L2].end.time=E[L2]; } })();
 const I18N_ARENA_CFG={
  'zh-Hant':{admin:{arenaParams:'擂台參數',arGold:'初始金幣',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻擊+',arAtkCost:'攻擊金',arDefInc:'防禦+',arDefCost:'防禦金',arAiHp:'AI生命',arAiAtk:'AI攻擊',arAiDef:'AI防禦',arTickMs:'節奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'遞增上限R',arLsCap:'吸血上限%',arSustain:'續航倍率%',arScaleAtk:'進攻縮放%'}},
  'zh-Hans':{admin:{arenaParams:'擂台参数',arGold:'初始金币',arHpInc:'生命+',arHpCost:'生命金',arAtkInc:'攻击+',arAtkCost:'攻击金',arDefInc:'防御+',arDefCost:'防御金',arAiHp:'AI生命',arAiAtk:'AI攻击',arAiDef:'AI防御',arTickMs:'节奏ms',arMaxRd:'最大回合',arDotCap:'DoT上限%',arRampCap:'递增上限R',arLsCap:'吸血上限%',arSustain:'续航倍率%',arScaleAtk:'进攻缩放%'}},
@@ -10300,7 +10324,7 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·337'; }
+    bt.textContent='build 0618·338'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
@@ -10308,7 +10332,7 @@ function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   adminDraft = snapshotConfig();
   localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·337'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·338'; }
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
