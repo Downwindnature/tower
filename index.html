@@ -1389,6 +1389,18 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 .monRow .mV .tagAb{margin-right:3px;}
 .monRow .mNone{font-size:11px;color:var(--txt-dim);}
 @media(max-width:520px){ .monRow .mLn{gap:3px 9px;} .monRow .mK{font-size:10px;} .monRow .mV{font-size:12px;} }
+
+/* ---- admin: name language dropdown ---- */
+.adNlPick{display:flex;gap:6px;align-items:center;}
+.adNlSel{padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px;flex:0 0 auto;}
+.adNlOne{flex:1 1 auto;min-width:0;padding:3px 7px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:13px;}
+.adFaceBlk .adImgField{margin:0;}
+
+/* ---- admin: titled sub-sections (mockup block layout) ---- */
+.adSec{border:1px solid var(--line);border-radius:9px;padding:7px 10px 9px;margin:3px 0;background:rgba(255,255,255,.015);}
+.adSecTitle{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.04em;margin-bottom:6px;}
+.adSecGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:6px;}
+.adSec .adField{margin:0;}
 </style>
 </head>
 <body>
@@ -3062,13 +3074,14 @@ function genFloorRaw(f){
   if(_realFloor>0){ const rf=f; const _dd=curDifficulty(); roster=_ALLMON.filter(function(m){
       if(m.b20) return false;
       if((m.sMin|0)>0){
+        if(m.mpArenaOnly && state.mode!=='raceteam') return false;                        // arena-only monsters skip solo/coop
         if(diffRank(_dd) < diffRank(m.minDiff||'easy')) return false;                     // per-monster minDiff gate
         var emin=clamp(Math.round((m.sMin|0)*diffFactor(_dd)),1,(m.sMax|0));               // difficulty shifts the lower bound
         return rf>=emin && rf<=(m.sMax|0);
       }
       return _basementOnSurface(m, rf);                                                    // Part B: basement mobs on the surface (mode 1, by difficulty)
     }); }   // surface floor: difficulty-adjusted roster for the DESIGN floor (content floors remap onto the base 24-floor roster on tall towers)
-  else { const dp=-_realFloor; const _dd=curDifficulty(); roster=_ALLMON.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && diffRank(_dd)>=diffRank(m.minDiff||'easy') && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }   // basement: monsters whose basement-depth range covers this depth (minDiff gate applies; depth-based, no floor shift)
+  else { const dp=-_realFloor; const _dd=curDifficulty(); roster=_ALLMON.filter(function(m){ return !m.b20 && (m.bMin|0)>0 && !(m.mpArenaOnly && state.mode!=='raceteam') && diffRank(_dd)>=diffRank(m.minDiff||'easy') && dp>=(m.bMin|0) && dp<=(m.bMax|0); }); }   // basement: monsters whose basement-depth range covers this depth (minDiff gate applies; depth-based, no floor shift)
   { const _wl=(typeof FLOOR_WL!=='undefined'&&FLOOR_WL[_realFloor])?FLOOR_WL[_realFloor]:null; if(_wl&&_wl.length){ const _w=_ALLMON.filter(function(m){ return !m.b20 && _wl.indexOf(m.id)>=0; }); if(_w.length) roster=_w; } }   // per-floor whitelist (admin Map tab): if set, this floor spawns ONLY the listed monsters
   const weakRoster=roster.filter(function(m){return startCanPierce(scaleFoe(m,f));});
   // (wandering-monster placement moved below, to AFTER the 3x3 vaults — so a vault carves on an empty maze and spawns reliably; monsters then fill the remaining free cells around it)
@@ -4460,12 +4473,27 @@ function playAttackFx(side, kind, crit, snd, noSnd){
   setTimeout(function(){ if(fx.parentNode) fx.parentNode.removeChild(fx); }, dur);
   return dur;
 }
+const BOSS_SHIELD_KEYS=[['bossBarrier','fxBossBarrier'],['bossReflect','fxBossReflect']];   /* final-boss shields ride on the existing per-skill FX_MAP.skill / skillSfx maps, so they save to the cloud and load back exactly like a skill */
 function playEventFx(side, mapName, key){ try{ const m=FX_MAP[mapName]; if(m && m[key]) playAttackFx(side, m[key], false, null, true); const sm=FX_MAP[mapName+'Sfx']; const sId=sm&&sm[key]; if(sId){ if(CUSTOM_SFX[sId]) playCustomSfx(sId); else if(SFX_PRESETS[sId]) sfxPlayPreset(sId); } }catch(e){} }
 function openCombat(x,y,ent){
   let foe=ent.foe;
   /* refresh presentation fields (FX / sound / image / face) from the LIVE template so admin edits apply even to monsters that were already placed on the map before the edit — keeps FX consistent with the name, which is already looked up live */
   try{ var _tplC=_monTemplateById(foe.id); if(_tplC){ foe.atkFx=_tplC.atkFx||null; foe.atkSfx=_tplC.atkSfx||null; foe.critFx=_tplC.critFx||null; foe.critSfx=_tplC.critSfx||null; foe.img=_tplC.img||null; if(_tplC.face) foe.face=_tplC.face; } }catch(_e){}
-  foe=Object.assign({}, foe);   /* combat runs on a COPY: statMatch / huangu / weak & HP damage never mutate the live floor monster, so the bestiary always shows the monster's ORIGINAL atk/def (stat-match applies only in the actual fight) */
+  foe=Object.assign({}, foe);
+  { /* multiplayer stat scaling: each EXTRA player past the first adds mpHpPer% HP / mpAtkPer% ATK (team modes only, opt-in per monster) */
+    try{
+      if(state.mode==='coop'||state.mode==='raceteam'){
+        var _extra=Math.max(0,((state.others?Object.keys(state.others).length:0)||0));
+        if(_extra>0){
+          var _tpl2=_monTemplateById(foe.id)||{};
+          var _hpP=(_tpl2.mpHpPer||foe.mpHpPer||0), _atkP=(_tpl2.mpAtkPer||foe.mpAtkPer||0);
+          if(_hpP>0){ foe.maxhp=Math.round(foe.maxhp*(1+_extra*_hpP/100)); foe.hp=foe.maxhp; }
+          if(_atkP>0){ foe.atk=Math.round(foe.atk*(1+_extra*_atkP/100)); }
+        }
+      }
+    }catch(_mpe){}
+  }
+  /* combat runs on a COPY: statMatch / huangu / weak & HP damage never mutate the live floor monster, so the bestiary always shows the monster's ORIGINAL atk/def (stat-match applies only in the actual fight) */
   try{ document.querySelectorAll('.dmgnum').forEach(function(_e){ if(_e.parentNode) _e.parentNode.removeChild(_e); }); }catch(_e){}   /* 清掉上一場殘留的傷害數字 */
   try{ document.querySelectorAll('.atkfx').forEach(function(_e){ if(_e.parentNode) _e.parentNode.removeChild(_e); }); }catch(_e){}   /* 清掉上一場殘留的攻擊特效 */
   state.combat={ x:x,y:y,ent:ent,foe:foe, foeMaxHp:foe.maxhp, foePreHp:foe.hp,
@@ -4697,9 +4725,9 @@ function playerAct(action){
   const _shHalf=!!c.shieldHalf, _shRefl=!!c.shieldReflect; c.shieldHalf=false; c.shieldReflect=false;   /* 鏡膜盾 / 反射盾 apply to this attack */
   const _pseq=[]; let _fhp=foe.hp;
   var _mdDiv=1, _mdId='', _mdBlocked=0;
-  { var _dL=_foeSkArr(foe,false); if(_dL.length){ var _ordD=(foe.skillOrder||'seq'), _hpPd=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100; var _fireD=(_ordD==='ai')?(_hpPd<50):((foe.skillHpBelow>0 && _hpPd<=foe.skillHpBelow)||(foe.skillEveryN>0 && ((c.foeRounds||0)%foe.skillEveryN)===0)); if(_fireD){ _mdId=_pickFoeSk(c,_dL,false); var _ds0=SKILL_BY_ID[_mdId]; if(_ds0){ _mdDiv=(_ds0.id==='shendun')?2.5:(_ds0.div||1); try{ log('foe',fmt(t('msg.foeDefSkill'),{name:skillName(_mdId)})); }catch(e){} try{ playEventFx('foe','skill',_mdId); }catch(e){} } } } }
+  { var _dL=_foeSkArr(foe,false); if(_dL.length){ var _ordD=(foe.skillOrder||'seq'), _hpPd=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100; var _fireD=(_ordD==='ai')?(_hpPd<50):((foe.skillHpBelow>0 && _hpPd<=foe.skillHpBelow)||(foe.skillEveryN>0 && ((c.foeRounds||0)%foe.skillEveryN)===0)); if(_fireD){ _mdId=_pickFoeSk(c,_dL,false); var _ds0=SKILL_BY_ID[_mdId]; if(_ds0){ _mdDiv=(_ds0.id==='shendun')?2.5:(_ds0.div||1); c.foeDefUsed=true;   /* casting a defence skill spends the foe's action for this round — it blocks, it doesn't also swing */ try{ log('foe',fmt(t('msg.foeDefSkill'),{name:skillName(_mdId)})); }catch(e){} try{ playEventFx('foe','skill',_mdId); }catch(e){} } } } }
   var _bsId='', _bsAbsorb=0, _bsReflect=0;
-  if(foe.id==='overlordGordon'){ var _rE=(foe.reflectEn!=null?foe.reflectEn:25), _rS=(foe.reflectStam!=null?foe.reflectStam:5), _bE=(foe.barrierEn!=null?foe.barrierEn:15), _bS=(foe.barrierStam!=null?foe.barrierStam:3); var _bhp=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100, _canR=(c.foeEn>=_rE&&c.foeStam>=_rS), _canB=(c.foeEn>=_bE&&c.foeStam>=_bS), _pthreat=dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)*(pl.atkc||1), _bigHit=(_pthreat>=foe.maxhp*0.06), _use=''; if(_bhp<40){ _use=_canR?'reflect':(_canB?'barrier':''); } else if(_bigHit){ _use=_canR?'reflect':(_canB?'barrier':''); } if(_use==='reflect'){ _bsId='reflect'; c.foeStam=clamp(c.foeStam-_rS,0,100); try{ log('foe',t('msg.bossReflShield')); }catch(e){} } else if(_use==='barrier'){ _bsId='barrier'; c.foeStam=clamp(c.foeStam-_bS,0,100); try{ log('foe',t('msg.bossBarrier')); }catch(e){} } }   /* 15c 防禦 AI：低血或面對大傷害時開盾(優先反射盾)，否則承受並蓄力沖天柱 */
+  if(foe.id==='overlordGordon'){ var _rE=(foe.reflectEn!=null?foe.reflectEn:25), _rS=(foe.reflectStam!=null?foe.reflectStam:5), _bE=(foe.barrierEn!=null?foe.barrierEn:15), _bS=(foe.barrierStam!=null?foe.barrierStam:3); var _bhp=(foe.maxhp>0)?(foe.hp/foe.maxhp*100):100, _canR=(c.foeEn>=_rE&&c.foeStam>=_rS), _canB=(c.foeEn>=_bE&&c.foeStam>=_bS), _pthreat=dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)*(pl.atkc||1), _bigHit=(_pthreat>=foe.maxhp*0.06), _use=''; if(_bhp<40){ _use=_canR?'reflect':(_canB?'barrier':''); } else if(_bigHit){ _use=_canR?'reflect':(_canB?'barrier':''); } if(_use==='reflect'){ _bsId='reflect'; c.foeStam=clamp(c.foeStam-_rS,0,100); try{ log('foe',t('msg.bossReflShield')); }catch(e){} try{ playEventFx('foe','skill','bossReflect'); }catch(e){} } else if(_use==='barrier'){ _bsId='barrier'; c.foeStam=clamp(c.foeStam-_bS,0,100); try{ log('foe',t('msg.bossBarrier')); }catch(e){} try{ playEventFx('foe','skill','bossBarrier'); }catch(e){} } }   /* 15c 防禦 AI：低血或面對大傷害時開盾(優先反射盾)，否則承受並蓄力沖天柱 */
   for(let i=0;i<pl.atkc;i++){
     if(chance(hitChance(c.meStam))){
       let dmg=Math.round(dmgUp(aAtk,foe.def,pl.thrA)*mult); if(hasAb(foe,'solid')) dmg=Math.ceil(dmg/2); if(_shHalf) dmg=Math.ceil(dmg/2); if(dmg<0)dmg=0;
@@ -4760,6 +4788,7 @@ function foeTurn(){
   const c=state.combat; if(!c||c.done) return;
   const pl=state.player, foe=c.foe;
   if(c.foeSkip){ c.foeSkip=false; c.halveNext=false; log('foe',t('msg.foeSkip')); renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* 能量盾 stunned the foe (armed defence kept for the next real attack) */
+  if(c.foeDefUsed){ c.foeDefUsed=false; c.foeRounds=(c.foeRounds||0)+1; try{ log('foe',fmt(t('msg.foeDefTurn'),{name:monName(c.foe)})); }catch(e){ log('foe',t('msg.foeDefTurn')); } renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* it spent this round on its defence skill */
   const def = c.defArmed ? SKILL_BY_ID[c.defArmed] : null;   /* single-use defence skill armed for this round */
   let taken=0, anyHit=false, beforeTotal=0, hits=0; _statMatch();
   c.foeRounds=(c.foeRounds||0)+1; var _useSkill=false, _skMult=1, _skId='';
@@ -4767,7 +4796,7 @@ function foeTurn(){
   if(pl.status==='poison' && (foe.poisonBuffChance>0) && chance(clamp(foe.poisonBuffChance/100,0,1))){ const _pba=foe.poisonBuffAtk||0, _pbd=foe.poisonBuffDef||0; if(_pba>0||_pbd>0){ foe.atk+=_pba; foe.def+=_pbd; c.fBuffA=(c.fBuffA||0)+_pba; c.fBuffD=(c.fBuffD||0)+_pbd; } }   /* 中毒強化：玩家中毒時，怪物機率提升自身攻防 */
   const _myDef0 = Math.max(0, effDef(pl) - (c.defDebuff||0)) + (c.shendunHits>0 ? (c.shendunBonus||0) : 0);
   const _foeCanDmg = foe.trueDmg ? (foe.atk>0) : (dmgDown(foe.atk,(hasAb(foe,'pierce')?Math.floor(_myDef0*0.5):_myDef0),pl.thrD)>0);   /* 對玩家造不成傷害就不發動爆擊 */
-  const foeCrit = (c.foeEn>=100) && _foeCanDmg; let _critUsed=false;
+  const foeCrit = (c.foeEn>=100) && _foeCanDmg && !_useSkill; let _critUsed=false;   /* ONE action per round, same as the player: casting an attack skill IS the round's attack, so it never also crits (the energy simply stays banked for a later round) */
   let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); if(foe.id==='overlordGordon'){ _nHits = foeCrit ? 1 : 4; } }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
   const _seq=[];
   let _defBlocks = (def && def.div && def.div>1) ? 1 : 0;   // one defence cast mitigates only ONE incoming hit; multi-hit foes get the rest through
@@ -6667,11 +6696,13 @@ const Net = {
   loadConfig(){
     var self=this;
     function _fin(){ self._cfgDone=true; if(self._cfgReadyResolve){ self._cfgReadyResolve(); self._cfgReadyResolve=null; } }
+    self._cfgOk=false;   /* only true once the cloud copy has ACTUALLY been read — the admin panel must never save a defaults-only draft over live cloud data */
     if(!this.db){ _fin(); return; }
     this.db.ref('gameConfig').once('value').then(function(snap){
       const cfg=snap.val();
+      self._cfgOk=true;   /* a null here is legitimate: the node simply doesn't exist yet */
       if(cfg && typeof applyConfig==='function'){ applyConfig(cfg); try{ localStorage.setItem('mt_gameConfig', JSON.stringify(cfg)); }catch(e){} try{ refreshEntityIcons(); }catch(e){} if(state.player) renderAll(); }
-    }).catch(function(e){ /* rules may block; ignore */ }).then(_fin);
+    }).catch(function(e){ self._cfgOk=false; /* rules may block / offline -> we do NOT know the cloud state */ }).then(_fin);
   },
   ensureConfigLoaded(timeoutMs){
     var self=this;
@@ -9585,6 +9616,14 @@ const I18N_CUST = {
  'ja':'待機時間終了 —— システムが残りのカードを自動で選びました',
  'ko':'대기 시간 종료 —— 시스템이 남은 카드를 자동으로 뽑았습니다'
 }; for(var L in D){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afAutoDraft=D[L]; } })();
+(function(){ var F={"zh-Hant": "{name} 專注於防禦，這回合沒有攻擊", "zh-Hans": "{name} 专注于防御，这回合没有攻击", "en": "{name} focused on defence and did not attack this round", "ja": "{name} は防御に専念し、このターンは攻撃しなかった", "ko": "{name}이(가) 방어에 집중해 이번 턴에는 공격하지 않았다"}; for(var L in F){ if(I18N[L]&&I18N[L].msg) I18N[L].msg.foeDefTurn=F[L]; } })();
+(function(){ var A={"cfgLoading": {"zh-Hant": "正在讀取雲端設定…", "zh-Hans": "正在读取云端设置…", "en": "Loading cloud config…", "ja": "クラウド設定を読み込み中…", "ko": "클라우드 설정을 불러오는 중…"}, "cfgUnread": {"zh-Hant": "⚠ 尚未讀到雲端設定，為避免覆蓋你的資料，已停用「儲存到雲端」。請檢查連線後重新整理再試。", "zh-Hans": "⚠ 尚未读到云端设置，为避免覆盖你的数据，已停用「保存到云端」。请检查连线后重新整理再试。", "en": "⚠ The cloud config could not be read. Saving is disabled so your existing data is not overwritten — check your connection, reload, and try again.", "ja": "⚠ クラウド設定を読み込めませんでした。既存データの上書きを防ぐため保存を無効にしています。接続を確認して再読み込みしてください。", "ko": "⚠ 클라우드 설정을 읽지 못했습니다. 기존 데이터 덮어쓰기를 막기 위해 저장을 비활성화했습니다. 연결을 확인한 뒤 새로고침하세요."}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"fxBossBarrier": {"zh-Hant": "魔王·結界盾", "zh-Hans": "魔王·结界盾", "en": "Boss · Barrier Shield", "ja": "魔王・結界盾", "ko": "마왕·결계 방패"}, "fxBossReflect": {"zh-Hant": "魔王·反射盾", "zh-Hans": "魔王·反射盾", "en": "Boss · Reflect Shield", "ja": "魔王・反射盾", "ko": "마왕·반사 방패"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"skUse": {"zh-Hant": "使用技能書", "zh-Hans": "使用技能书", "en": "Use skill books", "ja": "スキルブックを使う", "ko": "스킬북 사용"}, "skOrder": {"zh-Hant": "施放順序", "zh-Hans": "施放顺序", "en": "Order", "ja": "発動順", "ko": "시전 순서"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"secBasic": {"zh-Hant": "基礎設定", "zh-Hans": "基础设置", "en": "Basic stats", "ja": "基本設定", "ko": "기본 설정"}, "secFxSfx": {"zh-Hant": "特效音效設定", "zh-Hans": "特效音效设置", "en": "FX & sound", "ja": "エフェクト・音", "ko": "효과·소리"}, "secSolo": {"zh-Hant": "單人模式專用", "zh-Hans": "单人模式专用", "en": "Solo mode", "ja": "ソロ専用", "ko": "솔로 전용"}, "secMulti": {"zh-Hant": "多人模式專用", "zh-Hans": "多人模式专用", "en": "Multiplayer", "ja": "マルチ専用", "ko": "멀티 전용"}, "secAbility": {"zh-Hant": "特殊能力選項", "zh-Hans": "特殊能力选项", "en": "Special abilities", "ja": "特殊能力", "ko": "특수 능력"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"abPick": {"zh-Hant": "能力分類", "zh-Hans": "能力分类", "en": "Category", "ja": "カテゴリ", "ko": "분류"}, "abcat_atk": {"zh-Hant": "攻擊類", "zh-Hans": "攻击类", "en": "Offense", "ja": "攻撃系", "ko": "공격"}, "abcat_debuff": {"zh-Hant": "減益類", "zh-Hans": "减益类", "en": "Debuff", "ja": "弱体系", "ko": "약화"}, "abcat_drain": {"zh-Hant": "吸取類", "zh-Hans": "吸取类", "en": "Drain", "ja": "吸収系", "ko": "흡수"}, "abcat_survive": {"zh-Hant": "防禦生存", "zh-Hans": "防御生存", "en": "Survival", "ja": "防御・生存", "ko": "방어·생존"}, "abcat_other": {"zh-Hant": "其他", "zh-Hans": "其他", "en": "Other", "ja": "その他", "ko": "기타"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"spawnFloor": {"zh-Hant": "出生樓層", "zh-Hans": "出生楼层", "en": "Spawn floors", "ja": "出現フロア", "ko": "출현 층"}, "spawnFloorHint": {"zh-Hant": "（該段填 0＝不生成）", "zh-Hans": "（该段填 0＝不生成）", "en": "(0 = not here)", "ja": "（0＝生成しない）", "ko": "(0＝생성 안 함)"}, "flrSurf": {"zh-Hant": "地上", "zh-Hans": "地上", "en": "Surface", "ja": "地上", "ko": "지상"}, "flrBase": {"zh-Hant": "地下", "zh-Hans": "地下", "en": "Basement", "ja": "地下", "ko": "지하"}, "flrUnit": {"zh-Hant": "樓", "zh-Hans": "楼", "en": "F", "ja": "階", "ko": "층"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"mpHpPer": {"zh-Hant": "每人血量加成", "zh-Hans": "每人血量加成", "en": "HP per player", "ja": "人数HP加算", "ko": "인원 생명 가산"}, "mpAtkPer": {"zh-Hant": "每人攻擊加成", "zh-Hans": "每人攻击加成", "en": "ATK per player", "ja": "人数攻撃加算", "ko": "인원 공격 가산"}, "mpPerHint": {"zh-Hant": "（每多一名玩家）", "zh-Hans": "（每多一名玩家）", "en": "(per extra player)", "ja": "（追加プレイヤーごと）", "ko": "(추가 플레이어당)"}, "mpArenaOnly": {"zh-Hant": "僅競技模式出現", "zh-Hans": "仅竞技模式出现", "en": "Arena mode only", "ja": "アリーナ限定", "ko": "아레나 전용"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var M={"zh-Hant": {"mName": "怪物名稱", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻擊力", "mDef": "防禦力", "mAtkc": "攻擊次數", "mDmg": "估計傷害"}, "zh-Hans": {"mName": "怪物名称", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻击力", "mDef": "防御力", "mAtkc": "攻击次数", "mDmg": "估计伤害"}, "en": {"mName": "Name", "mAb": "Ability", "mHp": "HP", "mAtk": "ATK", "mDef": "DEF", "mAtkc": "Hits", "mDmg": "Est. damage"}, "ja": {"mName": "名前", "mAb": "特殊能力", "mHp": "HP", "mAtk": "攻撃力", "mDef": "防御力", "mAtkc": "攻撃回数", "mDmg": "推定ダメージ"}, "ko": {"mName": "이름", "mAb": "특수 능력", "mHp": "생명", "mAtk": "공격력", "mDef": "방어력", "mAtkc": "공격 횟수", "mDmg": "예상 피해"}}; for(var L in M){ if(I18N[L]&&I18N[L].manual){ for(var k in M[L]) I18N[L].manual[k]=M[L][k]; } }
   var E={"zh-Hant": "用時時間", "zh-Hans": "用时时间", "en": "Time", "ja": "所要時間", "ko": "소요 시간"}; for(var L2 in E){ if(I18N[L2]&&I18N[L2].end) I18N[L2].end.time=E[L2]; } })();
 const I18N_ARENA_CFG={
@@ -10324,15 +10363,23 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·338'; }
+    bt.textContent='build 0618·349'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
-  adminDraft = snapshotConfig();
-  localizeAdmin(); byId('adminMsg').textContent=''; setAdminTab('monsters'); show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·338'; }
+  show('adminScreen');
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·349'; }
+  var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
+  /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
+     fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
+     data and wiped it. That's why it only happened sometimes — it was a race with the network. */
+  Net.ensureConfigLoaded().then(function(){
+    adminDraft = snapshotConfig();
+    localizeAdmin(); setAdminTab('monsters');
+    var m=byId('adminMsg'); if(m) m.textContent = (Net.db && !Net._cfgOk) ? t('admin.cfgUnread') : '';
+  });
 }
 /* already admin / already in the panel -> don't re-prompt the login */
 function openAdminEntry(){
@@ -10468,18 +10515,60 @@ function adNum(label,obj,key,step){
 function adText(label,obj,key,ph,maxlen){ const v=(obj[key]!=null?String(obj[key]):''); return '<div class="adField"><label>'+label+'</label><input type="text" maxlength="'+(maxlen||12)+'" data-k="'+key+'" value="'+v.replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'"></div>'; }
 function _locName(obj){ const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; return (obj&&obj.nameLoc&&obj.nameLoc[L]!=null)?String(obj.nameLoc[L]):''; }
 function _admName(o){ if(!o) return ''; const L=(typeof state!=='undefined'&&state.lang)||'zh-Hant'; if(o.nameLoc&&o.nameLoc[L]&&(''+o.nameLoc[L]).trim()) return (''+o.nameLoc[L]).trim(); const n=t('mon.'+(o.id||'')); if(n&&n.indexOf('mon.')!==0) return n; return o.name||o.id||''; }
+function _adSpawnRole(m){   /* '生成角色' from the mockup — the existing role logic (wander / block guard / treasure guard), just surfaced in the solo section */
+  return '<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role" style="padding:3px 7px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
+}
+function _adFloorSpawn(m){   /* mockup: floor spawn made legible — surface row and basement row, each 'lowest ~ highest'; 0 = not spawned in that half */
+  function _rng(loK, hiK, loV, hiV){
+    return '<span style="display:inline-flex;align-items:center;gap:4px">'+_abNum(loK,0,0,(loV||0))+'<span style="font-size:11px;opacity:.6">~</span>'+_abNum(hiK,0,0,(hiV||0))+'<span style="font-size:11px;opacity:.6">'+t('admin.flrUnit')+'</span></span>';
+  }
+  var o='<div class="adField adFloorSpawn" style="grid-column:1/-1">';
+  o+='<label>'+t('admin.spawnFloor')+' <span style="font-weight:400;opacity:.6;font-size:10px">'+t('admin.spawnFloorHint')+'</span></label>';
+  o+='<div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-top:3px">';
+  o+='<span style="display:inline-flex;align-items:center;gap:5px"><span style="font-size:11px;color:var(--txt-dim);min-width:30px">'+t('admin.flrSurf')+'</span>'+_rng('sMin','sMax',m.sMin,m.sMax)+'</span>';
+  o+='<span style="display:inline-flex;align-items:center;gap:5px"><span style="font-size:11px;color:var(--txt-dim);min-width:30px">'+t('admin.flrBase')+'</span>'+_rng('bMin','bMax',m.bMin,m.bMax)+'</span>';
+  o+='</div></div>';
+  return o;
+}
+function _adSec(title, inner){   /* a titled sub-section that spans the row, so the editor reads as the mockup's stacked blocks instead of one flat grid */
+  return '<div class="adSec" style="grid-column:1/-1"><div class="adSecTitle">'+title+'</div><div class="adSecGrid">'+inner+'</div></div>';
+}
+function _adFaceBlock(m, sig){   /* the '怪物圖示' box from the mockup: the numeric ID + the image uploader grouped together */
+  var o='<div class="adField adFaceBlk" style="grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin:2px 0 4px;background:rgba(0,0,0,.12)">';
+  o+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+  o+='<span style="font-size:11px;color:var(--txt-dim)">'+t('admin.mid')+'</span><span style="font-family:var(--mono);font-size:13px;color:var(--txt);font-weight:700">'+(m.id||'')+'</span>';
+  o+='<input type="hidden" data-k="id" value="'+((''+(m.id||'')).replace(/"/g,'&quot;'))+'">';
+  o+='</div>';
+  o+='<div style="margin-top:6px">'+adImg(m, sig)+'</div>';
+  o+='</div>';
+  return o;
+}
 function adNameLoc(obj, grp, idOverride){
   const id=(idOverride!=null?idOverride:((obj&&obj.id)||'')); grp=grp||'mon';
-  const langs=[['zh-Hant','繁中'],['zh-Hans','简中'],['en','EN'],['ja','日本'],['ko','한국']];
-  let o='<div class="adField adNlField"><label>'+t('admin.mname')+' · '+t('admin.nameLocHint')+'</label><div class="adNlGrid">';
+  const langs=[['zh-Hant','繁中'],['zh-Hans','简中'],['en','English'],['ja','日本語'],['ko','한국어']];
+  var vals={}, phs={};
   for(let i=0;i<langs.length;i++){ const lc=langs[i][0];
-    const cur=(obj&&obj.nameLoc&&obj.nameLoc[lc]!=null)?String(obj.nameLoc[lc]):'';
+    vals[lc]=(obj&&obj.nameLoc&&obj.nameLoc[lc]!=null)?String(obj.nameLoc[lc]):'';
     let ph=(typeof I18N!=='undefined'&&I18N[lc]&&I18N[lc][grp]&&I18N[lc][grp][id])||'';
-    if(!ph) ph=(obj&&obj.name)||id||'';
-    o+='<div class="adNlRow"><span class="adNlTag">'+langs[i][1]+'</span><input type="text" maxlength="24" data-knl="'+lc+'" value="'+(''+cur).replace(/"/g,'&quot;')+'" placeholder="'+(''+ph).replace(/"/g,'&quot;')+'"></div>';
+    if(!ph) ph=(obj&&obj.name)||id||''; phs[lc]=ph;
   }
-  return o+'</div></div>';
+  /* one editor, a language dropdown decides which language you're editing (mockup: 名稱改成下拉式) — every language's value is kept in hidden inputs so collectAdminDraft still gathers them all */
+  var cur=(typeof _admRenderLang!=='undefined'&&_admRenderLang)||'zh-Hant'; if(langs.map(function(x){return x[0];}).indexOf(cur)<0) cur='zh-Hant';
+  var o='<div class="adField adNlField"><label>'+t('admin.mname')+'</label><div class="adNlPick">';
+  o+='<select class="adNlSel" onchange="_nlPick(this)">';
+  for(let i=0;i<langs.length;i++){ o+='<option value="'+langs[i][0]+'"'+((langs[i][0]===cur)?' selected':'')+'>'+langs[i][1]+'</option>'; }
+  o+='</select>';
+  o+='<input type="text" class="adNlOne" maxlength="24" value="'+(''+vals[cur]).replace(/"/g,'&quot;')+'" placeholder="'+(''+phs[cur]).replace(/"/g,'&quot;')+'" oninput="_nlType(this)">';
+  o+='</div>';
+  /* hidden mirrors — the real data the collector reads */
+  o+='<div class="adNlHidden" style="display:none">';
+  for(let i=0;i<langs.length;i++){ const lc=langs[i][0]; o+='<input type="text" data-knl="'+lc+'" data-nlph="'+(''+phs[lc]).replace(/"/g,'&quot;')+'" value="'+(''+vals[lc]).replace(/"/g,'&quot;')+'">'; }
+  o+='</div></div>';
+  return o;
 }
+function _nlField(el){ return el.closest('.adNlField'); }
+function _nlPick(sel){ try{ var f=_nlField(sel); if(!f) return; var lc=sel.value; var hid=f.querySelector('.adNlHidden input[data-knl="'+lc+'"]'); var one=f.querySelector('.adNlOne'); if(hid&&one){ one.value=hid.value; one.placeholder=hid.getAttribute('data-nlph')||''; } }catch(e){} }
+function _nlType(one){ try{ var f=_nlField(one); if(!f) return; var sel=f.querySelector('.adNlSel'); if(!sel) return; var lc=sel.value; var hid=f.querySelector('.adNlHidden input[data-knl="'+lc+'"]'); if(hid) hid.value=one.value; }catch(e){} }
 function adFxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select data-fxgroup="'+group+'" data-fxkey="'+key+'">'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div>'; }
 function adFxSelectN(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select data-fxgroup="'+group+'" data-fxkey="'+key+'"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxNone')+'</option>'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur||'')+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div>'; }
 function adSfxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><select data-sfxgroup="'+group+'" data-sfxkey="'+key+'"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxNone')+'</option>'; SFX_PRESET_KEYS.forEach(function(kk){ o+='<option value="'+kk+'"'+(kk===cur?' selected':'')+'>'+t('admin.snd_'+kk)+'</option>'; }); return o+_sfxCustomOpts(cur||'')+'</select></div>'; }
@@ -10577,11 +10666,18 @@ function renderAdminBody(){
       row.dataset.sec=isBase?'base':'surf'; row.dataset.monname=(_admName(m)+' '+(m.id||'')).toLowerCase();
       row.innerHTML='<div class="adName">'+(m.face||'')+' '+_admName(m)+' <span style="color:var(--txt-faint);font-weight:400">('+m.id+')</span>'+_adPrev()+_adDel(isBase,idx)+'</div>'+
         '<div class="adGrid">'+
-        adText(t('admin.icon'),m,'face')+adNameLoc(m)+adText(t('admin.mid'),m,'id','',24)+adImg(m,(isBase?('bm'+idx):('m'+idx)))+adAtkFx(m)+adAtkSfx(m)+adCritFx(m)+adCritSfx(m)+
-        adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+
-        adNum(t('end.gold'),m,'gold')+adNum(t('ui.exp'),m,'exp')+
-        adNum(t('admin.surfMin'),m,'sMin')+adNum(t('admin.surfMax'),m,'sMax')+adNum(t('admin.baseMin'),m,'bMin')+adNum(t('admin.baseMax'),m,'bMax')+adNum(t('admin.spawnW'),{spawnW:(m.spawnW!=null?m.spawnW:1)},'spawnW')+adMinDiff(m)+
-        adMonAbilities(m)+
+        /* 怪物圖示 + 名稱 */
+        _adFaceBlock(m,(isBase?('bm'+idx):('m'+idx)))+adNameLoc(m)+
+        /* 基礎設定 */
+        _adSec(t('admin.secBasic'), adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def'))+
+        /* 特效音效設定 */
+        _adSec(t('admin.secFxSfx'), adAtkFx(m)+adCritFx(m)+adAtkSfx(m)+adCritSfx(m))+
+        /* 單人模式專用 */
+        _adSec(t('admin.secSolo'), _adFloorSpawn(m)+_adSpawnRole(m)+adNum(t('ui.exp'),m,'exp')+adNum(t('end.gold'),m,'gold'))+
+        /* 多人模式專用 */
+        _adSec(t('admin.secMulti'), adMinDiff(m)+_adMpOpts(m))+
+        /* 特殊能力選項 */
+        _adSec(t('admin.secAbility'), adMonAbilities(m))+
         '</div>';
       body.appendChild(row);
     };
@@ -10604,7 +10700,7 @@ function renderAdminBody(){
       const row=document.createElement('div'); row.className='adRowItem'; row.dataset.sk='1'; row.dataset.sec='base'; row.dataset.monname=_skNm;
       row.innerHTML='<div class="adName">'+(sk.face||'')+' '+_admName(sk)+' <span style="color:var(--txt-faint);font-weight:400">('+sk.id+')</span>'+_adPrev()+'</div>'+
         '<div class="adGrid">'+
-        adText(t('admin.icon'),sk,'face')+adNameLoc(sk)+adText(t('admin.mid'),sk,'id','',24)+adImg(sk,'sk')+adAtkFx(sk)+adAtkSfx(sk)+adCritFx(sk)+adCritSfx(sk)+
+        adNameLoc(sk)+adText(t('admin.mid'),sk,'id','',24)+adImg(sk,'sk')+adAtkFx(sk)+adAtkSfx(sk)+adCritFx(sk)+adCritSfx(sk)+
         adNum('HP',sk,'hp')+adNum(t('ui.atk'),sk,'atk')+adNum(t('ui.def'),sk,'def')+
         adNum(t('end.gold'),sk,'gold')+adNum(t('ui.exp'),sk,'exp')+
         adNum(t('admin.baseMin'),sk,'bMin')+adNum(t('admin.baseMax'),sk,'bMax')+
@@ -10613,13 +10709,14 @@ function renderAdminBody(){
       body.appendChild(row);
     }
     applyMonFilters();
+    _abCatInitAll();
   } else if(adminTab==='boss'){
     const hdr=function(txt){ const h=document.createElement('div'); h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:13px;'; h.textContent=txt; body.appendChild(h); };
     const bossRow=function(b,isBase){
       const row=document.createElement('div'); row.className='adRowItem';
       if(isBase) row.dataset.bboss='1'; else row.dataset.boss='1';
       row.innerHTML='<div class="adName">'+(b.face||'🐉')+' '+_admName(b)+' <span style="color:var(--txt-faint);font-weight:400">('+b.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
-        adText(t('admin.icon'),b,'face')+adNameLoc(b)+adText(t('admin.mid'),b,'id','',24)+adImg(b,(isBase?'bboss':'boss'))+adAtkFx(b)+adAtkSfx(b)+adCritFx(b)+adCritSfx(b)+
+        adNameLoc(b)+adText(t('admin.mid'),b,'id','',24)+adImg(b,(isBase?'bboss':'boss'))+adAtkFx(b)+adAtkSfx(b)+adCritFx(b)+adCritSfx(b)+
         adNum('HP',b,'hp')+adNum(t('ui.atk'),b,'atk')+adNum(t('ui.def'),b,'def')+
         adNum(t('end.gold'),b,'gold')+adNum(t('ui.exp'),b,'exp')+adFixedFloor(b)+adMonAbilities(b)+'</div>';
       body.appendChild(row);
@@ -10631,7 +10728,7 @@ function renderAdminBody(){
       adminDraft.guards.forEach(function(g,gi){
         const row=document.createElement('div'); row.className='adRowItem'; row.dataset.guard=gi;
         row.innerHTML='<div class="adName">'+(g.face||'🐉')+' '+_admName(g)+' <span style="color:var(--txt-faint);font-weight:400">('+g.id+')</span>'+_adPrev()+'</div><div class="adGrid">'+
-          adText(t('admin.icon'),g,'face')+adNameLoc(g)+adText(t('admin.mid'),g,'id','',24)+adImg(g,'g'+gi)+adAtkFx(g)+adAtkSfx(g)+adCritFx(g)+adCritSfx(g)+
+          adNameLoc(g)+adText(t('admin.mid'),g,'id','',24)+adImg(g,'g'+gi)+adAtkFx(g)+adAtkSfx(g)+adCritFx(g)+adCritSfx(g)+
           adNum('HP',g,'hp')+adNum(t('ui.atk'),g,'atk')+adNum(t('ui.def'),g,'def')+
           adNum(t('end.gold'),g,'gold')+adNum(t('ui.exp'),g,'exp')+adFixedFloor(g)+adMonAbilities(g)+'</div>';
         body.appendChild(row);
@@ -10642,7 +10739,7 @@ function renderAdminBody(){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.playerNote'); body.appendChild(n);
     const row=document.createElement('div'); row.className='adRowItem'; row.dataset.start='1';
     row.innerHTML='<div class="adName">🧝 '+t('admin.startStats')+'</div><div class="adGrid">'+
-      adText(t('admin.icon'),s,'face')+adNum(t('ui.hp'),s,'hp')+adNum(t('ui.atk'),s,'atk')+adNum(t('ui.def'),s,'def')+
+      adNum(t('ui.hp'),s,'hp')+adNum(t('ui.atk'),s,'atk')+adNum(t('ui.def'),s,'def')+
       adNum(t('ui.en'),s,'en')+adNum(t('ui.st'),s,'reserve')+adNum('thrA',s,'thrA')+adNum('thrD',s,'thrD')+'</div>';
     body.appendChild(row);
   } else if(adminTab==='mp'){
@@ -10744,6 +10841,7 @@ function renderAdminBody(){
     const skr=document.createElement('div'); skr.className='adRowItem'; skr.dataset.fxgroup='skill';
     let skh='<div class="adName">📖 '+t('admin.fxSkills')+'</div><div class="adGrid">';
     ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ skh+=adFxSelectN(skillName(s.id),'skill',s.id,FX_MAP.skill[s.id]); });
+    BOSS_SHIELD_KEYS.forEach(function(bk){ skh+=adFxSelectN(t('admin.'+bk[1]),'skill',bk[0],FX_MAP.skill[bk[0]]); });   /* final boss barrier / reflect shields */
     skr.innerHTML=skh+'</div>'; body.appendChild(skr);
     const abr=document.createElement('div'); abr.className='adRowItem'; abr.dataset.fxgroup='ability';
     let abh='<div class="adName">✨ '+t('admin.fxAbilities')+'</div><div class="adGrid">';
@@ -10752,6 +10850,7 @@ function renderAdminBody(){
     const sksr=document.createElement('div'); sksr.className='adRowItem';
     let sksh='<div class="adName">\ud83d\udd0a '+t('admin.sfxSkills')+'</div><div class="adGrid">';
     ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ sksh+=adSfxSelect(skillName(s.id),'skill',s.id,FX_MAP.skillSfx[s.id]); });
+    BOSS_SHIELD_KEYS.forEach(function(bk){ sksh+=adSfxSelect(t('admin.'+bk[1]),'skill',bk[0],FX_MAP.skillSfx[bk[0]]); });
     sksr.innerHTML=sksh+'</div>'; body.appendChild(sksr);
     const absr=document.createElement('div'); absr.className='adRowItem';
     let absh='<div class="adName">\ud83d\udd0a '+t('admin.sfxAbilities')+'</div><div class="adGrid">';
@@ -10764,7 +10863,7 @@ function renderAdminBody(){
         const it=adminDraft.items[key];
         const row=document.createElement('div'); row.className='adRowItem'; row.dataset.item=key;
         row.innerHTML='<div class="adName">'+(it.img?('<img class="adWlImg" src="'+it.img+'" alt="">'):(it.face||''))+' '+_locDisplay(it,'item',key)+' <span style="color:var(--txt-faint);font-weight:400">('+key+')</span></div><div class="adGrid">'+
-          adText(t('admin.icon'),it,'face')+adNameLoc(it,'item',key)+adImg(it,'it_'+key)+'</div>';
+          adNameLoc(it,'item',key)+adImg(it,'it_'+key)+'</div>';
         body.appendChild(row);
       });
     }
@@ -10822,8 +10921,12 @@ function abList(o){ if(!o) return []; const v=o.ab; return Array.isArray(v) ? v.
 function _abChip(o){
   var s='<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap"><input type="checkbox" '+o.cb+(o.on?' checked':'')+'>'+o.label;
   if(o.set!=null){ s+='<span data-abset="'+o.key+'" style="display:'+(o.on?'inline-flex':'none')+';align-items:center;gap:3px;margin-left:1px">'+o.set+'</span>'; }
-  return s+'</label>';
+  s+='</label>';
+  return o.cat ? ('<span class="abItem" data-abcat="'+o.cat+'" style="display:inline-flex">'+s+'</span>') : s;   /* wrap so the category dropdown can show/hide it */
 }
+function _abCatInitAll(){ try{ var sels=document.querySelectorAll('.adAbCat'); for(var i=0;i<sels.length;i++) _abCatPick(sels[i]); }catch(e){} }
+function _abCatPick(sel){ try{ var body=sel.closest('.adSec')||document; var host=sel.closest('.adAbBar'); var wrap=host&&host.parentNode; if(!wrap) wrap=body; var cat=sel.value; var items=wrap.querySelectorAll('.abItem[data-abcat]'); for(var i=0;i<items.length;i++){ items[i].style.display=(items[i].getAttribute('data-abcat')===cat)?'inline-flex':'none'; } }catch(e){} }
+function _skbookToggle(el){ try{ var box=el.closest('[data-skbook]'); if(!box) return; var body=box.querySelector('.adSkbookBody'); if(body) body.style.display=el.checked?'':'none'; if(!el.checked){ box.querySelectorAll('input[data-matk],input[data-mdef]').forEach(function(c){ c.checked=false; }); } }catch(e){} }
 function _abToggle(cb){
   var key=cb.getAttribute('data-abtog')||cb.getAttribute('data-kbool'); var row=cb.closest('.adRowItem')||document;
   var box=row.querySelector('[data-abset="'+key+'"]'); if(!box) return;
@@ -10880,64 +10983,92 @@ function _dtToggle(cb){
   if(cb.checked){ var seg=box.querySelector('[data-dtseg]'); var type=(seg&&seg.getAttribute('data-curtype'))||'ice'; _dtMode(box.querySelector('[data-dtbtn="'+type+'"]')); }
   else { var inp=box.querySelector('[data-k="deathTerrain"]'); if(inp) inp.value=''; }
 }
+function _adMpOpts(m){   /* multiplayer-only knobs built on existing systems: per-extra-player stat scaling + arena-only spawn gate */
+  var o='';
+  o+='<div class="adField"><label>'+t('admin.mpHpPer')+' <span style="font-weight:400;opacity:.6;font-size:10px">'+t('admin.mpPerHint')+'</span></label>'+_abNum('mpHpPer',0,0,(m.mpHpPer||0))+'<span style="opacity:.6;font-size:11px">%</span></div>';
+  o+='<div class="adField"><label>'+t('admin.mpAtkPer')+'</label>'+_abNum('mpAtkPer',0,0,(m.mpAtkPer||0))+'<span style="opacity:.6;font-size:11px">%</span></div>';
+  o+='<div class="adField"><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" data-kbool="mpArenaOnly"'+(m.mpArenaOnly?' checked':'')+'>'+t('admin.mpArenaOnly')+'</label></div>';
+  return o;
+}
 function adMinDiff(m){ var cur=(m&&m.minDiff)||''; var opts=[['',t('admin.md_all')],['normal',t('admin.md_normal')],['hard',t('admin.md_hard')],['hell',t('admin.md_hell')]]; var o='<div class="adField"><label>'+t('admin.minDiff')+'</label><select data-k="minDiff">'; opts.forEach(function(op){ o+='<option value="'+op[0]+'"'+((cur===op[0])?' selected':'')+'>'+op[1]+'</option>'; }); return o+'</select></div>'; }
 function adMonAbilities(m){
-  var h='<div class="adField"><label>'+t('admin.role')+'</label><select data-k="role">'+['any','wander','block','treasure'].map(function(rv){return '<option value="'+rv+'"'+(((m.role||'any')===rv)?' selected':'')+'>'+t('admin.role_'+rv)+'</option>';}).join('')+'</select></div>';
+  var h='';
+  /* category dropdown (mockup: pick an ability from a dropdown, only its sub-options show). Abilities are still multi-select — the dropdown only filters which category is visible. */
+  h+='<div class="adAbBar" style="grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--txt-dim)">'+t('admin.abPick')+'</span>';
+  h+='<select class="adAbCat" onchange="_abCatPick(this)" style="padding:3px 7px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px">';
+  [['atk','abcat_atk'],['debuff','abcat_debuff'],['drain','abcat_drain'],['survive','abcat_survive'],['other','abcat_other']].forEach(function(c){ h+='<option value="'+c[0]+'">'+t('admin.'+c[1])+'</option>'; });
+  h+='</select></div>';
+  h+='<div class="adAbBody" data-abbody style="grid-column:1/-1">';
   h+='<div class="adField" style="grid-column:1/-1"><label>'+t('admin.abTag')+'</label><div class="abChecks" style="display:flex;flex-wrap:wrap;gap:9px 15px;padding:3px 0;align-items:center">';
   ['solid','pierce','first'].forEach(function(av){ h+=_abChip({cb:'data-ab="'+av+'"', label:t('ab.'+av), on:hasAb(m,av)}); });
-  h+=_abChip({key:'vampire', cb:'data-ab="vampire" data-abtog="vampire" onchange="_abToggle(this)"', label:t('ab.vampire'), on:hasAb(m,'vampire'), set:_abNum('vampPct',15,0,(m.vampPct||15))+'<span style="opacity:.6">%</span>'});
-  h+=_abChip({key:'drains', cb:'data-kbool="drains" onchange="_abToggle(this)"', label:t('admin.drains'), on:!!m.drains, set:_abNum('drainStam',STAM_DRAIN,0,(m.drainStam!=null?m.drainStam:STAM_DRAIN))});
-  h+=_abChip({key:'trueDmg', cb:'data-kbool="trueDmg" data-abtog="trueDmg" onchange="_abToggle(this)"', label:t('admin.abTrue'), on:!!m.trueDmg, set:'<label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;opacity:.85;cursor:pointer;font-weight:400"><input type="checkbox" data-kbool="trueTriple"'+(m.trueTriple?' checked':'')+'>'+t('admin.abTrueTriple')+'</label>'});
-  h+=_abChip({cb:'data-kbool="noFlee"', label:t('admin.abNoFlee'), on:!!m.noFlee});
-  h+=_abChip({cb:'data-kbool="blockTp"', label:t('admin.abBlockTp'), on:!!m.blockTp});
+  h+=_abChip({cat:'drain', key:'vampire', cb:'data-ab="vampire" data-abtog="vampire" onchange="_abToggle(this)"', label:t('ab.vampire'), on:hasAb(m,'vampire'), set:_abNum('vampPct',15,0,(m.vampPct||15))+'<span style="opacity:.6">%</span>'});
+  h+=_abChip({cat:'drain', key:'drains', cb:'data-kbool="drains" onchange="_abToggle(this)"', label:t('admin.drains'), on:!!m.drains, set:_abNum('drainStam',STAM_DRAIN,0,(m.drainStam!=null?m.drainStam:STAM_DRAIN))});
+  h+=_abChip({cat:'atk', key:'trueDmg', cb:'data-kbool="trueDmg" data-abtog="trueDmg" onchange="_abToggle(this)"', label:t('admin.abTrue'), on:!!m.trueDmg, set:'<label style="display:inline-flex;align-items:center;gap:3px;font-size:12px;opacity:.85;cursor:pointer;font-weight:400"><input type="checkbox" data-kbool="trueTriple"'+(m.trueTriple?' checked':'')+'>'+t('admin.abTrueTriple')+'</label>'});
+  h+=_abChip({cat:'other', cb:'data-kbool="noFlee"', label:t('admin.abNoFlee'), on:!!m.noFlee});
+  h+=_abChip({cat:'other', cb:'data-kbool="blockTp"', label:t('admin.abBlockTp'), on:!!m.blockTp});
   var _riOpts='<option value="">'+t('admin.riNone')+'</option>';
   (adminDraft&&adminDraft.monsters?adminDraft.monsters:[]).concat(adminDraft&&adminDraft.basementMonsters?adminDraft.basementMonsters:[]).forEach(function(_mm){ if(_mm&&_mm.id){ _riOpts+='<option value="'+_mm.id+'"'+((m.reviveInto===_mm.id)?' selected':'')+'>'+(_mm.name||_mm.id)+'</option>'; } });
-  h+='<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:400;white-space:nowrap">'+t('admin.abReviveInto')+'<select data-k="reviveInto" style="padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px;max-width:130px">'+_riOpts+'</select></label>';
+  h+='<span class="abItem" data-abcat="survive" style="display:inline-flex"><label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:400;white-space:nowrap">'+t('admin.abReviveInto')+'<select data-k="reviveInto" style="padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px;max-width:130px">'+_riOpts+'</select></label></span>';
   var _curA=_foeSkArr(m,true), _curD=_foeSkArr(m,false), _chkSt='display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:400;cursor:pointer;margin-right:5px';
-  var _skBlk='<div style="display:flex;flex-wrap:wrap;align-items:center;gap:3px 1px;grid-column:1/-1;padding:2px 0">';
-  _skBlk+='<span style="opacity:.55;margin-right:2px">'+t('admin.abMAtkSkill')+'</span>';
-  ATK_SKILLS.forEach(function(_s){ _skBlk+='<label style="'+_chkSt+'"><input type="checkbox" data-matk="'+_s.id+'"'+((_curA.indexOf(_s.id)>=0)?' checked':'')+'>'+skillName(_s.id)+'</label>'; });
-  _skBlk+='<span style="opacity:.55;margin:0 2px">'+t('admin.abMDefSkill')+'</span>';
-  DEF_SKILLS.forEach(function(_s){ _skBlk+='<label style="'+_chkSt+'"><input type="checkbox" data-mdef="'+_s.id+'"'+((_curD.indexOf(_s.id)>=0)?' checked':'')+'>'+skillName(_s.id)+'</label>'; });
+  var _hasSk=(_curA.length>0 || _curD.length>0);   /* skill-book section collapses to a single toggle until it's actually in use (matches the admin mockup: shrunk by default, expands only when needed) */
+  var _skGridSt='display:grid;grid-template-columns:repeat(5,1fr);gap:5px 4px;margin:5px 0';
+  var _skCellSt='display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:400;cursor:pointer;padding:5px 2px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.03);text-align:center';
+  var _skBlk='<div class="adSkbook" data-skbook style="grid-column:1/-1;border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin:4px 0;background:rgba(0,0,0,.14)">';
+  _skBlk+='<label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:12px;color:var(--gold);cursor:pointer"><input type="checkbox" data-skbooktog onchange="_skbookToggle(this)"'+(_hasSk?' checked':'')+'>'+t('admin.skUse')+'</label>';
+  _skBlk+='<div class="adSkbookBody" style="'+(_hasSk?'':'display:none;')+'margin-top:8px">';
+  /* 攻擊技能書 */
+  _skBlk+='<div style="font-size:11px;color:var(--txt-dim);font-weight:700;margin-bottom:2px">'+t('admin.abMAtkSkill')+'</div>';
+  _skBlk+='<div style="'+_skGridSt+'">';
+  ATK_SKILLS.forEach(function(_s){ _skBlk+='<label style="'+_skCellSt+'"><span>'+skillName(_s.id)+'</span><input type="checkbox" data-matk="'+_s.id+'"'+((_curA.indexOf(_s.id)>=0)?' checked':'')+'></label>'; });
+  _skBlk+='</div>';
+  /* 防禦技能書 */
+  _skBlk+='<div style="font-size:11px;color:var(--txt-dim);font-weight:700;margin:7px 0 2px">'+t('admin.abMDefSkill')+'</div>';
+  _skBlk+='<div style="'+_skGridSt+'">';
+  DEF_SKILLS.forEach(function(_s){ _skBlk+='<label style="'+_skCellSt+'"><span>'+skillName(_s.id)+'</span><input type="checkbox" data-mdef="'+_s.id+'"'+((_curD.indexOf(_s.id)>=0)?' checked':'')+'></label>'; });
+  _skBlk+='</div>';
+  /* 順序 + 觸發條件 */
   var _so=m.skillOrder||'seq';
-  _skBlk+='<select data-k="skillOrder" style="padding:2px 4px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px;margin-left:3px"><option value="seq"'+((_so==='seq')?' selected':'')+'>'+t('admin.soSeq')+'</option><option value="rand"'+((_so==='rand')?' selected':'')+'>'+t('admin.soRand')+'</option><option value="ai"'+((_so==='ai')?' selected':'')+'>'+t('admin.soAi')+'</option></select>';
-  _skBlk+='<span style="opacity:.55;margin-left:3px">'+t('admin.skHp')+'</span>'+_abNum('skillHpBelow',50,0,(m.skillHpBelow||0))+'<span style="opacity:.55">% '+t('admin.skRd')+'</span>'+_abNum('skillEveryN',0,0,(m.skillEveryN||0))+'</div>';
+  _skBlk+='<div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;margin-top:8px">';
+  _skBlk+='<span style="font-size:11px;color:var(--txt-dim)">'+t('admin.skOrder')+'</span><select data-k="skillOrder" style="padding:2px 6px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px"><option value="seq"'+((_so==='seq')?' selected':'')+'>'+t('admin.soSeq')+'</option><option value="rand"'+((_so==='rand')?' selected':'')+'>'+t('admin.soRand')+'</option><option value="ai"'+((_so==='ai')?' selected':'')+'>'+t('admin.soAi')+'</option></select>';
+  _skBlk+='<span style="font-size:11px;color:var(--txt-dim)">'+t('admin.skHp')+'</span>'+_abNum('skillHpBelow',50,0,(m.skillHpBelow||0))+'<span style="font-size:11px;color:var(--txt-dim)">% '+t('admin.skRd')+'</span>'+_abNum('skillEveryN',0,0,(m.skillEveryN||0));
+  _skBlk+='</div>';
+  _skBlk+='</div></div>';
   h+=_skBlk;
-  h+=_abChip({cb:'data-abstatus="poison" onchange="_abStatusToggle(this)"', label:t('ab.poison'), on:(m.ability==='poison'||hasAb(m,'poison'))});
-  h+=_abChip({cb:'data-abstatus="weak" onchange="_abStatusToggle(this)"', label:t('ab.weak'), on:(m.ability==='weak'||hasAb(m,'weak'))});
-  h+=_abChip({key:'poisonChance', cb:'data-abtog="poisonChance" onchange="_abToggle(this)"', label:t('admin.abPoisonChance'), on:(m.poisonChance||0)>0, set:_abNum('poisonChance',30,0,(m.poisonChance||0))+'<span style="opacity:.6">%</span>'});
+  h+=_abChip({cat:'debuff', cb:'data-abstatus="poison" onchange="_abStatusToggle(this)"', label:t('ab.poison'), on:(m.ability==='poison'||hasAb(m,'poison'))});
+  h+=_abChip({cat:'debuff', cb:'data-abstatus="weak" onchange="_abStatusToggle(this)"', label:t('ab.weak'), on:(m.ability==='weak'||hasAb(m,'weak'))});
+  h+=_abChip({cat:'debuff', key:'poisonChance', cb:'data-abtog="poisonChance" onchange="_abToggle(this)"', label:t('admin.abPoisonChance'), on:(m.poisonChance||0)>0, set:_abNum('poisonChance',30,0,(m.poisonChance||0))+'<span style="opacity:.6">%</span>'});
   var _wc=m.weakChance||0, _wa=(m.weakAtk!=null?m.weakAtk:3), _wd=(m.weakDef!=null?m.weakDef:3);
-  h+=_abChip({key:'weakCfg', cb:'data-abtog="weakCfg" onchange="_abToggle(this)"', label:t('admin.abWeakCfg'), on:(_wc>0||_wa!=3||_wd!=3), set:_abNum('weakChance',30,0,_wc)+'<span style="opacity:.6">%'+t('admin.wkAtk')+'</span>'+_abNum('weakAtk',3,3,_wa)+'<span style="opacity:.6">'+t('admin.wkDef')+'</span>'+_abNum('weakDef',3,3,_wd)});
-  { var _mOn=((m.atkc||1)>1||(m.atkcMax||0)>0), _mRand=((m.atkcMax||0)>0); var _vFix=(_mOn&&!_mRand)?m.atkc:1, _vMin=(_mOn&&_mRand)?(m.atkcMin>0?m.atkcMin:2):0, _vMax=(_mOn&&_mRand)?(m.atkcMax>0?m.atkcMax:3):0; var _sc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;'; var _bf=_sc+'background:'+(!_mRand?'var(--gold)':'transparent')+';color:'+(!_mRand?'#17101f':'var(--txt-dim)')+';font-weight:'+(!_mRand?'700':'500')+';'; var _br=_sc+'background:'+(_mRand?'var(--gold)':'transparent')+';color:'+(_mRand?'#17101f':'var(--txt-dim)')+';font-weight:'+(_mRand?'700':'500')+';'; h+=_abChip({key:'atkc', cb:'data-abtog="atkc" onchange="_abComboToggle(this)"', label:t('admin.abAtkc'), on:_mOn, set:'<span data-comboseg data-curmode="'+(_mRand?'rand':'fixed')+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden">'+'<button type="button" data-combobtn="fixed" onclick="event.stopPropagation();_abComboMode(this)" style="'+_bf+'">固定</button>'+'<button type="button" data-combobtn="rand" onclick="event.stopPropagation();_abComboMode(this)" style="'+_br+'">隨機</button>'+'</span>'+'<span data-combobox="fixed" style="display:'+(!_mRand?'inline-flex':'none')+';align-items:center;gap:3px"><span style="font-size:11px;opacity:.7">次數</span>'+_abNum('atkc',2,1,_vFix)+'</span>'+'<span data-combobox="rand" style="display:'+(_mRand?'inline-flex':'none')+';align-items:center;gap:3px">'+_abNum('atkcMin',2,0,_vMin)+'<span style="font-size:11px;opacity:.7">~</span>'+_abNum('atkcMax',3,0,_vMax)+'</span>'}); }
-  h+=_abChip({key:'critMult', cb:'data-abtog="critMult" onchange="_abToggle(this)"', label:t('admin.abCrit'), on:(m.critMult!=null&&m.critMult>1), set:_abNum('critMult',2,1,(m.critMult!=null?m.critMult:1),'0.1')});
-  h+=_abChip({key:'bonusDmg', cb:'data-abtog="bonusDmg" onchange="_abToggle(this)"', label:t('admin.abBonusDmg'), on:(m.bonusDmg||0)>0, set:_abNum('bonusDmg',10,0,(m.bonusDmg||0))});
-  h+=_abChip({key:'drainEn', cb:'data-abtog="drainEn" onchange="_abToggle(this)"', label:t('admin.abDrainEn'), on:(m.drainEn||0)>0, set:_abNum('drainEn',10,0,(m.drainEn||0))});
+  h+=_abChip({cat:'debuff', key:'weakCfg', cb:'data-abtog="weakCfg" onchange="_abToggle(this)"', label:t('admin.abWeakCfg'), on:(_wc>0||_wa!=3||_wd!=3), set:_abNum('weakChance',30,0,_wc)+'<span style="opacity:.6">%'+t('admin.wkAtk')+'</span>'+_abNum('weakAtk',3,3,_wa)+'<span style="opacity:.6">'+t('admin.wkDef')+'</span>'+_abNum('weakDef',3,3,_wd)});
+  { var _mOn=((m.atkc||1)>1||(m.atkcMax||0)>0), _mRand=((m.atkcMax||0)>0); var _vFix=(_mOn&&!_mRand)?m.atkc:1, _vMin=(_mOn&&_mRand)?(m.atkcMin>0?m.atkcMin:2):0, _vMax=(_mOn&&_mRand)?(m.atkcMax>0?m.atkcMax:3):0; var _sc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;'; var _bf=_sc+'background:'+(!_mRand?'var(--gold)':'transparent')+';color:'+(!_mRand?'#17101f':'var(--txt-dim)')+';font-weight:'+(!_mRand?'700':'500')+';'; var _br=_sc+'background:'+(_mRand?'var(--gold)':'transparent')+';color:'+(_mRand?'#17101f':'var(--txt-dim)')+';font-weight:'+(_mRand?'700':'500')+';'; h+=_abChip({cat:'atk', key:'atkc', cb:'data-abtog="atkc" onchange="_abComboToggle(this)"', label:t('admin.abAtkc'), on:_mOn, set:'<span data-comboseg data-curmode="'+(_mRand?'rand':'fixed')+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden">'+'<button type="button" data-combobtn="fixed" onclick="event.stopPropagation();_abComboMode(this)" style="'+_bf+'">固定</button>'+'<button type="button" data-combobtn="rand" onclick="event.stopPropagation();_abComboMode(this)" style="'+_br+'">隨機</button>'+'</span>'+'<span data-combobox="fixed" style="display:'+(!_mRand?'inline-flex':'none')+';align-items:center;gap:3px"><span style="font-size:11px;opacity:.7">次數</span>'+_abNum('atkc',2,1,_vFix)+'</span>'+'<span data-combobox="rand" style="display:'+(_mRand?'inline-flex':'none')+';align-items:center;gap:3px">'+_abNum('atkcMin',2,0,_vMin)+'<span style="font-size:11px;opacity:.7">~</span>'+_abNum('atkcMax',3,0,_vMax)+'</span>'}); }
+  h+=_abChip({cat:'atk', key:'critMult', cb:'data-abtog="critMult" onchange="_abToggle(this)"', label:t('admin.abCrit'), on:(m.critMult!=null&&m.critMult>1), set:_abNum('critMult',2,1,(m.critMult!=null?m.critMult:1),'0.1')});
+  h+=_abChip({cat:'atk', key:'bonusDmg', cb:'data-abtog="bonusDmg" onchange="_abToggle(this)"', label:t('admin.abBonusDmg'), on:(m.bonusDmg||0)>0, set:_abNum('bonusDmg',10,0,(m.bonusDmg||0))});
+  h+=_abChip({cat:'drain', key:'drainEn', cb:'data-abtog="drainEn" onchange="_abToggle(this)"', label:t('admin.abDrainEn'), on:(m.drainEn||0)>0, set:_abNum('drainEn',10,0,(m.drainEn||0))});
   /* 「耗體量」已併入上方「耗體」開關：勾選耗體即可設定普通攻擊的耗體量 */
-  h+=_abChip({key:'critDrainStam', cb:'data-abtog="critDrainStam" onchange="_abToggle(this)"', label:t('admin.critDrainStam'), on:(m.critDrainStam||0)>0, set:_abNum('critDrainStam',5,0,(m.critDrainStam||0))});
-  h+=_abChip({key:'critDrainEn', cb:'data-abtog="critDrainEn" onchange="_abToggle(this)"', label:t('admin.abCritDrainEn'), on:(m.critDrainEn||0)>0, set:_abNum('critDrainEn',20,0,(m.critDrainEn||0))});
-  h+=_abChip({key:'atkFatigue', cb:'data-abtog="atkFatigue" onchange="_abToggle(this)"', label:t('admin.abAtkFatigue'), on:(m.atkFatigue||0)>0, set:_abNum('atkFatigue',10,0,(m.atkFatigue||0))});
+  h+=_abChip({cat:'drain', key:'critDrainStam', cb:'data-abtog="critDrainStam" onchange="_abToggle(this)"', label:t('admin.critDrainStam'), on:(m.critDrainStam||0)>0, set:_abNum('critDrainStam',5,0,(m.critDrainStam||0))});
+  h+=_abChip({cat:'drain', key:'critDrainEn', cb:'data-abtog="critDrainEn" onchange="_abToggle(this)"', label:t('admin.abCritDrainEn'), on:(m.critDrainEn||0)>0, set:_abNum('critDrainEn',20,0,(m.critDrainEn||0))});
+  h+=_abChip({cat:'debuff', key:'atkFatigue', cb:'data-abtog="atkFatigue" onchange="_abToggle(this)"', label:t('admin.abAtkFatigue'), on:(m.atkFatigue||0)>0, set:_abNum('atkFatigue',10,0,(m.atkFatigue||0))});
   var _ne=m.noEnergy||'', _neType=(_ne==='all')?'all':'atk', _nesc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;';
   var _neAtkS=_nesc+'background:'+(_neType==='atk'?'var(--gold)':'transparent')+';color:'+(_neType==='atk'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_neType==='atk'?'700':'500')+';';
   var _neAllS=_nesc+'background:'+(_neType==='all'?'var(--gold)':'transparent')+';color:'+(_neType==='all'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_neType==='all'?'700':'500')+';';
   var neSeg='<input type="hidden" data-k="noEnergy" value="'+_ne+'"><span data-neseg data-curtype="'+_neType+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden"><button type="button" data-nebtn="atk" onclick="event.stopPropagation();_neMode(this)" style="'+_neAtkS+'">'+t('admin.neAtk')+'</button><button type="button" data-nebtn="all" onclick="event.stopPropagation();_neMode(this)" style="'+_neAllS+'">'+t('admin.neAll')+'</button></span>';
-  h+=_abChip({key:'noEnergy', cb:'onchange="_neToggle(this)"', label:t('admin.abNoEnergy'), on:!!m.noEnergy, set:neSeg});
+  h+=_abChip({cat:'other', key:'noEnergy', cb:'onchange="_neToggle(this)"', label:t('admin.abNoEnergy'), on:!!m.noEnergy, set:neSeg});
   var _pbc=m.poisonBuffChance||0, _pba=m.poisonBuffAtk||0, _pbd=m.poisonBuffDef||0;
-  h+=_abChip({key:'poisonBuff', cb:'data-abtog="poisonBuff" onchange="_abToggle(this)"', label:t('admin.abPoisonBuff'), on:(_pbc>0||_pba>0||_pbd>0), set:_abNum('poisonBuffChance',30,0,_pbc)+'<span style="opacity:.6">%'+t('admin.pbAtk')+'</span>'+_abNum('poisonBuffAtk',50,0,_pba)+'<span style="opacity:.6">'+t('admin.pbDef')+'</span>'+_abNum('poisonBuffDef',50,0,_pbd)});
+  h+=_abChip({cat:'other', key:'poisonBuff', cb:'data-abtog="poisonBuff" onchange="_abToggle(this)"', label:t('admin.abPoisonBuff'), on:(_pbc>0||_pba>0||_pbd>0), set:_abNum('poisonBuffChance',30,0,_pbc)+'<span style="opacity:.6">%'+t('admin.pbAtk')+'</span>'+_abNum('poisonBuffAtk',50,0,_pba)+'<span style="opacity:.6">'+t('admin.pbDef')+'</span>'+_abNum('poisonBuffDef',50,0,_pbd)});
   var _sm=m.statMatch||'', _smType=(_sm==='B')?'B':((_sm==='C')?'C':'A'), _smsc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;';
   var _smAS=_smsc+'background:'+(_smType==='A'?'var(--gold)':'transparent')+';color:'+(_smType==='A'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_smType==='A'?'700':'500')+';';
   var _smBS=_smsc+'background:'+(_smType==='B'?'var(--gold)':'transparent')+';color:'+(_smType==='B'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_smType==='B'?'700':'500')+';';
   var _smCS=_smsc+'background:'+(_smType==='C'?'var(--gold)':'transparent')+';color:'+(_smType==='C'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_smType==='C'?'700':'500')+';';
   var smSeg='<input type="hidden" data-k="statMatch" value="'+_sm+'"><span data-smseg data-curtype="'+_smType+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden"><button type="button" data-smbtn="A" onclick="event.stopPropagation();_smMode(this)" style="'+_smAS+'">'+t('admin.smA')+'</button><button type="button" data-smbtn="B" onclick="event.stopPropagation();_smMode(this)" style="'+_smBS+'">'+t('admin.smB')+'</button><button type="button" data-smbtn="C" onclick="event.stopPropagation();_smMode(this)" style="'+_smCS+'">'+t('admin.smC')+'</button></span>';
-  h+=_abChip({key:'statMatch', cb:'onchange="_smToggle(this)"', label:t('admin.abStatMatch'), on:!!m.statMatch, set:smSeg});
+  h+=_abChip({cat:'survive', key:'statMatch', cb:'onchange="_smToggle(this)"', label:t('admin.abStatMatch'), on:!!m.statMatch, set:smSeg});
   var _sdAP=(m.statDownPct||0), _sdAN=(m.statDownN||0), _sdDP=(m.statDownDefPct!=null?m.statDownDefPct:_sdAP), _sdDN=(m.statDownDefN!=null?m.statDownDefN:_sdAN);
   var sdOn=(_sdAP>0||_sdAN>0||_sdDP>0||_sdDN>0);
-  h+=_abChip({key:'statDown', cb:'data-abtog="statDown" onchange="_abToggle(this)"', label:t('admin.abStatDown'), on:sdOn, set:'<span style="opacity:.6;font-weight:600">'+t('admin.sdA')+'</span>'+_abNum('statDownPct',10,0,_sdAP)+'<span style="opacity:.6">%</span>'+_abNum('statDownN',5,0,_sdAN)+'<span style="opacity:.6">+</span><span style="opacity:.6;font-weight:600;margin-left:6px">'+t('admin.sdD')+'</span>'+_abNum('statDownDefPct',10,0,_sdDP)+'<span style="opacity:.6">%</span>'+_abNum('statDownDefN',5,0,_sdDN)+'<span style="opacity:.6">+</span>'});
+  h+=_abChip({cat:'debuff', key:'statDown', cb:'data-abtog="statDown" onchange="_abToggle(this)"', label:t('admin.abStatDown'), on:sdOn, set:'<span style="opacity:.6;font-weight:600">'+t('admin.sdA')+'</span>'+_abNum('statDownPct',10,0,_sdAP)+'<span style="opacity:.6">%</span>'+_abNum('statDownN',5,0,_sdAN)+'<span style="opacity:.6">+</span><span style="opacity:.6;font-weight:600;margin-left:6px">'+t('admin.sdD')+'</span>'+_abNum('statDownDefPct',10,0,_sdDP)+'<span style="opacity:.6">%</span>'+_abNum('statDownDefN',5,0,_sdDN)+'<span style="opacity:.6">+</span>'});
   var _dt=m.deathTerrain||'', _dtType=(_dt==='lava')?'lava':'ice';
   var _dsc='font-size:11px;padding:2px 10px;border:0;cursor:pointer;line-height:1.5;white-space:nowrap;';
   var _dIce=_dsc+'background:'+(_dtType==='ice'?'var(--gold)':'transparent')+';color:'+(_dtType==='ice'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_dtType==='ice'?'700':'500')+';';
   var _dLava=_dsc+'background:'+(_dtType==='lava'?'var(--gold)':'transparent')+';color:'+(_dtType==='lava'?'#17101f':'var(--txt-dim)')+';font-weight:'+(_dtType==='lava'?'700':'500')+';';
   var dtSeg='<input type="hidden" data-k="deathTerrain" value="'+_dt+'">'+'<span data-dtseg data-curtype="'+_dtType+'" style="display:inline-flex;border:1px solid var(--gold-d);border-radius:6px;overflow:hidden">'+'<button type="button" data-dtbtn="ice" onclick="event.stopPropagation();_dtMode(this)" style="'+_dIce+'">'+t('admin.deathIce')+'</button>'+'<button type="button" data-dtbtn="lava" onclick="event.stopPropagation();_dtMode(this)" style="'+_dLava+'">'+t('admin.deathLava')+'</button>'+'</span>';
-  h+=_abChip({key:'deathTerrain', cb:'data-abtog="deathTerrain" onchange="_dtToggle(this)"', label:t('admin.abDeath'), on:!!m.deathTerrain, set:dtSeg});
+  h+=_abChip({cat:'survive', key:'deathTerrain', cb:'data-abtog="deathTerrain" onchange="_dtToggle(this)"', label:t('admin.abDeath'), on:!!m.deathTerrain, set:dtSeg});
   h+='</div></div>';
   if(m.id==='overlordGordon'){ var _bp=function(k,d){ return '<input type="number" data-k="'+k+'" value="'+(m[k]!=null?m[k]:d)+'" style="width:46px;padding:2px 3px;border-radius:5px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px">'; };
     h+='<div style="grid-column:1/-1;border-top:1px solid var(--line);margin-top:5px;padding-top:5px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12px">';
@@ -10948,6 +11079,7 @@ function adMonAbilities(m){
     h+='<label style="display:inline-flex;align-items:center;gap:3px">'+t('admin.bpBlk')+_bp('reflectBlockPct',60)+'%</label>';
     h+='<label style="display:inline-flex;align-items:center;gap:3px">'+t('admin.bpHeal')+_bp('reflectHealPct',30)+'%</label>';
     h+='</div>'; }
+  h+='</div>';   /* close .adAbBody */
   return h;
 }
 function _adPrev(){ return '<button type="button" data-prev class="adPrevBtn" style="margin-left:8px;padding:1px 9px;font-size:12px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);cursor:pointer;vertical-align:middle">👁 '+t('admin.preview')+'</button>'; }
@@ -11000,7 +11132,7 @@ function _adDel(isBase,idx){ return '<button type="button" data-delmon="'+(isBas
 function addMonster(kind){
   if(!adminDraft) return;
   try{ collectAdminDraft(); }catch(e){}
-  const uid='mon_'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
+  const uid=String(Date.now()).slice(-6)+String(Math.floor(Math.random()*900)+100);   /* mockup: ID is just a number now (kept unique via timestamp tail + random) */
   if(kind==='b'){
     if(!Array.isArray(adminDraft.basementMonsters)) adminDraft.basementMonsters=[];
     adminDraft.basementMonsters.push({id:uid, name:t('admin.newMon'), face:'👾', hp:300, atk:60, def:20, gold:20, exp:3, atkc:1, agi:10, sMin:0, sMax:0, bMin:1, bMax:20, ab:[]}); _collapse.base=false; _pinNext=uid;
@@ -11090,6 +11222,7 @@ function adminApplyLocal(){ collectAdminDraft(); applyConfig(adminDraft); try{ r
 function adminSaveToCloud(){
   if(!Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   if(!Net.db){ byId('adminMsg').textContent=t('acct.noFirebase'); return; }
+  if(!Net._cfgDone || !Net._cfgOk){ byId('adminMsg').textContent=t('admin.cfgUnread'); return; }   /* refuse to overwrite cloud data we never managed to read — a full .set() here would destroy it */
   collectAdminDraft();
   adminDraft.customMedia={cfx:CUSTOM_FX,csfx:CUSTOM_SFX,cfxn:CUSTOM_FX_NAME,csfxn:CUSTOM_SFX_NAME};
   var _cloudPayload=_fbSafe(adminDraft); delete adminDraft.customMedia;   /* 媒體一併上雲；不寫入本機 mt_gameConfig，避免 localStorage 超量（本機素材另存於 mt_cfx）*/
