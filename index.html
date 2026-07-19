@@ -10367,14 +10367,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·350'; }
+    bt.textContent='build 0618·351'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·350'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·351'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -11256,6 +11256,13 @@ function adminExportConfig(){
       score:          cfg.score||null,
       buildMonIds:    cfg.buildMonIds||[],
       buildBMonIds:   cfg.buildBMonIds||[]
+    },
+    /* the actual uploaded media (GIF/PNG effects + WAV sounds) live in localStorage, not in the cloud config — bundle them here too so the file is a COMPLETE backup you can restore anywhere */
+    customMedia:{
+      fx:      (typeof CUSTOM_FX!=='undefined'?CUSTOM_FX:{}),
+      sfx:     (typeof CUSTOM_SFX!=='undefined'?CUSTOM_SFX:{}),
+      fxName:  (typeof CUSTOM_FX_NAME!=='undefined'?CUSTOM_FX_NAME:{}),
+      sfxName: (typeof CUSTOM_SFX_NAME!=='undefined'?CUSTOM_SFX_NAME:{})
     }
   };
   try{
@@ -11286,6 +11293,16 @@ function adminImportConfig(file){
       var obj=JSON.parse(rd.result);
       var cfg=_cfgFromJson(obj);
       if(!cfg){ throw new Error('empty'); }
+      if(obj.customMedia && typeof obj.customMedia==='object'){   /* restore the uploaded GIF/PNG/WAV media alongside the config */
+        try{
+          var cm=obj.customMedia;
+          if(cm.fx && typeof CUSTOM_FX!=='undefined'){ for(var _k in cm.fx) CUSTOM_FX[_k]=cm.fx[_k]; }
+          if(cm.sfx && typeof CUSTOM_SFX!=='undefined'){ for(var _k2 in cm.sfx) CUSTOM_SFX[_k2]=cm.sfx[_k2]; }
+          if(cm.fxName && typeof CUSTOM_FX_NAME!=='undefined'){ for(var _k3 in cm.fxName) CUSTOM_FX_NAME[_k3]=cm.fxName[_k3]; }
+          if(cm.sfxName && typeof CUSTOM_SFX_NAME!=='undefined'){ for(var _k4 in cm.sfxName) CUSTOM_SFX_NAME[_k4]=cm.sfxName[_k4]; }
+          if(typeof saveCustomMedia==='function') saveCustomMedia();   /* persist to localStorage */
+        }catch(_cme){}
+      }
       applyConfig(cfg);                 /* load into the live game + module state */
       adminDraft=snapshotConfig();       /* refresh the editor's draft from what we just loaded */
       try{ refreshEntityIcons(); }catch(e){}
