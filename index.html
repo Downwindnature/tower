@@ -2060,6 +2060,9 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
     <button class="btn" id="adminApply">套用到本機</button>
     <button class="btn gold" id="adminSaveCloud">儲存到雲端</button>
     <button class="btn" id="adminReset">還原預設</button>
+    <button class="btn" id="adminExportJson">匯出 JSON</button>
+    <button class="btn" id="adminImportJson">匯入 JSON</button>
+    <input type="file" accept="application/json,.json" id="admJsonFile" style="display:none">
   </div>
   <p class="lbHint" id="adminMsg"></p>
   <div class="closeRow"><button class="btn" id="adminCloseBtn" data-close>關閉</button></div>
@@ -9624,6 +9627,7 @@ const I18N_CUST = {
 (function(){ var A={"abPick": {"zh-Hant": "能力分類", "zh-Hans": "能力分类", "en": "Category", "ja": "カテゴリ", "ko": "분류"}, "abcat_atk": {"zh-Hant": "攻擊類", "zh-Hans": "攻击类", "en": "Offense", "ja": "攻撃系", "ko": "공격"}, "abcat_debuff": {"zh-Hant": "減益類", "zh-Hans": "减益类", "en": "Debuff", "ja": "弱体系", "ko": "약화"}, "abcat_drain": {"zh-Hant": "吸取類", "zh-Hans": "吸取类", "en": "Drain", "ja": "吸収系", "ko": "흡수"}, "abcat_survive": {"zh-Hant": "防禦生存", "zh-Hans": "防御生存", "en": "Survival", "ja": "防御・生存", "ko": "방어·생존"}, "abcat_other": {"zh-Hant": "其他", "zh-Hans": "其他", "en": "Other", "ja": "その他", "ko": "기타"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"spawnFloor": {"zh-Hant": "出生樓層", "zh-Hans": "出生楼层", "en": "Spawn floors", "ja": "出現フロア", "ko": "출현 층"}, "spawnFloorHint": {"zh-Hant": "（該段填 0＝不生成）", "zh-Hans": "（该段填 0＝不生成）", "en": "(0 = not here)", "ja": "（0＝生成しない）", "ko": "(0＝생성 안 함)"}, "flrSurf": {"zh-Hant": "地上", "zh-Hans": "地上", "en": "Surface", "ja": "地上", "ko": "지상"}, "flrBase": {"zh-Hant": "地下", "zh-Hans": "地下", "en": "Basement", "ja": "地下", "ko": "지하"}, "flrUnit": {"zh-Hant": "樓", "zh-Hans": "楼", "en": "F", "ja": "階", "ko": "층"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"mpHpPer": {"zh-Hant": "每人血量加成", "zh-Hans": "每人血量加成", "en": "HP per player", "ja": "人数HP加算", "ko": "인원 생명 가산"}, "mpAtkPer": {"zh-Hant": "每人攻擊加成", "zh-Hans": "每人攻击加成", "en": "ATK per player", "ja": "人数攻撃加算", "ko": "인원 공격 가산"}, "mpPerHint": {"zh-Hant": "（每多一名玩家）", "zh-Hans": "（每多一名玩家）", "en": "(per extra player)", "ja": "（追加プレイヤーごと）", "ko": "(추가 플레이어당)"}, "mpArenaOnly": {"zh-Hant": "僅競技模式出現", "zh-Hans": "仅竞技模式出现", "en": "Arena mode only", "ja": "アリーナ限定", "ko": "아레나 전용"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"jsonExported": {"zh-Hant": "✓ 已匯出 JSON 設定檔（請妥善保存）", "zh-Hans": "✓ 已导出 JSON 设置档（请妥善保存）", "en": "✓ Config exported as JSON", "ja": "✓ JSON 設定を書き出しました", "ko": "✓ JSON 설정을 내보냈습니다"}, "jsonImported": {"zh-Hant": "✓ 已從 JSON 載入設定（記得再「儲存到雲端」或「套用到本機」）", "zh-Hans": "✓ 已从 JSON 载入设置（记得再「保存到云端」或「应用到本机」）", "en": "✓ Config loaded from JSON — remember to Save to cloud / Apply", "ja": "✓ JSON から読み込みました（クラウド保存／適用を忘れずに）", "ko": "✓ JSON에서 불러왔습니다 — 클라우드 저장/적용을 잊지 마세요"}, "jsonBad": {"zh-Hant": "✗ JSON 檔案無效或格式不符", "zh-Hans": "✗ JSON 文件无效或格式不符", "en": "✗ Invalid or unrecognised JSON", "ja": "✗ 無効な JSON です", "ko": "✗ 잘못된 JSON입니다"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var M={"zh-Hant": {"mName": "怪物名稱", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻擊力", "mDef": "防禦力", "mAtkc": "攻擊次數", "mDmg": "估計傷害"}, "zh-Hans": {"mName": "怪物名称", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻击力", "mDef": "防御力", "mAtkc": "攻击次数", "mDmg": "估计伤害"}, "en": {"mName": "Name", "mAb": "Ability", "mHp": "HP", "mAtk": "ATK", "mDef": "DEF", "mAtkc": "Hits", "mDmg": "Est. damage"}, "ja": {"mName": "名前", "mAb": "特殊能力", "mHp": "HP", "mAtk": "攻撃力", "mDef": "防御力", "mAtkc": "攻撃回数", "mDmg": "推定ダメージ"}, "ko": {"mName": "이름", "mAb": "특수 능력", "mHp": "생명", "mAtk": "공격력", "mDef": "방어력", "mAtkc": "공격 횟수", "mDmg": "예상 피해"}}; for(var L in M){ if(I18N[L]&&I18N[L].manual){ for(var k in M[L]) I18N[L].manual[k]=M[L][k]; } }
   var E={"zh-Hant": "用時時間", "zh-Hans": "用时时间", "en": "Time", "ja": "所要時間", "ko": "소요 시간"}; for(var L2 in E){ if(I18N[L2]&&I18N[L2].end) I18N[L2].end.time=E[L2]; } })();
 const I18N_ARENA_CFG={
@@ -10363,14 +10367,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·349'; }
+    bt.textContent='build 0618·350'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·349'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·350'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -11219,6 +11223,80 @@ function collectAdminDraft(){
   }
 }
 function adminApplyLocal(){ collectAdminDraft(); applyConfig(adminDraft); try{ refreshEntityIcons(); }catch(e){} if(state.player) renderAll(); byId('adminMsg').textContent=t('admin.applied'); }
+function adminExportConfig(){
+  if(!Account.isAdmin){ toast(t('acct.notAdmin')); return; }
+  try{ collectAdminDraft(); }catch(e){}
+  var cfg=adminDraft||snapshotConfig();
+  /* one file, organised section by section, so you can keep it outside the code and re-attach it later without the index overwriting your cloud data */
+  var out={
+    _format:'mota-config',
+    _version:1,
+    _build:(function(){ try{ return (document.getElementById('adminBuildTag')||{}).textContent||''; }catch(e){ return ''; } })(),
+    _savedAt:new Date().toISOString(),
+    sections:{
+      monsters:       cfg.monsters||[],
+      basementMonsters: cfg.basementMonsters||[],
+      boss:           cfg.boss||null,
+      basementBoss:   cfg.basementBoss||null,
+      swordKing:      cfg.swordKing||null,
+      guards:         cfg.guards||[],
+      items:          cfg.items||{},
+      atkSkills:      cfg.atkSkills||[],
+      defSkills:      cfg.defSkills||[],
+      fx:             cfg.fx||{},
+      sounds:         cfg.sounds||{},
+      glyphs:         cfg.glyphs||{},
+      start:          cfg.start||{},
+      map:            cfg.map||{},
+      floorCfg:       cfg.floorCfg||{},
+      floorWL:        cfg.floorWL||{},
+      floorTr:        cfg.floorTr||{},
+      itemGain:       cfg.itemGain||{},
+      arena:          cfg.arena||null,
+      score:          cfg.score||null,
+      buildMonIds:    cfg.buildMonIds||[],
+      buildBMonIds:   cfg.buildBMonIds||[]
+    }
+  };
+  try{
+    var blob=new Blob([JSON.stringify(out,null,2)], {type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    var ts=new Date(); var pad=function(n){return (n<10?'0':'')+n;};
+    a.href=url; a.download='mota-config-'+ts.getFullYear()+pad(ts.getMonth()+1)+pad(ts.getDate())+'-'+pad(ts.getHours())+pad(ts.getMinutes())+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    var m=byId('adminMsg'); if(m) m.textContent=t('admin.jsonExported');
+  }catch(e){ var m2=byId('adminMsg'); if(m2) m2.textContent='Export failed: '+e.message; }
+}
+function _cfgFromJson(obj){   /* accept either our sectioned export or a raw snapshotConfig */
+  if(!obj) return null;
+  if(obj.sections && typeof obj.sections==='object'){
+    var s=obj.sections;
+    return { monsters:s.monsters, basementMonsters:s.basementMonsters, boss:s.boss, basementBoss:s.basementBoss, swordKing:s.swordKing, guards:s.guards, items:s.items, atkSkills:s.atkSkills, defSkills:s.defSkills, fx:s.fx, sounds:s.sounds, glyphs:s.glyphs, start:s.start, map:s.map, floorCfg:s.floorCfg, floorWL:s.floorWL, floorTr:s.floorTr, itemGain:s.itemGain, arena:s.arena, score:s.score, buildMonIds:s.buildMonIds, buildBMonIds:s.buildBMonIds };
+  }
+  return obj;   /* already a flat config */
+}
+function adminImportConfig(file){
+  if(!Account.isAdmin){ toast(t('acct.notAdmin')); return; }
+  if(!file){ var inp=byId('admJsonFile'); if(inp){ inp.value=''; inp.click(); } return; }
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var obj=JSON.parse(rd.result);
+      var cfg=_cfgFromJson(obj);
+      if(!cfg){ throw new Error('empty'); }
+      applyConfig(cfg);                 /* load into the live game + module state */
+      adminDraft=snapshotConfig();       /* refresh the editor's draft from what we just loaded */
+      try{ refreshEntityIcons(); }catch(e){}
+      if(state.player) renderAll();
+      renderAdminBody();
+      var m=byId('adminMsg'); if(m) m.textContent=t('admin.jsonImported');
+    }catch(e){ var m2=byId('adminMsg'); if(m2) m2.textContent=t('admin.jsonBad')+' ('+e.message+')'; }
+  };
+  rd.onerror=function(){ var m=byId('adminMsg'); if(m) m.textContent=t('admin.jsonBad'); };
+  rd.readAsText(file);
+}
 function adminSaveToCloud(){
   if(!Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   if(!Net.db){ byId('adminMsg').textContent=t('acct.noFirebase'); return; }
@@ -11273,6 +11351,9 @@ function bindAccountAdmin(){
   byId('adminApply').addEventListener('click', adminApplyLocal);
   byId('adminSaveCloud').addEventListener('click', adminSaveToCloud);
   byId('adminReset').addEventListener('click', adminResetDefaults);
+  { var _ej=byId('adminExportJson'); if(_ej) _ej.addEventListener('click', adminExportConfig); }
+  { var _ij=byId('adminImportJson'); if(_ij) _ij.addEventListener('click', function(){ adminImportConfig(null); }); }
+  { var _jf=byId('admJsonFile'); if(_jf) _jf.addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(f) adminImportConfig(f); }); }
   updateAuthUI();
 }
 
