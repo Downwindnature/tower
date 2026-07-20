@@ -6569,7 +6569,8 @@ function boot(){
   applyLang();
   try{ applyPlayerFace(); renderAvatarBox(); }catch(e){}
   byId('keysBox').classList.add('open');
-  Net.init();           // anonymous sign-in + cloud config if Firebase is configured
+  /* seed from the json file first (if present), THEN let the cloud load and take final authority */
+  loadJsonConfig().then(function(){ Net.init(); }, function(){ Net.init(); });   // json is a fallback; Firebase cloud still wins
   goStartScreen();      // choose single-player or multiplayer
 }
 
@@ -10367,14 +10368,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·351'; }
+    bt.textContent='build 0618·352'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·351'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·352'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -11275,6 +11276,39 @@ function adminExportConfig(){
     setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
     var m=byId('adminMsg'); if(m) m.textContent=t('admin.jsonExported');
   }catch(e){ var m2=byId('adminMsg'); if(m2) m2.textContent='Export failed: '+e.message; }
+}
+function _applyCustomMediaFromObj(obj){   /* shared by JSON-file load and manual import: restore uploaded GIF/PNG/WAV media */
+  if(!obj || !obj.customMedia || typeof obj.customMedia!=='object') return;
+  try{
+    var cm=obj.customMedia;
+    if(cm.fx && typeof CUSTOM_FX!=='undefined'){ for(var a in cm.fx) CUSTOM_FX[a]=cm.fx[a]; }
+    if(cm.sfx && typeof CUSTOM_SFX!=='undefined'){ for(var b in cm.sfx) CUSTOM_SFX[b]=cm.sfx[b]; }
+    if(cm.fxName && typeof CUSTOM_FX_NAME!=='undefined'){ for(var c in cm.fxName) CUSTOM_FX_NAME[c]=cm.fxName[c]; }
+    if(cm.sfxName && typeof CUSTOM_SFX_NAME!=='undefined'){ for(var d in cm.sfxName) CUSTOM_SFX_NAME[d]=cm.sfxName[d]; }
+    if(typeof saveCustomMedia==='function') saveCustomMedia();
+  }catch(e){}
+}
+/* Load a config JSON that sits next to index.html on GitHub Pages (mota-config.json).
+   Order of authority (later wins): built-in defaults -> localStorage cache -> THIS json file -> Firebase cloud.
+   So the cloud is still the master; the json is a fallback/seed; the built-ins only stop the game breaking. */
+function loadJsonConfig(){
+  return new Promise(function(resolve){
+    try{
+      var url='mota-config.json?v='+Date.now();   /* cache-bust so a freshly uploaded json is picked up */
+      fetch(url, {cache:'no-store'}).then(function(r){
+        if(!r.ok){ resolve(false); return; }
+        return r.json();
+      }).then(function(obj){
+        if(!obj){ resolve(false); return; }
+        var cfg=_cfgFromJson(obj);
+        if(cfg && typeof applyConfig==='function'){ applyConfig(cfg); }
+        _applyCustomMediaFromObj(obj);
+        try{ refreshEntityIcons(); }catch(e){}
+        if(state.player) { try{ renderAll(); }catch(e){} }
+        resolve(true);
+      }).catch(function(){ resolve(false); });   /* no file / offline / bad json -> silently fall through to cloud + defaults */
+    }catch(e){ resolve(false); }
+  });
 }
 function _cfgFromJson(obj){   /* accept either our sectioned export or a raw snapshotConfig */
   if(!obj) return null;
