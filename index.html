@@ -1391,9 +1391,11 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 @media(max-width:520px){ .monRow .mLn{gap:3px 9px;} .monRow .mK{font-size:10px;} .monRow .mV{font-size:12px;} }
 
 /* ---- admin: name language dropdown ---- */
-.adNlPick{display:flex;gap:6px;align-items:center;}
-.adNlSel{padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:12px;flex:0 0 auto;}
-.adNlOne{flex:1 1 auto;min-width:0;padding:3px 7px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:13px;}
+.adNlPick{display:flex;flex-direction:column;gap:6px;align-items:stretch;}   /* dropdown on top, the text box on its OWN full-width line below (was side-by-side and got squished on narrow panels) */
+.adNlSel{padding:4px 7px;border-radius:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-size:13px;width:100%;box-sizing:border-box;}
+.adNlOne{display:block;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:6px;border:1.5px solid var(--gold,#c79a45);background:rgba(255,255,255,.10);color:var(--txt);font-size:14px;}
+.adNlOne::placeholder{color:rgba(255,255,255,.35);}
+.adNlOneLab{font-size:11px;color:var(--muted,#9aa);margin-top:1px;}
 .adFaceBlk .adImgField{margin:0;}
 
 /* ---- admin: titled sub-sections (mockup block layout) ---- */
@@ -2648,80 +2650,80 @@ const MONSTERS=[
   {id:'slimeR',  face:'🟥', hp:80,   atk:28,  def:5,   gold:2,  exp:1,  atkc:1, agi:6,  minF:1,  maxF:6},
   /* 蝙蝠系 */
   {id:'bat',     face:'🦇', hp:60,   atk:22,  def:4,   gold:3,  exp:1,  atkc:1, agi:14, minF:3,  maxF:8},
-  {id:'bigBat',  face:'🦇', hp:170,  atk:50,  def:12,  gold:6,  exp:1,  atkc:2, agi:18, minF:9,  maxF:16, ab:null},
+  {id:'bigBat',  face:'🦇', hp:170,  atk:50,  def:12,  gold:6,  exp:1,  atkc:2, agi:18, minF:9,  maxF:16},
   /* 骷髏系 */
   {id:'skeleton',face:'💀', hp:120,  atk:40,  def:0,  gold:5,  exp:1,  atkc:1, agi:8,  minF:3,  maxF:9},
   {id:'skSoldier',face:'🗡️',hp:200,  atk:48,  def:5,  gold:8,  exp:2,  atkc:1, agi:9,  minF:5,  maxF:13},
-  {id:'skWarrior',face:'⚔️', hp:200,  atk:80,  def:15,  gold:14, exp:2, atkc:1, agi:11, minF:11, maxF:19, ab:'first'},
+  {id:'skWarrior',face:'⚔️', hp:200,  atk:80,  def:15,  gold:14, exp:2, atkc:1, agi:11, minF:11, maxF:19},
   /* 獸人系 */
   {id:'orc',     face:'👹', hp:300,  atk:60,  def:25,  gold:12, exp:2,  atkc:1, agi:7,  minF:4,  maxF:12},
   /* 魔法師系 */
-  {id:'mage',     face:'🧙', hp:130,  atk:18,  def:22,  gold:14, exp:1, atkc:1, agi:12, minF:4,  maxF:9,  trueDmg:true, ab:'magic'},
-  {id:'seerMage', face:'🧞', hp:200,  atk:25,  def:48,  gold:20, exp:2, atkc:1, agi:13, minF:5,  maxF:11, trueDmg:true, ab:'magic'},
-  {id:'sorcerer', face:'🧿', hp:270,  atk:45,  def:80,  gold:32, exp:3, atkc:1, agi:13, minF:9,  maxF:15, trueDmg:true, ability:'poison', ab:'magic'},
-  {id:'archmage', face:'🔮', hp:340,  atk:90,  def:120, gold:40, exp:3, atkc:1, agi:14, minF:13, maxF:19, trueDmg:true, ability:'poison', ab:'magic'},
-  {id:'warlock',  face:'🌠', hp:400,  atk:180, def:165, gold:50, exp:4, atkc:1, agi:15, minF:17, maxF:24, trueDmg:true, ability:'weak', ab:'magic'},
+  {id:'mage',     face:'🧙', hp:130,  atk:18,  def:22,  gold:14, exp:1, atkc:1, agi:12, minF:4,  maxF:9},
+  {id:'seerMage', face:'🧞', hp:200,  atk:25,  def:48,  gold:20, exp:2, atkc:1, agi:13, minF:5,  maxF:11},
+  {id:'sorcerer', face:'🧿', hp:270,  atk:45,  def:80,  gold:32, exp:3, atkc:1, agi:13, minF:9,  maxF:15},
+  {id:'archmage', face:'🔮', hp:340,  atk:90,  def:120, gold:40, exp:3, atkc:1, agi:14, minF:13, maxF:19},
+  {id:'warlock',  face:'🌠', hp:400,  atk:180, def:165, gold:50, exp:4, atkc:1, agi:15, minF:17, maxF:24},
   /* 喪屍系 */
-  {id:'lich',    face:'🧟', hp:260,  atk:75,  def:30,  gold:36, exp:3, atkc:1, agi:9,  minF:5,  maxF:13, ability:'weak', ab:'weak', drains:true},
-  {id:'zombie',  face:'🧛', hp:360,  atk:74,  def:28,  gold:16, exp:3, atkc:1, agi:7,  minF:7,  maxF:16, ab:'vampire'},
+  {id:'lich',    face:'🧟', hp:260,  atk:75,  def:30,  gold:36, exp:3, atkc:1, agi:9,  minF:5,  maxF:13},
+  {id:'zombie',  face:'🧛', hp:360,  atk:74,  def:28,  gold:16, exp:3, atkc:1, agi:7,  minF:7,  maxF:16},
   /* 守衛系 */
-  {id:'guard',   face:'🛡️', hp:400,  atk:70,  def:60,  gold:22, exp:3, atkc:1, agi:6,  minF:6,  maxF:14, ab:'solid'},
-  {id:'goldGuard',face:'🥇', hp:550,  atk:112, def:96,  gold:40, exp:4, atkc:1, agi:7,  minF:14, maxF:23, ab:'solid'},
+  {id:'guard',   face:'🛡️', hp:400,  atk:70,  def:60,  gold:22, exp:3, atkc:1, agi:6,  minF:6,  maxF:14},
+  {id:'goldGuard',face:'🥇', hp:550,  atk:112, def:96,  gold:40, exp:4, atkc:1, agi:7,  minF:14, maxF:23},
   /* 石怪系 */
-  {id:'golem',   face:'🗿', hp:400,  atk:102, def:82,  gold:55, exp:4, atkc:1, agi:4,  minF:10, maxF:20, ab:'solid'},
+  {id:'golem',   face:'🗿', hp:400,  atk:102, def:82,  gold:55, exp:4, atkc:1, agi:4,  minF:10, maxF:20},
   /* 騎士系 */
-  {id:'knight',  face:'🐎', hp:390,  atk:108, def:50,  gold:30, exp:3, atkc:1, agi:13, minF:13, maxF:21, ab:'first'},
-  {id:'darkKnight',face:'🏇',hp:580,  atk:142, def:66,  gold:48, exp:4, atkc:2, agi:15, minF:18, maxF:24, ab:'first'},
+  {id:'knight',  face:'🐎', hp:390,  atk:108, def:50,  gold:30, exp:3, atkc:1, agi:13, minF:13, maxF:21},
+  {id:'darkKnight',face:'🏇',hp:580,  atk:142, def:66,  gold:48, exp:4, atkc:2, agi:15, minF:18, maxF:24},
   /* 雙手劍兵系 */
-  {id:'swordsman',face:'🤺', hp:630,  atk:175, def:55,  gold:44, exp:4, atkc:1, agi:16, minF:15, maxF:24, ab:'pierce'},
+  {id:'swordsman',face:'🤺', hp:630,  atk:175, def:55,  gold:44, exp:4, atkc:1, agi:16, minF:15, maxF:24},
   /* 巨大怪物系 */
-  {id:'behemoth',face:'👾', hp:600, atk:190, def:92,  gold:61, exp:4, atkc:1, agi:8,  minF:20, maxF:24, ab:'vampire'},
+  {id:'behemoth',face:'👾', hp:600, atk:190, def:92,  gold:61, exp:4, atkc:1, agi:8,  minF:20, maxF:24},
   /* 史萊姆人系 */
   {id:'slimeMan',  face:'🟩', hp:310,  atk:70,  def:34,  gold:19, exp:2,  atkc:1, agi:10, minF:6,  maxF:13},
   /* 靈骷髏系 */
-  {id:'spiritSkel',face:'☠️', hp:420,  atk:92,  def:34,  gold:27, exp:3, atkc:1, agi:12, minF:9,  maxF:17, ability:'weak', ab:'weak', drains:true},
+  {id:'spiritSkel',face:'☠️', hp:420,  atk:92,  def:34,  gold:27, exp:3, atkc:1, agi:12, minF:9,  maxF:17},
   /* 石怪系 — 鬼邪石（極高防） */
-  {id:'evilStone', face:'⛰️', hp:210, atk:120, def:130, gold:30, exp:3, atkc:1, agi:3,  minF:16, maxF:24, ab:'solid'},
+  {id:'evilStone', face:'⛰️', hp:210, atk:120, def:130, gold:30, exp:3, atkc:1, agi:3,  minF:16, maxF:24},
   /* 喪屍系 — 混沌術士（吸血法師） */
-  {id:'chaosMage', face:'🌀', hp:680,  atk:165, def:60,  gold:55, exp:4, atkc:1, agi:13, minF:17, maxF:24, ab:'vampire'},
+  {id:'chaosMage', face:'🌀', hp:680,  atk:165, def:60,  gold:55, exp:4, atkc:1, agi:13, minF:17, maxF:24},
   /* 巨大怪物系 — 毒龍 */
-  {id:'poisonDragon',face:'🐲',hp:1130,atk:185, def:96,  gold:70, exp:6, atkc:2, agi:14, minF:21, maxF:24, ability:'poison', ab:'poison'},
+  {id:'poisonDragon',face:'🐲',hp:1130,atk:185, def:96,  gold:70, exp:6, atkc:2, agi:14, minF:21, maxF:24},
   /* 骷髏系 — 隊長 */
-  {id:'skCaptain', face:'🦴', hp:390,  atk:105,  def:25,  gold:33, exp:3,  atkc:1, agi:10, minF:7,  maxF:14, ab:'first'},
+  {id:'skCaptain', face:'🦴', hp:390,  atk:105,  def:25,  gold:33, exp:3,  atkc:1, agi:10, minF:7,  maxF:14},
   /* 獸人系 — 高級 */
   {id:'highOrc',   face:'👺', hp:560,  atk:105, def:48,  gold:35, exp:3, atkc:1, agi:8,  minF:10, maxF:18},
   /* 守衛系 — 青銅 */
-  {id:'bronzeGuard',face:'💂',hp:520,  atk:130,  def:93,  gold:59, exp:4, atkc:1, agi:6,  minF:9,  maxF:17, ab:'solid'},
+  {id:'bronzeGuard',face:'💂',hp:520,  atk:130,  def:93,  gold:59, exp:4, atkc:1, agi:6,  minF:9,  maxF:17},
   /* 喪屍系 — 木乃伊 */
-  {id:'mummy',     face:'⚰️', hp:440,  atk:110,  def:83,  gold:56, exp:4, atkc:1, agi:6,  minF:8,  maxF:16, ability:'weak', ab:'weak', drains:true},
+  {id:'mummy',     face:'⚰️', hp:440,  atk:110,  def:83,  gold:56, exp:4, atkc:1, agi:6,  minF:8,  maxF:16},
   /* 偽裝系 — 偽裝寶箱 */
-  {id:'mimic',     face:'🎁', hp:650,  atk:160, def:130,  gold:70, exp:5, atkc:1, agi:9,  minF:11, maxF:20, ab:'pierce'},
+  {id:'mimic',     face:'🎁', hp:650,  atk:160, def:130,  gold:70, exp:5, atkc:1, agi:9,  minF:11, maxF:20},
 ];
-const BOSS={id:'dragon', face:'🐉', hp:4000, atk:240, def:119, gold:100, exp:100, atkc:2, agi:20, ability:'weak', ab:'boss', drains:true};
+const BOSS={id:'dragon', face:'🐉', hp:4000, atk:240, def:119, gold:100, exp:100, atkc:2, agi:20};
 // ===== Basement-exclusive bestiary (B10+): a completely different, far stronger breed =====
 const BASEMENT_MONSTERS=[
-  {id:'shadowFiend', face:'👤', hp:2050,  atk:330, def:275, gold:130, exp:8, atkc:1, agi:14, minF:22, maxF:99, ability:'weak', ab:'weak', drains:true},
-  {id:'hellhound',   face:'🐺', hp:2200,  atk:380, def:330, gold:150, exp:8, atkc:2, agi:18, minF:22, maxF:99, ab:null},
-  {id:'voidMage',    face:'🌑', hp:1450,  atk:90, def:250, gold:170, exp:9, atkc:1, agi:15, minF:22, maxF:99, trueDmg:true, ability:'poison', ab:'magic'},
-  {id:'abyssMage',   face:'🌌', hp:1600,  atk:180, def:360, gold:185, exp:9, atkc:1, agi:16, minF:22, maxF:99, trueDmg:true, ability:'weak',   ab:'magic'},
-  {id:'doomMage',    face:'☄️', hp:2000,  atk:360, def:400, gold:210, exp:10, atkc:1, agi:14, minF:22, maxF:99, trueDmg:true, ability:'poison', ab:'magic'},
-  {id:'boneWyrm',    face:'🐍', hp:2300,  atk:400, def:240, gold:230, exp:10, atkc:1, agi:10, minF:22, maxF:99, ability:'poison', ab:'poison'},
-  {id:'fleshGolem',  face:'👿', hp:2500, atk:340, def:340, gold:250, exp:11, atkc:1, agi:4,  minF:22, maxF:99, ab:'solid'},
-  {id:'wraithLord',  face:'👻', hp:1900,  atk:340, def:300, gold:270, exp:9, atkc:1, agi:16, minF:22, maxF:99, ab:'vampire'},
-  {id:'doomKnight',  face:'🩸', hp:2500,  atk:540, def:375, gold:215, exp:10, atkc:2, agi:15, minF:22, maxF:99, ab:'pierce'},
-  {id:'abyssTitan',  face:'🟣', hp:3200, atk:680, def:420, gold:385, exp:12, atkc:1, agi:6,  minF:22, maxF:99, ab:'vampire'},
-  {id:'thunderMage',  name:'雷術士',     face:'🌩️', hp:1500, atk:100, def:300, gold:180, exp:9,  atkc:1, agi:15, minF:22, maxF:99, trueDmg:true, ab:'magic',   atkFx:'spark',    atkSfx:'zap'},
-  {id:'flameMage',    name:'炎術師',     face:'🔥', hp:1600, atk:110, def:320, gold:190, exp:9,  atkc:1, agi:15, minF:22, maxF:99, trueDmg:true, ab:'magic',   atkFx:'flame',    atkSfx:'roar'},
-  {id:'chaosSorcerer',name:'渾沌術士',   face:'🌀', hp:1700, atk:130, def:340, gold:210, exp:10, atkc:1, agi:16, minF:22, maxF:99, trueDmg:true, ab:'magic',   atkFx:'chaos',    atkSfx:'zap'},
-  {id:'necroArchmage',name:'死靈大法師', face:'💀', hp:1850, atk:160, def:360, gold:230, exp:10, atkc:1, agi:14, minF:22, maxF:99, trueDmg:true, ability:'weak', ab:'magic', atkFx:'archmage', atkSfx:'roar'},
-  {id:'poisonDragon', name:'毒龍',       face:'🐲', hp:2500, atk:340, def:300, gold:240, exp:11, atkc:1, agi:10, minF:22, maxF:99, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite'},
-  {id:'goldenDragon', name:'黃金龍',     face:'🐉', hp:3000, atk:380, def:340, gold:600, exp:12, atkc:2, agi:11, minF:22, maxF:99, ab:null,   atkFx:'dragon',   atkSfx:'roar'},
-  {id:'flameZombie',  name:'烈焰喪屍',   face:'🧟', hp:2200, atk:320, def:280, gold:200, exp:10, atkc:1, agi:7,  minF:22, maxF:99, ability:'weak', ab:'weak', atkFx:'fire', atkSfx:'thud'},
-  {id:'bloodSwordsman',name:'血劍士',    face:'🗡️', hp:2400, atk:360, def:310, gold:230, exp:11, atkc:1, agi:15, minF:22, maxF:99, ab:'vampire', atkFx:'spell',    atkSfx:'slash'},
-  {id:'royalSwordsman',name:'皇室劍士',  face:'⚔️', hp:2300, atk:410, def:350, gold:220, exp:11, atkc:1, agi:14, minF:22, maxF:99, ab:'pierce',  atkFx:'nova',     atkSfx:'slash'},
-  {id:'tentacleHorror',name:'觸手魔物',  face:'🦑', hp:2600, atk:95,  def:330, gold:250, exp:11, atkc:6, agi:12, minF:22, maxF:99, ab:null,   atkFx:'acid',     atkSfx:'bite'},
-  {id:'swordMaster',  name:'魔劍之凱撒', face:'🦹', hp:3500, atk:520, def:400, gold:400, exp:14, atkc:2, agi:18, minF:22, maxF:99, b20:true, master:'sword', atkFx:'demon',    atkSfx:'roar'},
-  {id:'shieldMaster', name:'靈盾之柏奇', face:'🛡️', hp:3500, atk:300, def:600, gold:400, exp:14, atkc:1, agi:6,  minF:22, maxF:99, b20:true, master:'shield', atkFx:'archmage', atkSfx:'boom'},
+  {id:'shadowFiend', face:'👤', hp:2050,  atk:330, def:275, gold:130, exp:8, atkc:1, agi:14, minF:22, maxF:99},
+  {id:'hellhound',   face:'🐺', hp:2200,  atk:380, def:330, gold:150, exp:8, atkc:2, agi:18, minF:22, maxF:99},
+  {id:'voidMage',    face:'🌑', hp:1450,  atk:90, def:250, gold:170, exp:9, atkc:1, agi:15, minF:22, maxF:99},
+  {id:'abyssMage',   face:'🌌', hp:1600,  atk:180, def:360, gold:185, exp:9, atkc:1, agi:16, minF:22, maxF:99},
+  {id:'doomMage',    face:'☄️', hp:2000,  atk:360, def:400, gold:210, exp:10, atkc:1, agi:14, minF:22, maxF:99},
+  {id:'boneWyrm',    face:'🐍', hp:2300,  atk:400, def:240, gold:230, exp:10, atkc:1, agi:10, minF:22, maxF:99},
+  {id:'fleshGolem',  face:'👿', hp:2500, atk:340, def:340, gold:250, exp:11, atkc:1, agi:4,  minF:22, maxF:99},
+  {id:'wraithLord',  face:'👻', hp:1900,  atk:340, def:300, gold:270, exp:9, atkc:1, agi:16, minF:22, maxF:99},
+  {id:'doomKnight',  face:'🩸', hp:2500,  atk:540, def:375, gold:215, exp:10, atkc:2, agi:15, minF:22, maxF:99},
+  {id:'abyssTitan',  face:'🟣', hp:3200, atk:680, def:420, gold:385, exp:12, atkc:1, agi:6,  minF:22, maxF:99},
+  {id:'thunderMage',  name:'雷術士',     face:'🌩️', hp:1500, atk:100, def:300, gold:180, exp:9,  atkc:1, agi:15, minF:22, maxF:99, atkFx:'spark',    atkSfx:'zap'},
+  {id:'flameMage',    name:'炎術師',     face:'🔥', hp:1600, atk:110, def:320, gold:190, exp:9,  atkc:1, agi:15, minF:22, maxF:99, atkFx:'flame',    atkSfx:'roar'},
+  {id:'chaosSorcerer',name:'渾沌術士',   face:'🌀', hp:1700, atk:130, def:340, gold:210, exp:10, atkc:1, agi:16, minF:22, maxF:99, atkFx:'chaos',    atkSfx:'zap'},
+  {id:'necroArchmage',name:'死靈大法師', face:'💀', hp:1850, atk:160, def:360, gold:230, exp:10, atkc:1, agi:14, minF:22, maxF:99, atkFx:'archmage', atkSfx:'roar'},
+  {id:'poisonDragon', name:'毒龍',       face:'🐲', hp:2500, atk:340, def:300, gold:240, exp:11, atkc:1, agi:10, minF:22, maxF:99, atkFx:'acid', atkSfx:'bite'},
+  {id:'goldenDragon', name:'黃金龍',     face:'🐉', hp:3000, atk:380, def:340, gold:600, exp:12, atkc:2, agi:11, minF:22, maxF:99, atkFx:'dragon',   atkSfx:'roar'},
+  {id:'flameZombie',  name:'烈焰喪屍',   face:'🧟', hp:2200, atk:320, def:280, gold:200, exp:10, atkc:1, agi:7,  minF:22, maxF:99, atkFx:'fire', atkSfx:'thud'},
+  {id:'bloodSwordsman',name:'血劍士',    face:'🗡️', hp:2400, atk:360, def:310, gold:230, exp:11, atkc:1, agi:15, minF:22, maxF:99, atkFx:'spell',    atkSfx:'slash'},
+  {id:'royalSwordsman',name:'皇室劍士',  face:'⚔️', hp:2300, atk:410, def:350, gold:220, exp:11, atkc:1, agi:14, minF:22, maxF:99, atkFx:'nova',     atkSfx:'slash'},
+  {id:'tentacleHorror',name:'觸手魔物',  face:'🦑', hp:2600, atk:95,  def:330, gold:250, exp:11, atkc:6, agi:12, minF:22, maxF:99, atkFx:'acid',     atkSfx:'bite'},
+  {id:'swordMaster',  name:'魔劍之凱撒', face:'🦹', hp:3500, atk:520, def:400, gold:400, exp:14, atkc:2, agi:18, minF:22, maxF:99, atkFx:'demon',    atkSfx:'roar'},
+  {id:'shieldMaster', name:'靈盾之柏奇', face:'🛡️', hp:3500, atk:300, def:600, gold:400, exp:14, atkc:1, agi:6,  minF:22, maxF:99, atkFx:'archmage', atkSfx:'boom'},
 ];
 
 const ITEMS={
@@ -2877,7 +2879,7 @@ function makeBoss(){
     maxhp:BOSS.hp,hp:BOSS.hp,atk:BOSS.atk,def:BOSS.def,gold:BOSS.gold,exp:BOSS.exp,
     thrA:40,thrD:30,boss:true};
 }
-const BASEMENT_BOSS={id:'overlordGordon', name:'魔界之王·古頓', face:'👹', hp:20000, atk:500, def:1100, gold:600, exp:600, atkc:4, agi:24, ab:'boss', atkFx:'demon', atkSfx:'boom', pillarDrainEn:30, barrierEn:15, barrierStam:3, reflectEn:25, reflectStam:5, reflectBlockPct:60, reflectHealPct:30};
+const BASEMENT_BOSS={id:'overlordGordon', name:'魔界之王·古頓', face:'👹', hp:20000, atk:500, def:1100, gold:600, exp:600, atkc:4, agi:24, atkFx:'demon', atkSfx:'boom', pillarDrainEn:30, barrierEn:15, barrierStam:3, reflectEn:25, reflectStam:5, reflectBlockPct:60, reflectHealPct:30};
 function makeBasementBoss(){
   return {id:BASEMENT_BOSS.id,face:BASEMENT_BOSS.face,name:BASEMENT_BOSS.name||null,img:BASEMENT_BOSS.img||null,atkFx:BASEMENT_BOSS.atkFx||null,atkSfx:BASEMENT_BOSS.atkSfx||null,ability:BASEMENT_BOSS.ability,ab:BASEMENT_BOSS.ab,atkc:BASEMENT_BOSS.atkc,agi:BASEMENT_BOSS.agi||0,drains:!!BASEMENT_BOSS.drains,trueDmg:!!BASEMENT_BOSS.trueDmg,master:BASEMENT_BOSS.master||null, pillarDrainEn:(BASEMENT_BOSS.pillarDrainEn!=null?BASEMENT_BOSS.pillarDrainEn:30), barrierEn:(BASEMENT_BOSS.barrierEn!=null?BASEMENT_BOSS.barrierEn:15), barrierStam:(BASEMENT_BOSS.barrierStam!=null?BASEMENT_BOSS.barrierStam:3), reflectEn:(BASEMENT_BOSS.reflectEn!=null?BASEMENT_BOSS.reflectEn:25), reflectStam:(BASEMENT_BOSS.reflectStam!=null?BASEMENT_BOSS.reflectStam:5), reflectBlockPct:(BASEMENT_BOSS.reflectBlockPct!=null?BASEMENT_BOSS.reflectBlockPct:60), reflectHealPct:(BASEMENT_BOSS.reflectHealPct!=null?BASEMENT_BOSS.reflectHealPct:30), critFx:BASEMENT_BOSS.critFx||null, critSfx:BASEMENT_BOSS.critSfx||null, deathTerrain:BASEMENT_BOSS.deathTerrain||null, bonusDmg:BASEMENT_BOSS.bonusDmg||0, drainEn:BASEMENT_BOSS.drainEn||0, drainStam:(typeof BASEMENT_BOSS.drainStam==='number'?BASEMENT_BOSS.drainStam:null), noFlee:!!BASEMENT_BOSS.noFlee, revive:!!BASEMENT_BOSS.revive, statDownPct:BASEMENT_BOSS.statDownPct||0, statDownN:BASEMENT_BOSS.statDownN||0, statDownDefPct:(BASEMENT_BOSS.statDownDefPct!=null?BASEMENT_BOSS.statDownDefPct:(BASEMENT_BOSS.statDownPct||0)), statDownDefN:(BASEMENT_BOSS.statDownDefN!=null?BASEMENT_BOSS.statDownDefN:(BASEMENT_BOSS.statDownN||0)), poisonChance:BASEMENT_BOSS.poisonChance||0, vampPct:BASEMENT_BOSS.vampPct||0, trueTriple:!!BASEMENT_BOSS.trueTriple, weakChance:BASEMENT_BOSS.weakChance||0, weakAtk:(BASEMENT_BOSS.weakAtk!=null?BASEMENT_BOSS.weakAtk:3), weakDef:(BASEMENT_BOSS.weakDef!=null?BASEMENT_BOSS.weakDef:3), critDrainEn:BASEMENT_BOSS.critDrainEn||0, blockTp:!!BASEMENT_BOSS.blockTp, atkFatigue:BASEMENT_BOSS.atkFatigue||0, noEnergy:BASEMENT_BOSS.noEnergy||'', poisonBuffChance:BASEMENT_BOSS.poisonBuffChance||0, poisonBuffAtk:BASEMENT_BOSS.poisonBuffAtk||0, poisonBuffDef:BASEMENT_BOSS.poisonBuffDef||0, statMatch:BASEMENT_BOSS.statMatch||'', reviveInto:BASEMENT_BOSS.reviveInto||'', mAtkSkill:BASEMENT_BOSS.mAtkSkill||'', skillHpBelow:BASEMENT_BOSS.skillHpBelow||0, skillEveryN:BASEMENT_BOSS.skillEveryN||0, mDefSkill:BASEMENT_BOSS.mDefSkill||'', mAtkSkills:(BASEMENT_BOSS.mAtkSkills&&BASEMENT_BOSS.mAtkSkills.length)?BASEMENT_BOSS.mAtkSkills.slice():(BASEMENT_BOSS.mAtkSkill?[BASEMENT_BOSS.mAtkSkill]:[]), mDefSkills:(BASEMENT_BOSS.mDefSkills&&BASEMENT_BOSS.mDefSkills.length)?BASEMENT_BOSS.mDefSkills.slice():(BASEMENT_BOSS.mDefSkill?[BASEMENT_BOSS.mDefSkill]:[]), skillOrder:BASEMENT_BOSS.skillOrder||'seq',
     maxhp:BASEMENT_BOSS.hp,hp:BASEMENT_BOSS.hp,atk:BASEMENT_BOSS.atk,def:BASEMENT_BOSS.def,gold:BASEMENT_BOSS.gold,exp:BASEMENT_BOSS.exp,
@@ -2886,10 +2888,10 @@ function makeBasementBoss(){
 function mkFoeDirect(base){ return {id:base.id,name:base.name||null,face:base.face,img:base.img||null,atkFx:base.atkFx||null,atkSfx:base.atkSfx||null,critFx:base.critFx||null,critSfx:base.critSfx||null,ability:base.ability||null,ab:base.ab||null,atkc:base.atkc||1,atkcMin:(base.atkcMin||0),atkcMax:(base.atkcMax||0),agi:base.agi||0,drains:!!base.drains,trueDmg:!!base.trueDmg,deathTerrain:base.deathTerrain||null,bonusDmg:base.bonusDmg||0,drainEn:base.drainEn||0,drainStam:(typeof base.drainStam==='number'?base.drainStam:null),critDrainStam:(base.critDrainStam||0),noFlee:!!base.noFlee,revive:!!base.revive,atkcMin:base.atkcMin||0,atkcMax:base.atkcMax||0,statDownPct:base.statDownPct||0,statDownN:base.statDownN||0,statDownDefPct:(base.statDownDefPct!=null?base.statDownDefPct:(base.statDownPct||0)),statDownDefN:(base.statDownDefN!=null?base.statDownDefN:(base.statDownN||0)),poisonChance:base.poisonChance||0,vampPct:base.vampPct||0,trueTriple:!!base.trueTriple,weakChance:base.weakChance||0,weakAtk:(base.weakAtk!=null?base.weakAtk:3),weakDef:(base.weakDef!=null?base.weakDef:3),critDrainEn:base.critDrainEn||0,blockTp:!!base.blockTp,atkFatigue:base.atkFatigue||0,noEnergy:base.noEnergy||'',poisonBuffChance:base.poisonBuffChance||0,poisonBuffAtk:base.poisonBuffAtk||0,poisonBuffDef:base.poisonBuffDef||0,statMatch:base.statMatch||'',reviveInto:base.reviveInto||'',mAtkSkill:base.mAtkSkill||'',skillHpBelow:base.skillHpBelow||0,skillEveryN:base.skillEveryN||0,mDefSkill:base.mDefSkill||'',mAtkSkills:(base.mAtkSkills&&base.mAtkSkills.length)?base.mAtkSkills.slice():(base.mAtkSkill?[base.mAtkSkill]:[]), mDefSkills:(base.mDefSkills&&base.mDefSkills.length)?base.mDefSkills.slice():(base.mDefSkill?[base.mDefSkill]:[]), skillOrder:base.skillOrder||'seq',master:base.master||null,dropItem2:base.dropItem2||null, maxhp:base.hp,hp:base.hp,atk:base.atk,def:base.def,gold:base.gold,exp:base.exp, thrA:base.thrA||45,thrD:base.thrD||35}; }
 const GUARD_DRAGONS={
   red:    {id:'redDragon',  name:'紅龍', face:'🐉', hp:760,  atk:58, def:26, gold:90,  exp:4, atkc:1, agi:8, thrA:45, thrD:35, atkFx:'dragon', atkSfx:'roar'},
-  poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, ability:'poison', ab:'poison', atkFx:'acid', atkSfx:'bite', dropItem2:'jug'}
+  poison: {id:'venomDragon',name:'毒龍', face:'🐲', hp:1080, atk:66, def:38, gold:110, exp:5, atkc:1, agi:9, thrA:45, thrD:35, atkFx:'acid', atkSfx:'bite', dropItem2:'jug'}
 };
-const ABYSS_GUARD={id:'abyssLord', name:'深淵魔王', face:'😈', hp:16000, atk:1000, def:1000, gold:480, exp:400, atkc:2, agi:22, thrA:55, thrD:50, ability:'poison', ab:'boss', drains:true, atkFx:'demon', atkSfx:'boom'};
-const SWORD_KING={id:'swordKing', face:'🤺', hp:630, atk:175, def:55, gold:44, exp:4, atkc:4, agi:16, minF:15, maxF:24, ab:'pierce', atkFx:null, atkSfx:null};   /* 劍王：地下的獨立怪物（與雙手劍兵分開，各自設定）。地下生成時 scaleFoe 依深度縮放 */
+const ABYSS_GUARD={id:'abyssLord', name:'深淵魔王', face:'😈', hp:16000, atk:1000, def:1000, gold:480, exp:400, atkc:2, agi:22, thrA:55, thrD:50, atkFx:'demon', atkSfx:'boom'};
+const SWORD_KING={id:'swordKing', face:'🤺', hp:630, atk:175, def:55, gold:44, exp:4, atkc:4, agi:16, minF:15, maxF:24, atkFx:null, atkSfx:null};   /* 劍王：地下的獨立怪物（與雙手劍兵分開，各自設定）。地下生成時 scaleFoe 依深度縮放 */
 function migrateFloorRanges(){
   if(typeof MONSTERS!=='undefined') MONSTERS.forEach(function(m){
     if(m.sMin==null){ var lo=clamp(m.minF||1,1,FLOORS), hi=clamp(Math.min(m.maxF||FLOORS,FLOORS),1,FLOORS); m.sMin=lo; m.sMax=Math.max(lo,hi); }
@@ -3064,7 +3066,7 @@ function genFloorRaw(f){
     if((c.x===start.x&&c.y===start.y)||(c.x===stairs.x&&c.y===stairs.y)) return true;
     const r=reach(start,c); return !r[stairs.y][stairs.x];
   };
-  const free=function(){return floors.filter(function(c){return !wall[c.y][c.x]&&!occupied(data,c)&&!nearSpawn(data,c);});};   // !wall guard: a cell sealed into a wall AFTER floors[] was captured (vault frame / shop) must never receive an item or monster (問題1)
+  const free=function(){return floors.filter(function(c){return !wall[c.y][c.x]&&!occupied(data,c)&&!nearSpawn(data,c)&&!(data.lava&&data.lava[c.y]&&data.lava[c.y][c.x]);});};   /* never hand out a lava tile — items/monsters must not spawn on lava */   // !wall guard: a cell sealed into a wall AFTER floors[] was captured (vault frame / shop) must never receive an item or monster (問題1)
 
   // monsters
   const _fdMul=(typeof FLOOR_CFG!=='undefined'&&FLOOR_CFG[_realFloor]!=null)?FLOOR_CFG[_realFloor]:1;   // per-floor density (admin Map tab)
@@ -4481,7 +4483,7 @@ function playEventFx(side, mapName, key){ try{ const m=FX_MAP[mapName]; if(m && 
 function openCombat(x,y,ent){
   let foe=ent.foe;
   /* refresh presentation fields (FX / sound / image / face) from the LIVE template so admin edits apply even to monsters that were already placed on the map before the edit — keeps FX consistent with the name, which is already looked up live */
-  try{ var _tplC=_monTemplateById(foe.id); if(_tplC){ foe.atkFx=_tplC.atkFx||null; foe.atkSfx=_tplC.atkSfx||null; foe.critFx=_tplC.critFx||null; foe.critSfx=_tplC.critSfx||null; foe.img=_tplC.img||null; if(_tplC.face) foe.face=_tplC.face; } }catch(_e){}
+  try{ var _tplC=_monTemplateById(foe.id); if(_tplC){ foe.atkFx=_tplC.atkFx||null; foe.atkSfx=_tplC.atkSfx||null; foe.critFx=_tplC.critFx||null; foe.critSfx=_tplC.critSfx||null; } }catch(_e){}   /* refresh only FX/sound from the template; the ICON (img/face) stays whatever is on the map tile, so the combat portrait always matches the map */
   foe=Object.assign({}, foe);
   { /* multiplayer stat scaling: each EXTRA player past the first adds mpHpPer% HP / mpAtkPer% ATK (team modes only, opt-in per monster) */
     try{
@@ -4536,13 +4538,16 @@ function skLvOk(s){ return !!s && (_admSkAll() || (state.player&&state.player.lv
 function refreshCombatButtons(){
   const c=state.combat, pl=state.player; if(!c||!pl) return; ensureSkills(pl);
   const aS=(pl.atkEquip && effAtkSkillIds().indexOf(pl.atkEquip)>=0)?SKILL_BY_ID[pl.atkEquip]:null, aBtn=byId('cbAtkSkill');
-  if(aS){ byId('cbAtkLab').textContent=skillName(pl.atkEquip); byId('cbAtkCost').textContent=aS.en+'E·'+aS.stam+t('cb.stamShort');
-    aBtn.disabled = state.busy || c.done || !skLvOk(aS) || pl.en<aS.en || c.meStam<aS.stam; }
-  else { byId('cbAtkLab').textContent=t('cb.atkUse'); byId('cbAtkCost').textContent=''; aBtn.disabled=true; }
+  if(aS){ var _aArmed=(c.atkSkillArmed===pl.atkEquip); byId('cbAtkLab').textContent=_aArmed?t('cb.skillArmed'):skillName(pl.atkEquip); byId('cbAtkCost').textContent=aS.en+'E·'+aS.stam+t('cb.stamShort');
+    aBtn.disabled = state.busy || c.done || !skLvOk(aS) || pl.en<aS.en || c.meStam<aS.stam || (c.skillUsedThisRound && !_aArmed);
+    aBtn.classList.toggle('armed', _aArmed); }
+  else { byId('cbAtkLab').textContent=t('cb.atkUse'); byId('cbAtkCost').textContent=''; aBtn.disabled=true; aBtn.classList.remove('armed'); }
   const dS=(pl.defEquip && effDefSkillIds().indexOf(pl.defEquip)>=0)?SKILL_BY_ID[pl.defEquip]:null, dBtn=byId('cbDefSkill');
   if(dS){ byId('cbDefLab').textContent=skillName(pl.defEquip); byId('cbDefCost').textContent=dS.en+'E·'+dS.stam+t('cb.stamShort');
-    dBtn.disabled = state.busy || c.done || !skLvOk(dS) || pl.en<dS.en || c.meStam<dS.stam;
-    dBtn.classList.toggle('armed', c.defArmed===pl.defEquip || (pl.defEquip==='shendun' && c.shendunHits>0)); }
+    var _dArmed=(c.defArmed===pl.defEquip || (pl.defEquip==='shendun' && c.shendunHits>0));
+    dBtn.disabled = state.busy || c.done || !skLvOk(dS) || pl.en<dS.en || c.meStam<dS.stam || (c.skillUsedThisRound && !_dArmed) || _dArmed;
+    byId('cbDefLab').textContent=_dArmed?t('cb.skillArmed'):skillName(pl.defEquip);
+    dBtn.classList.toggle('armed', _dArmed); }
   else { byId('cbDefLab').textContent=t('cb.defUse'); byId('cbDefCost').textContent=''; dBtn.disabled=true; }
   { const _fB=byId('cbFlee'); if(_fB){ const _nf=!!(c.foe&&c.foe.noFlee); _fB.disabled=(_nf||state.busy||c.done); _fB.style.opacity=_nf?'0.45':''; } }
   { const _bB=byId('cbBreath'); if(_bB){ var _stFull=(c.meStam>=100); _bB.disabled=(state.busy||c.done||_stFull); _bB.style.opacity=_stFull?'0.45':''; } }   /* stamina already full -> nothing to recover: deep breath would only skip your turn and hand the foe a free hit */
@@ -4621,20 +4626,29 @@ function combatAtkSkill(){
   const id=pl.atkEquip; if(!id||effAtkSkillIds().indexOf(id)<0){ toast(t('cb.noAtkSkill')); return; }
   const s=SKILL_BY_ID[id];
   if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
+  if(c.skillUsedThisRound && c.atkSkillArmed!==id){ toast(t('cb.skillOncePerRound')); return; }   /* one skill book per round */
   if(pl.en<s.en||c.meStam<s.stam){ toast(t('cb.needEnStam')); return; }
-  playerAct('atk:'+id);
+  /* ARM it like a crit — it fires on the hero's own attack turn, never mid-foe-turn, and the three (skill / crit / plain) are mutually exclusive */
+  if(c.atkSkillArmed===id){ c.atkSkillArmed=null; }   /* toggle off */
+  else { c.atkSkillArmed=id; c.critArmed=false; log('me',fmt(t('msg.skillArm'),{n:skillName(id)})); }
+  renderCombat();
+  if(!state.busy) scheduleRound();   /* arming doesn't consume the turn — keep the automatic round loop alive */
 }
 function combatDefSkill(){
   const c=state.combat, pl=ensureSkills(state.player); if(!c||c.done||c.ended||state.busy) return;
   const id=pl.defEquip; if(!id||effDefSkillIds().indexOf(id)<0){ toast(t('cb.noDefSkill')); return; }
   const s=SKILL_BY_ID[id];
   if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
+  if(c.skillUsedThisRound && c.defArmed!==id){ toast(t('cb.skillOncePerRound')); return; }   /* one skill book per round */
+  if(c.defArmed===id || (id==='shendun'&&c.shendunHits>0)){ toast(t('cb.defAlreadyArmed')); return; }   /* no re-arming / stacking by mashing */
   if(pl.en<s.en||c.meStam<s.stam){ toast(t('cb.needEnStam')); return; }
   pl.en=clamp(pl.en-s.en,0,100); c.meStam=clamp(c.meStam-s.stam,0,100);
+  c.skillUsedThisRound=true;
   if(id==='shendun'){ var _sdSk=SKILL_BY_ID['shendun']||{}; c.shendunBonus=Math.floor((pl.hp+pl.def)*pl.lv/100*(_sdSk.defMul!=null?_sdSk.defMul:1)); c.shendunHits=(_sdSk.hits!=null?_sdSk.hits:3); log('me',fmt(t('msg.skillCast'),{n:t('sk.shendun.name')})); }
   else { c.defArmed=id; log('me',fmt(t('msg.defArm'),{n:skillName(id)})); }
   playEventFx('me','skill',id);   /* 防禦技能特效＋聲音 */
   renderCombat();
+  if(!state.busy) scheduleRound();   /* arming doesn't consume the turn — keep the automatic round loop alive */
 }
 function updateCritBtn(){
   const b=byId('cbCritBtn'); if(!b) return;
@@ -4650,7 +4664,8 @@ function armCrit(){
   if(pl.en < 20){ toast(t('cb.critNeed')); updateCritBtn(); return; }
   if(!c.critArmed && dmgUp(effAtk(pl)+(c.atkBuff||0), c.foe.def, pl.thrA)<=0){ toast(t('cb.critNoDmg')); updateCritBtn(); return; }   /* 對怪物造不成傷害時不能蓄力爆擊 */
   c.critArmed = !c.critArmed;   /* toggle: arm / cancel, no cooldown */
-  updateCritBtn();
+  if(c.critArmed) c.atkSkillArmed=null;   /* crit & attack-skill are mutually exclusive */
+  updateCritBtn(); renderCombat();
 }
 function _foeSkArr(foe,a){ var L=a?foe.mAtkSkills:foe.mDefSkills; if(L&&L.length) return L; var s=a?foe.mAtkSkill:foe.mDefSkill; return s?[s]:[]; }
 function _pickFoeSk(c,list,a){ if(!list.length) return ''; var ord=(c.foe.skillOrder||'seq'); if(ord==='rand') return list[Math.floor(RAND()*list.length)]; if(ord==='ai'){ var best='',bv=-Infinity; for(var i=0;i<list.length;i++){ var s=SKILL_BY_ID[list[i]]; if(!s)continue; var v=a?(s.mult||0):(s.id==='healShield'?100:(s.div||0)); if(v>bv){bv=v;best=list[i];} } return best; } var k=a?'_skAi':'_skDi'; c[k]=(c[k]||0); var p=list[c[k]%list.length]; c[k]++; return p; }
@@ -4713,13 +4728,17 @@ function playerAct(action){
   if(c.playerStun){ c.playerStun=false; log('sys',t('msg.msStun')); renderCombat(); setTimeout(foeTurn,260); return; }   /* 結晶盾: the hero loses this action */
   /* 戰鬥中體力不再被動回復:消耗(爆擊/技能/吸體力)後,只能靠結束戰鬥、逃跑、或技能書能力恢復 */
   let mult=1, skill=null;
-  if(action && action.indexOf('atk:')===0){
-    skill=SKILL_BY_ID[action.slice(4)];
+  /* explicit atk:<id> (legacy path) OR an armed attack-skill fired via the normal-attack button */
+  var _skId=(action && action.indexOf('atk:')===0)?action.slice(4):((action==='normal' && c.atkSkillArmed)?c.atkSkillArmed:null);
+  if(_skId){
+    skill=SKILL_BY_ID[_skId];
     if(skill){ pl.en=clamp(pl.en-skill.en,0,100); c.meStam=clamp(c.meStam-skill.stam,0,100); mult=skill.mult;
-      log('me',fmt(t('msg.skillCast'),{n:skillName(skill.id)})); markFeat('skillCast'); }
+      log('me',fmt(t('msg.skillCast'),{n:skillName(skill.id)})); markFeat('skillCast'); c.skillUsedThisRound=true; }
+    c.atkSkillArmed=null;
   }
   let crit=false;
-  if(action==='normal' && c.critArmed && pl.en>=20 && dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)>0){ pl.en-=20; mult*=2; crit=true; }   /* armed crit ×2, costs 20；對怪物造不成傷害則不發動 */
+  /* skill / crit / plain are mutually exclusive: a skill attack never also crits */
+  if(action==='normal' && !skill && c.critArmed && pl.en>=20 && dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)>0){ pl.en-=20; mult*=2; crit=true; }   /* armed crit ×2, costs 20；對怪物造不成傷害則不發動 */
   if(action==='normal') c.critArmed=false;
   pl.en=clamp(pl.en,0,100);
   const aAtk=effAtk(pl)+(c.atkBuff||0);                       /* 幻骨 adds a battle-long attack bonus */
@@ -4789,6 +4808,7 @@ function applyMasterSkill(foe, taken){
 }
 function foeTurn(){
   const c=state.combat; if(!c||c.done) return;
+  c.skillUsedThisRound=false;   /* new round for the player after the foe acts: skill books become usable again (still once each) */
   const pl=state.player, foe=c.foe;
   if(c.foeSkip){ c.foeSkip=false; c.halveNext=false; log('foe',t('msg.foeSkip')); renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* 能量盾 stunned the foe (armed defence kept for the next real attack) */
   if(c.foeDefUsed){ c.foeDefUsed=false; c.foeRounds=(c.foeRounds||0)+1; try{ log('foe',fmt(t('msg.foeDefTurn'),{name:monName(c.foe)})); }catch(e){ log('foe',t('msg.foeDefTurn')); } renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* it spent this round on its defence skill */
@@ -4921,7 +4941,7 @@ function combatWin(){
   const d=curFloor(); d.ent[c.y][c.x]=null;
   if(foe.big){ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ if(dx===0&&dy===0)continue; const bx=c.x+dx,by=c.y+dy; if(bx>=0&&by>=0&&bx<GRID&&by<GRID){ const be=d.ent[by][bx]; if(be&&be.kind==='bigBody'&&be.ax===c.x&&be.ay===c.y) d.ent[by][bx]=null; } } if(foe.dropItem) d.ent[c.y][c.x]={kind:'item',item:foe.dropItem}; if(foe.dropItem2){ const _dd=[[0,-1],[1,0],[0,1],[-1,0]]; for(let _i=0;_i<_dd.length;_i++){ const _ax=c.x+_dd[_i][0],_ay=c.y+_dd[_i][1]; if(_ax>=0&&_ay>=0&&_ax<GRID&&_ay<GRID&&!d.wall[_ay][_ax]&&!d.ent[_ay][_ax]){ d.ent[_ay][_ax]={kind:'item',item:foe.dropItem2}; break; } } } }
   if(foe.deathTerrain==='ice'){ d.ent[c.y][c.x]={kind:'barrier'}; try{ log('sys',t('msg.leftIce')); }catch(_e){} }
-  else if(foe.deathTerrain==='lava'){ if(!d.lava){ d.lava=[]; for(let _y=0;_y<GRID;_y++){ const _r=[]; for(let _x=0;_x<GRID;_x++) _r.push(false); d.lava.push(_r); } } d.lava[c.y][c.x]=true; try{ log('sys',t('msg.leftLava')); }catch(_e){} }
+  else if(foe.deathTerrain==='lava'){ if(!d.lava){ d.lava=[]; for(let _y=0;_y<GRID;_y++){ const _r=[]; for(let _x=0;_x<GRID;_x++) _r.push(false); d.lava.push(_r); } } if(!d.ent[c.y][c.x]){ d.lava[c.y][c.x]=true; try{ log('sys',t('msg.leftLava')); }catch(_e){} } }   /* only turn the tile to lava if nothing is sitting on it */
   pl.gold+=foe.gold; pl.exp+=foe.exp; state.kills++;
   log('sys',fmt(t('msg.reward'),{name:monName(foe),g:foe.gold,e:foe.exp}));   /* settlement shown in the dialog box */
   try{ checkAchievements(); }catch(e){}
@@ -5299,6 +5319,15 @@ function abEffects(foe){
   if(((foe.atkc||1)>1||(foe.atkcMax||0)>0)) out.push([t('ab.multi'),t('manual.effMulti')]);
   if(foe.bonusDmg>0) out.push([t('ab.bonusDmg'),fmt(t('manual.effBonusDmg'),{n:foe.bonusDmg})]);
   if(foe.drainEn>0) out.push([t('ab.drainEn'),fmt(t('manual.effDrainEn'),{n:foe.drainEn})]);
+  if(foe.statMatch==='A'||foe.statMatch==='B'||foe.statMatch==='C') out.push([t('ab.statMatch'),t('manual.effStatMatch'+foe.statMatch)]);
+  if(foe.blockTp) out.push([t('ab.blockTp'),t('manual.effBlockTp')]);
+  if((foe.atkFatigue||0)>0) out.push([t('ab.fatigue'),fmt(t('manual.effFatigue'),{n:foe.atkFatigue})]);
+  if(foe.noEnergy==='atk'||foe.noEnergy==='all') out.push([t('ab.noEnergy'),t('manual.effNoEnergy')]);
+  if((foe.critDrainEn||0)>0||(foe.critDrainStam||0)>0) out.push([t('ab.critDrain'),t('manual.effCritDrain')]);
+  if((foe.poisonBuffChance||0)>0) out.push([t('ab.poisonBuff'),t('manual.effPoisonBuff')]);
+  if(foe.reviveInto) out.push([t('ab.reviveInto'),t('manual.effReviveInto')]);
+  if(foe.mAtkSkills&&foe.mAtkSkills.length) out.push([t('ab.mAtkSkill'),t('manual.effMAtkSkill')]);
+  if(foe.mDefSkills&&foe.mDefSkills.length) out.push([t('ab.mDefSkill'),t('manual.effMDefSkill')]);
   { var _mDP=(foe.statDownDefPct!=null?foe.statDownDefPct:(foe.statDownPct||0)), _mDN=(foe.statDownDefN!=null?foe.statDownDefN:(foe.statDownN||0)); if((foe.statDownPct||0)>0||(foe.statDownN||0)>0||_mDP>0||_mDN>0) out.push([t('ab.statDown'),fmt(t('manual.effStatDown'),{ap:foe.statDownPct||0,an:foe.statDownN||0,dp:_mDP,dn:_mDN})]); }
   if(foe.noFlee) out.push([t('ab.noFlee'),t('manual.effNoFlee')]);
   if(foe.revive) out.push([t('ab.revive'),t('manual.effRevive')]);
@@ -5792,6 +5821,7 @@ function _placeVaultKey(d,item){
   const reach=reachAvoidBarriers(d, {x:d.start.x, y:d.start.y}); const cands=[];
   for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
     if(d.wall[y][x] || d.ent[y][x]) continue;
+    if(d.lava && d.lava[y] && d.lava[y][x]) continue;   /* vault keys are placed AFTER lava is generated — never drop one onto a lava tile */
     if(!(reach[y]&&reach[y][x])) continue;
     if((x===d.start.x&&y===d.start.y)||(x===d.stairs.x&&y===d.stairs.y)) continue;
     cands.push({x:x,y:y});
@@ -6569,7 +6599,8 @@ function boot(){
   applyLang();
   try{ applyPlayerFace(); renderAvatarBox(); }catch(e){}
   byId('keysBox').classList.add('open');
-  Net.init();           // anonymous sign-in + cloud config if Firebase is configured
+  /* seed from the json file first (if present), THEN let the cloud load and take final authority */
+  loadJsonConfig().then(function(){ Net.init(); }, function(){ Net.init(); });   // json is a fallback; Firebase cloud still wins
   goStartScreen();      // choose single-player or multiplayer
 }
 
@@ -8793,7 +8824,7 @@ function arenaApplyCards(f, ids){
   if(shF>0) f._shield=(f._shield||0)+shF;
   return f;
 }
-function arenaNewFighter(st){ var f={ uid:st.uid, name:st.name, ai:!!st.ai, hp:st.hp, maxhp:st.hp, atk:st.atk, def:st.def, thrA:st.thrA||START.thrA, en:100, stam:100, lv:1, atkBuff:0, defDebuff:0, shieldBonus:0, shieldHits:0, skip:false,
+function arenaNewFighter(st){ var f={ uid:st.uid, name:st.name, ai:!!st.ai, hp:st.hp, maxhp:st.hp, atk:st.atk, def:st.def, thrA:st.thrA||START.thrA, en:100, stam:100, lv:1, atkBuff:0, defBuff:0, defDebuff:0, shieldBonus:0, shieldHits:0, skip:false,
   lifesteal:0, thorns:0, pierce:0, dr:0, dodge:0, trueHit:0, flatDR:0,
   lowHp:0, lowAtkMul:1, highHp:0, highAtkMul:1, rageMax:0, execHp:0, execBonus:0, vsFullHp:0, debuffSynergy:0,
   earlyAtk:0, lateAtk:0, vsHighDef:0, vsHighAtk:0, vsHighHp:0, vsHpAdv:0, stamScale:0, enScale:0, hpToAtk:0, defToAtk:0,
@@ -8880,7 +8911,7 @@ function arenaUseActive(f, foe, id){
   else if(a==='stun') foe._stunned=true;
   return true;
 }
-function arenaCurse(tg, atkr, aAmt, dAmt){ var dst=tg.reflectDebuff?atkr:tg; if(dst.immuneDebuff) return; if(aAmt) dst.atk=Math.max(10,dst.atk-aAmt); if(dAmt) dst.def=Math.max(10,dst.def-dAmt); }   /* ATK/DEF floor 10 */
+function arenaCurse(tg, atkr, aAmt, dAmt){ var dst=tg.reflectDebuff?atkr:tg; if(dst.immuneDebuff) return; /* curse rides on atkBuff/defDebuff so the -/ change shows on the panel; capped at the 10 effective floor */ if(aAmt){ var _ca=Math.min(aAmt, Math.max(0,_afEffStat(dst,'atk')-10)); if(_ca>0) dst.atkBuff=(dst.atkBuff||0)-_ca; } if(dAmt){ var _cd=Math.min(dAmt, Math.max(0,_afEffStat(dst,'def')-10)); if(_cd>0) dst.defDebuff=(dst.defDebuff||0)+_cd; } }   /* ATK/DEF floor 10 */
 function arenaSideDmg(att,def,attAct,defAct,round){
   round=round||0;
   var attSkill=(attAct && !arenaIsDef(attAct))?SKILL_BY_ID[attAct]:null;
@@ -9002,8 +9033,9 @@ function arenaDuelRound(D){
   if(ba.heavy && dA>0 && A.reflectHeavy) B.hp-=Math.round(dA*A.reflectHeavy/100);
   if(dB>0 && (A.curseAtk||A.curseDef)) arenaCurse(B,A,A.curseAtk||0,A.curseDef||0);
   if(dA>0 && (B.curseAtk||B.curseDef)) arenaCurse(A,B,B.curseAtk||0,B.curseDef||0);
-  if(dB>0 && !B.immuneDebuff){ if(A.stealAtk){ var _sa=Math.min(A.stealAtk,B.atk); B.atk-=_sa; A.atk+=_sa; } if(A.stealDef){ var _sd=Math.min(A.stealDef,B.def); B.def-=_sd; A.def+=_sd; } }
-  if(dA>0 && !A.immuneDebuff){ if(B.stealAtk){ var _sa2=Math.min(B.stealAtk,A.atk); A.atk-=_sa2; B.atk+=_sa2; } if(B.stealDef){ var _sd2=Math.min(B.stealDef,A.def); A.def-=_sd2; B.def+=_sd2; } }
+  /* steal rides on atkBuff/defBuff (NOT the base stat) so the panel shows the +/- change on BOTH fighters. Capped so the victim's effective stat never dips below the 10 floor. */
+  if(dB>0 && !B.immuneDebuff){ if(A.stealAtk){ var _sa=Math.min(A.stealAtk, Math.max(0,_afEffStat(B,'atk')-10)); if(_sa>0){ B.atkBuff=(B.atkBuff||0)-_sa; A.atkBuff=(A.atkBuff||0)+_sa; } } if(A.stealDef){ var _sd=Math.min(A.stealDef, Math.max(0,_afEffStat(B,'def')-10)); if(_sd>0){ B.defBuff=(B.defBuff||0)-_sd; A.defBuff=(A.defBuff||0)+_sd; } } }
+  if(dA>0 && !A.immuneDebuff){ if(B.stealAtk){ var _sa2=Math.min(B.stealAtk, Math.max(0,_afEffStat(A,'atk')-10)); if(_sa2>0){ A.atkBuff=(A.atkBuff||0)-_sa2; B.atkBuff=(B.atkBuff||0)+_sa2; } } if(B.stealDef){ var _sd2=Math.min(B.stealDef, Math.max(0,_afEffStat(A,'def')-10)); if(_sd2>0){ A.defBuff=(A.defBuff||0)-_sd2; B.defBuff=(B.defBuff||0)+_sd2; } } }
   if(dB>0){ if(A.drainEn) B.en=clamp(B.en-A.drainEn,0,100); if(A.drainStam) B.stam=clamp(B.stam-A.drainStam,0,100); }
   if(dA>0){ if(B.drainEn) A.en=clamp(A.en-B.drainEn,0,100); if(B.drainStam) A.stam=clamp(A.stam-B.drainStam,0,100); }
   if(dB>0 && A.stunChance && chance(clamp(A.stunChance,0,100)/100)) B._stunned=true;
@@ -9628,6 +9660,9 @@ const I18N_CUST = {
 (function(){ var A={"spawnFloor": {"zh-Hant": "出生樓層", "zh-Hans": "出生楼层", "en": "Spawn floors", "ja": "出現フロア", "ko": "출현 층"}, "spawnFloorHint": {"zh-Hant": "（該段填 0＝不生成）", "zh-Hans": "（该段填 0＝不生成）", "en": "(0 = not here)", "ja": "（0＝生成しない）", "ko": "(0＝생성 안 함)"}, "flrSurf": {"zh-Hant": "地上", "zh-Hans": "地上", "en": "Surface", "ja": "地上", "ko": "지상"}, "flrBase": {"zh-Hant": "地下", "zh-Hans": "地下", "en": "Basement", "ja": "地下", "ko": "지하"}, "flrUnit": {"zh-Hant": "樓", "zh-Hans": "楼", "en": "F", "ja": "階", "ko": "층"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"mpHpPer": {"zh-Hant": "每人血量加成", "zh-Hans": "每人血量加成", "en": "HP per player", "ja": "人数HP加算", "ko": "인원 생명 가산"}, "mpAtkPer": {"zh-Hant": "每人攻擊加成", "zh-Hans": "每人攻击加成", "en": "ATK per player", "ja": "人数攻撃加算", "ko": "인원 공격 가산"}, "mpPerHint": {"zh-Hant": "（每多一名玩家）", "zh-Hans": "（每多一名玩家）", "en": "(per extra player)", "ja": "（追加プレイヤーごと）", "ko": "(추가 플레이어당)"}, "mpArenaOnly": {"zh-Hant": "僅競技模式出現", "zh-Hans": "仅竞技模式出现", "en": "Arena mode only", "ja": "アリーナ限定", "ko": "아레나 전용"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"jsonExported": {"zh-Hant": "✓ 已匯出 JSON 設定檔（請妥善保存）", "zh-Hans": "✓ 已导出 JSON 设置档（请妥善保存）", "en": "✓ Config exported as JSON", "ja": "✓ JSON 設定を書き出しました", "ko": "✓ JSON 설정을 내보냈습니다"}, "jsonImported": {"zh-Hant": "✓ 已從 JSON 載入設定（記得再「儲存到雲端」或「套用到本機」）", "zh-Hans": "✓ 已从 JSON 载入设置（记得再「保存到云端」或「应用到本机」）", "en": "✓ Config loaded from JSON — remember to Save to cloud / Apply", "ja": "✓ JSON から読み込みました（クラウド保存／適用を忘れずに）", "ko": "✓ JSON에서 불러왔습니다 — 클라우드 저장/적용을 잊지 마세요"}, "jsonBad": {"zh-Hant": "✗ JSON 檔案無效或格式不符", "zh-Hans": "✗ JSON 文件无效或格式不符", "en": "✗ Invalid or unrecognised JSON", "ja": "✗ 無効な JSON です", "ko": "✗ 잘못된 JSON입니다"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"mnameInput": {"zh-Hant": "輸入名稱", "zh-Hans": "输入名称", "en": "Enter name", "ja": "名前を入力", "ko": "이름 입력"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var AB={"statMatch": {"zh-Hant": "數值同步", "zh-Hans": "数值同步", "en": "Stat Sync", "ja": "数値同期", "ko": "수치 동기화"}, "statDown": {"zh-Hant": "削攻防", "zh-Hans": "削攻防", "en": "Stat Down", "ja": "攻防低下", "ko": "능력 감소"}, "bonusDmg": {"zh-Hant": "追加傷害", "zh-Hans": "追加伤害", "en": "Bonus Dmg", "ja": "追加ダメージ", "ko": "추가 피해"}, "drainEn": {"zh-Hant": "吸能", "zh-Hans": "吸能", "en": "Energy Drain", "ja": "エネルギー吸収", "ko": "에너지 흡수"}, "blockTp": {"zh-Hant": "封傳送", "zh-Hans": "封传送", "en": "Block Teleport", "ja": "転送封じ", "ko": "전송 봉인"}, "fatigue": {"zh-Hant": "疲勞", "zh-Hans": "疲劳", "en": "Fatigue", "ja": "疲労", "ko": "피로"}, "noEnergy": {"zh-Hant": "不增能量", "zh-Hans": "不增能量", "en": "No Energy", "ja": "エネルギー無効", "ko": "에너지 무효"}, "critDrain": {"zh-Hant": "爆擊吸取", "zh-Hans": "爆击吸取", "en": "Crit Drain", "ja": "会心吸収", "ko": "치명 흡수"}, "poisonBuff": {"zh-Hant": "中毒強化", "zh-Hans": "中毒强化", "en": "Poison Empower", "ja": "毒強化", "ko": "중독 강화"}, "revive": {"zh-Hant": "復活", "zh-Hans": "复活", "en": "Revive", "ja": "復活", "ko": "부활"}, "reviveInto": {"zh-Hant": "轉生", "zh-Hans": "转生", "en": "Transform", "ja": "転生", "ko": "전생"}, "noFlee": {"zh-Hant": "禁逃", "zh-Hans": "禁逃", "en": "No Flee", "ja": "逃走不可", "ko": "도주 불가"}, "deathIce": {"zh-Hant": "死亡冰封", "zh-Hans": "死亡冰封", "en": "Death Ice", "ja": "死亡氷結", "ko": "사망 빙결"}, "deathLava": {"zh-Hant": "死亡熔岩", "zh-Hans": "死亡熔岩", "en": "Death Lava", "ja": "死亡溶岩", "ko": "사망 용암"}, "mAtkSkill": {"zh-Hant": "攻擊技能書", "zh-Hans": "攻击技能书", "en": "Atk Skill Book", "ja": "攻撃スキル", "ko": "공격 스킬북"}, "mDefSkill": {"zh-Hant": "防禦技能書", "zh-Hans": "防御技能书", "en": "Def Skill Book", "ja": "防御スキル", "ko": "방어 스킬북"}}; for(var k in AB){ for(var L in AB[k]){ if(I18N[L]&&I18N[L].ab) I18N[L].ab[k]=AB[k][L]; } } var EF={"effStatMatchA": {"zh-Hant": "攻防同步為你的攻防（只升不降），與你並駕齊驅。", "zh-Hans": "攻防同步为你的攻防（只升不降），与你并驾齐驱。", "en": "Mirrors your ATK & DEF (only rises), matching your power.", "ja": "あなたの攻防に同期（上昇のみ）し、実力に並ぶ。", "ko": "당신의 공격·방어에 동기화(상승만)되어 실력을 따라온다."}, "effStatMatchB": {"zh-Hant": "防禦同步為你的攻擊（只升不降），越打越硬。", "zh-Hans": "防御同步为你的攻击（只升不降），越打越硬。", "en": "Its DEF mirrors your ATK (only rises), growing tougher.", "ja": "防御があなたの攻撃に同期（上昇のみ）し、硬くなる。", "ko": "방어가 당신의 공격에 동기화(상승만)되어 단단해진다."}, "effStatMatchC": {"zh-Hant": "當你的攻擊高於它的防禦時，攻防同步為你的攻擊（只升不降）。", "zh-Hans": "当你的攻击高于它的防御时，攻防同步为你的攻击（只升不降）。", "en": "When your ATK exceeds its DEF, its ATK & DEF mirror your ATK (only rises).", "ja": "あなたの攻撃が防御を上回ると、攻防があなたの攻撃に同期（上昇のみ）。", "ko": "당신의 공격이 방어를 넘으면 공격·방어가 당신의 공격에 동기화(상승만)."}, "effBlockTp": {"zh-Hant": "戰鬥中封鎖你的樓層傳送。", "zh-Hans": "战斗中封锁你的楼层传送。", "en": "Blocks your floor teleport during battle.", "ja": "戦闘中、階層転送を封じる。", "ko": "전투 중 층 전송을 봉인한다."}, "effFatigue": {"zh-Hant": "你每次攻擊命中它時額外損耗 {n} 體力。", "zh-Hans": "你每次攻击命中它时额外损耗 {n} 体力。", "en": "Each of your hits costs you {n} extra stamina.", "ja": "攻撃を当てるたびに体力を {n} 追加で消耗。", "ko": "공격을 명중시킬 때마다 체력을 {n} 추가로 소모."}, "effNoEnergy": {"zh-Hant": "攻擊它不會為你累積能量。", "zh-Hans": "攻击它不会为你累积能量。", "en": "Attacking it grants you no energy.", "ja": "攻撃してもエネルギーが溜まらない。", "ko": "공격해도 에너지가 쌓이지 않는다."}, "effCritDrain": {"zh-Hant": "爆擊時吸取你的能量／體力。", "zh-Hans": "爆击时吸取你的能量／体力。", "en": "On crit, drains your energy / stamina.", "ja": "会心時、エネルギー／体力を吸収。", "ko": "치명타 시 에너지·체력을 흡수."}, "effPoisonBuff": {"zh-Hant": "你中毒時，它有機率提升自身攻防。", "zh-Hans": "你中毒时，它有机率提升自身攻防。", "en": "While you're poisoned, it may boost its own ATK & DEF.", "ja": "あなたが毒状態のとき、攻防を上げることがある。", "ko": "당신이 중독일 때 자신의 공격·방어를 올릴 수 있다."}, "effReviveInto": {"zh-Hant": "被擊敗後轉生為另一種怪物再戰。", "zh-Hans": "被击败后转生为另一种怪物再战。", "en": "On defeat, transforms into another monster and fights on.", "ja": "倒すと別の魔物に転生して再び戦う。", "ko": "쓰러뜨리면 다른 몬스터로 전생해 다시 싸운다."}, "effMAtkSkill": {"zh-Hant": "戰鬥中會施放攻擊技能書。", "zh-Hans": "战斗中会施放攻击技能书。", "en": "Casts an attack skill book in battle.", "ja": "戦闘中に攻撃スキルを使う。", "ko": "전투 중 공격 스킬북을 사용한다."}, "effMDefSkill": {"zh-Hant": "戰鬥中會施放防禦技能書。", "zh-Hans": "战斗中会施放防御技能书。", "en": "Casts a defence skill book in battle.", "ja": "戦闘中に防御スキルを使う。", "ko": "전투 중 방어 스킬북을 사용한다."}}; for(var k2 in EF){ for(var L2 in EF[k2]){ if(I18N[L2]&&I18N[L2].manual) I18N[L2].manual[k2]=EF[k2][L2]; } } })();
+(function(){ var C={"skillArmed": {"zh-Hant": "等待使用中", "zh-Hans": "等待使用中", "en": "Armed", "ja": "待機中", "ko": "대기 중"}, "skillOncePerRound": {"zh-Hant": "每回合只能使用一次技能書", "zh-Hans": "每回合只能使用一次技能书", "en": "One skill book per round", "ja": "スキルブックは1ターン1回", "ko": "턴당 스킬북 1회"}, "defAlreadyArmed": {"zh-Hant": "防禦技能已待命", "zh-Hans": "防御技能已待命", "en": "Defence already armed", "ja": "防御スキルは待機中", "ko": "방어 스킬 대기 중"}}; for(var k in C){ for(var L in C[k]){ if(I18N[L]&&I18N[L].cb) I18N[L].cb[k]=C[k][L]; } } var M={"skillArm": {"zh-Hant": "{n} 待命！輪到你的回合才施放", "zh-Hans": "{n} 待命！轮到你的回合才施放", "en": "{n} armed — fires on your turn", "ja": "{n} 待機——自分のターンで発動", "ko": "{n} 대기 — 내 턴에 발동"}}; for(var k2 in M){ for(var L2 in M[k2]){ if(I18N[L2]&&I18N[L2].msg) I18N[L2].msg[k2]=M[k2][L2]; } } })();
 (function(){ var M={"zh-Hant": {"mName": "怪物名稱", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻擊力", "mDef": "防禦力", "mAtkc": "攻擊次數", "mDmg": "估計傷害"}, "zh-Hans": {"mName": "怪物名称", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻击力", "mDef": "防御力", "mAtkc": "攻击次数", "mDmg": "估计伤害"}, "en": {"mName": "Name", "mAb": "Ability", "mHp": "HP", "mAtk": "ATK", "mDef": "DEF", "mAtkc": "Hits", "mDmg": "Est. damage"}, "ja": {"mName": "名前", "mAb": "特殊能力", "mHp": "HP", "mAtk": "攻撃力", "mDef": "防御力", "mAtkc": "攻撃回数", "mDmg": "推定ダメージ"}, "ko": {"mName": "이름", "mAb": "특수 능력", "mHp": "생명", "mAtk": "공격력", "mDef": "방어력", "mAtkc": "공격 횟수", "mDmg": "예상 피해"}}; for(var L in M){ if(I18N[L]&&I18N[L].manual){ for(var k in M[L]) I18N[L].manual[k]=M[L][k]; } }
   var E={"zh-Hant": "用時時間", "zh-Hans": "用时时间", "en": "Time", "ja": "所要時間", "ko": "소요 시간"}; for(var L2 in E){ if(I18N[L2]&&I18N[L2].end) I18N[L2].end.time=E[L2]; } })();
 const I18N_ARENA_CFG={
@@ -10367,14 +10402,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·351'; }
+    bt.textContent='build 0618·358'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·351'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·358'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -10562,6 +10597,8 @@ function adNameLoc(obj, grp, idOverride){
   o+='<select class="adNlSel" onchange="_nlPick(this)">';
   for(let i=0;i<langs.length;i++){ o+='<option value="'+langs[i][0]+'"'+((langs[i][0]===cur)?' selected':'')+'>'+langs[i][1]+'</option>'; }
   o+='</select>';
+  var _curName=(langs.filter(function(x){return x[0]===cur;})[0]||['','',''])[1]||cur;
+  o+='<div class="adNlOneLab" data-nllab="1">'+t('admin.mnameInput')+'（'+_curName+'）</div>';
   o+='<input type="text" class="adNlOne" maxlength="24" value="'+(''+vals[cur]).replace(/"/g,'&quot;')+'" placeholder="'+(''+phs[cur]).replace(/"/g,'&quot;')+'" oninput="_nlType(this)">';
   o+='</div>';
   /* hidden mirrors — the real data the collector reads */
@@ -10571,7 +10608,7 @@ function adNameLoc(obj, grp, idOverride){
   return o;
 }
 function _nlField(el){ return el.closest('.adNlField'); }
-function _nlPick(sel){ try{ var f=_nlField(sel); if(!f) return; var lc=sel.value; var hid=f.querySelector('.adNlHidden input[data-knl="'+lc+'"]'); var one=f.querySelector('.adNlOne'); if(hid&&one){ one.value=hid.value; one.placeholder=hid.getAttribute('data-nlph')||''; } }catch(e){} }
+function _nlPick(sel){ try{ var f=_nlField(sel); if(!f) return; var lc=sel.value; var hid=f.querySelector('.adNlHidden input[data-knl="'+lc+'"]'); var one=f.querySelector('.adNlOne'); if(hid&&one){ one.value=hid.value; one.placeholder=hid.getAttribute('data-nlph')||''; try{ one.focus(); }catch(_e){} } var lab=f.querySelector('[data-nllab]'); if(lab){ var _nm=(sel.options&&sel.selectedIndex>=0)?sel.options[sel.selectedIndex].textContent:lc; lab.textContent=t('admin.mnameInput')+'（'+_nm+'）'; } }catch(e){} }
 function _nlType(one){ try{ var f=_nlField(one); if(!f) return; var sel=f.querySelector('.adNlSel'); if(!sel) return; var lc=sel.value; var hid=f.querySelector('.adNlHidden input[data-knl="'+lc+'"]'); if(hid) hid.value=one.value; }catch(e){} }
 function adFxSelect(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select data-fxgroup="'+group+'" data-fxkey="'+key+'">'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur)+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div>'; }
 function adFxSelectN(label,group,key,cur){ let o='<div class="adField"><label>'+label+'</label><div class="adTestRow"><select data-fxgroup="'+group+'" data-fxkey="'+key+'"><option value=""'+((cur||'')===''?' selected':'')+'>'+t('admin.fxNone')+'</option>'; FX_PRESETS.forEach(function(p){ o+='<option value="'+p+'"'+(p===cur?' selected':'')+'>'+t('admin.fxn_'+p)+'</option>'; }); return o+_fxCustomOpts(cur||'')+'</select><button class="btn adTestBtn" data-fxprev="1">▶</button></div></div>'; }
@@ -10921,7 +10958,31 @@ function renderAdminBody(){
   }
 }
 function hasAb(o,a){ if(!o) return false; const v=o.ab; return Array.isArray(v) ? v.indexOf(a)>=0 : v===a; }
-function abList(o){ if(!o) return []; const v=o.ab; return Array.isArray(v) ? v.slice() : (v?[v]:[]); }
+function abList(o){ if(!o) return [];
+  var out=[]; var push=function(k){ if(k && out.indexOf(k)<0) out.push(k); };
+  var v=o.ab; if(Array.isArray(v)){ for(var i=0;i<v.length;i++) push(v[i]); } else if(v){ push(v); }
+  /* independent ability fields (not in o.ab) also become tags, so the bestiary shows every configured ability */
+  if(o.ability==='poison') push('poison'); if(o.ability==='weak') push('weak');
+  if(o.trueDmg) push('magic');
+  if((o.atkc||1)>1 || (o.atkcMax||0)>0) push('multi');
+  if(o.drains) push('drain');
+  if(o.statMatch==='A'||o.statMatch==='B'||o.statMatch==='C') push('statMatch');
+  if((o.statDownPct||0)>0||(o.statDownN||0)>0||(o.statDownDefPct||0)>0||(o.statDownDefN||0)>0) push('statDown');
+  if((o.bonusDmg||0)>0) push('bonusDmg');
+  if((o.drainEn||0)>0) push('drainEn');
+  if((o.poisonChance||0)>0) push('poison'); if((o.weakChance||0)>0) push('weak');
+  if((o.vampPct||0)>0) push('vampire');
+  if(o.blockTp) push('blockTp');
+  if((o.atkFatigue||0)>0) push('fatigue');
+  if(o.noEnergy==='atk'||o.noEnergy==='all') push('noEnergy');
+  if((o.critDrainEn||0)>0||(o.critDrainStam||0)>0) push('critDrain');
+  if((o.poisonBuffChance||0)>0) push('poisonBuff');
+  if(o.revive) push('revive'); if(o.reviveInto) push('reviveInto');
+  if(o.noFlee) push('noFlee');
+  if(o.deathTerrain==='ice') push('deathIce'); if(o.deathTerrain==='lava') push('deathLava');
+  if(o.mAtkSkills&&o.mAtkSkills.length) push('mAtkSkill'); if(o.mDefSkills&&o.mDefSkills.length) push('mDefSkill');
+  return out;
+}
 function _abChip(o){
   var s='<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap"><input type="checkbox" '+o.cb+(o.on?' checked':'')+'>'+o.label;
   if(o.set!=null){ s+='<span data-abset="'+o.key+'" style="display:'+(o.on?'inline-flex':'none')+';align-items:center;gap:3px;margin-left:1px">'+o.set+'</span>'; }
@@ -11275,6 +11336,39 @@ function adminExportConfig(){
     setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
     var m=byId('adminMsg'); if(m) m.textContent=t('admin.jsonExported');
   }catch(e){ var m2=byId('adminMsg'); if(m2) m2.textContent='Export failed: '+e.message; }
+}
+function _applyCustomMediaFromObj(obj){   /* shared by JSON-file load and manual import: restore uploaded GIF/PNG/WAV media */
+  if(!obj || !obj.customMedia || typeof obj.customMedia!=='object') return;
+  try{
+    var cm=obj.customMedia;
+    if(cm.fx && typeof CUSTOM_FX!=='undefined'){ for(var a in cm.fx) CUSTOM_FX[a]=cm.fx[a]; }
+    if(cm.sfx && typeof CUSTOM_SFX!=='undefined'){ for(var b in cm.sfx) CUSTOM_SFX[b]=cm.sfx[b]; }
+    if(cm.fxName && typeof CUSTOM_FX_NAME!=='undefined'){ for(var c in cm.fxName) CUSTOM_FX_NAME[c]=cm.fxName[c]; }
+    if(cm.sfxName && typeof CUSTOM_SFX_NAME!=='undefined'){ for(var d in cm.sfxName) CUSTOM_SFX_NAME[d]=cm.sfxName[d]; }
+    if(typeof saveCustomMedia==='function') saveCustomMedia();
+  }catch(e){}
+}
+/* Load a config JSON that sits next to index.html on GitHub Pages (mota-config.json).
+   Order of authority (later wins): built-in defaults -> localStorage cache -> THIS json file -> Firebase cloud.
+   So the cloud is still the master; the json is a fallback/seed; the built-ins only stop the game breaking. */
+function loadJsonConfig(){
+  return new Promise(function(resolve){
+    try{
+      var url='mota-config.json?v='+Date.now();   /* cache-bust so a freshly uploaded json is picked up */
+      fetch(url, {cache:'no-store'}).then(function(r){
+        if(!r.ok){ resolve(false); return; }
+        return r.json();
+      }).then(function(obj){
+        if(!obj){ resolve(false); return; }
+        var cfg=_cfgFromJson(obj);
+        if(cfg && typeof applyConfig==='function'){ applyConfig(cfg); }
+        _applyCustomMediaFromObj(obj);
+        try{ refreshEntityIcons(); }catch(e){}
+        if(state.player) { try{ renderAll(); }catch(e){} }
+        resolve(true);
+      }).catch(function(){ resolve(false); });   /* no file / offline / bad json -> silently fall through to cloud + defaults */
+    }catch(e){ resolve(false); }
+  });
 }
 function _cfgFromJson(obj){   /* accept either our sectioned export or a raw snapshotConfig */
   if(!obj) return null;
