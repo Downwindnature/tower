@@ -3066,7 +3066,11 @@ function genFloorRaw(f){
     if((c.x===start.x&&c.y===start.y)||(c.x===stairs.x&&c.y===stairs.y)) return true;
     const r=reach(start,c); return !r[stairs.y][stairs.x];
   };
-  const free=function(){return floors.filter(function(c){return !wall[c.y][c.x]&&!occupied(data,c)&&!nearSpawn(data,c)&&!(data.lava&&data.lava[c.y]&&data.lava[c.y][c.x]);});};   /* never hand out a lava tile — items/monsters must not spawn on lava */   // !wall guard: a cell sealed into a wall AFTER floors[] was captured (vault frame / shop) must never receive an item or monster (問題1)
+  /* reachable from the entrance WITHOUT ever stepping on the up-stairs (stepping on stairs changes floor).
+     If a tile is only reachable by crossing the up-stairs, an item/monster there would force the player to
+     climb + descend (or burn a portal) just to grab it — so such tiles are barred from spawning entities. */
+  var _reachNoUp = bfsReach(wall, start, stairs);
+  const free=function(){return floors.filter(function(c){return !wall[c.y][c.x]&&!occupied(data,c)&&!nearSpawn(data,c)&&!(data.lava&&data.lava[c.y]&&data.lava[c.y][c.x])&&_reachNoUp[c.y][c.x];});};   /* never hand out a lava tile — items/monsters must not spawn on lava */   // !wall guard: a cell sealed into a wall AFTER floors[] was captured (vault frame / shop) must never receive an item or monster (問題1)
 
   // monsters
   const _fdMul=(typeof FLOOR_CFG!=='undefined'&&FLOOR_CFG[_realFloor]!=null)?FLOOR_CFG[_realFloor]:1;   // per-floor density (admin Map tab)
@@ -3625,6 +3629,37 @@ function genFloorRaw(f){
       data.lava[c.y][c.x]=true; placed++;
     }
   }
+
+  /* ---- stair-trap sweep: nothing should be reachable ONLY by crossing the up-stairs ----
+     Stepping on the up-stairs changes floor, so an item/monster whose only route from the entrance
+     runs through the up-stairs tile would force a climb+descend (or a wasted portal) to reach.
+     Relocate any such movable entity (monster / plain item) to a genuinely reachable empty tile;
+     leave structural pieces (doors, vault guards/bodies, shops) alone — they carry their own
+     solvability guarantees and almost never trip this. */
+  if(_realFloor===(FLOORS-1) || _realFloor===-(BASEMENT-1)) try{   // ONLY the two boss-approach floors (ground 24->25, basement 19->20) — the ones the player flagged
+    var _rn = bfsReach(data.wall, data.start, data.stairs);   // reachable from entrance WITHOUT using the up-stairs
+    var _isStair=function(x,y){ return (x===data.stairs.x&&y===data.stairs.y)||(x===data.start.x&&y===data.start.y); };
+    var _openReach=[];
+    for(var _y=0;_y<GRID;_y++)for(var _x=0;_x<GRID;_x++){
+      if(_rn[_y][_x] && !data.wall[_y][_x] && !data.ent[_y][_x] && !_isStair(_x,_y) && !(data.lava&&data.lava[_y]&&data.lava[_y][_x])){
+        // needs at least one open orthogonal neighbour so a relocated monster isn't dumped in a 1-tile pocket
+        var _op=0, _nb=[[0,-1],[1,0],[0,1],[-1,0]];
+        for(var _k=0;_k<4;_k++){ var _nx=_x+_nb[_k][0],_ny=_y+_nb[_k][1]; if(_nx>=0&&_ny>=0&&_nx<GRID&&_ny<GRID&&!data.wall[_ny][_nx]) _op++; }
+        if(_op>=1) _openReach.push({x:_x,y:_y});
+      }
+    }
+    _openReach = shuffle(_openReach);
+    var _spi=0;
+    for(var _sy=0;_sy<GRID;_sy++)for(var _sx=0;_sx<GRID;_sx++){
+      if(_rn[_sy][_sx]) continue;                 // reachable without the up-stairs -> fine
+      var _e=data.ent[_sy][_sx]; if(!_e) continue;
+      if(_e.kind!=='monster' && _e.kind!=='item') continue;   // only relocate movable pickups/mobs
+      // move it to the next free reachable tile; if none, drop it (keeps the floor solvable either way)
+      if(_spi<_openReach.length){ var _dst=_openReach[_spi++]; data.ent[_dst.y][_dst.x]=_e; }
+      data.ent[_sy][_sx]=null;
+    }
+  }catch(_swErr){}
+
   return data;
 }
 
@@ -10402,14 +10437,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·358'; }
+    bt.textContent='build 0618·359'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·358'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·359'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
