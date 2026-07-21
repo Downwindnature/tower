@@ -2687,7 +2687,7 @@ const MONSTERS=[
   /* 喪屍系 — 混沌術士（吸血法師） */
   {id:'chaosMage', hp:680,  atk:165, def:60,  gold:55, exp:4, atkc:1, agi:13, minF:17, maxF:24},
   /* 巨大怪物系 — 毒龍 */
-  {id:'poisonDragon',hp:1130,atk:185, def:96,  gold:70, exp:6, atkc:2, agi:14, minF:21, maxF:24},
+  {id:'poisonDragonS',hp:1130,atk:185, def:96,  gold:70, exp:6, atkc:2, agi:14, minF:21, maxF:24},
   /* 骷髏系 — 隊長 */
   {id:'skCaptain', hp:390,  atk:105,  def:25,  gold:33, exp:3,  atkc:1, agi:10, minF:7,  maxF:14},
   /* 獸人系 — 高級 */
@@ -2716,7 +2716,7 @@ const BASEMENT_MONSTERS=[
   {id:'flameMage',    hp:1600, atk:110, def:320, gold:190, exp:9,  atkc:1, agi:15, minF:22, maxF:99, atkFx:'flame',    atkSfx:'roar'},
   {id:'chaosSorcerer',hp:1700, atk:130, def:340, gold:210, exp:10, atkc:1, agi:16, minF:22, maxF:99, atkFx:'chaos',    atkSfx:'zap'},
   {id:'necroArchmage',hp:1850, atk:160, def:360, gold:230, exp:10, atkc:1, agi:14, minF:22, maxF:99, atkFx:'archmage', atkSfx:'roar'},
-  {id:'poisonDragon', hp:2500, atk:340, def:300, gold:240, exp:11, atkc:1, agi:10, minF:22, maxF:99, atkFx:'acid', atkSfx:'bite'},
+  {id:'poisonDragonB', hp:2500, atk:340, def:300, gold:240, exp:11, atkc:1, agi:10, minF:22, maxF:99, atkFx:'acid', atkSfx:'bite'},
   {id:'goldenDragon', hp:3000, atk:380, def:340, gold:600, exp:12, atkc:2, agi:11, minF:22, maxF:99, atkFx:'dragon',   atkSfx:'roar'},
   {id:'flameZombie',  hp:2200, atk:320, def:280, gold:200, exp:10, atkc:1, agi:7,  minF:22, maxF:99, atkFx:'fire', atkSfx:'thud'},
   {id:'bloodSwordsman',hp:2400, atk:360, def:310, gold:230, exp:11, atkc:1, agi:15, minF:22, maxF:99, atkFx:'spell',    atkSfx:'slash'},
@@ -10440,14 +10440,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·363'; }
+    bt.textContent='build 0618·364'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·363'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·364'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
