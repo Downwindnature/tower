@@ -4846,7 +4846,7 @@ function foeTurn(){
   c.skillUsedThisRound=false;   /* new round for the player after the foe acts: skill books become usable again (still once each) */
   const pl=state.player, foe=c.foe;
   if(c.foeSkip){ c.foeSkip=false; c.halveNext=false; log('foe',t('msg.foeSkip')); renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* 能量盾 stunned the foe (armed defence kept for the next real attack) */
-  if(c.foeDefUsed){ c.foeDefUsed=false; c.foeRounds=(c.foeRounds||0)+1; try{ log('foe',fmt(t('msg.foeDefTurn'),{name:monName(c.foe)})); }catch(e){ log('foe',t('msg.foeDefTurn')); } renderCombat(); state.busy=false; refreshCombatButtons(); scheduleRound(); return; }   /* it spent this round on its defence skill */
+  c.foeDefUsed=false;   /* the defence skill was a RESPONSE to the player's attack (mitigated in playerAct) — it does NOT consume the foe's own attack turn. The foe both defends when hit AND swings on its turn. */
   const def = c.defArmed ? SKILL_BY_ID[c.defArmed] : null;   /* single-use defence skill armed for this round */
   let taken=0, anyHit=false, beforeTotal=0, hits=0; _statMatch();
   c.foeRounds=(c.foeRounds||0)+1; var _useSkill=false, _skMult=1, _skId='';
@@ -4880,11 +4880,13 @@ function foeTurn(){
       var _vhl=0; if(hasAb(foe,'vampire')&&dmg>0){ _vhl=Math.round(dmg*((foe.vampPct||15)/100)); }   /* 吸血量逐發記錄，於 _foeShowHits 每發各自回血（不再一次總和） */
       if(foe.drains && !_thisCrit){ const _ds=(typeof foe.drainStam==='number'?foe.drainStam:STAM_DRAIN); c.meStam=clamp(c.meStam-_ds,0,100); }   /* 普攻耗體；爆擊改走爆擊耗體量，不重複 */
       c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.16)+14,16,28),0,100);   // foe charge on its own hit (paired with the on-taken gain, ~3-4 rounds to crit)
-      if(c.foe.noEnergy!=='all'){ pl.en=clamp(pl.en+clamp(Math.round(dmg*0.12)+2,2,16),0,100); }   /* charge on taking a hit (blocked by 全部不增能量) */
-      if(foe.drainEn>0){ pl.en=clamp(pl.en-foe.drainEn,0,100); }   /* 吸取能量 */
-      if(_critFx && foe.critDrainEn>0){ pl.en=clamp(pl.en-foe.critDrainEn,0,100); }   /* 爆擊扣能量（每回合一次）*/
-      if(foe.id==='overlordGordon' && _critFx && foe.pillarDrainEn>0){ pl.en=clamp(pl.en-foe.pillarDrainEn,0,100); }   /* 沖天柱：爆擊吸取玩家能量（每回合一次）*/
-      _seq.push({d:dmg, crit:_thisCrit, heal:_vhl});
+      /* the player's per-hit energy change rides on the seq entry, so it ticks up ONE HIT AT A TIME with the combo animation instead of jumping straight to the post-combo total */
+      var _enG=0;
+      if(c.foe.noEnergy!=='all'){ _enG += clamp(Math.round(dmg*0.12)+2,2,16); }   /* charge on taking a hit (blocked by 全部不增能量) */
+      if(foe.drainEn>0){ _enG -= foe.drainEn; }   /* 吸取能量 */
+      if(_critFx && foe.critDrainEn>0){ _enG -= foe.critDrainEn; }   /* 爆擊扣能量（每回合一次，仍逐發帶入但只有爆擊那發有）*/
+      if(foe.id==='overlordGordon' && _critFx && foe.pillarDrainEn>0){ _enG -= foe.pillarDrainEn; }   /* 沖天柱：爆擊吸取玩家能量（每回合一次）*/
+      _seq.push({d:dmg, crit:_thisCrit, heal:_vhl, enG:_enG});
       if(def && def.id==='enerdun'){ c.foeSkip=true; break; }   // 能量盾: cancel remaining hits + foe skips next round
     } else { _seq.push({miss:true}); }
   }
@@ -4933,6 +4935,7 @@ function _foeShowHits(seq, foeCrit, done){
     if(h && h.miss){ floatDmg('me','miss!','miss'); try{ sfx('miss'); }catch(_e){} }
     else if(h){
       state.player.hp-=h.d; if(h.d===0){ zeroDmgFx('me'); } else { floatDmg('me','-'+h.d, h.crit?'crit':null); } if(h.heal>0){ c2.foe.hp=c2.foe.hp+h.heal; floatDmg('foe','+'+h.heal,'heal'); }
+      if(h.enG){ state.player.en=clamp(state.player.en+h.enG,0,100); }   /* per-hit energy, in step with the combo animation */
       if(h.d>0){ const _natFx=(c2.foe&&c2.foe.atkFx)?c2.foe.atkFx:fxRemap('foe', c2.foeFx||'punch'); const _ffx=h.crit?((c2.foe&&c2.foe.critFx)?c2.foe.critFx:(FX_MAP.foeCrit?FX_MAP.foeCrit:_natFx)):_natFx; const _fsnd=h.crit?((c2.foe&&c2.foe.critSfx)?c2.foe.critSfx:null):((c2.foe&&c2.foe.atkSfx)?c2.foe.atkSfx:null); try{ playAttackFx('me', _ffx, h.crit, _fsnd); }catch(_e){} }
     }
     try{ renderCombat(); }catch(_e){}
@@ -5348,8 +5351,8 @@ function abEffects(foe){
   if(hasAb(foe,'pierce')) out.push([t('ab.pierce'),t('manual.effPierce')]);
   if(hasAb(foe,'vampire')) out.push([t('ab.vampire'),t('manual.effVampire')]);
   if(hasAb(foe,'boss')||foe.boss) out.push([t('ab.boss'),t('manual.effBoss')]);
-  if(hasAb(foe,'weak')||foe.ability==='weak') out.push([t('ab.weak'),t('manual.effWeak')]);
-  if(foe.ability==='poison') out.push([t('ab.poison'),t('manual.effPoison')]);
+  if(hasAb(foe,'weak')||foe.ability==='weak'||(foe.weakChance||0)>0) out.push([t('ab.weak'),t('manual.effWeak')]);
+  if(foe.ability==='poison'||hasAb(foe,'poison')||(foe.poisonChance||0)>0) out.push([t('ab.poison'),t('manual.effPoison')]);
   if(foe.drains) out.push([t('ab.drain'),t('manual.effDrains')]);
   if(((foe.atkc||1)>1||(foe.atkcMax||0)>0)) out.push([t('ab.multi'),t('manual.effMulti')]);
   if(foe.bonusDmg>0) out.push([t('ab.bonusDmg'),fmt(t('manual.effBonusDmg'),{n:foe.bonusDmg})]);
@@ -10437,14 +10440,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·359'; }
+    bt.textContent='build 0618·362'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·359'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·362'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -11006,7 +11009,7 @@ function abList(o){ if(!o) return [];
   if((o.bonusDmg||0)>0) push('bonusDmg');
   if((o.drainEn||0)>0) push('drainEn');
   if((o.poisonChance||0)>0) push('poison'); if((o.weakChance||0)>0) push('weak');
-  if((o.vampPct||0)>0) push('vampire');
+  if(hasAb(o,'vampire')) push('vampire');   /* vampire is an ON/OFF flag in o.ab — vampPct is only the % amount (defaults to 15 even when unchecked), so DON'T key the tag off vampPct */
   if(o.blockTp) push('blockTp');
   if((o.atkFatigue||0)>0) push('fatigue');
   if(o.noEnergy==='atk'||o.noEnergy==='all') push('noEnergy');
