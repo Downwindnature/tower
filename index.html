@@ -3080,7 +3080,7 @@ function genFloorRaw(f){
   const _fdMul=(typeof FLOOR_CFG!=='undefined'&&FLOOR_CFG[_realFloor]!=null)?FLOOR_CFG[_realFloor]:1;   // per-floor density (admin Map tab)
   const _areaMul=(state.mode!=='solo')?Math.max(1,(GRID*GRID)/(11*11)):1;   // big MP floors get proportionally more wandering monsters (tunable later)
   const _dcm=diffCountMul(curDifficulty());   // 怪物數量隨難度調整（越難越多；單機 normal = x1）
-  const monCount=clamp(Math.round((4+Math.floor(f/3.2))*_fdMul*_areaMul*_dcm),0,Math.round(18*_areaMul*_dcm));   /* denser: fewer big empty gaps on the map (was 3+f/4, cap 14) */   // wandering mobs only; path/treasure guards are placed separately so the floor stays solvable
+  const monCount=clamp(Math.round((3+Math.floor(f/4))*_fdMul*_areaMul*_dcm),0,Math.round(14*_areaMul*_dcm));   // wandering mobs only; path/treasure guards are placed separately so the floor stays solvable
   const isDebuff=function(m){ return m.trueDmg||m.ability||m.drains; };   // weaken / poison / true-damage / life-drain
   const _ALLMON=MONSTERS.concat(BASEMENT_MONSTERS).concat((typeof SWORD_KING!=='undefined'&&SWORD_KING)?[SWORD_KING]:[]);   // unified pool; each monster carries its own surface (sMin/sMax) + basement-depth (bMin/bMax) ranges (admin Monsters tab)
   let roster;
@@ -3303,11 +3303,17 @@ function genFloorRaw(f){
   if(_realFloor===-15){ if(!placeBigVault(function(){return mkFoeDirect(ABYSS_GUARD);}, 'icePendant', 'p')) placeBlocked('icePendant', true, ['p']); }            // 深淵魔王 (3x3) vault: platinum door -> 轉體 (atk lv79)
   // wandering monsters now fill the remaining free cells AROUND the vault & gated treasures (vault + treasure cells are entity-occupied, so free() skips them)
   let placed=0, guard=0; const typeCnt={};
-  const cells=shuffle(free());   // spread evenly across the floor — no clustering in far corners
+  const cells=shuffle(free());
+  /* count how many monsters already sit in the 3x3 around a cell — used to avoid clumping */
+  const _monNear=function(c){ var n=0; for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ var x=c.x+dx,y=c.y+dy; if(x>=0&&y>=0&&x<GRID&&y<GRID){ var e=data.ent[y][x]; if(e&&e.kind==='monster') n++; } } return n; };
+  for(let _pass=0;_pass<2 && placed<monCount;_pass++){   // pass 0: reject clumped spots (>=2 neighbours); pass 1: relax to fill the rest
+    const _crowd=_pass===0?2:99;
   for(let i=0;i<cells.length;i++){
     if(placed>=monCount) break;
-    if(guard++>1000) break;
+    if(guard++>4000) break;
     const c=cells[i];
+    if(data.ent[c.y][c.x]) continue;   // already placed in an earlier pass
+    if(_monNear(c)>=_crowd) continue;   // anti-clump: skip spots that already have monsters packed around them
     const op4=[[0,-1],[1,0],[0,1],[-1,0]].reduce(function(s,d){var x=c.x+d[0],y=c.y+d[1];return s+((x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x])?1:0);},0);
     if(op4<=1) continue;   // never drop a wandering monster INTO a dead-end (those are reserved for guarded treasure)
     const ess=isEssential(c);
@@ -3319,6 +3325,7 @@ function genFloorRaw(f){
     if(_realFloor>0 && ess && !startCanPierce(foe)) continue;   // main tower keeps a START-beatable path; basements may put tough mobs on it
     data.ent[c.y][c.x]={kind:'monster',foe:foe}; typeCnt[base.id]=(typeCnt[base.id]||0)+1;
     placed++;
+  }
   }
   // weapons & shields: one per designated main floor, sealed in a dead-end behind a strong guard
   // above ground (1-25): iron -> silver -> knight only
@@ -3374,10 +3381,14 @@ function genFloorRaw(f){
   // items
   const itemPool=buildItemPool(f);
   const _trMul=(typeof FLOOR_TR!=='undefined'&&FLOOR_TR[_realFloor]!=null)?FLOOR_TR[_realFloor]:1;   // per-floor treasure density (admin Map tab)
-  const itemCount=clamp(Math.round((4+Math.floor(f/2.8))*_trMul*mpTrBonus()),0,24);   // denser pickups so the floor isn't half-empty (was 2+f/4, cap 16) — loose pickups (potions) only; gated weapons/books/gems/gold keep their fixed placement
+  const itemCount=clamp(Math.round((2+Math.floor(f/4))*_trMul*mpTrBonus()),0,16);   // loose pickups (potions) only; gated weapons/books/gems/gold keep their fixed placement
   let ip=0;
   const ic=shuffle(free());
-  for(let i=0;i<ic.length;i++){ if(ip>=itemCount) break; const c=ic[i]; data.ent[c.y][c.x]={kind:'item',item:pick(itemPool)}; ip++; }
+  const _itemNear=function(c){ var n=0; for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ var x=c.x+dx,y=c.y+dy; if(x>=0&&y>=0&&x<GRID&&y<GRID){ var e=data.ent[y][x]; if(e&&e.kind==='item') n++; } } return n; };
+  for(let _ipass=0;_ipass<2 && ip<itemCount;_ipass++){   // pass 0: avoid clumping pickups; pass 1: relax to hit the count
+    const _icrowd=_ipass===0?2:99;
+    for(let i=0;i<ic.length;i++){ if(ip>=itemCount) break; const c=ic[i]; if(data.ent[c.y][c.x]) continue; if(_itemNear(c)>=_icrowd) continue; data.ent[c.y][c.x]={kind:'item',item:pick(itemPool)}; ip++; }
+  }
 
   // spare keys
   const spareKeys=clamp(Math.floor(f/9),0,1);   // a small number of spare (y/b/r) keys again — never white/platinum
@@ -3662,31 +3673,6 @@ function genFloorRaw(f){
       data.ent[_sy2][_sx2]=null;
     }
   }catch(_isErr){}
-
-  /* ---- empty-region fill: break up big blank stretches so the floor never looks half-empty ----
-     find reachable empty tiles that sit in a large blank blob (few entity neighbours nearby) and sprinkle
-     loose pickups there, so there are no giant dead zones with nothing in them. */
-  try{
-    var _fr2=[]; for(var _y=0;_y<GRID;_y++){ var _rr=[]; for(var _x=0;_x<GRID;_x++) _rr.push(false); _fr2.push(_rr); }
-    var _fq=[[data.start.x,data.start.y]]; _fr2[data.start.y][data.start.x]=true;
-    while(_fq.length){ var _p=_fq.shift(), _nb=[[0,-1],[1,0],[0,1],[-1,0]];
-      for(var _i=0;_i<4;_i++){ var _nx=_p[0]+_nb[_i][0],_ny=_p[1]+_nb[_i][1]; if(_nx<0||_ny<0||_nx>=GRID||_ny>=GRID) continue; if(_fr2[_ny][_nx]||data.wall[_ny][_nx]) continue; _fr2[_ny][_nx]=true; _fq.push([_nx,_ny]); }
-    }
-    var _isStr2=function(x,y){ return (x===data.stairs.x&&y===data.stairs.y)||(x===data.start.x&&y===data.start.y); };
-    var _emptyReach=function(x,y){ return _fr2[y][x] && !data.wall[y][x] && !data.ent[y][x] && !_isStr2(x,y) && !(data.lava&&data.lava[y]&&data.lava[y][x]); };
-    /* a cell is "in a dead zone" if none of the 8 surrounding tiles holds an entity */
-    var _lonely=[];
-    for(var _y2=0;_y2<GRID;_y2++)for(var _x2=0;_x2<GRID;_x2++){
-      if(!_emptyReach(_x2,_y2)) continue;
-      var _near=false, _d8=[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
-      for(var _k=0;_k<8;_k++){ var _ax=_x2+_d8[_k][0],_ay=_y2+_d8[_k][1]; if(_ax>=0&&_ay>=0&&_ax<GRID&&_ay<GRID&&data.ent[_ay][_ax]){ _near=true; break; } }
-      if(!_near) _lonely.push({x:_x2,y:_y2});
-    }
-    /* fill ~60% of the dead-zone tiles with loose pickups (spread, not solid) */
-    _lonely=shuffle(_lonely);
-    var _fillN=Math.floor(_lonely.length*0.6);
-    for(var _f=0;_f<_fillN;_f++){ var _c=_lonely[_f]; if(data.ent[_c.y][_c.x]) continue; data.ent[_c.y][_c.x]={kind:'item', item:pick(itemPool)}; }
-  }catch(_flErr){}
 
   /* ---- stair-trap sweep: nothing should be reachable ONLY by crossing the up-stairs ----
      Stepping on the up-stairs changes floor, so an item/monster whose only route from the entrance
@@ -10518,14 +10504,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·369'; }
+    bt.textContent='build 0618·370'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·369'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·370'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
