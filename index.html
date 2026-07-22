@@ -2825,6 +2825,32 @@ const ri=(a,b)=>a+Math.floor(RAND()*(b-a+1));
 const chance=(p)=>RAND()<p;
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(RAND()*(i+1));const tmp=a[i];a[i]=a[j];a[j]=tmp;}return a;}
 function pick(a){return a[Math.floor(RAND()*a.length)];}
+/* Spatial round-robin ordering: split cells into a k×k grid of buckets by position, shuffle each
+   bucket, then interleave by taking one cell from each non-empty bucket in turn. The first N cells
+   pulled from this order are therefore spread across ALL regions of the map — so entities can never
+   pile into one corner while a whole quadrant sits empty (the real fix: enforce coverage up front,
+   not patch clumping after). Falls back gracefully when the map is tiny. */
+function _spreadBuckets(cells, k){
+  if(!cells || cells.length<=2) return cells?cells.slice():[];
+  k=k||3;
+  var span=(typeof GRID!=='undefined'?GRID:11)/k;
+  var buckets={};
+  for(var i=0;i<cells.length;i++){
+    var c=cells[i];
+    var bx=Math.min(k-1, Math.floor(c.x/span)), by=Math.min(k-1, Math.floor(c.y/span));
+    var key=by*k+bx;
+    (buckets[key]||(buckets[key]=[])).push(c);
+  }
+  var keys=Object.keys(buckets);
+  for(var j=0;j<keys.length;j++) shuffle(buckets[keys[j]]);
+  shuffle(keys);   // randomise which bucket leads each round
+  var out=[], any=true;
+  while(any){
+    any=false;
+    for(var q=0;q<keys.length;q++){ var b=buckets[keys[q]]; if(b.length){ out.push(b.pop()); any=true; } }
+  }
+  return out;
+}
 function fmt(s,p){return String(s).replace(/\{(\w+)\}/g,function(m,k){return (p&&k in p)?p[k]:m;});}
 function t(key,p){
   const path=key.split('.');
@@ -3070,6 +3096,37 @@ function genFloorRaw(f){
     if((c.x===start.x&&c.y===start.y)||(c.x===stairs.x&&c.y===stairs.y)) return true;
     const r=reach(start,c); return !r[stairs.y][stairs.x];
   };
+  /* ---- connect "behind-the-up-stairs" pockets to the entrance side ----
+     Some maze layouts hide a whole region so it's only reachable by crossing the up-stairs. Those tiles get
+     barred from spawning (below), which used to leave a big empty half of the map. Instead of just tolerating
+     the void, punch a wall so the pocket joins the entrance-reachable area — then it fills with entities like
+     anywhere else. We knock the FEWEST walls needed (one per pocket, BFS-verified) so the floor stays clean. */
+  (function(){
+    for(var _iter=0; _iter<GRID; _iter++){
+      var rNoUp = bfsReach(wall, start, stairs);   // entrance-reachable, up-stairs treated as a wall
+      // find a wall that separates a reachable-side floor from an unreachable-side floor (a "bridge" candidate)
+      var bridges=[];
+      for(var y=0;y<GRID;y++)for(var x=0;x<GRID;x++){
+        if(!wall[y][x]) continue;
+        if(x===stairs.x&&y===stairs.y) continue;   // never carve the up-stairs itself
+        var touchIn=false, touchOut=false;
+        var nb=[[0,-1],[1,0],[0,1],[-1,0]];
+        for(var i=0;i<4;i++){ var nx=x+nb[i][0], ny=y+nb[i][1]; if(nx<0||ny<0||nx>=GRID||ny>=GRID) continue;
+          if(wall[ny][nx]) continue;
+          if(nx===stairs.x&&ny===stairs.y) continue;
+          if(rNoUp[ny][nx]) touchIn=true;
+          else touchOut=true;   // a floor tile that's NOT entrance-reachable (behind the stairs / sealed pocket)
+        }
+        if(touchIn && touchOut) bridges.push({x:x,y:y});
+      }
+      if(!bridges.length) break;   // nothing stranded — done
+      // knock through the bridge nearest the map centre (keeps carves tidy, avoids edge slivers)
+      var cxm=(GRID-1)/2, cym=(GRID-1)/2;
+      bridges.sort(function(a,b){ return (Math.abs(a.x-cxm)+Math.abs(a.y-cym)) - (Math.abs(b.x-cxm)+Math.abs(b.y-cym)); });
+      wall[bridges[0].y][bridges[0].x]=false;
+    }
+  })();
+
   /* reachable from the entrance WITHOUT ever stepping on the up-stairs (stepping on stairs changes floor).
      If a tile is only reachable by crossing the up-stairs, an item/monster there would force the player to
      climb + descend (or burn a portal) just to grab it — so such tiles are barred from spawning entities. */
@@ -3316,17 +3373,17 @@ function genFloorRaw(f){
   }
   // wandering monsters now fill the remaining free cells AROUND the vault & gated treasures (vault + treasure cells are entity-occupied, so free() skips them)
   let placed=0, guard=0; const typeCnt={};
-  const cells=shuffle(free());
-  /* count how many monsters already sit in the 3x3 around a cell — used to avoid clumping */
+  /* spatial round-robin: entities spread across every region of the map (no empty quadrants) */
+  const cells=_spreadBuckets(free(), 3);
   const _monNear=function(c){ var n=0; for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ var x=c.x+dx,y=c.y+dy; if(x>=0&&y>=0&&x<GRID&&y<GRID){ var e=data.ent[y][x]; if(e&&e.kind==='monster') n++; } } return n; };
-  for(let _pass=0;_pass<2 && placed<monCount;_pass++){   // pass 0: reject clumped spots (>=2 neighbours); pass 1: relax to fill the rest
+  for(let _pass=0;_pass<2 && placed<monCount;_pass++){   // pass 0: also avoid tight local clumps; pass 1: relax to hit the count
     const _crowd=_pass===0?2:99;
   for(let i=0;i<cells.length;i++){
     if(placed>=monCount) break;
     if(guard++>4000) break;
     const c=cells[i];
     if(data.ent[c.y][c.x]) continue;   // already placed in an earlier pass
-    if(_monNear(c)>=_crowd) continue;   // anti-clump: skip spots that already have monsters packed around them
+    if(_monNear(c)>=_crowd) continue;   // still avoid packing monsters cheek-to-jowl within a region
     const op4=[[0,-1],[1,0],[0,1],[-1,0]].reduce(function(s,d){var x=c.x+d[0],y=c.y+d[1];return s+((x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x])?1:0);},0);
     if(op4<=1) continue;   // never drop a wandering monster INTO a dead-end (those are reserved for guarded treasure)
     const ess=isEssential(c);
@@ -3396,9 +3453,9 @@ function genFloorRaw(f){
   const _trMul=(typeof FLOOR_TR!=='undefined'&&FLOOR_TR[_realFloor]!=null)?FLOOR_TR[_realFloor]:1;   // per-floor treasure density (admin Map tab)
   const itemCount=clamp(Math.round((2+Math.floor(f/4))*_trMul*mpTrBonus()),0,16);   // loose pickups (potions) only; gated weapons/books/gems/gold keep their fixed placement
   let ip=0;
-  const ic=shuffle(free());
+  const ic=_spreadBuckets(free(), 3);   // spatial round-robin: pickups spread across every region, no empty half
   const _itemNear=function(c){ var n=0; for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ var x=c.x+dx,y=c.y+dy; if(x>=0&&y>=0&&x<GRID&&y<GRID){ var e=data.ent[y][x]; if(e&&e.kind==='item') n++; } } return n; };
-  for(let _ipass=0;_ipass<2 && ip<itemCount;_ipass++){   // pass 0: avoid clumping pickups; pass 1: relax to hit the count
+  for(let _ipass=0;_ipass<2 && ip<itemCount;_ipass++){   // pass 0: also avoid local clumps; pass 1: relax to hit the count
     const _icrowd=_ipass===0?2:99;
     for(let i=0;i<ic.length;i++){ if(ip>=itemCount) break; const c=ic[i]; if(data.ent[c.y][c.x]) continue; if(_itemNear(c)>=_icrowd) continue; data.ent[c.y][c.x]={kind:'item',item:pick(itemPool)}; ip++; }
   }
@@ -3686,6 +3743,43 @@ function genFloorRaw(f){
       data.ent[_sy2][_sx2]=null;
     }
   }catch(_isErr){}
+
+  /* ---- region coverage guarantee: no k×k region of the map may sit entirely empty ----
+     Whatever the maze shape and however the round-robin placement fell, sweep a coarse grid at the end:
+     if a region has entrance-reachable empty floor but ZERO entities, drop one pickup there. This is the
+     backstop that finally kills the "whole quadrant is blank" look — enforced as a post-condition, not a
+     placement heuristic that can still leave gaps. Only fills genuinely reachable, non-dead-end tiles. */
+  try{
+    if(!(_realFloor===1 && state.mode==='solo')){   /* solo 1F stays a calm, empty starting floor — never back-fill it */
+    var _rcReach = bfsReach(wall, start, stairs);   // entrance-reachable without crossing the up-stairs
+    var _K=3, _cellSpan=GRID/_K;
+    for(var _gy=0;_gy<_K;_gy++)for(var _gx=0;_gx<_K;_gx++){
+      var _x0=Math.floor(_gx*_cellSpan), _x1=Math.floor((_gx+1)*_cellSpan);
+      var _y0=Math.floor(_gy*_cellSpan), _y1=Math.floor((_gy+1)*_cellSpan);
+      var _hasEnt=false, _openSpots=[];
+      for(var _yy=_y0;_yy<_y1;_yy++)for(var _xx=_x0;_xx<_x1;_xx++){
+        if(_xx<0||_yy<0||_xx>=GRID||_yy>=GRID) continue;
+        var _ee=data.ent[_yy][_xx];
+        if(_ee && (_ee.kind==='monster'||_ee.kind==='item')) { _hasEnt=true; }
+        if(_ee) continue;
+        if(wall[_yy][_xx]) continue;
+        if(!_rcReach[_yy][_xx]) continue;
+        if((_xx===start.x&&_yy===start.y)||(_xx===stairs.x&&_yy===stairs.y)) continue;
+        if(data.lava&&data.lava[_yy]&&data.lava[_yy][_xx]) continue;
+        _openSpots.push({x:_xx,y:_yy});
+      }
+      if(_hasEnt || !_openSpots.length) continue;   // region already has something, or truly no room
+      /* prefer a non-dead-end tile so it looks natural; fall back to any open tile */
+      _openSpots.sort(function(a,b){
+        var oa=[[0,-1],[1,0],[0,1],[-1,0]].reduce(function(s,dd){var x=a.x+dd[0],y=a.y+dd[1];return s+((x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x])?1:0);},0);
+        var ob=[[0,-1],[1,0],[0,1],[-1,0]].reduce(function(s,dd){var x=b.x+dd[0],y=b.y+dd[1];return s+((x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x])?1:0);},0);
+        return ob-oa;   // more open first
+      });
+      var _sp=_openSpots[0];
+      data.ent[_sp.y][_sp.x]={kind:'item', item:pick(itemPool)};
+    }
+    }
+  }catch(_rcErr){}
 
   /* ---- stair-trap sweep: nothing should be reachable ONLY by crossing the up-stairs ----
      Stepping on the up-stairs changes floor, so an item/monster whose only route from the entrance
@@ -10533,14 +10627,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·376'; }
+    bt.textContent='build 0618·377'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·376'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·377'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
