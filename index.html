@@ -3719,15 +3719,14 @@ function genBossFloorRawLarge(f){
   wall[start.y][start.x]=false;
   const data={f:f, wall:wall, start:{x:start.x,y:start.y}, stairs:{x:cx,y:upY}, ent:emptyEnt(), lava:emptyLava(), explored:false, boss:true};
   const _topD=effFloor(f-1);
-  /* boss-approach guards must come from the monsters that naturally appear on the top ground floors (22–25),
-     using the cloud-configured MONSTERS list — so the difficulty matches the floor and no out-of-range powerhouse sneaks in */
-  const _gLo=Math.max(1, (typeof FLOORS!=='undefined'?FLOORS:25)-3);   /* 22 when FLOORS=25 */
-  const _gHi=(typeof FLOORS!=='undefined'?FLOORS:25);                   /* 25 */
-  var tough=MONSTERS.filter(function(m){ var lo=(m.minF!=null?m.minF:1), hi=(m.maxF!=null?m.maxF:99); return hi>=_gLo && lo<=_gHi; });
-  if(!tough.length) tough=MONSTERS.filter(function(m){return (m.maxF!=null?m.maxF:99)>=_topD;});   /* fallback: nothing in-range → old rule */
-  const gFoe=function(){ return scaleFoe(weightedMonster(tough.length?tough:MONSTERS, _topD), _topD); };
+  /* final-boss-approach guards come ONLY from monsters explicitly flagged as boss guards (admin: 最終BOSS守衛).
+     a monster with the flag OFF can NEVER appear here — this is the definitive fix for basement mobs leaking
+     into the floor-25 boss room. no flagged monsters → no guards (the gauntlet is just the boss + heals). */
+  var _guardPool=(typeof MONSTERS!=='undefined'?MONSTERS:[]).concat(typeof BASEMENT_MONSTERS!=='undefined'?BASEMENT_MONSTERS:[]);
+  var tough=_guardPool.filter(function(m){ return m && (m.bossGuard===true || m.bossGuard===1); });
+  const gFoe=function(){ if(!tough.length) return null; return scaleFoe(weightedMonster(tough, _topD), _topD); };   /* no flagged guards → null → slot stays empty */
   data.ent[bossY][cx]={kind:'monster',foe:_bossFoeForFloor(f),isBoss:true};                       // boss (dragon; Gordon on the top floor at hard+)
-  [2,3,4].forEach(function(i){ const y=clamp(start.y+dy*i,0,GRID-1); if(!data.ent[y][cx] && !(cx===start.x&&y===start.y) && y!==bossY && y!==upY) data.ent[y][cx]={kind:'monster',foe:gFoe()}; });   // 3 gauntlet mobs, fought in order
+  [2,3,4].forEach(function(i){ const y=clamp(start.y+dy*i,0,GRID-1); if(!data.ent[y][cx] && !(cx===start.x&&y===start.y) && y!==bossY && y!==upY){ var _gf=gFoe(); if(_gf) data.ent[y][cx]={kind:'monster',foe:_gf}; } });   // up to 3 gauntlet mobs (only if any monster is flagged as a boss guard)
   [[1,'potB'],[5,'potB']].forEach(function(s){ const y=clamp(start.y+dy*s[0],0,GRID-1); if(!wall[y][cx]&&!data.ent[y][cx]&&!(cx===start.x&&y===start.y)&&y!==bossY&&y!==upY) data.ent[y][cx]={kind:'item',item:s[1]}; });   // heals between fights
   return data;
 }
@@ -3746,16 +3745,13 @@ function genBossFloorRaw(f){
   data.ent[9][cx]={kind:'monster',foe:_bossFoeForFloor(f),isBoss:true};                      // boss (dragon; Gordon on the top floor at hard+)
   // gauntlet: several STRONG floor-24-tier mobs filling the 1-wide corridor — beaten in order, no way around
   const _topD=effFloor(f-1);   // design floor just below the boss floor (solo: effFloor(FLOORS-1); MP: effFloor(FLOORS-2)) = 24
-  /* boss-approach guards must come from the monsters that naturally appear on the top ground floors (22–25),
-     using the cloud-configured MONSTERS list — so the difficulty matches the floor and no out-of-range powerhouse sneaks in */
-  const _gLo=Math.max(1, (typeof FLOORS!=='undefined'?FLOORS:25)-3);   /* 22 when FLOORS=25 */
-  const _gHi=(typeof FLOORS!=='undefined'?FLOORS:25);                   /* 25 */
-  var tough=MONSTERS.filter(function(m){ var lo=(m.minF!=null?m.minF:1), hi=(m.maxF!=null?m.maxF:99); return hi>=_gLo && lo<=_gHi; });
-  if(!tough.length) tough=MONSTERS.filter(function(m){return (m.maxF!=null?m.maxF:99)>=_topD;});   /* fallback: nothing in-range → old rule */
-  const gFoe=function(){ return scaleFoe(weightedMonster(tough.length?tough:MONSTERS, _topD), _topD); };
-  data.ent[3][cx]={kind:'monster',foe:gFoe()};
-  data.ent[5][cx]={kind:'monster',foe:gFoe()};
-  data.ent[7][cx]={kind:'monster',foe:gFoe()};
+  /* final-boss-approach guards come ONLY from monsters explicitly flagged as boss guards (admin: 最終BOSS守衛).
+     a monster with the flag OFF can NEVER appear here — this is the definitive fix for basement mobs leaking
+     into the floor-25 boss room. no flagged monsters → no guards (the gauntlet is just the boss + heals). */
+  var _guardPool=(typeof MONSTERS!=='undefined'?MONSTERS:[]).concat(typeof BASEMENT_MONSTERS!=='undefined'?BASEMENT_MONSTERS:[]);
+  var tough=_guardPool.filter(function(m){ return m && (m.bossGuard===true || m.bossGuard===1); });
+  const gFoe=function(){ if(!tough.length) return null; return scaleFoe(weightedMonster(tough, _topD), _topD); };   /* no flagged guards → null → slot stays empty */
+  [3,5,7].forEach(function(_gy){ var _gf=gFoe(); if(_gf) data.ent[_gy][cx]={kind:'monster',foe:_gf}; });   // guards only if monsters are flagged as boss guards; otherwise the slots stay empty
   // supply: a heal between fights, and recovery tucked in the boss-chamber corners
   const supply=[[cx,4,'potB'],[cx,6,'potB'],[cx-1,8,'potB'],[cx+1,8,'vialG'],[cx-1,9,'gemR'],[cx+1,9,'gemB']];
   for(let i=0;i<supply.length;i++){ const x=supply[i][0],y=supply[i][1],it=supply[i][2];
@@ -9755,6 +9751,8 @@ const I18N_CUST = {
 (function(){ var A={"jsonExported": {"zh-Hant": "✓ 已匯出 JSON 設定檔（請妥善保存）", "zh-Hans": "✓ 已导出 JSON 设置档（请妥善保存）", "en": "✓ Config exported as JSON", "ja": "✓ JSON 設定を書き出しました", "ko": "✓ JSON 설정을 내보냈습니다"}, "jsonImported": {"zh-Hant": "✓ 已從 JSON 載入設定（記得再「儲存到雲端」或「套用到本機」）", "zh-Hans": "✓ 已从 JSON 载入设置（记得再「保存到云端」或「应用到本机」）", "en": "✓ Config loaded from JSON — remember to Save to cloud / Apply", "ja": "✓ JSON から読み込みました（クラウド保存／適用を忘れずに）", "ko": "✓ JSON에서 불러왔습니다 — 클라우드 저장/적용을 잊지 마세요"}, "jsonBad": {"zh-Hant": "✗ JSON 檔案無效或格式不符", "zh-Hans": "✗ JSON 文件无效或格式不符", "en": "✗ Invalid or unrecognised JSON", "ja": "✗ 無効な JSON です", "ko": "✗ 잘못된 JSON입니다"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"mnameInput": {"zh-Hant": "輸入名稱", "zh-Hans": "输入名称", "en": "Enter name", "ja": "名前を入力", "ko": "이름 입력"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"midWarn": {"zh-Hant": "⚠ 修改 ID 等於更換這隻怪的身分，雲端設定需對新 ID 重新對應。", "zh-Hans": "⚠ 修改 ID 等于更换这只怪的身分，云端设定需对新 ID 重新对应。", "en": "⚠ Changing the ID re-identifies this monster; cloud settings must be re-mapped to the new ID.", "ja": "⚠ ID を変えるとこのモンスターの識別が変わります。クラウド設定は新 ID に再対応が必要です。", "ko": "⚠ ID를 바꾸면 이 몬스터의 식별이 바뀝니다. 클라우드 설정을 새 ID에 다시 매핑해야 합니다."}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"bossGuard": {"zh-Hant": "最終BOSS守衛", "zh-Hans": "最终BOSS守卫", "en": "Final boss guard", "ja": "最終ボスの守衛", "ko": "최종 보스 가디언"}, "bossGuardHint": {"zh-Hant": "勾選後這隻怪才有機會生成在第25層最終BOSS房當守衛；不勾選一定不會生成。", "zh-Hans": "勾选后这只怪才有机会生成在第25层最终BOSS房当守卫；不勾选一定不会生成。", "en": "Only checked monsters can spawn as guards in the floor-25 boss room; unchecked never spawn there.", "ja": "チェックした魔物だけが25階の最終ボス部屋に守衛として出現します。未チェックは絶対に出現しません。", "ko": "체크한 몬스터만 25층 최종 보스 방에 가디언으로 출현합니다. 체크하지 않으면 절대 출현하지 않습니다."}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
+(function(){ var A={"bossGuard": {"zh-Hant": "最終BOSS守衛", "zh-Hans": "最终BOSS守卫", "en": "Final boss guard", "ja": "最終ボスの守衛", "ko": "최종 보스 가디언"}, "bossGuardHint": {"zh-Hant": "勾選後這隻怪才有機會生成在第25層最終BOSS房當守衛；不勾選一定不會生成。", "zh-Hans": "勾选后这只怪才有机会生成在第25层最终BOSS房当守卫；不勾选一定不会生成。", "en": "Only checked monsters can spawn as guards in the floor-25 boss room; unchecked never spawn there.", "ja": "チェックした魔物だけが25階の最終ボス部屋に守衛として出現します。未チェックは絶対に出現しません。", "ko": "체크한 몬스터만 25층 최종 보스 방에 가디언으로 출현합니다. 체크하지 않으면 절대 출현하지 않습니다."}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var AB={"statMatch": {"zh-Hant": "數值同步", "zh-Hans": "数值同步", "en": "Stat Sync", "ja": "数値同期", "ko": "수치 동기화"}, "statDown": {"zh-Hant": "削攻防", "zh-Hans": "削攻防", "en": "Stat Down", "ja": "攻防低下", "ko": "능력 감소"}, "bonusDmg": {"zh-Hant": "追加傷害", "zh-Hans": "追加伤害", "en": "Bonus Dmg", "ja": "追加ダメージ", "ko": "추가 피해"}, "drainEn": {"zh-Hant": "吸能", "zh-Hans": "吸能", "en": "Energy Drain", "ja": "エネルギー吸収", "ko": "에너지 흡수"}, "blockTp": {"zh-Hant": "封傳送", "zh-Hans": "封传送", "en": "Block Teleport", "ja": "転送封じ", "ko": "전송 봉인"}, "fatigue": {"zh-Hant": "疲勞", "zh-Hans": "疲劳", "en": "Fatigue", "ja": "疲労", "ko": "피로"}, "noEnergy": {"zh-Hant": "不增能量", "zh-Hans": "不增能量", "en": "No Energy", "ja": "エネルギー無効", "ko": "에너지 무효"}, "critDrain": {"zh-Hant": "爆擊吸取", "zh-Hans": "爆击吸取", "en": "Crit Drain", "ja": "会心吸収", "ko": "치명 흡수"}, "poisonBuff": {"zh-Hant": "中毒強化", "zh-Hans": "中毒强化", "en": "Poison Empower", "ja": "毒強化", "ko": "중독 강화"}, "revive": {"zh-Hant": "復活", "zh-Hans": "复活", "en": "Revive", "ja": "復活", "ko": "부활"}, "reviveInto": {"zh-Hant": "轉生", "zh-Hans": "转生", "en": "Transform", "ja": "転生", "ko": "전생"}, "noFlee": {"zh-Hant": "禁逃", "zh-Hans": "禁逃", "en": "No Flee", "ja": "逃走不可", "ko": "도주 불가"}, "deathIce": {"zh-Hant": "死亡冰封", "zh-Hans": "死亡冰封", "en": "Death Ice", "ja": "死亡氷結", "ko": "사망 빙결"}, "deathLava": {"zh-Hant": "死亡熔岩", "zh-Hans": "死亡熔岩", "en": "Death Lava", "ja": "死亡溶岩", "ko": "사망 용암"}, "mAtkSkill": {"zh-Hant": "攻擊技能書", "zh-Hans": "攻击技能书", "en": "Atk Skill Book", "ja": "攻撃スキル", "ko": "공격 스킬북"}, "mDefSkill": {"zh-Hant": "防禦技能書", "zh-Hans": "防御技能书", "en": "Def Skill Book", "ja": "防御スキル", "ko": "방어 스킬북"}}; for(var k in AB){ for(var L in AB[k]){ if(I18N[L]&&I18N[L].ab) I18N[L].ab[k]=AB[k][L]; } } var EF={"effStatMatchA": {"zh-Hant": "攻防同步為你的攻防（只升不降），與你並駕齊驅。", "zh-Hans": "攻防同步为你的攻防（只升不降），与你并驾齐驱。", "en": "Mirrors your ATK & DEF (only rises), matching your power.", "ja": "あなたの攻防に同期（上昇のみ）し、実力に並ぶ。", "ko": "당신의 공격·방어에 동기화(상승만)되어 실력을 따라온다."}, "effStatMatchB": {"zh-Hant": "防禦同步為你的攻擊（只升不降），越打越硬。", "zh-Hans": "防御同步为你的攻击（只升不降），越打越硬。", "en": "Its DEF mirrors your ATK (only rises), growing tougher.", "ja": "防御があなたの攻撃に同期（上昇のみ）し、硬くなる。", "ko": "방어가 당신의 공격에 동기화(상승만)되어 단단해진다."}, "effStatMatchC": {"zh-Hant": "當你的攻擊高於它的防禦時，攻防同步為你的攻擊（只升不降）。", "zh-Hans": "当你的攻击高于它的防御时，攻防同步为你的攻击（只升不降）。", "en": "When your ATK exceeds its DEF, its ATK & DEF mirror your ATK (only rises).", "ja": "あなたの攻撃が防御を上回ると、攻防があなたの攻撃に同期（上昇のみ）。", "ko": "당신의 공격이 방어를 넘으면 공격·방어가 당신의 공격에 동기화(상승만)."}, "effBlockTp": {"zh-Hant": "戰鬥中封鎖你的樓層傳送。", "zh-Hans": "战斗中封锁你的楼层传送。", "en": "Blocks your floor teleport during battle.", "ja": "戦闘中、階層転送を封じる。", "ko": "전투 중 층 전송을 봉인한다."}, "effFatigue": {"zh-Hant": "你每次攻擊命中它時額外損耗 {n} 體力。", "zh-Hans": "你每次攻击命中它时额外损耗 {n} 体力。", "en": "Each of your hits costs you {n} extra stamina.", "ja": "攻撃を当てるたびに体力を {n} 追加で消耗。", "ko": "공격을 명중시킬 때마다 체력을 {n} 추가로 소모."}, "effNoEnergy": {"zh-Hant": "攻擊它不會為你累積能量。", "zh-Hans": "攻击它不会为你累积能量。", "en": "Attacking it grants you no energy.", "ja": "攻撃してもエネルギーが溜まらない。", "ko": "공격해도 에너지가 쌓이지 않는다."}, "effCritDrain": {"zh-Hant": "爆擊時吸取你的能量／體力。", "zh-Hans": "爆击时吸取你的能量／体力。", "en": "On crit, drains your energy / stamina.", "ja": "会心時、エネルギー／体力を吸収。", "ko": "치명타 시 에너지·체력을 흡수."}, "effPoisonBuff": {"zh-Hant": "你中毒時，它有機率提升自身攻防。", "zh-Hans": "你中毒时，它有机率提升自身攻防。", "en": "While you're poisoned, it may boost its own ATK & DEF.", "ja": "あなたが毒状態のとき、攻防を上げることがある。", "ko": "당신이 중독일 때 자신의 공격·방어를 올릴 수 있다."}, "effReviveInto": {"zh-Hant": "被擊敗後轉生為另一種怪物再戰。", "zh-Hans": "被击败后转生为另一种怪物再战。", "en": "On defeat, transforms into another monster and fights on.", "ja": "倒すと別の魔物に転生して再び戦う。", "ko": "쓰러뜨리면 다른 몬스터로 전생해 다시 싸운다."}, "effMAtkSkill": {"zh-Hant": "戰鬥中會施放攻擊技能書。", "zh-Hans": "战斗中会施放攻击技能书。", "en": "Casts an attack skill book in battle.", "ja": "戦闘中に攻撃スキルを使う。", "ko": "전투 중 공격 스킬북을 사용한다."}, "effMDefSkill": {"zh-Hant": "戰鬥中會施放防禦技能書。", "zh-Hans": "战斗中会施放防御技能书。", "en": "Casts a defence skill book in battle.", "ja": "戦闘中に防御スキルを使う。", "ko": "전투 중 방어 스킬북을 사용한다."}}; for(var k2 in EF){ for(var L2 in EF[k2]){ if(I18N[L2]&&I18N[L2].manual) I18N[L2].manual[k2]=EF[k2][L2]; } } })();
 (function(){ var C={"skillArmed": {"zh-Hant": "等待使用中", "zh-Hans": "等待使用中", "en": "Armed", "ja": "待機中", "ko": "대기 중"}, "skillOncePerRound": {"zh-Hant": "每回合只能使用一次技能書", "zh-Hans": "每回合只能使用一次技能书", "en": "One skill book per round", "ja": "スキルブックは1ターン1回", "ko": "턴당 스킬북 1회"}, "defAlreadyArmed": {"zh-Hant": "防禦技能已待命", "zh-Hans": "防御技能已待命", "en": "Defence already armed", "ja": "防御スキルは待機中", "ko": "방어 스킬 대기 중"}}; for(var k in C){ for(var L in C[k]){ if(I18N[L]&&I18N[L].cb) I18N[L].cb[k]=C[k][L]; } } var M={"skillArm": {"zh-Hant": "{n} 待命！輪到你的回合才施放", "zh-Hans": "{n} 待命！轮到你的回合才施放", "en": "{n} armed — fires on your turn", "ja": "{n} 待機——自分のターンで発動", "ko": "{n} 대기 — 내 턴에 발동"}}; for(var k2 in M){ for(var L2 in M[k2]){ if(I18N[L2]&&I18N[L2].msg) I18N[L2].msg[k2]=M[k2][L2]; } } })();
 (function(){ var M={"zh-Hant": {"mName": "怪物名稱", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻擊力", "mDef": "防禦力", "mAtkc": "攻擊次數", "mDmg": "估計傷害"}, "zh-Hans": {"mName": "怪物名称", "mAb": "特殊能力", "mHp": "生命值", "mAtk": "攻击力", "mDef": "防御力", "mAtkc": "攻击次数", "mDmg": "估计伤害"}, "en": {"mName": "Name", "mAb": "Ability", "mHp": "HP", "mAtk": "ATK", "mDef": "DEF", "mAtkc": "Hits", "mDmg": "Est. damage"}, "ja": {"mName": "名前", "mAb": "特殊能力", "mHp": "HP", "mAtk": "攻撃力", "mDef": "防御力", "mAtkc": "攻撃回数", "mDmg": "推定ダメージ"}, "ko": {"mName": "이름", "mAb": "특수 능력", "mHp": "생명", "mAtk": "공격력", "mDef": "방어력", "mAtkc": "공격 횟수", "mDmg": "예상 피해"}}; for(var L in M){ if(I18N[L]&&I18N[L].manual){ for(var k in M[L]) I18N[L].manual[k]=M[L][k]; } }
@@ -10504,14 +10502,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·370'; }
+    bt.textContent='build 0618·371'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·370'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·371'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -10821,7 +10819,7 @@ function renderAdminBody(){
         /* 特效音效設定 */
         _adSec(t('admin.secFxSfx'), adAtkFx(m)+adCritFx(m)+adAtkSfx(m)+adCritSfx(m))+
         /* 單人模式專用 */
-        _adSec(t('admin.secSolo'), _adFloorSpawn(m)+_adSpawnRole(m)+adNum(t('ui.exp'),m,'exp')+adNum(t('end.gold'),m,'gold'))+
+        _adSec(t('admin.secSolo'), _adFloorSpawn(m)+_adSpawnRole(m)+adNum(t('ui.exp'),m,'exp')+adNum(t('end.gold'),m,'gold')+_adBossGuard(m))+
         /* 多人模式專用 */
         _adSec(t('admin.secMulti'), adMinDiff(m)+_adMpOpts(m))+
         /* 特殊能力選項 */
@@ -10832,15 +10830,18 @@ function renderAdminBody(){
     { const _sb=document.createElement('div'); _sb.style.cssText='margin:2px 2px 10px'; const _si=document.createElement('input'); _si.type='text'; _si.setAttribute('data-monsearch','1'); _si.className='cpInp'; _si.placeholder=t('admin.monSearch'); _si.style.cssText='max-width:280px'; _si.value=_monSearch||''; _sb.appendChild(_si); body.appendChild(_sb); }
     { const _addRow=document.createElement('div'); _addRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:2px 2px 12px';
       const _mk=function(kind,lab){ const b=document.createElement('button'); b.type='button'; b.className='btn'; b.setAttribute('data-addmon',kind); b.style.cssText='padding:6px 14px;font-size:13px'; b.textContent='＋ '+lab; return b; };
-      _addRow.appendChild(_mk('s', t('admin.addMon')+'（'+t('admin.groundMon')+'）'));
-      if(Array.isArray(adminDraft.basementMonsters)) _addRow.appendChild(_mk('b', t('admin.addMon')+'（'+t('admin.basementMon')+'）'));
+      _addRow.appendChild(_mk('s', t('admin.addMon')));   /* single add button — surface/basement is decided by the spawn-range fields, not by a separate list */
       body.appendChild(_addRow);
     }
-    secHdr(t('admin.groundMon')+' ('+adminDraft.monsters.length+')', 'surf');
-    { var _surf=adminDraft.monsters.map(function(m,idx){return {m:m,idx:idx};}); _surf.sort(_byMonName); _pinFirst(_surf,_pinId); _surf.forEach(function(o){ monRow(o.m,o.idx,false); }); }
-    if(Array.isArray(adminDraft.basementMonsters)){
-      secHdr(t('admin.basementMon')+' ('+adminDraft.basementMonsters.length+')', 'base');
-      { var _base=adminDraft.basementMonsters.map(function(m,idx){return {m:m,idx:idx};}); _base.sort(_byMonName); _pinFirst(_base,_pinId); _base.forEach(function(o){ monRow(o.m,o.idx,true); }); }
+    /* one merged, alphabetically-sorted monster list (surface + basement) — the cloud config never split them,
+       so the admin shouldn't either. each row keeps its own idx/bidx + surface flag so saving still maps correctly. */
+    { var _all=[];
+      (adminDraft.monsters||[]).forEach(function(m,idx){ _all.push({m:m,idx:idx,base:false}); });
+      (adminDraft.basementMonsters||[]).forEach(function(m,idx){ _all.push({m:m,idx:idx,base:true}); });
+      var _cnt=_all.length;
+      secHdr(t('admin.monsters')+' ('+_cnt+')', 'surf');
+      _all.sort(_byMonName); _pinFirst(_all,_pinId);
+      _all.forEach(function(o){ monRow(o.m,o.idx,o.base); });
     }
     if(adminDraft.swordKing){
       const sk=adminDraft.swordKing; const _skNm=(_admName(sk)+' '+(sk.id||'')).toLowerCase();
@@ -11089,6 +11090,15 @@ function abList(o){ if(!o) return [];
   if(o.deathTerrain==='ice') push('deathIce'); if(o.deathTerrain==='lava') push('deathLava');
   if(o.mAtkSkills&&o.mAtkSkills.length) push('mAtkSkill'); if(o.mDefSkills&&o.mDefSkills.length) push('mDefSkill');
   return out;
+}
+function _adBossGuard(m){
+  var on=(m&&(m.bossGuard===true||m.bossGuard===1));
+  return '<div class="adField" style="grid-column:1/-1;margin-top:2px">'+
+    '<label style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:400;cursor:pointer">'+
+    '<input type="checkbox" data-kbool="bossGuard"'+(on?' checked':'')+'>'+
+    '<span>'+t('admin.bossGuard')+'</span></label>'+
+    '<div style="font-size:10px;color:var(--muted,#9aa);margin-top:4px;opacity:.8">'+t('admin.bossGuardHint')+'</div>'+
+    '</div>';
 }
 function _abChip(o){
   var s='<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap"><input type="checkbox" '+o.cb+(o.on?' checked':'')+'>'+o.label;
