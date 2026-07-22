@@ -2961,22 +2961,30 @@ function openNeighbor(d,p){ /* an open, unoccupied tile next to p (so the player
 }
 function emptyLava(){const a=[];for(let y=0;y<GRID;y++){const row=[];for(let x=0;x<GRID;x++)row.push(false);a.push(row);}return a;}
 function occupied(d,c){return !!d.ent[c.y][c.x];}
-function _reachNoStairs(wall, start, upStairs, hasDownStair){
-  /* Player-true reachability: after landing on the down-stairs (start), the player can walk out, but
-     stepping on EITHER staircase changes floor — so neither can be crossed to reach a tile behind it.
-     We flood from start's walkable non-stair neighbours, treating both staircases as solid. start itself
-     is where the player stands, so it's reachable; but tiles ONLY reachable by passing through a
-     staircase are NOT — those are the "go down then back up" traps. */
+function _floorEntryTile(f, downStair, upStair){
+  /* Where the player LANDS when they enter this floor along the normal progression:
+     - basement floors (f<0): reached by descending, so the player lands on the UP-stairs (data.stairs).
+     - tower floors (f>0): reached by ascending toward the summit, so the player lands on the DOWN-stairs (data.start).
+     Falls back to whichever staircase exists. This is the true origin for reachability — an entity the player
+     can only get to by using the OTHER staircase (and there may be no way back, e.g. the sealed boss floor
+     below) is effectively unreachable. */
+  if(f<0){ return upStair || downStair; }
+  return downStair || upStair;
+}
+function _reachNoStairs(wall, start, upStairs, hasDownStair, realFloor){
+  /* Player-true reachability from the actual landing tile, treating BOTH staircases as solid
+     (stepping on either changes floor, so neither can be crossed to reach a tile behind it). */
   const seen=[]; for(let y=0;y<GRID;y++){ const r=[]; for(let x=0;x<GRID;x++) r.push(false); seen.push(r); }
   const isStair=function(x,y){
     if(upStairs && x===upStairs.x && y===upStairs.y) return true;
-    if(hasDownStair && start && x===start.x && y===start.y) return true;   // down-stairs (== start) is a barrier only when this floor actually has one
+    if(hasDownStair && start && x===start.x && y===start.y) return true;   // down-stairs (== start) is a barrier only when this floor has one
     return false;
   };
-  if(!start) return seen;
-  seen[start.y][start.x]=true;   // player stands here
+  var _entry=_floorEntryTile((typeof realFloor==='number'?realFloor:-1), start, upStairs);
+  if(!_entry) return seen;
+  seen[_entry.y][_entry.x]=true;   // player lands here
   const q=[]; const nb=[[0,-1],[1,0],[0,1],[-1,0]];
-  for(let i=0;i<4;i++){ const nx=start.x+nb[i][0], ny=start.y+nb[i][1]; if(nx<0||ny<0||nx>=GRID||ny>=GRID) continue; if(wall[ny][nx]||isStair(nx,ny)) continue; if(!seen[ny][nx]){ seen[ny][nx]=true; q.push([nx,ny]); } }
+  for(let i=0;i<4;i++){ const nx=_entry.x+nb[i][0], ny=_entry.y+nb[i][1]; if(nx<0||ny<0||nx>=GRID||ny>=GRID) continue; if(wall[ny][nx]||isStair(nx,ny)) continue; if(!seen[ny][nx]){ seen[ny][nx]=true; q.push([nx,ny]); } }
   while(q.length){ const c=q.shift();
     for(let i=0;i<4;i++){ const nx=c[0]+nb[i][0], ny=c[1]+nb[i][1]; if(nx<0||ny<0||nx>=GRID||ny>=GRID) continue; if(seen[ny][nx]||wall[ny][nx]||isStair(nx,ny)) continue; seen[ny][nx]=true; q.push([nx,ny]); }
   }
@@ -3224,10 +3232,11 @@ function genFloorRaw(f){
           for(let k=0;k<toSeal.length;k++) if(toSeal[k][0]===x && toSeal[k][1]===y) return true;
           return false;
         };
-        /* BFS starts from the down-stairs (start) tile itself — that's where the player lands — but never crosses either staircase */
-        if(wall[start.y][start.x]) continue;
+        /* BFS from the player's ACTUAL landing tile (basements: up-stairs; tower: down-stairs), never crossing either staircase */
+        var _entryV=_floorEntryTile(_realFloor, start, stairs);
+        if(!_entryV || wall[_entryV.y][_entryV.x]) continue;
         const seen=[]; for(let y=0;y<GRID;y++){ const r=[]; for(let x=0;x<GRID;x++) r.push(false); seen.push(r); }
-        const q=[[start.x,start.y]]; seen[start.y][start.x]=true; let qi=0;   /* start (player landing) is the seed even though it's a staircase — we just never PASS THROUGH staircases */
+        const q=[[_entryV.x,_entryV.y]]; seen[_entryV.y][_entryV.x]=true; let qi=0;   /* landing tile is the seed even though it's a staircase — we just never PASS THROUGH staircases */
         while(qi<q.length){ const pp=q[qi++]; for(let k=0;k<4;k++){ const axx=pp[0]+DIRS[k][0], ayy=pp[1]+DIRS[k][1]; if(ayy<0||axx<0||ayy>=GRID||axx>=GRID) continue; if(seen[ayy][axx]||blocked(axx,ayy)) continue; seen[ayy][axx]=true; q.push([axx,ayy]); } }
         var _upReach=false;                                   // up-stairs must be reachable (via one of its neighbours, since the tile itself is now a barrier)
         for(let k=0;k<4;k++){ const sx2=stairs.x+DIRS[k][0], sy2=stairs.y+DIRS[k][1]; if(sx2<0||sy2<0||sx2>=GRID||sy2>=GRID) continue; if(seen[sy2][sx2]){ _upReach=true; break; } }
@@ -3386,8 +3395,10 @@ function genFloorRaw(f){
   if(_realFloor===-12){
     // 毒龍固定守 B12。優先 3x3 寶庫；若地圖擠不下,改用保底放置——一定生成毒龍守著神盾書。
     if(!placeBigVault(function(){return mkFoeDirect(GUARD_DRAGONS.poison);}, 'bk_shendun', 'w')){
-      var _vdReach=_reachNoStairs(wall, start, stairs, hasDown(_realFloor));
+      var _vdReach=_reachNoStairs(wall, start, stairs, hasDown(_realFloor), _realFloor);
       var _vdCands=shuffle(free()).filter(function(c){ return !isEssential(c) && !nearSpawn(data,c) && _vdReach[c.y][c.x]; });
+      if(!_vdCands.length) _vdCands=shuffle(free()).filter(function(c){ return !isEssential(c) && _vdReach[c.y][c.x]; });   // relax: drop the nearSpawn rule
+      if(!_vdCands.length) _vdCands=shuffle(free()).filter(function(c){ return _vdReach[c.y][c.x]; });   // relax further: any player-reachable free tile
       _vdCands.sort(function(a,b){ return nbsOpen(a).length - nbsOpen(b).length; });
       if(_vdCands.length){
         var _vc=_vdCands[0];
@@ -3401,8 +3412,10 @@ function genFloorRaw(f){
   if(_realFloor===-15){
     // 深淵魔王固定守 B15。優先 3x3 白金寶庫；若地圖擠不下寶庫，改用保底放置——一定生成深淵魔王守著 icePendant，絕不因空間不足而消失。
     if(!placeBigVault(function(){return mkFoeDirect(ABYSS_GUARD);}, 'icePendant', 'p')){
-      var _abReach=_reachNoStairs(wall, start, stairs, hasDown(_realFloor));
+      var _abReach=_reachNoStairs(wall, start, stairs, hasDown(_realFloor), _realFloor);
       var _abCands=shuffle(free()).filter(function(c){ return !isEssential(c) && !nearSpawn(data,c) && _abReach[c.y][c.x]; });
+      if(!_abCands.length) _abCands=shuffle(free()).filter(function(c){ return !isEssential(c) && _abReach[c.y][c.x]; });   // relax: drop nearSpawn
+      if(!_abCands.length) _abCands=shuffle(free()).filter(function(c){ return _abReach[c.y][c.x]; });   // relax further: any player-reachable free tile
       _abCands.sort(function(a,b){ return nbsOpen(a).length - nbsOpen(b).length; });   // prefer a dead-end so it still feels like a guarded prize
       if(_abCands.length){
         var _ac=_abCands[0];
@@ -3781,6 +3794,7 @@ function genFloorRaw(f){
       if(_ir[_sy2][_sx2]) continue;                 // reachable → fine
       var _e2=data.ent[_sy2][_sx2]; if(!_e2) continue;
       if(_e2.kind!=='monster' && _e2.kind!=='item') continue;   // relocate only movable entities; leave doors/vault bodies/shops (they gate their own reachable area)
+      if(_e2.kind==='monster' && _e2.foe && _e2.foe.big) continue;   // NEVER move a 3x3 vault guard — it must stay anchored to its bigBody frame
       if(_si<_spots.length){ var _ds=_spots[_si++]; data.ent[_ds.y][_ds.x]=_e2; }
       data.ent[_sy2][_sx2]=null;
     }
@@ -3793,7 +3807,7 @@ function genFloorRaw(f){
      placement heuristic that can still leave gaps. Only fills genuinely reachable, non-dead-end tiles. */
   try{
     if(!(_realFloor===1 && state.mode==='solo')){   /* solo 1F stays a calm, empty starting floor — never back-fill it */
-    var _rcReach = _reachNoStairs(wall, start, stairs, hasDown(_realFloor));   // player-true reachable: never place behind EITHER staircase
+    var _rcReach = _reachNoStairs(wall, start, stairs, hasDown(_realFloor), _realFloor);   // player-true reachable from the actual landing tile
     var _K=3, _cellSpan=GRID/_K;
     for(var _gy=0;_gy<_K;_gy++)for(var _gx=0;_gx<_K;_gx++){
       var _x0=Math.floor(_gx*_cellSpan), _x1=Math.floor((_gx+1)*_cellSpan);
@@ -3830,7 +3844,7 @@ function genFloorRaw(f){
      leave structural pieces (doors, vault guards/bodies, shops) alone — they carry their own
      solvability guarantees and almost never trip this. */
   try{   // every floor: relocate anything reachable ONLY by crossing a staircase (up OR down) — the "go down then back up" trap
-    var _rn = _reachNoStairs(data.wall, data.start, data.stairs, hasDown(_realFloor));   // player-true reachable (both staircases barred)
+    var _rn = _reachNoStairs(data.wall, data.start, data.stairs, hasDown(_realFloor), _realFloor);   // player-true reachable from the actual landing tile
     var _isStair=function(x,y){ return (x===data.stairs.x&&y===data.stairs.y)||(x===data.start.x&&y===data.start.y); };
     var _openReach=[];
     for(var _y=0;_y<GRID;_y++)for(var _x=0;_x<GRID;_x++){
@@ -6072,7 +6086,7 @@ function _genPlaceHintOldMan(d){
   return false;
 }
 function _placeVaultKey(d,item){
-  const reach=reachAvoidBarriers(d, {x:d.start.x, y:d.start.y}); const cands=[];
+  const reach=_reachNoStairs(d.wall, d.start, d.stairs, hasDown(d.f), d.f); const cands=[];   /* key must be reachable by the player from the actual landing tile — never behind a staircase */
   for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
     if(d.wall[y][x] || d.ent[y][x]) continue;
     if(d.lava && d.lava[y] && d.lava[y][x]) continue;   /* vault keys are placed AFTER lava is generated — never drop one onto a lava tile */
@@ -10670,14 +10684,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·378'; }
+    bt.textContent='build 0618·379'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·378'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·379'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
