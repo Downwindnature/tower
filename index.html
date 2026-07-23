@@ -3929,6 +3929,78 @@ function genFloorRaw(f){
     }
   }catch(_isErr){}
 
+/* ---- final dead-space pass: what you SEE must be what you can WALK ON ----
+     Maze pockets, shop carves and chambers sealed by a later step can leave floor tiles the player is able to
+     see but can never stand on. They paint exactly like ordinary floor, so walking into one feels like hitting
+     an invisible wall (the "BUG 牆" players reported), and any door inside such a pocket is unopenable. Resolve
+     every pocket: knock ONE wall to join it to the reachable area when that is possible, otherwise fill it in.
+     Doors count as passable here (a key opens them) and staircases are never crossable, so real vault chambers
+     behind their door stay untouched. */
+  try{
+    var _dsNb=[[0,-1],[1,0],[0,1],[-1,0]];
+    var _dsEntry=_floorEntryTile(_realFloor, data.start, data.stairs);
+    var _dsIsStair=function(x,y){ return (x===data.stairs.x&&y===data.stairs.y)||(hasDown(_realFloor)&&x===data.start.x&&y===data.start.y); };
+    var _dsReach=function(){
+      var seen=[]; for(var y=0;y<GRID;y++){ var r=[]; for(var x=0;x<GRID;x++) r.push(false); seen.push(r); }
+      if(!_dsEntry || data.wall[_dsEntry.y][_dsEntry.x]) return seen;
+      seen[_dsEntry.y][_dsEntry.x]=true; var q=[];
+      for(var i=0;i<4;i++){ var nx=_dsEntry.x+_dsNb[i][0], ny=_dsEntry.y+_dsNb[i][1];
+        if(nx<0||ny<0||nx>=GRID||ny>=GRID) continue; if(data.wall[ny][nx]||_dsIsStair(nx,ny)) continue;
+        if(!seen[ny][nx]){ seen[ny][nx]=true; q.push([nx,ny]); } }
+      while(q.length){ var c=q.shift();
+        for(var k=0;k<4;k++){ var ax=c[0]+_dsNb[k][0], ay=c[1]+_dsNb[k][1];
+          if(ax<0||ay<0||ax>=GRID||ay>=GRID) continue; if(seen[ay][ax]||data.wall[ay][ax]||_dsIsStair(ax,ay)) continue;
+          seen[ay][ax]=true; q.push([ax,ay]); } }
+      return seen;
+    };
+    var _dsStruct=function(e){ return !!(e && (e.kind==='bigBody' || e.kind==='door' || e.kind==='shop' || (e.kind==='monster' && e.foe && e.foe.big))); };
+    for(var _dsPass=0; _dsPass<GRID*2; _dsPass++){
+      var _pr=_dsReach();
+      var pocket=[];
+      for(var y=0;y<GRID;y++)for(var x=0;x<GRID;x++){
+        if(data.wall[y][x] || _pr[y][x] || _dsIsStair(x,y)) continue;
+        pocket.push({x:x,y:y});
+      }
+      if(!pocket.length) break;
+      var _inPocket=[]; for(var y2=0;y2<GRID;y2++){ var r2=[]; for(var x2=0;x2<GRID;x2++) r2.push(false); _inPocket.push(r2); }
+      for(var pi=0; pi<pocket.length; pi++) _inPocket[pocket[pi].y][pocket[pi].x]=true;
+      /* prefer to OPEN the pocket up: one wall that touches both sides, nearest the map centre */
+      var bridges=[], cxm=(GRID-1)/2, cym=(GRID-1)/2;
+      for(var wy=0; wy<GRID; wy++)for(var wx=0; wx<GRID; wx++){
+        if(!data.wall[wy][wx]) continue;
+        var _breach=false;   // never breach an INTACT vault; a sealed guard room that lost its door IS this pocket, so opening it is exactly what we want
+        for(var kg=0; kg<4; kg++){ var gx=wx+_dsNb[kg][0], gy=wy+_dsNb[kg][1];
+          if(gx<0||gy<0||gx>=GRID||gy>=GRID) continue;
+          var ge=data.ent[gy] && data.ent[gy][gx];
+          if(ge && (ge.kind==='bigBody' || (ge.kind==='monster' && ge.foe && ge.foe.big)) && !_inPocket[gy][gx]){ _breach=true; break; } }
+        if(_breach) continue;
+        var tIn=false, tOut=false;
+        for(var k2=0;k2<4;k2++){ var nx2=wx+_dsNb[k2][0], ny2=wy+_dsNb[k2][1];
+          if(nx2<0||ny2<0||nx2>=GRID||ny2>=GRID) continue;
+          if(data.wall[ny2][nx2]) continue;
+          if(_inPocket[ny2][nx2]) tIn=true; else if(_pr[ny2][nx2]) tOut=true; }
+        if(tIn && tOut) bridges.push({x:wx,y:wy,d:Math.abs(wx-cxm)+Math.abs(wy-cym)});
+      }
+      if(bridges.length){ bridges.sort(function(a,b){ return a.d-b.d; }); data.wall[bridges[0].y][bridges[0].x]=false; continue; }
+      /* cannot be opened (fully enclosed) -> fill it so it reads as solid rock */
+      var _spots=[];
+      for(var sy=0; sy<GRID; sy++)for(var sx=0; sx<GRID; sx++){ if(!data.wall[sy][sx] && _pr[sy][sx] && !data.ent[sy][sx] && !_dsIsStair(sx,sy) && !(data.lava&&data.lava[sy]&&data.lava[sy][sx])) _spots.push({x:sx,y:sy}); }
+      var _si=0;
+      var _filled=0;
+      for(var qi=0; qi<pocket.length; qi++){
+        var pc=pocket[qi], pe=data.ent[pc.y][pc.x];
+        if(_dsStruct(pe)) continue;                                   // a vault guard / its body / a door is never filled in
+        if(pe && (pe.kind==='monster'||pe.kind==='item') && _si<_spots.length){ var sp=_spots[_si++]; data.ent[sp.y][sp.x]=pe; }
+        data.ent[pc.y][pc.x]=null;
+        data.wall[pc.y][pc.x]=true;
+        if(data.lava && data.lava[pc.y]) data.lava[pc.y][pc.x]=false;
+        _filled++;
+      }
+      if(!_filled) break;                                             // nothing left we are allowed to touch
+    }
+  }catch(_dsErr){}
+
+
   /* ---- region coverage guarantee: no k×k region of the map may sit entirely empty ----
      Whatever the maze shape and however the round-robin placement fell, sweep a coarse grid at the end:
      if a region has entrance-reachable empty floor but ZERO entities, drop one pickup there. This is the
@@ -3997,7 +4069,7 @@ function genFloorRaw(f){
     }
   }catch(_swErr){}
 
-  return data;
+    return data;
 }
 
 function genBossFloorRawLarge(f){
@@ -10968,14 +11040,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·389'; }
+    bt.textContent='build 0618·390'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·389'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·390'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
