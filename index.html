@@ -3116,7 +3116,16 @@ function genFloorRaw(f){
      This also matches the boss floors, which already arrive via stairPos(). */
   let stairs = stairPos(_realFloor);              // up-stairs (to the floor above)
   let start  = stairPos(downFloor(_realFloor));   // down-stairs / spawn — same cell as the floor below's up-stairs
+  /* The final boss room (B20) is a fixed, symmetric hall whose entrance is pinned to bottom-centre (cx, GRID-2).
+     So the floor that descends INTO it (B19) must put its DOWN-stairs on that exact tile — otherwise the player
+     visibly jumps to a different x on arrival. Pin B19's down-stairs to match B20's entrance; the tile is forced
+     open and (below) guaranteed reachable, so no wall/item/monster ever traps it. */
+  if(_realFloor === -(BASEMENT-1)){ start = {x:5, y:GRID-2}; }
   wall[start.y][start.x]=false; wall[stairs.y][stairs.x]=false;
+  if(_realFloor === -(BASEMENT-1)){
+    /* carve a short vertical spur upward from the pinned down-stairs so it always joins the maze interior */
+    for(let _cy=GRID-2; _cy>=Math.max(1,GRID-5); _cy--) wall[_cy][5]=false;
+  }
   floors=openCells();   // entrance/exit sit in the maze corridors so they can still be walled-off / guarded
 
   const data={f:f, wall:wall, start:{x:start.x,y:start.y}, stairs:{x:stairs.x,y:stairs.y}, ent:emptyEnt(), lava:emptyLava(), explored:false};
@@ -10733,14 +10742,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·380'; }
+    bt.textContent='build 0618·381'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·380'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·381'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
