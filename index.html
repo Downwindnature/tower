@@ -3401,38 +3401,72 @@ function genFloorRaw(f){
 
   // === highest-value items FIRST: weapons / shields / skill-books claim the dead-ends before anything else, so they are ALWAYS gated (never roadside) ===
   // 3x3 guardian VAULTS go FIRST (high spawn rate): carve a sealed chamber gated by a white/platinum door; the dragon drops the skill book. placeBlocked (below) is vault-aware so it never overwrites the chamber body or re-opens its frame.
-  if(_realFloor===18){ if(!placeBigVault(function(){return mkFoeDirect(GUARD_DRAGONS.red);}, 'bk_jinshi', 'w')) placeBlocked('bk_jinshi', true, ['w']); }       // 紅龍 (3x3) vault: 後期地上 18F, white door -> 金石 (atk lv26)
+  /* ---- fallback placement for a 3x3 vault guard ----
+     When placeBigVault cannot fit a sealed chamber, we still want the guard to exist. The previous fallback
+     dropped the monster on a SINGLE tile with foe.big=true and no surrounding bigBody frame and no bounds
+     check — so a guard anchored near an edge rendered its 3x3 sprite off the map (the abyss lord "stuck in
+     the top-right corner" bug). This places a REAL 3x3: an in-bounds centre, the 8 body cells around it, and
+     the nine cells carved open. Carving only ever opens walls, so connectivity can never get worse. */
+  const _placeBigGuardFallback=function(foeFn, item, item2){
+    var _rr=_reachNoStairs(wall, start, stairs, hasDown(_realFloor), _realFloor);
+    var _blocked=function(x,y){ var e=data.ent[y] && data.ent[y][x]; return !!(e && (e.kind==='door' || e.kind==='bigBody' || e.kind==='shop')); };
+    var cands=[];
+    for(var cy=1; cy<=GRID-2; cy++) for(var cx=1; cx<=GRID-2; cx++){
+      if((cx===start.x&&cy===start.y)||(cx===stairs.x&&cy===stairs.y)) continue;
+      var ok=true, carve=0, touchReach=false;
+      for(var yy=cy-1; yy<=cy+1 && ok; yy++) for(var xx=cx-1; xx<=cx+1 && ok; xx++){
+        if(xx<0||yy<0||xx>=GRID||yy>=GRID){ ok=false; break; }
+        if((xx===start.x&&yy===start.y)||(xx===stairs.x&&yy===stairs.y)){ ok=false; break; }   // never bury a staircase
+        if(data.ent[yy][xx]){ ok=false; break; }                                                // never overwrite anything already placed
+        if(data.lava && data.lava[yy] && data.lava[yy][xx]){ ok=false; break; }
+        if(wall[yy][xx]) carve++; else if(_rr[yy][xx]) touchReach=true;                         // an open, player-reachable cell anchors the chamber
+      }
+      if(!ok || !touchReach) continue;
+      // don't breach an existing vault / shop: keep one cell of clearance from doors and other big bodies
+      var near=false;
+      for(var yy2=cy-2; yy2<=cy+2 && !near; yy2++) for(var xx2=cx-2; xx2<=cx+2; xx2++){
+        if(xx2<0||yy2<0||xx2>=GRID||yy2>=GRID) continue;
+        if(_blocked(xx2,yy2)){ near=true; break; }
+      }
+      if(near) continue;
+      cands.push({x:cx,y:cy,carve:carve,spawn:(Math.abs(cx-start.x)+Math.abs(cy-start.y))});
+    }
+    if(!cands.length) return false;
+    shuffle(cands);
+    cands.sort(function(a,b){ return (a.carve-b.carve) || (b.spawn-a.spawn); });   // fewest walls to open, then furthest from the entrance
+    var c0=cands[0];
+    for(var yy3=c0.y-1; yy3<=c0.y+1; yy3++) for(var xx3=c0.x-1; xx3<=c0.x+1; xx3++) wall[yy3][xx3]=false;
+    var _f=foeFn(); _f.big=true; if(item) _f.dropItem=item; if(item2) _f.dropItem2=item2;
+    data.ent[c0.y][c0.x]={kind:'monster',foe:_f};
+    for(var yy4=c0.y-1; yy4<=c0.y+1; yy4++) for(var xx4=c0.x-1; xx4<=c0.x+1; xx4++){
+      if(xx4===c0.x && yy4===c0.y) continue;
+      data.ent[yy4][xx4]={kind:'bigBody', ax:c0.x, ay:c0.y};
+    }
+    return true;
+  };
+
+  if(_realFloor===18){
+    // 紅龍固定守 18F。優先 3x3 白門寶庫；擠不下就用保底 3x3——絕不因空間不足而整隻消失。
+    if(!placeBigVault(function(){return mkFoeDirect(GUARD_DRAGONS.red);}, 'bk_jinshi', 'w')){
+      if(!_placeBigGuardFallback(function(){return mkFoeDirect(GUARD_DRAGONS.red);}, 'bk_jinshi', null)){
+        placeBlocked('bk_jinshi', true, ['w']);   // last-ditch: at least the book still exists
+      }
+    }
+  }       // 紅龍 (3x3) vault: 後期地上 18F, white door -> 金石 (atk lv26)
   if(_realFloor===-12){
-    // 毒龍固定守 B12。優先 3x3 寶庫；若地圖擠不下,改用保底放置——一定生成毒龍守著神盾書。
+    // 毒龍固定守 B12。優先 3x3 白門寶庫；擠不下就用保底 3x3（完整的九宮格，不會畫到地圖外）。
     if(!placeBigVault(function(){return mkFoeDirect(GUARD_DRAGONS.poison);}, 'bk_shendun', 'w')){
-      var _vdReach=_reachNoStairs(wall, start, stairs, hasDown(_realFloor), _realFloor);
-      var _vdCands=shuffle(free()).filter(function(c){ return !isEssential(c) && !nearSpawn(data,c) && _vdReach[c.y][c.x]; });
-      if(!_vdCands.length) _vdCands=shuffle(free()).filter(function(c){ return !isEssential(c) && _vdReach[c.y][c.x]; });   // relax: drop the nearSpawn rule
-      if(!_vdCands.length) _vdCands=shuffle(free()).filter(function(c){ return _vdReach[c.y][c.x]; });   // relax further: any player-reachable free tile
-      _vdCands.sort(function(a,b){ return nbsOpen(a).length - nbsOpen(b).length; });
-      if(_vdCands.length){
-        var _vc=_vdCands[0];
-        var _vdFoe=mkFoeDirect(GUARD_DRAGONS.poison); _vdFoe.big=true; _vdFoe.dropItem='bk_shendun'; _vdFoe.dropItem2='jug';
-        data.ent[_vc.y][_vc.x]={kind:'monster',foe:_vdFoe};   // guaranteed venom dragon (drops 神盾書 + 十字聖水)
-      } else {
-        placeBlocked('bk_shendun', true, ['w']);   // last-ditch
+      if(!_placeBigGuardFallback(function(){return mkFoeDirect(GUARD_DRAGONS.poison);}, 'bk_shendun', 'jug')){
+        placeBlocked('bk_shendun', true, ['w']);   // last-ditch: at least the book still exists
       }
     }
   }  // 毒龍 (3x3) vault: 後期地下 B12, white door -> 神盾 (def lv57)
+
   if(_realFloor===-15){
-    // 深淵魔王固定守 B15。優先 3x3 白金寶庫；若地圖擠不下寶庫，改用保底放置——一定生成深淵魔王守著 icePendant，絕不因空間不足而消失。
+    // 深淵魔王固定守 B15。優先 3x3 白金寶庫；擠不下就用保底 3x3（完整的九宮格，不會卡在地圖邊角）。
     if(!placeBigVault(function(){return mkFoeDirect(ABYSS_GUARD);}, 'icePendant', 'p')){
-      var _abReach=_reachNoStairs(wall, start, stairs, hasDown(_realFloor), _realFloor);
-      var _abCands=shuffle(free()).filter(function(c){ return !isEssential(c) && !nearSpawn(data,c) && _abReach[c.y][c.x]; });
-      if(!_abCands.length) _abCands=shuffle(free()).filter(function(c){ return !isEssential(c) && _abReach[c.y][c.x]; });   // relax: drop nearSpawn
-      if(!_abCands.length) _abCands=shuffle(free()).filter(function(c){ return _abReach[c.y][c.x]; });   // relax further: any player-reachable free tile
-      _abCands.sort(function(a,b){ return nbsOpen(a).length - nbsOpen(b).length; });   // prefer a dead-end so it still feels like a guarded prize
-      if(_abCands.length){
-        var _ac=_abCands[0];
-        var _abFoe=mkFoeDirect(ABYSS_GUARD); _abFoe.big=true; _abFoe.dropItem='icePendant';
-        data.ent[_ac.y][_ac.x]={kind:'monster',foe:_abFoe};   // guaranteed abyss lord (drops icePendant on defeat)
-      } else {
-        placeBlocked('icePendant', true, ['p']);   // truly no room for even one tile — last-ditch (extremely rare)
+      if(!_placeBigGuardFallback(function(){return mkFoeDirect(ABYSS_GUARD);}, 'icePendant', null)){
+        placeBlocked('icePendant', true, ['p']);   // last-ditch (extremely rare)
       }
     }
   }
@@ -10834,14 +10868,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·386'; }
+    bt.textContent='build 0618·387'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·386'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·387'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
