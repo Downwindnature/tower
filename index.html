@@ -3248,9 +3248,14 @@ function genFloorRaw(f){
         const seen=[]; for(let y=0;y<GRID;y++){ const r=[]; for(let x=0;x<GRID;x++) r.push(false); seen.push(r); }
         const q=[[_entryV.x,_entryV.y]]; seen[_entryV.y][_entryV.x]=true; let qi=0;   /* landing tile is the seed even though it's a staircase — we just never PASS THROUGH staircases */
         while(qi<q.length){ const pp=q[qi++]; for(let k=0;k<4;k++){ const axx=pp[0]+DIRS[k][0], ayy=pp[1]+DIRS[k][1]; if(ayy<0||axx<0||ayy>=GRID||axx>=GRID) continue; if(seen[ayy][axx]||blocked(axx,ayy)) continue; seen[ayy][axx]=true; q.push([axx,ayy]); } }
-        var _upReach=false;                                   // up-stairs must be reachable (via one of its neighbours, since the tile itself is now a barrier)
-        for(let k=0;k<4;k++){ const sx2=stairs.x+DIRS[k][0], sy2=stairs.y+DIRS[k][1]; if(sx2<0||sy2<0||sx2>=GRID||sy2>=GRID) continue; if(seen[sy2][sx2]){ _upReach=true; break; } }
-        if(!_upReach) continue;                                // vault must not wall off the up-stairs
+        /* The BFS starts ON the landing staircase, so checking "is the landing staircase reachable" is vacuous —
+           that mistake let a vault put its door on the floor's only corridor, after which the later door sweep
+           deleted the lock (it would have stranded a staircase) and the chamber ended up with NO door at all.
+           Verify the staircase the player still has to REACH: the opposite one from where they landed. */
+        var _needStair=(_entryV===stairs)?start:stairs;
+        var _stairReach=false;
+        for(let k=0;k<4;k++){ const sx2=_needStair.x+DIRS[k][0], sy2=_needStair.y+DIRS[k][1]; if(sx2<0||sy2<0||sx2>=GRID||sy2>=GRID) continue; if(seen[sy2][sx2]){ _stairReach=true; break; } }
+        if(!_stairReach) continue;                             // this door would cut the floor in half -> reject the spot
         let doorReach=false;                                  // a reachable cell outside the box must touch the door (so it can be opened)
         for(let k=0;k<4;k++){ const nx=doorX+DIRS[k][0], ny=doorY+DIRS[k][1]; if(nx<0||ny<0||nx>=GRID||ny>=GRID) continue; if(inBox(nx,ny)) continue; if(seen[ny][nx]){ doorReach=true; break; } }
         if(!doorReach) continue;
@@ -3407,48 +3412,128 @@ function genFloorRaw(f){
      check — so a guard anchored near an edge rendered its 3x3 sprite off the map (the abyss lord "stuck in
      the top-right corner" bug). This places a REAL 3x3: an in-bounds centre, the 8 body cells around it, and
      the nine cells carved open. Carving only ever opens walls, so connectivity can never get worse. */
-  const _placeBigGuardFallback=function(foeFn, item, item2){
+  const _placeBigGuardFallback=function(foeFn, item, item2, doorColor){
+    /* Fallback chamber for a 3x3 vault guard when placeBigVault cannot fit a sealed room.
+       It builds a REAL 3x3 (centre + 8 body cells, always fully inside the map) and — because the vault key
+       for this floor is handed out unconditionally at newGame — it also seals the room and fits its proper
+       white/platinum door. Candidates are tried one by one until one can be sealed with the floor still
+       solvable WITHOUT that door; only if none can be sealed do we settle for an open chamber, so the guard
+       is guaranteed either way. */
     var _rr=_reachNoStairs(wall, start, stairs, hasDown(_realFloor), _realFloor);
-    var _blocked=function(x,y){ var e=data.ent[y] && data.ent[y][x]; return !!(e && (e.kind==='door' || e.kind==='bigBody' || e.kind==='shop')); };
+    var _occupied=function(x,y){ var e=data.ent[y] && data.ent[y][x]; return !!(e && (e.kind==='door' || e.kind==='bigBody' || e.kind==='shop')); };
     var cands=[];
     for(var cy=1; cy<=GRID-2; cy++) for(var cx=1; cx<=GRID-2; cx++){
       if((cx===start.x&&cy===start.y)||(cx===stairs.x&&cy===stairs.y)) continue;
       var ok=true, carve=0, touchReach=false;
       for(var yy=cy-1; yy<=cy+1 && ok; yy++) for(var xx=cx-1; xx<=cx+1 && ok; xx++){
         if(xx<0||yy<0||xx>=GRID||yy>=GRID){ ok=false; break; }
-        if((xx===start.x&&yy===start.y)||(xx===stairs.x&&yy===stairs.y)){ ok=false; break; }   // never bury a staircase
-        if(data.ent[yy][xx]){ ok=false; break; }                                                // never overwrite anything already placed
-        if(data.lava && data.lava[yy] && data.lava[yy][xx]){ ok=false; break; }
-        if(wall[yy][xx]) carve++; else if(_rr[yy][xx]) touchReach=true;                         // an open, player-reachable cell anchors the chamber
+        if((xx===start.x&&yy===start.y)||(xx===stairs.x&&yy===stairs.y)){ ok=false; break; }
+        if(data.ent[yy][xx]){ ok=false; break; }
+        if(wall[yy][xx]) carve++; else if(_rr[yy][xx]) touchReach=true;   /* lava inside the chamber is fine — carving clears it */
       }
-      if(!ok || !touchReach) continue;
-      // don't breach an existing vault / shop: keep one cell of clearance from doors and other big bodies
-      var near=false;
-      for(var yy2=cy-2; yy2<=cy+2 && !near; yy2++) for(var xx2=cx-2; xx2<=cx+2; xx2++){
+      if(!ok) continue;
+      var near=false;   // never carve straight into an existing vault/shop: keep the chamber itself clear of them
+      for(var yy2=cy-1; yy2<=cy+1 && !near; yy2++) for(var xx2=cx-1; xx2<=cx+1; xx2++){
         if(xx2<0||yy2<0||xx2>=GRID||yy2>=GRID) continue;
-        if(_blocked(xx2,yy2)){ near=true; break; }
+        if(_occupied(xx2,yy2)){ near=true; break; }
       }
       if(near) continue;
-      cands.push({x:cx,y:cy,carve:carve,spawn:(Math.abs(cx-start.x)+Math.abs(cy-start.y))});
+      cands.push({x:cx,y:cy,carve:carve,touch:touchReach,spawn:(Math.abs(cx-start.x)+Math.abs(cy-start.y))});
     }
     if(!cands.length) return false;
     shuffle(cands);
-    cands.sort(function(a,b){ return (a.carve-b.carve) || (b.spawn-a.spawn); });   // fewest walls to open, then furthest from the entrance
-    var c0=cands[0];
-    for(var yy3=c0.y-1; yy3<=c0.y+1; yy3++) for(var xx3=c0.x-1; xx3<=c0.x+1; xx3++) wall[yy3][xx3]=false;
-    var _f=foeFn(); _f.big=true; if(item) _f.dropItem=item; if(item2) _f.dropItem2=item2;
-    data.ent[c0.y][c0.x]={kind:'monster',foe:_f};
-    for(var yy4=c0.y-1; yy4<=c0.y+1; yy4++) for(var xx4=c0.x-1; xx4<=c0.x+1; xx4++){
-      if(xx4===c0.x && yy4===c0.y) continue;
-      data.ent[yy4][xx4]={kind:'bigBody', ax:c0.x, ay:c0.y};
+    /* Two different orderings. For a SEALED room we want to dig into solid rock (high carve): its ring cells are
+       already wall, so walling them off cannot cut an existing corridor. For a bare open chamber we prefer the
+       opposite (low carve) so the map stays tidy. */
+    var _sealOrder=cands.slice().sort(function(a,b){ return (b.carve-a.carve) || (b.spawn-a.spawn); });   // dig into solid rock first: its ring is already wall, so sealing cuts no corridor
+    var _openCands=cands.filter(function(c){ return c.touch; });                                            // an OPEN chamber must sit on the existing corridors
+    _openCands.sort(function(a,b){ return (a.carve-b.carve) || (b.spawn-a.spawn); });
+
+    var _entry=_floorEntryTile(_realFloor, start, stairs);
+    var _target=(_entry===stairs)?start:stairs;
+    var _nb=[[0,-1],[1,0],[0,1],[-1,0]];
+
+    var _commitGuard=function(c0){
+      var _f=foeFn(); _f.big=true; if(item) _f.dropItem=item; if(item2) _f.dropItem2=item2;
+      data.ent[c0.y][c0.x]={kind:'monster',foe:_f};
+      for(var yy4=c0.y-1; yy4<=c0.y+1; yy4++) for(var xx4=c0.x-1; xx4<=c0.x+1; xx4++){
+        if(xx4===c0.x && yy4===c0.y) continue;
+        data.ent[yy4][xx4]={kind:'bigBody', ax:c0.x, ay:c0.y};
+      }
+    };
+    var _box=function(c0){ var a=[]; for(var by=c0.y-2; by<=c0.y+2; by++) for(var bx=c0.x-2; bx<=c0.x+2; bx++){ if(bx<0||by<0||bx>=GRID||by>=GRID) continue; a.push({x:bx,y:by}); } return a; };
+    var _snapshot=function(cells){ return cells.map(function(c){ return { w:wall[c.y][c.x], l:!!(data.lava && data.lava[c.y] && data.lava[c.y][c.x]) }; }); };
+    var _restore=function(cells,snap){ for(var k=0;k<cells.length;k++){ var c=cells[k]; wall[c.y][c.x]=snap[k].w; if(data.lava && data.lava[c.y]) data.lava[c.y][c.x]=snap[k].l; } };
+
+    /* pass 1: a proper sealed chamber with its door */
+    if(doorColor){
+      for(var ci=0; ci<_sealOrder.length; ci++){
+        var c0=_sealOrder[ci];
+        var ring=[], sides=[];
+        for(var ry=c0.y-2; ry<=c0.y+2; ry++) for(var rx=c0.x-2; rx<=c0.x+2; rx++){
+          if(Math.abs(rx-c0.x)<2 && Math.abs(ry-c0.y)<2) continue;
+          if(rx<0||ry<0||rx>=GRID||ry>=GRID) continue;
+          ring.push({x:rx,y:ry});
+          if((Math.abs(rx-c0.x)===2) !== (Math.abs(ry-c0.y)===2)) sides.push({x:rx,y:ry});
+        }
+        if(!sides.length) continue;
+        var clean=true;
+        for(var ri=0; ri<ring.length; ri++){
+          var rc=ring[ri];
+          if((rc.x===start.x&&rc.y===start.y)||(rc.x===stairs.x&&rc.y===stairs.y)){ clean=false; break; }
+          if(data.ent[rc.y][rc.x]){ clean=false; break; }
+        }
+        if(!clean) continue;
+        var cells=_box(c0), snap=_snapshot(cells);
+        for(var cyi=c0.y-1; cyi<=c0.y+1; cyi++) for(var cxi=c0.x-1; cxi<=c0.x+1; cxi++){ wall[cyi][cxi]=false; if(data.lava && data.lava[cyi]) data.lava[cyi][cxi]=false; }   // carve the chamber (and clear any lava in it)
+        shuffle(sides);
+        var done=false;
+        for(var di=0; di<sides.length && !done; di++){
+          var dc=sides[di];
+          for(var k2=0;k2<ring.length;k2++){ var rc2=ring[k2]; wall[rc2.y][rc2.x]=true; if(data.lava && data.lava[rc2.y]) data.lava[rc2.y][rc2.x]=false; }
+          wall[dc.y][dc.x]=false;
+          var inCham=function(x,y){ return Math.abs(x-c0.x)<=1 && Math.abs(y-c0.y)<=1; };
+          var barred=function(x,y){
+            if(wall[y][x]) return true;
+            if(x===dc.x && y===dc.y) return true;
+            if(inCham(x,y)) return true;
+            if(x===stairs.x && y===stairs.y) return true;
+            if(hasDown(_realFloor) && x===start.x && y===start.y) return true;
+            return false;
+          };
+          var seen=[]; for(var sy=0;sy<GRID;sy++){ var row=[]; for(var sx=0;sx<GRID;sx++) row.push(false); seen.push(row); }
+          if(_entry && !wall[_entry.y][_entry.x]){
+            seen[_entry.y][_entry.x]=true;
+            var q=[];
+            for(var n0=0;n0<4;n0++){ var ex=_entry.x+_nb[n0][0], ey=_entry.y+_nb[n0][1]; if(ex<0||ey<0||ex>=GRID||ey>=GRID) continue; if(barred(ex,ey)) continue; if(!seen[ey][ex]){ seen[ey][ex]=true; q.push([ex,ey]); } }
+            while(q.length){ var cur=q.shift(); for(var n1=0;n1<4;n1++){ var nx2=cur[0]+_nb[n1][0], ny2=cur[1]+_nb[n1][1]; if(nx2<0||ny2<0||nx2>=GRID||ny2>=GRID) continue; if(seen[ny2][nx2]||barred(nx2,ny2)) continue; seen[ny2][nx2]=true; q.push([nx2,ny2]); } }
+          }
+          var targetOK=false, doorOK=false;
+          for(var n2=0;n2<4;n2++){
+            var tx=_target.x+_nb[n2][0], ty=_target.y+_nb[n2][1];
+            if(tx>=0&&ty>=0&&tx<GRID&&ty<GRID&&seen[ty][tx]) targetOK=true;
+            var dx2=dc.x+_nb[n2][0], dy2=dc.y+_nb[n2][1];
+            if(dx2>=0&&dy2>=0&&dx2<GRID&&dy2<GRID&&seen[dy2][dx2]) doorOK=true;
+          }
+          if(targetOK && doorOK){ data.ent[dc.y][dc.x]={kind:'door',color:doorColor}; _commitGuard(c0); done=true; }
+        }
+        if(done) return true;
+        _restore(cells,snap);   // this centre cannot be sealed — try the next one
+      }
     }
+
+    /* pass 2: no centre could be sealed — guarantee the guard anyway with an open chamber */
+    var cF=_openCands.length?_openCands[0]:null;
+    if(!cF) return false;
+    for(var yy3=cF.y-1; yy3<=cF.y+1; yy3++) for(var xx3=cF.x-1; xx3<=cF.x+1; xx3++){ wall[yy3][xx3]=false; if(data.lava && data.lava[yy3]) data.lava[yy3][xx3]=false; }
+    _commitGuard(cF);
     return true;
   };
 
   if(_realFloor===18){
     // 紅龍固定守 18F。優先 3x3 白門寶庫；擠不下就用保底 3x3——絕不因空間不足而整隻消失。
     if(!placeBigVault(function(){return mkFoeDirect(GUARD_DRAGONS.red);}, 'bk_jinshi', 'w')){
-      if(!_placeBigGuardFallback(function(){return mkFoeDirect(GUARD_DRAGONS.red);}, 'bk_jinshi', null)){
+      if(!_placeBigGuardFallback(function(){return mkFoeDirect(GUARD_DRAGONS.red);}, 'bk_jinshi', null, 'w')){
         placeBlocked('bk_jinshi', true, ['w']);   // last-ditch: at least the book still exists
       }
     }
@@ -3456,7 +3541,7 @@ function genFloorRaw(f){
   if(_realFloor===-12){
     // 毒龍固定守 B12。優先 3x3 白門寶庫；擠不下就用保底 3x3（完整的九宮格，不會畫到地圖外）。
     if(!placeBigVault(function(){return mkFoeDirect(GUARD_DRAGONS.poison);}, 'bk_shendun', 'w')){
-      if(!_placeBigGuardFallback(function(){return mkFoeDirect(GUARD_DRAGONS.poison);}, 'bk_shendun', 'jug')){
+      if(!_placeBigGuardFallback(function(){return mkFoeDirect(GUARD_DRAGONS.poison);}, 'bk_shendun', 'jug', 'w')){
         placeBlocked('bk_shendun', true, ['w']);   // last-ditch: at least the book still exists
       }
     }
@@ -3465,7 +3550,7 @@ function genFloorRaw(f){
   if(_realFloor===-15){
     // 深淵魔王固定守 B15。優先 3x3 白金寶庫；擠不下就用保底 3x3（完整的九宮格，不會卡在地圖邊角）。
     if(!placeBigVault(function(){return mkFoeDirect(ABYSS_GUARD);}, 'icePendant', 'p')){
-      if(!_placeBigGuardFallback(function(){return mkFoeDirect(ABYSS_GUARD);}, 'icePendant', null)){
+      if(!_placeBigGuardFallback(function(){return mkFoeDirect(ABYSS_GUARD);}, 'icePendant', null, 'p')){
         placeBlocked('icePendant', true, ['p']);   // last-ditch (extremely rare)
       }
     }
@@ -6483,6 +6568,22 @@ function relocalizeOpen(){
 }
 
 /* ============================== New game ============================== */
+function _resetRunUI(){
+  /* Wipe every scrap of the PREVIOUS run's interface before the next one paints. newGame() used to close only
+     a handful of panels by name, so anything else still open — the loot / rank / achievement panels, an arena
+     screen, the fusion panel, the multiplayer roster or spectate bar — survived into the new run and showed up
+     as leftovers from the old one (solo residue in multiplayer, and the other way round). Close the lot. */
+  try{ for(var i=0;i<OVERLAY_IDS.length;i++){ var el=byId(OVERLAY_IDS[i]); if(el) el.classList.remove('show'); } }catch(_e){}
+  ['startScreen','lobby','mpPanel','fusePanel','mpRoster','spectateBar','tipBubble','cheatBadge','voiceMsg'].forEach(function(id){
+    try{ var el=byId(id); if(el) el.classList.remove('show'); }catch(_e){}
+  });
+  try{ var _g=byId('grid'); if(_g) _g.innerHTML=''; }catch(_e){}          /* drop the old map; renderAll() repaints the new floor */
+  try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(_e){}
+  try{ _achQueue=[]; _achBusy=false; }catch(_e){}                        /* queued solo achievements never carry into another run */
+  try{ fuseUiReset(); }catch(_e){}
+  try{ stopRaceCountdown(); }catch(_e){}
+  try{ updateExitHint(); }catch(_e){}
+}
 function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   opts=opts||{};
   state.mode = opts.mode || 'solo';
@@ -6514,7 +6615,7 @@ function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   ensureFloor(1); const d=curFloor(); d.explored=true;
   state.px=d.start.x; state.py=d.start.y;
   state.noStairTrigger=hasDown(d.f)? {x:d.start.x,y:d.start.y} : null;   /* spawn sits on the floor-1 down-staircase */
-  ['combat','shop','manual','teleport','endScreen','startScreen','lobby','mpPanel'].forEach(hide);
+  _resetRunUI();   /* close EVERY panel from the previous run, not just a handful */
   state._cineActive = (state.mode==='solo' && !opts.skipIntro);
   applyLang(); renderAll(); _relayoutSoon();
   if(state.mode==='solo' && !opts.skipIntro){ try{ showIntroCine(function(){ try{ updateBGM(true); }catch(e){} }); }catch(e){ state._cineActive=false; } }
@@ -7639,8 +7740,7 @@ function goStartScreen(){ try{ stopDeathSfx(); }catch(e){}
   try{ clearTimeout(combatTimer); }catch(e){} state.combat=null; state.busy=false; state.target=null;   /* 退出回主畫面：強制中止戰鬥——取消回合排程，並把 state.combat 設為 null，逐發動畫/音效迴圈下一步即自停 */
   state.mode='solo'; state._inLobby=false; state.mpStarted=false; state._coopWinShown=false; state.portalAim=false; state.portalTarget=null;
   if(Net.worldId) Net.leaveWorld();
-  ['combat','shop','manual','teleport','endScreen','lobby','mpPanel','arenaField','afShop','arenaPrep','arenaStage','arenaDuel','arenaEnd','fusePanel'].forEach(hide);
-  { const _r=byId('mpRoster'); if(_r) _r.classList.remove('show'); const _sb=byId('spectateBar'); if(_sb) _sb.classList.remove('show'); }
+  _resetRunUI();   /* leaving a run closes every panel it may have left open */
   try{ fuseUiReset(); }catch(e){}   /* leaving a run must not leave the fusion panel/button (or a stale 合體·N label) on screen */
   try{ stopRaceCountdown(); }catch(e){} state.raceEndsAt=0; state._raceCdEnded=false;
   try{ Net.unwatchLobby(); }catch(e){} state._spectator=false;
@@ -8292,12 +8392,12 @@ function afRenderTeamBar(){ var bar=byId('afTeamBar'); if(!bar) return; var ph=(
 function afFieldTeams(){ var A=[],B=[]; var my=(MP.arena&&MP.arena.myTeam)||'A', meUid=Net.uid||'me'; if(my==='A')A.push(meUid); else if(my==='B')B.push(meUid); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ var tm=fp[u]&&fp[u].team; if(tm==='A')A.push(u); else if(tm==='B')B.push(u); } return {A:A,B:B}; }   /* the arena never uses fusion, so everyone on the team is in the duel lottery */
 function afAllFieldUids(){ var ids=[Net.uid||'me']; var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(ids.indexOf(u)<0) ids.push(u); } return ids; }
 function afDuelName(uid){ if(!uid) return '?'; if(uid===Net.uid) return (MP.myName||'你'); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; if(fp[uid]&&fp[uid].name) return fp[uid].name; var mem=MP.members||{}; if(mem[uid]&&mem[uid].name) return mem[uid].name; return uid; }
-function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; var d={ a:pick[0], b:pick[1], sub:'lottery', subEndsAt:Date.now()+1500, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
+function afStartDuelSequence(){ if(!afIsHost()) return; var prev=(MP.arena.afDuel&&MP.arena.afDuel.fought)||[]; var teams=afFieldTeams(); var A=teams.A.filter(function(u){return prev.indexOf(u)<0;}), B=teams.B.filter(function(u){return prev.indexOf(u)<0;}); var pairs=arenaBuildSequence({A:A,B:B}); if(!pairs.length){ afFinishField(); return; } var pick=pairs[0]; /* only one pair left to run => this IS the final duel (also true when the very first match is the only one) */ var d={ a:pick[0], b:pick[1], last:(pairs.length===1), sub:'lottery', subEndsAt:Date.now()+1500, fought:prev.slice(), scoreA:(MP.arena.scoreA||0), scoreB:(MP.arena.scoreB||0) }; MP.arena.afDuel=d; if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } afRenderDuelOverlay(); }
 function afDuelTick(){ if(!afIsHost()) return; var d=MP.arena&&MP.arena.afDuel; if(!d||!d.sub||d.sub==='fight'||d.sub==='done') return; if(d.sub==='result'){ if(Date.now()>=(d.resEndsAt||0)) afAdvanceMatch(); return; } if(Date.now()>=d.subEndsAt){ var started=false; if(d.sub==='lottery'){ d.sub='reveal'; d.subEndsAt=Date.now()+3000; } else if(d.sub==='reveal'){ d.sub='count'; d.subEndsAt=Date.now()+3000; } else if(d.sub==='count'){ d.sub='fight'; started=true; } if(typeof Net!=='undefined'&&Net.arenaRef){ try{ Net.arenaRef.child('afDuel').set(d); }catch(e){} } if(started) afFightStart(); afRenderDuelOverlay(); } }
 function afOnDuel(d){ if(typeof MP==='undefined'||!MP.arena) return; MP.arena.afDuel=d; afRenderDuelOverlay(); }
 function afApplyDuelPositions(){ var f=AField; if(!f) return; var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var _me0=(typeof Net!=='undefined'&&Net.uid)||'me'; if(!d||!d.sub||d.sub==='lottery'||d.sub==='done'||(d.sub==='reveal' && _me0!==d.a && _me0!==d.b)){ if(f._wasFighter){ if(f._preDuelPos){ f.px=f._preDuelPos.x; f.py=f._preDuelPos.y; } f._preDuelPos=null; f._wasFighter=false; } f.frozen=false; return; }   /* keep the player's 自由活動/觀戰 choice between duels */ var meUid=Net.uid||'me'; if(meUid===d.a){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.A.x; f.py=AF_DUEL_POS.A.y; f.frozen=true; } else if(meUid===d.b){ if(!f._wasFighter){ f._preDuelPos={x:f.px,y:f.py}; f._wasFighter=true; } f.px=AF_DUEL_POS.B.x; f.py=AF_DUEL_POS.B.y; f.frozen=true; } else { f.frozen = !f.spectateFree; } }
 function _playArenaCountdown(){ try{ var mv=(typeof effMusicVol==='function')?effMusicVol():0.7; var sv=(typeof effSfxVol==='function')?effSfxVol():0.7; var vol=Math.max(mv,sv); if(vol<=0) return; var files=['bgm-arena-count1.mp3','bgm-arena-count2.mp3']; var f=files[(Math.random()*files.length)|0]; if(typeof AField!=='undefined'&&AField&&AField._countAudio){ try{ AField._countAudio.pause(); }catch(e){} } var a=new Audio(f); a.volume=Math.min(1,Math.max(0.15,vol)); if(typeof AField!=='undefined'&&AField) AField._countAudio=a; var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){}); }catch(e){} }
-function afRenderDuelOverlay(){ try{ updateBGM(); }catch(_e){}   /* fight->fight track, result->end track, else calm */ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); var _ar=(typeof MP!=='undefined')?MP.arena:null; if(scoreEl){ if(typeof state!=='undefined'&&state.mode==='arena'&&_ar){ var _sA=(_ar.scoreA)||0,_sB=(_ar.scoreB)||0; if(d&&d.scoreA!=null){_sA=d.scoreA;_sB=d.scoreB;} scoreEl.style.display=''; scoreEl.textContent=t('mp.afTeamA')+' '+_sA+' : '+_sB+' '+t('mp.afTeamB'); } else scoreEl.style.display='none'; }   /* #2 score always visible at top */ if(typeof AField!=='undefined'&&AField && d && d.sub && d.sub!==AField._lastDuelSub){ AField._lastDuelSub=d.sub; if(d.sub==='count') _playArenaCountdown(); }   /* #6 pre-fight countdown sfx */ if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; return; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ ban.textContent=t('mp.afLottery')+'…'; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
+function afRenderDuelOverlay(){ try{ updateBGM(); }catch(_e){}   /* fight->fight track, result->end track, else calm */ var d=(typeof MP!=='undefined'&&MP.arena&&MP.arena.afDuel)||null; var ban=byId('afDuelBanner'), cnt=byId('afCount'), scoreEl=byId('afScore'); var _ar=(typeof MP!=='undefined')?MP.arena:null; if(scoreEl){ if(typeof state!=='undefined'&&state.mode==='arena'&&_ar){ var _sA=(_ar.scoreA)||0,_sB=(_ar.scoreB)||0; if(d&&d.scoreA!=null){_sA=d.scoreA;_sB=d.scoreB;} scoreEl.style.display=''; var _fin=(d && d.last && d.sub && d.sub!=='done') ? ('  \u00b7 '+t('mp.afFinalBout')) : ''; scoreEl.textContent=t('mp.afTeamA')+' '+_sA+' : '+_sB+' '+t('mp.afTeamB')+_fin; } else scoreEl.style.display='none'; }   /* #2 score always visible at top */ if(typeof AField!=='undefined'&&AField && d && d.sub && d.sub!==AField._lastDuelSub){ AField._lastDuelSub=d.sub; if(d.sub==='count') _playArenaCountdown(); }   /* #6 pre-fight countdown sfx */ if(!ban) return; if(!d||!d.sub||d.sub==='done'){ ban.style.display='none'; if(cnt) cnt.style.display='none'; return; } ban.style.display=''; var na=afDuelName(d.a), nb=afDuelName(d.b); if(d.sub==='lottery'){ ban.textContent=t('mp.afLottery')+'…'; } else if(d.sub==='result'){ var wn=(d.result==='A')?na:((d.result==='B')?nb:null); ban.textContent= wn ? (wn+' '+t('mp.afWin')) : t('mp.afDraw'); if(cnt) cnt.style.display='none'; return; } else { ban.textContent=na+'  VS  '+nb; } if(cnt){ if(d.sub==='count'){ var rem=Math.ceil((d.subEndsAt-Date.now())/1000); if(rem<=3 && rem>=1){ cnt.style.display=''; cnt.textContent=rem; } else { cnt.style.display='none'; } } else { cnt.style.display='none'; } } }
 function afFinishField(){ var ar=MP.arena; if(!ar) return; ar.afDuel={sub:'done'}; var sA=ar.scoreA||0, sB=ar.scoreB||0, results=ar.afResults||[]; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set({sub:'done'}); Net.arenaRef.child('afEnd').set({scoreA:sA, scoreB:sB, results:results}); }catch(e){} } afShowEnd(sA,sB,results); }
 function arenaAICards(uid){
   var seed=0, s=''+(uid||'AI'); for(var i=0;i<s.length;i++) seed=(seed*31+s.charCodeAt(i))>>>0; if(!seed) seed=12345;
@@ -8312,7 +8412,7 @@ function afFightTick(){ var ar=MP.arena, D=ar&&ar.afD; if(!D||D.over) return; ar
 function afFightStream(){ var ar=MP.arena, D=ar&&ar.afD; if(!D) return; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afFight').set({ ahp:Math.round(D.A.hp), amax:D.A.maxhp, bhp:Math.round(D.B.hp), bmax:D.B.maxhp, aname:D.A.name, bname:D.B.name, aen:Math.round(D.A.en), astam:Math.round(D.A.stam), aatk:_afEffStat(D.A,'atk'), adef:_afEffStat(D.A,'def'), aatkD:(_afEffStat(D.A,'atk')-(D.A.atk||0)), adefD:(_afEffStat(D.A,'def')-(D.A.def||0)), ben:Math.round(D.B.en), bstam:Math.round(D.B.stam), batk:_afEffStat(D.B,'atk'), bdef:_afEffStat(D.B,'def'), batkD:(_afEffStat(D.B,'atk')-(D.B.atk||0)), bdefD:(_afEffStat(D.B,'def')-(D.B.def||0)), admg:(D._dA||0), bdmg:(D._dB||0), amiss:!!D._missA, bmiss:!!D._missB, aatkd:!!D._atkOnA, batkd:!!D._atkOnB, astat:afFighterStatus(D.A), bstat:afFighterStatus(D.B), ask:(D._aSk||null), bsk:(D._bSk||null), aramp:Math.round(D.A._rampAtk||0), bramp:Math.round(D.B._rampAtk||0), round:D.round, over:!!D.over, result:D.result||null, t:(Net.ts?Net.ts():Date.now()) }); }catch(e){} } }
 function afOnFight(snap){ if(typeof MP!=='undefined'&&MP.arena) MP.arena.afFightView=snap; }
 function afFightHp(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null; if(!ar) return null; var d=ar.afDuel; if(!d||(d.sub!=='fight'&&d.sub!=='result')) return null; var _amF=(d.a===Net.uid||d.b===Net.uid); if(!_amF && AField && AField.spectateFree) return null; function _afStagHp(o){ if(o && typeof AField!=='undefined' && AField && AField._stag && !AField._stag.fired){ var s=AField._stag; if(s.side==='A') o.ahp=s.hp; else o.bhp=s.hp; } return o; } if(MP.host && ar.afD) return _afStagHp({ahp:ar.afD.A.hp,amax:ar.afD.A.maxhp,bhp:ar.afD.B.hp,bmax:ar.afD.B.maxhp}); if(ar.afFightView){ var v=ar.afFightView; return _afStagHp({ahp:v.ahp,amax:v.amax,bhp:v.bhp,bmax:v.bmax}); } return null; }
-function afFightEnd(res){ var ar=MP.arena; if(!ar||!ar.afDuel) return; if(res==='A') ar.scoreA=(ar.scoreA||0)+1; else if(res==='B') ar.scoreB=(ar.scoreB||0)+1; ar.afResults=ar.afResults||[]; ar.afResults.push({ a:ar.afDuel.a, b:ar.afDuel.b, an:afDuelName(ar.afDuel.a), bn:afDuelName(ar.afDuel.b), result:res }); ar.afDuel.result=res; ar.afDuel.sub='result'; ar.afDuel.resEndsAt=Date.now()+3500; ar.afDuel.scoreA=ar.scoreA||0; ar.afDuel.scoreB=ar.scoreB||0; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set(ar.afDuel); }catch(e){} } afRenderDuelOverlay(); }
+function afFightEnd(res){ var ar=MP.arena; if(!ar||!ar.afDuel) return; var _pts=(ar.afDuel && ar.afDuel.last)?2:1;   /* the final duel is worth double — a trailing team can still pull level */ if(res==='A') ar.scoreA=(ar.scoreA||0)+_pts; else if(res==='B') ar.scoreB=(ar.scoreB||0)+_pts; ar.afResults=ar.afResults||[]; ar.afResults.push({ a:ar.afDuel.a, b:ar.afDuel.b, an:afDuelName(ar.afDuel.a), bn:afDuelName(ar.afDuel.b), result:res, pts:_pts, last:!!ar.afDuel.last }); ar.afDuel.result=res; ar.afDuel.sub='result'; ar.afDuel.resEndsAt=Date.now()+3500; ar.afDuel.scoreA=ar.scoreA||0; ar.afDuel.scoreB=ar.scoreB||0; if(typeof Net!=='undefined'&&Net.arenaRef&&MP.host){ try{ Net.arenaRef.child('afDuel').set(ar.afDuel); }catch(e){} } afRenderDuelOverlay(); }
 function afAdvanceMatch(){ var ar=MP.arena, d=ar&&ar.afDuel; if(!d) return; d.fought=(d.fought||[]).concat([d.a,d.b]); ar.afD=null; ar.afFightView=null; afStartDuelSequence(); }
 function afShowEnd(sA,sB,results){ if(typeof MP!=='undefined'&&MP.arena){ if(MP.arena._afEnded) return; MP.arena._afEnded=true; } var winTxt=(sA>sB)? (t('mp.afTeamA')+t('mp.afWin')) : (sB>sA? (t('mp.afTeamB')+t('mp.afWin')) : t('mp.arenaTie')); { var e=byId('aeTitle'); if(e) e.textContent=t('mp.arenaResult'); } { var e=byId('aeWin'); if(e){ e.textContent=winTxt; e.style.color=(sA===sB)?'#FFD479':'#7CFC9B'; } } { var e=byId('aeScore'); if(e) e.textContent=t('mp.afTeamA')+' '+sA+' : '+sB+' '+t('mp.afTeamB'); } var list=byId('aeList'); if(list){ list.innerHTML=''; for(var i=0;i<results.length;i++){ var r=results[i], aw=(r.result==='A'), bw=(r.result==='B'), dr=(r.result==='draw'); var row=document.createElement('div'); row.className='aeRow'; var na=document.createElement('span'); na.className='aeNm'+(aw?' aeWinner':(bw?' aeLoser':'')); na.textContent=(r.an||afDuelName(r.a))+(aw?'  ✓':''); var mid=document.createElement('span'); mid.className='aeMid'+(dr?' aeDraw':''); mid.textContent=dr? t('mp.arenaDraw') : 'VS'; var nb=document.createElement('span'); nb.className='aeNm'+(bw?' aeWinner':(aw?' aeLoser':'')); nb.textContent=(bw?'✓  ':'')+(r.bn||afDuelName(r.b)); row.appendChild(na); row.appendChild(mid); row.appendChild(nb); list.appendChild(row); } } { var e=byId('aeBack'); if(e) e.textContent=t('mp.arenaBack'); } afClose(); show('arenaEnd'); try{ updateBGM(); }catch(_e){}   /* 最終結算：平時曲 */ }
 function afOnEnd(end){ if(end) afShowEnd(end.scoreA||0, end.scoreB||0, end.results||[]); }
@@ -10163,11 +10263,11 @@ const I18N_AFSHOP={
 };
 (function mergeAfShop(){ for(const L in I18N_AFSHOP){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFSHOP[L].mp); } })();
 const I18N_AFTEAM={
- 'zh-Hant':{mp:{afTeamMethod:'分隊方式',afTeamBalance:'均衡分隊',afCrit:'爆擊',afStatusNormal:'正常',afStatusStun:'暈眩',afStatusShield:'護盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未選擇隊伍',afNeedTwo:'至少需要 2 名參與者（玩家或 AI）才能開始',afRosCards:'卡牌',afRosView:'查看玩家',afAdmTitle:'管理員快速面板',afAdmSkip:'跳過等待與購買，直接開戰',afAdmClose:'關閉',afAdmHostOnly:'只有房主可以控制階段',afNeedBalance:'隊伍人數不均衡，請先按「均衡分隊」',afTeamModeRandom:'隨機選隊',afTeamModeFree:'自由選隊',afTeamPick:'分隊',afTeamAuto:'自動',afTeamA:'藍隊',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
- 'zh-Hans':{mp:{afTeamMethod:'分队方式',afTeamBalance:'均衡分队',afCrit:'爆击',afStatusNormal:'正常',afStatusStun:'眩晕',afStatusShield:'护盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未选择队伍',afNeedTwo:'至少需要 2 名参与者（玩家或 AI）才能开始',afRosCards:'卡牌',afRosView:'查看玩家',afAdmTitle:'管理员快速面板',afAdmSkip:'跳过等待与购买，直接开战',afAdmClose:'关闭',afAdmHostOnly:'只有房主可以控制阶段',afNeedBalance:'队伍人数不均衡，请先按「均衡分队」',afTeamModeRandom:'随机选队',afTeamModeFree:'自由选队',afTeamPick:'分队',afTeamAuto:'自动',afTeamA:'蓝队',afTeamB:'红队',afTeamRand:'随机分队'}},
- 'en':{mp:{afTeamMethod:'Team mode',afTeamBalance:'Balance teams',afCrit:'Crit',afStatusNormal:'Normal',afStatusStun:'Stunned',afStatusShield:'Shielded',afStatusBuff:'Buffed',afBreath:'Breath',afNeedTeam:'Some players have not picked a team',afNeedTwo:'Need at least 2 participants (players or AI)',afRosCards:'Cards',afRosView:'Players',afAdmTitle:'Admin quick panel',afAdmSkip:'Skip wait & buy — fight now',afAdmClose:'Close',afAdmHostOnly:'Only the host can control phases',afNeedBalance:'Teams are unbalanced — use Balance teams',afTeamModeRandom:'Random',afTeamModeFree:'Free pick',afTeamPick:'Team',afTeamAuto:'Auto',afTeamA:'Blue',afTeamB:'Red',afTeamRand:'Random teams'}},
- 'ja':{mp:{afTeamMethod:'チーム分け',afTeamBalance:'チーム均等化',afCrit:'クリティカル',afStatusNormal:'通常',afStatusStun:'スタン',afStatusShield:'シールド',afStatusBuff:'強化',afBreath:'深呼吸',afNeedTeam:'チーム未選択のプレイヤーがいます',afNeedTwo:'参加者2人以上が必要です（プレイヤーまたはAI）',afRosCards:'カード',afRosView:'プレイヤー',afAdmTitle:'管理者パネル',afAdmSkip:'待機と購入をスキップして開戰',afAdmClose:'閉じる',afAdmHostOnly:'ホストのみフェーズを制御できます',afNeedBalance:'チーム人数が不均衡です',afTeamModeRandom:'ランダム',afTeamModeFree:'自由選択',afTeamPick:'チーム',afTeamAuto:'自動',afTeamA:'青チーム',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
- 'ko':{mp:{afTeamMethod:'팀 배정',afTeamBalance:'팀 균형',afCrit:'치명타',afStatusNormal:'정상',afStatusStun:'기절',afStatusShield:'방어막',afStatusBuff:'강화',afBreath:'심호흡',afNeedTeam:'팀을 선택하지 않은 플레이어가 있습니다',afNeedTwo:'참가자가 2명 이상 필요합니다 (플레이어 또는 AI)',afRosCards:'카드',afRosView:'플레이어',afAdmTitle:'관리자 패널',afAdmSkip:'대기·구매 건너뛰고 전투',afAdmClose:'닫기',afAdmHostOnly:'호스트만 단계를 제어할 수 있습니다',afNeedBalance:'팀 인원이 불균형합니다',afTeamModeRandom:'랜덤',afTeamModeFree:'자유 선택',afTeamPick:'팀',afTeamAuto:'자동',afTeamA:'청팀',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
+ 'zh-Hant':{mp:{afTeamMethod:'分隊方式',afTeamBalance:'均衡分隊',afCrit:'爆擊',afStatusNormal:'正常',afStatusStun:'暈眩',afStatusShield:'護盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未選擇隊伍',afNeedTwo:'至少需要 2 名參與者（玩家或 AI）才能開始',afRosCards:'卡牌',afRosView:'查看玩家',afAdmTitle:'管理員快速面板',afAdmSkip:'跳過等待與購買，直接開戰',afAdmClose:'關閉',afAdmHostOnly:'只有房主可以控制階段',afNeedBalance:'隊伍人數不均衡，請先按「均衡分隊」',afTeamModeRandom:'隨機選隊',afTeamModeFree:'自由選隊',afTeamPick:'分隊',afTeamAuto:'自動',afTeamA:'藍隊',afFinalBout:'最終戰 +2',afTeamB:'紅隊',afTeamRand:'隨機分隊'}},
+ 'zh-Hans':{mp:{afTeamMethod:'分队方式',afTeamBalance:'均衡分队',afCrit:'爆击',afStatusNormal:'正常',afStatusStun:'眩晕',afStatusShield:'护盾',afStatusBuff:'增益',afBreath:'深呼吸',afNeedTeam:'有玩家尚未选择队伍',afNeedTwo:'至少需要 2 名参与者（玩家或 AI）才能开始',afRosCards:'卡牌',afRosView:'查看玩家',afAdmTitle:'管理员快速面板',afAdmSkip:'跳过等待与购买，直接开战',afAdmClose:'关闭',afAdmHostOnly:'只有房主可以控制阶段',afNeedBalance:'队伍人数不均衡，请先按「均衡分队」',afTeamModeRandom:'随机选队',afTeamModeFree:'自由选队',afTeamPick:'分队',afTeamAuto:'自动',afTeamA:'蓝队',afFinalBout:'最终战 +2',afTeamB:'红队',afTeamRand:'随机分队'}},
+ 'en':{mp:{afTeamMethod:'Team mode',afTeamBalance:'Balance teams',afCrit:'Crit',afStatusNormal:'Normal',afStatusStun:'Stunned',afStatusShield:'Shielded',afStatusBuff:'Buffed',afBreath:'Breath',afNeedTeam:'Some players have not picked a team',afNeedTwo:'Need at least 2 participants (players or AI)',afRosCards:'Cards',afRosView:'Players',afAdmTitle:'Admin quick panel',afAdmSkip:'Skip wait & buy — fight now',afAdmClose:'Close',afAdmHostOnly:'Only the host can control phases',afNeedBalance:'Teams are unbalanced — use Balance teams',afTeamModeRandom:'Random',afTeamModeFree:'Free pick',afTeamPick:'Team',afTeamAuto:'Auto',afTeamA:'Blue',afFinalBout:'Final bout +2',afTeamB:'Red',afTeamRand:'Random teams'}},
+ 'ja':{mp:{afTeamMethod:'チーム分け',afTeamBalance:'チーム均等化',afCrit:'クリティカル',afStatusNormal:'通常',afStatusStun:'スタン',afStatusShield:'シールド',afStatusBuff:'強化',afBreath:'深呼吸',afNeedTeam:'チーム未選択のプレイヤーがいます',afNeedTwo:'参加者2人以上が必要です（プレイヤーまたはAI）',afRosCards:'カード',afRosView:'プレイヤー',afAdmTitle:'管理者パネル',afAdmSkip:'待機と購入をスキップして開戰',afAdmClose:'閉じる',afAdmHostOnly:'ホストのみフェーズを制御できます',afNeedBalance:'チーム人数が不均衡です',afTeamModeRandom:'ランダム',afTeamModeFree:'自由選択',afTeamPick:'チーム',afTeamAuto:'自動',afTeamA:'青チーム',afFinalBout:'最終戦 +2',afTeamB:'赤チーム',afTeamRand:'ランダム振り分け'}},
+ 'ko':{mp:{afTeamMethod:'팀 배정',afTeamBalance:'팀 균형',afCrit:'치명타',afStatusNormal:'정상',afStatusStun:'기절',afStatusShield:'방어막',afStatusBuff:'강화',afBreath:'심호흡',afNeedTeam:'팀을 선택하지 않은 플레이어가 있습니다',afNeedTwo:'참가자가 2명 이상 필요합니다 (플레이어 또는 AI)',afRosCards:'카드',afRosView:'플레이어',afAdmTitle:'관리자 패널',afAdmSkip:'대기·구매 건너뛰고 전투',afAdmClose:'닫기',afAdmHostOnly:'호스트만 단계를 제어할 수 있습니다',afNeedBalance:'팀 인원이 불균형합니다',afTeamModeRandom:'랜덤',afTeamModeFree:'자유 선택',afTeamPick:'팀',afTeamAuto:'자동',afTeamA:'청팀',afFinalBout:'최종전 +2',afTeamB:'홍팀',afTeamRand:'랜덤 배정'}}
 };
 (function mergeAfTeam(){ for(const L in I18N_AFTEAM){ if(!I18N[L]) continue; I18N[L].mp=Object.assign({}, I18N[L].mp||{}, I18N_AFTEAM[L].mp); } })();
 const I18N_AFDUEL={
@@ -10868,14 +10968,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·387'; }
+    bt.textContent='build 0618·389'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·387'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·389'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
