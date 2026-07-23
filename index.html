@@ -6818,7 +6818,11 @@ function _bgmStartWA(key){ const g=_bgmEnsureGain(); if(!g) return; const buf=_b
 function _bgmWantKey(){
   if(typeof state==='undefined') return null;
   if(state.floor==null && state.mode!=='arena') return null;   /* no game -> no music (lobby / waiting room / main menu); arena has no floor but does play */
-  if(!state.player || state._cineActive || (byId('startScreen') && byId('startScreen').classList.contains('show'))) return null;   /* no music on start screen or during the opening cinematic */
+  var _uiOut=false; try{ var _ss=byId('startScreen'), _lb=byId('lobby');
+    _uiOut = !!((_ss && _ss.classList.contains('show')) || (_lb && _lb.classList.contains('show'))); }catch(_e){}
+  if(!state.player || state._cineActive || _uiOut) return null;   /* no music on the title screen, in the multiplayer lobby/waiting room, or during the opening cinematic.
+                                                                     The lobby check matters because entering 多人遊戲 HIDES the title while a finished solo run still
+                                                                     has state.player/state.floor set — which used to start the in-game track in the lobby. */
   if(!_bgmUnlocked) return null;
   return bgmKeyForFloor(state.floor);
 }
@@ -10489,9 +10493,18 @@ function markFeat(name){ if(typeof state==='undefined') return; if(!state.feat) 
 let _achQueue=[], _achBusy=false;
 function achPopup(a){ _achQueue.push(a); if(!_achBusy) _achNext(); }
 function _achNext(){
-  if(typeof state!=='undefined' && state.mode && state.mode!=='solo'){ _achQueue=[]; _achBusy=false; return; }   /* achievements are solo-only — never replay queued solo achievements after switching to multiplayer */
+  /* Achievements belong to the CURRENT solo run. Drop anything still queued the moment we are no longer in
+     one. Previously the queue merely PAUSED on the title screen, so opening 多人遊戲 — which hides the title
+     while state.mode is still the finished solo run — let the leftover toasts fire over the multiplayer UI. */
+  if(typeof state==='undefined'){ _achQueue=[]; _achBusy=false; return; }
+  if(state.mode && state.mode!=='solo'){ _achQueue=[]; _achBusy=false; return; }   /* achievements are solo-only */
+  var _mpOpen=false; try{ var _lb=byId('lobby'); _mpOpen=!!(_lb && _lb.classList.contains('show')); }catch(_e){}
+  if(_mpOpen){ _achQueue=[]; _achBusy=false; return; }                              /* multiplayer lobby / room is open */
   if(!_achQueue.length){ _achBusy=false; return; }
-  if(typeof inLobby==='function' && inLobby()){ _achBusy=true; setTimeout(_achNext, 600); return; }   /* 主畫面（標題）暫停成就提示，回到遊戲自動續播 */
+  if(typeof inLobby==='function' && inLobby()){
+    if(state.over){ _achQueue=[]; _achBusy=false; return; }                         /* finished run parked at the title — nothing to resume into */
+    _achBusy=true; setTimeout(_achNext, 600); return;                               /* 主畫面（標題）暫停成就提示，回到進行中的遊戲自動續播 */
+  }
   _achBusy=true; const a=_achQueue.shift(); const el=byId('achToast'); if(!el){ _achBusy=false; return; }
   byId('achToastIcon').textContent=a.icon; byId('achToastGot').textContent=t('ach.got'); byId('achToastName').textContent='\u300c'+achName(a)+'\u300d';
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
@@ -10821,14 +10834,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·385'; }
+    bt.textContent='build 0618·386'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·385'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·386'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -10896,7 +10909,15 @@ function bindLongPressTitle(){
   ['gameTitle','ssTitle'].forEach(function(id){
     const el=byId(id); if(!el) return;
     let hold=null;
-    function down(ev){ clearTimeout(hold); hold=setTimeout(function(){ hold=null; adminVoiceChallenge(); },1000); }
+    /* On touch devices the pointerup that ends a long-press is followed by a synthesised click, which can land
+       on whatever sits under the finger (or on the panel that just opened) — the mobile "mis-tap". Once the
+       long-press has fired we swallow exactly one following click in the capture phase. */
+    function _eatNextClick(){
+      var f=function(e){ e.stopPropagation(); e.preventDefault(); document.removeEventListener('click',f,true); };
+      document.addEventListener('click',f,true);
+      setTimeout(function(){ document.removeEventListener('click',f,true); },700);
+    }
+    function down(ev){ clearTimeout(hold); hold=setTimeout(function(){ hold=null; _eatNextClick(); adminVoiceChallenge(); },1000); }
     function cancel(){ if(hold){ clearTimeout(hold); hold=null; } }
     el.addEventListener('pointerdown',down);
     el.addEventListener('pointerup',cancel);
