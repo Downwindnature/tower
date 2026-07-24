@@ -1045,6 +1045,16 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 #tipBubble.show{display:block;animation:bub .4s cubic-bezier(.2,.9,.3,1.3);}
 #tipBubble::after{content:"";position:absolute;top:-8px;right:18px;border:8px solid transparent;border-bottom-color:var(--gold);}
 #tipBubble .x{display:inline-block;margin-top:7px;font-weight:800;text-decoration:underline;cursor:pointer;}
+/* start-screen bubble that points at the top-right nameplate — the old hint was a tiny centred line of text
+   at the bottom of the screen and players simply did not notice it. */
+#ssTip{position:absolute;z-index:90;max-width:min(300px,74vw);padding:12px 15px;border-radius:13px;
+  font-size:15px;line-height:1.6;background:linear-gradient(180deg,#f6d488,var(--gold));color:#2a1c06;
+  font-weight:700;box-shadow:0 12px 30px rgba(0,0,0,.55);display:none;text-align:left;}
+#ssTip.show{display:block;animation:bub .4s cubic-bezier(.2,.9,.3,1.3);}
+#ssTip::after{content:"";position:absolute;top:-9px;right:22px;border:9px solid transparent;border-bottom-color:var(--gold);}
+#ssTip .x{display:inline-block;margin-top:9px;padding:3px 12px;border-radius:8px;background:rgba(0,0,0,.22);
+  font-weight:900;cursor:pointer;}
+@media (max-width:560px){ #ssTip{font-size:14px;max-width:78vw;padding:11px 13px;} #ssTip::after{right:18px;} }
 @keyframes bub{from{opacity:0;transform:translateY(-8px) scale(.9);}to{opacity:1;transform:none;}}
 
 /* teleport list */
@@ -1712,6 +1722,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
     <span class="ssAcctStat" id="ssAcctStat"></span>
   </div>
   <p class="ssNote" id="ssNote" style="position:absolute;bottom:6vh;left:0;right:0;text-align:center;margin:0"></p>
+  <div id="ssTip"></div>
 </div></div>
 
 <!-- ===== Player identity (name + avatar) ===== -->
@@ -6236,6 +6247,33 @@ function dismissTip(){
   tip.classList.remove('show'); state.tipSeen=true;
   try{ localStorage.setItem('mt_tip','1'); }catch(e){}
 }
+/* ---- start-screen hint: "tap the nameplate to change your name / avatar" ----
+   It used to be a small centred line at the bottom of the title screen, which players missed. Show it as a
+   bubble that actually points at the nameplate in the top-right, at a readable size, dismissed with OK (or by
+   opening the nameplate) and then remembered so it never nags again. */
+function _ssTipPlace(){
+  var tip=byId('ssTip'), chip=byId('ssIdChip');
+  if(!tip || !chip || !tip.classList.contains('show')) return;
+  var r=chip.getBoundingClientRect();
+  if(!r.width && !r.height) return;                       // chip not laid out yet
+  tip.style.top=(r.bottom+10)+'px';
+  tip.style.right=Math.max(8,(window.innerWidth-r.right))+'px';
+}
+function maybeShowRenameTip(){
+  var tip=byId('ssTip'); if(!tip) return;
+  var logged=(typeof Account!=='undefined' && Account.user);
+  var seen=false; try{ seen=localStorage.getItem('mt_renameTip')==='1'; }catch(_e){}
+  if(!logged || seen){ tip.classList.remove('show'); return; }
+  tip.innerHTML='<span id="ssTipMsg"></span><br><span class="x" id="ssTipX"></span>';
+  var msg=byId('ssTipMsg'); if(msg) msg.textContent=t('mp.renameHint');
+  var okb=byId('ssTipX'); if(okb){ okb.textContent=t('ui.confirm'); okb.onclick=function(ev){ if(ev){ev.stopPropagation();} dismissRenameTip(); }; }
+  tip.classList.add('show');
+  _ssTipPlace(); setTimeout(_ssTipPlace,0); setTimeout(_ssTipPlace,220);   // position once the title screen has laid out
+}
+function dismissRenameTip(){
+  var tip=byId('ssTip'); if(tip) tip.classList.remove('show');
+  try{ localStorage.setItem('mt_renameTip','1'); }catch(_e){}
+}
 function hintOnce(kind){
   // 機制介紹：用「持久對話框」顯示，玩家看完按右下角「確定」(PC 可按 Enter、手機點「確定」) 才關閉；每種只顯示一次
   const HINTMAP={ manualE:'ui.hintE', teleF:'ui.hintF', atkBook:'ui.hintAtk', defBook:'ui.hintDef' };
@@ -6646,9 +6684,16 @@ function _resetRunUI(){
      screen, the fusion panel, the multiplayer roster or spectate bar — survived into the new run and showed up
      as leftovers from the old one (solo residue in multiplayer, and the other way round). Close the lot. */
   try{ for(var i=0;i<OVERLAY_IDS.length;i++){ var el=byId(OVERLAY_IDS[i]); if(el) el.classList.remove('show'); } }catch(_e){}
-  ['startScreen','lobby','mpPanel','fusePanel','mpRoster','spectateBar','tipBubble','cheatBadge','voiceMsg'].forEach(function(id){
+  ['startScreen','lobby','mpPanel','fusePanel','mpRoster','spectateBar','tipBubble','ssTip','cheatBadge','voiceMsg'].forEach(function(id){
     try{ var el=byId(id); if(el) el.classList.remove('show'); }catch(_e){}
   });
+  /* A large slice of the in-run interface is toggled with style.display rather than a class — the arena
+     scoreboard, card row, fight panel, duel banner, roster, standings, countdown, end-screen rows. Removing
+     'show' leaves every one of them on screen, which is what still showed through as faint leftovers. */
+  ['afAdmin','afCards','afCount','afDuelBanner','afFightPanel','afRosTip','afRoster','afScore','afShopBtn',
+   'afSkip','afSpectateBtn','afStats','afTeamBar','afTeamRand','afpMine','afpRound','apWait','asBack',
+   'mpStandings','raceCountdown','specExit','cbEndBtn','cbWinPanel','endRankWrap','endRankName','endScore'
+  ].forEach(function(id){ try{ var el=byId(id); if(el) el.style.display='none'; }catch(_e){} });
   try{ var _g=byId('grid'); if(_g) _g.innerHTML=''; }catch(_e){}          /* drop the old map; renderAll() repaints the new floor */
   try{ var _at=byId('achToast'); if(_at) _at.classList.remove('show'); }catch(_e){}
   try{ _achQueue=[]; _achBusy=false; }catch(_e){}                        /* queued solo achievements never carry into another run */
@@ -6931,6 +6976,7 @@ function bindInput(){
   { const _ssl=byId('ssLangSel'); if(_ssl) _ssl.addEventListener('change',function(e){ state.lang=e.target.value; applyLang(); }); }
 
   { let _rzT=null; window.addEventListener('resize',function(){ if(!state.player) return; clearTimeout(_rzT); _rzT=setTimeout(function(){ try{ renderAll(); }catch(e){} }, 150); }); }
+  { let _tipRzT=null; window.addEventListener('resize',function(){ clearTimeout(_tipRzT); _tipRzT=setTimeout(function(){ try{ _ssTipPlace(); }catch(e){} }, 120); }); }   /* keep the nameplate bubble glued to the chip when the window/orientation changes */
   bindMpInput();
 }
 
@@ -7830,8 +7876,8 @@ function renderStartScreen(){
   const s4=byId('tsResumeLab'); if(s4) s4.textContent=t('ts.resume');
   const s5=byId('tsMPLab'); if(s5) s5.textContent=t('ts.mp');
   const rb=byId('tsResume'); if(rb) rb.style.display=(state.player && !state.over && state.mode==='solo') ? '' : 'none';   /* 繼續遊戲僅限單機；多人結束後不顯示（避免卡住） */
-  const nn=byId('ssNote'); if(nn) nn.textContent = ((typeof Account!=='undefined' && Account.user) ? t('mp.renameHint') : '');
-  try{ renderIdChip(); }catch(e){}
+  const nn=byId('ssNote'); if(nn) nn.textContent='';   /* the hint now lives in a bubble pointing at the nameplate */
+  try{ renderIdChip(); }catch(e){} try{ maybeShowRenameTip(); }catch(e){}
 }
 function resumeGame(){ const r=byId('tsResume'); if(!state.player || state.over || state.mode!=='solo'){ if(r) r.style.display='none'; return; } state.portalAim=false; state.portalTarget=null; hide('startScreen'); renderAll(); }
 function startSolo(){ hide('startScreen'); Net.ensureConfigLoaded().then(function(){ FLOORS=ADMIN_FLOORS; newGame({mode:'solo'}); }); }
@@ -9191,6 +9237,7 @@ function _draftAutoFinish(){   /* wait phase is over and this player still hasn'
 function _draftFinish(){ var picked=_draft.chosen.slice(); if(typeof MP!=='undefined'&&MP.arena) MP.arena.myCards=picked; if(state.player) state.player.arenaCards=picked; hide('cardDraft'); var cb=_draft.onDone; _draft=null; if(typeof cb==='function') cb(); }
 
 function startArenaRun(){
+  try{ _resetRunUI(); }catch(_e){}   /* the arena does NOT go through newGame(), so it has to clear the previous run's interface itself */
   state.mode='arena';
   state.player=freshPlayer();
   state.player.gold=ARENA_GOLD;
@@ -11040,14 +11087,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·390'; }
+    bt.textContent='build 0618·392'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·390'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·392'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
@@ -12094,7 +12141,7 @@ function adminResetDefaults(){ if(!DEFAULT_CONFIG) return; adminDraft=JSON.parse
 function bindAccountAdmin(){
   { const _ab=byId('adminBody'); if(_ab && !_ab._prevBound){ _ab._prevBound=true; _ab.addEventListener('click',function(ev){ if(!ev.target||!ev.target.closest) return; const addB=ev.target.closest('[data-addmon]'); if(addB){ ev.preventDefault(); addMonster(addB.getAttribute('data-addmon')); return; } const delB=ev.target.closest('[data-delmon]'); if(delB){ ev.preventDefault(); delMonster(delB.getAttribute('data-delmon')); return; } const colB=ev.target.closest('[data-collapse]'); if(colB){ const sec=colB.getAttribute('data-collapse'); _collapse[sec]=!_collapse[sec]; const ar=colB.querySelector('.secArrow'); if(ar) ar.textContent=_collapse[sec]?'▶':'▼'; applyMonFilters(); return; } const b=ev.target.closest('[data-prev]'); if(b){ ev.preventDefault(); ev.stopPropagation(); const row=b.closest('.adRowItem'); if(!row) return; try{ collectAdminDraft(); }catch(e){} const mon=_adRowMon(row); if(mon) showMonPreview(mon); return; } }); _ab.addEventListener('input',function(ev){ const _t=ev.target; if(_t && _t.getAttribute && _t.getAttribute('data-monsearch')){ _monSearch=_t.value||''; applyMonFilters(); } }); } }
   const ss=byId('ssAccount'); if(ss) ss.addEventListener('click', openAuth);
-  { const _ic=byId('ssIdChip'); if(_ic) _ic.addEventListener('click', openIdPanel); const _is=byId('idSave'); if(_is) _is.addEventListener('click', idSaveClose); }
+  { const _ic=byId('ssIdChip'); if(_ic) _ic.addEventListener('click', function(){ try{ dismissRenameTip(); }catch(_e){} openIdPanel(); }); const _is=byId('idSave'); if(_is) _is.addEventListener('click', idSaveClose); }
   { const _stat=byId('ssAcctStat'); if(_stat) _stat.addEventListener('click', function(){ if(typeof Account!=='undefined' && Account.user) openAuth(); }); }
   byId('authLogin').addEventListener('click', function(){ authDo('login'); });
   byId('authRegister').addEventListener('click', function(){ authDo('register'); });
