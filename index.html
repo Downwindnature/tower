@@ -1723,6 +1723,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
   </div>
   <p class="ssNote" id="ssNote" style="position:absolute;bottom:6vh;left:0;right:0;text-align:center;margin:0"></p>
   <div id="ssTip"></div>
+  <div id="ssBuildTag" style="position:absolute;right:10px;bottom:8px;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.5px;pointer-events:none;user-select:none"></div>
 </div></div>
 
 <!-- ===== Player identity (name + avatar) ===== -->
@@ -2093,6 +2094,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 
 <script>
 'use strict';
+const BUILD_TAG='0618·396';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
 /* =====================================================================
    魔塔 · Tower of the Sorcerer  —  single-file roguelike
    依據設計草稿 + 新新魔塔2 慣例補充。純靜態，可直接部署 Netlify。
@@ -7886,7 +7888,7 @@ function renderStartScreen(){
   const s5=byId('tsMPLab'); if(s5) s5.textContent=t('ts.mp');
   const rb=byId('tsResume'); if(rb) rb.style.display=(state.player && !state.over && state.mode==='solo') ? '' : 'none';   /* 繼續遊戲僅限單機；多人結束後不顯示（避免卡住） */
   const nn=byId('ssNote'); if(nn) nn.textContent='';   /* the hint now lives in a bubble pointing at the nameplate */
-  try{ renderIdChip(); }catch(e){} try{ maybeShowRenameTip(); }catch(e){}
+  try{ renderIdChip(); }catch(e){} try{ maybeShowRenameTip(); }catch(e){}   { var _bt=byId('ssBuildTag'); if(_bt) _bt.textContent=BUILD_TAG; }
 }
 function resumeGame(){ const r=byId('tsResume'); if(!state.player || state.over || state.mode!=='solo'){ if(r) r.style.display='none'; return; } state.portalAim=false; state.portalTarget=null; hide('startScreen'); renderAll(); }
 function startSolo(){ hide('startScreen'); Net.ensureConfigLoaded().then(function(){ FLOORS=ADMIN_FLOORS; newGame({mode:'solo'}); }); }
@@ -11096,14 +11098,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·395'; }
+    bt.textContent='build '+BUILD_TAG; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·395'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build '+BUILD_TAG; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
