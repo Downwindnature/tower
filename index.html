@@ -5033,8 +5033,11 @@ function autoRoundTick(){
 }
 /* admin mode: unlock every attack & defence skill book; reverts the instant admin mode is exited (logout). Player's genuinely-learned skills are never modified, so saves stay clean. */
 function _admSkAll(){ return (typeof Account!=='undefined' && !!Account.isAdmin && typeof state!=='undefined' && !!state.cheatActive); }   /* admin gameplay perks (teleport-any / manual / skill unlock) require the in-game cheat; the owner plays as a NORMAL player until they enable it (admin PANEL access still uses Account.isAdmin directly) */
-function effAtkSkillIds(){ return (state.player&&state.player.atkSkills)||[]; }   /* only picked-up skill books are usable (solo AND mode 1) */
-function effDefSkillIds(){ return (state.player&&state.player.defSkills)||[]; }   /* only picked-up skill books are usable (solo AND mode 1) */
+/* Normally only picked-up skill books are usable (solo AND mode 1). While admin mode is on, EVERY book is
+   available without owning it — and because the player's real atkSkills/defSkills arrays are never touched,
+   turning admin off instantly puts them back to exactly what they had actually collected. */
+function effAtkSkillIds(){ if(_admSkAll()) return ATK_SKILLS.map(function(s){return s.id;}); return (state.player&&state.player.atkSkills)||[]; }
+function effDefSkillIds(){ if(_admSkAll()) return DEF_SKILLS.map(function(s){return s.id;}); return (state.player&&state.player.defSkills)||[]; }
 function effSkillIds(kind){ return kind==='atk'?effAtkSkillIds():effDefSkillIds(); }
 function skLvOk(s){ return !!s && (_admSkAll() || (state.player&&state.player.lv>=s.lv)); }
 function refreshCombatButtons(){
@@ -6582,13 +6585,14 @@ function submitCheat(){
 function activateCheat(){
   const pl=state.player; if(!pl) return;
   if(state.cheatActive){ renderStats(); return; }               // already on — never stack the bonus
-  state.cheatSnap={ hp:pl.hp, atk:pl.atk, def:pl.def,           // remember EVERYTHING the cheat changes, so exit can fully revert
+  state.cheatSnap={ hp:pl.hp, atk:pl.atk, def:pl.def, lv:(pl.lv||1),   // remember EVERYTHING the cheat changes, so exit can fully revert
     keys:{y:pl.keys.y,b:pl.keys.b,r:pl.keys.r,w:pl.keys.w,p:pl.keys.p}, hasManual:pl.hasManual, tpScrolls:(pl.tpScrolls||0), portals:(pl.portals||0), portalGot:!!pl.portalGot };
   pl.hp+=10000; pl.atk+=10000; pl.def+=10000;
   pl.keys.y+=100; pl.keys.b+=100; pl.keys.r+=100; pl.keys.w+=100; pl.keys.p+=100;   // every key +100
   pl.hasManual=true;                                                                 // bestiary / monster manual unlocked
   pl.tpScrolls=Math.max(pl.tpScrolls||0,99);                                         // full teleport access (admin teleport ignores the cost anyway)
   pl.portalGot=true; pl.portals=Math.max(pl.portals||0,100);                          // 任意門:取得能力並給 100 個
+  pl.lv=Math.max(pl.lv||1,100);                                                      // 管理員預設等級 100（離開管理員時還原成原本等級）
   state.cheatActive=true;
   renderStats(); toast(t('cheat.on'));
 }
@@ -6599,6 +6603,7 @@ function exitCheat(){
     if(s.keys) pl.keys={y:s.keys.y,b:s.keys.b,r:s.keys.r,w:s.keys.w,p:s.keys.p};
     pl.hasManual=s.hasManual; pl.tpScrolls=s.tpScrolls;
     pl.portals=s.portals; pl.portalGot=s.portalGot;
+    if(s.lv!=null) pl.lv=s.lv;                                   // 等級回到成為管理員之前的狀態
   }
   state.cheatActive=false; state.cheatSnap=null;
   hide('cheatModal'); renderStats(); toast(t('cheat.off'));
@@ -11087,14 +11092,14 @@ function localizeAdmin(){
   byId('adminTitle').textContent=t('admin.title');
   buildAdminTabs();
   { let bt=byId('adminBuildTag'); if(!bt){ bt=document.createElement('span'); bt.id='adminBuildTag'; bt.style.cssText='font-size:11px;color:var(--txt-faint);font-weight:400;margin-left:8px;'; const hh=byId('adminTitle').parentNode; if(hh) hh.appendChild(bt); }
-    bt.textContent='build 0618·392'; }
+    bt.textContent='build 0618·393'; }
   byId('adminApply').textContent=t('admin.apply'); byId('adminSaveCloud').textContent=t('admin.saveCloud');
   byId('adminReset').textContent=t('admin.reset');
 }
 function openAdmin(){
   if(typeof Account==='undefined' || !Account.isAdmin){ toast(t('acct.notAdmin')); return; }
   show('adminScreen');
-  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·392'; }
+  { const _bt=byId('adminBuildTag'); if(_bt) _bt.textContent='build 0618·393'; }
   var _msg=byId('adminMsg'); if(_msg) _msg.textContent=t('admin.cfgLoading');
   /* WAIT for the cloud copy before snapshotting. Opening the panel while gameConfig was still in flight used to
      fill every field with built-in DEFAULTS; one edit + "save to cloud" then .set() those defaults over the real
