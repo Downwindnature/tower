@@ -463,6 +463,13 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 
 /* item / door tints */
 .t-pot-r{color:#ff7a8c;} .t-pot-b{color:#7fb6ff;}
+.gemItem{position:absolute;left:50%;top:50%;width:62%;height:62%;transform:translate(-50%,-50%) rotate(45deg);border-radius:16% 34% 16% 34%;
+  background:linear-gradient(140deg,#c8ffd8 0%,#63e08a 34%,#1e9e5a 64%,#0c6b3c 100%);
+  border:1px solid rgba(255,255,255,.5);
+  box-shadow:0 0 9px rgba(70,230,140,.75), inset 0 0 7px rgba(255,255,255,.45);
+  animation:gemPulse 1.9s ease-in-out infinite; z-index:2; pointer-events:none;}
+.gemItem::after{content:"";position:absolute;left:16%;top:14%;width:30%;height:30%;border-radius:50%;background:rgba(255,255,255,.85);filter:blur(.4px);}
+@keyframes gemPulse{0%,100%{box-shadow:0 0 7px rgba(70,230,140,.6), inset 0 0 7px rgba(255,255,255,.4);}50%{box-shadow:0 0 15px rgba(90,255,165,.95), inset 0 0 9px rgba(255,255,255,.6);}}
 .potion{position:absolute;inset:0;z-index:2;pointer-events:none;}
 .potion .pf-body{position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);width:58%;height:52%;border-radius:50%;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.72),var(--liq) 56%,var(--liqd));border:1.5px solid rgba(255,255,255,.5);box-shadow:inset -2px -2px 5px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.55);}
 .potion .pf-neck{position:absolute;left:50%;top:13%;transform:translateX(-50%);width:22%;height:32%;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#d8cba0,#efe6c8 45%,rgba(255,255,255,.3));border:1.5px solid rgba(255,255,255,.45);border-bottom:none;}
@@ -1392,6 +1399,16 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 .statRow>.v, .cbRow>.v{ margin-left:7px; }   /* the value never hugs the colon */
 .statList .statRow>.v{ flex:1 1 auto; text-align:center; }   /* left column: every value centred */
 .statList .statRow{ gap:4px; }
+/* The value used to be centred inside "whatever space the label left over", so the wider the label the further
+   right the number sat. Chinese labels are all two characters, so the column looked tidy; English, Japanese and
+   Korean labels vary in width and the numbers wandered. A three-track grid (flexible | value | flexible) pins
+   every value to the row's true midpoint, so the whole column lines up in all five languages. */
+#statsPanel .statList .statRow, .statList .statRow{
+  display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center; gap:4px;
+}
+#statsPanel .statList .statRow>.k, .statList .statRow>.k{ grid-column:1; justify-self:start; min-width:0; white-space:nowrap; }
+#statsPanel .statList .statRow>.v, .statList .statRow>.v{ grid-column:2; justify-self:center; text-align:center; margin-left:0; flex:none; }
 
 /* ---- bestiary row: portrait box on the left, three label:value lines on the right ---- */
 .monRow{align-items:flex-start;}
@@ -2099,7 +2116,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 
 <script>
 'use strict';
-const BUILD_TAG='0618·400';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
+const BUILD_TAG='0618·402';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
 /* =====================================================================
    魔塔 · Tower of the Sorcerer  —  single-file roguelike
    依據設計草稿 + 新新魔塔2 慣例補充。純靜態，可直接部署 Netlify。
@@ -2114,7 +2131,7 @@ const I18N = {
   status:{normal:'正常',poison:'中毒',weak:'衰弱'},
   col:{y:'黃色',b:'藍色',r:'紅色',w:'白色',p:'白金'},
   ab:{poison:'中毒',weak:'衰弱',multi:'連擊',solid:'高防',boss:'BOSS',drain:'耗體',vampire:'吸血',pierce:'破甲',first:'先攻',magic:'魔法'},
-  item:{potR:'紅色藥水',potB:'藍色藥水',vialR:'紅色水瓶',vialG:'綠色水瓶',gemR:'紅寶石',gemB:'藍寶石',bigGold:'大金幣',staff1:'翅膀拐杖',staff3:'閃光翅膀拐杖',jug:'十字聖水',feather:'白色羽毛',tpScroll:'傳送卷軸',bestiary:'怪物手冊',ironSword:'鐵劍',silverSword:'銀劍',knightSword:'騎士劍',holySword:'聖劍',divineSword:'神聖劍',ironShield:'鐵盾',silverShield:'銀盾',knightShield:'騎士盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黃鑰匙',keyB:'藍鑰匙',keyR:'紅鑰匙',keyW:'白鑰匙',keyP:'白金鑰匙',icePendant:'冰凍吊墜'},
+  item:{potR:'紅色藥水',potB:'藍色藥水',vialR:'紅色水瓶',vialG:'綠色水瓶',gemR:'紅寶石',gemB:'藍寶石',breathGem:'呼吸寶石',bigGold:'大金幣',staff1:'翅膀拐杖',staff3:'閃光翅膀拐杖',jug:'十字聖水',feather:'白色羽毛',tpScroll:'傳送卷軸',bestiary:'怪物手冊',ironSword:'鐵劍',silverSword:'銀劍',knightSword:'騎士劍',holySword:'聖劍',divineSword:'神聖劍',ironShield:'鐵盾',silverShield:'銀盾',knightShield:'騎士盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黃鑰匙',keyB:'藍鑰匙',keyR:'紅鑰匙',keyW:'白鑰匙',keyP:'白金鑰匙',icePendant:'冰凍吊墜'},
   mon:{},
   skill:{crimson:{n:'赤紅斬',d:'消耗 30 能量，本回合攻擊傷害翻倍。'},pierce:{n:'破甲擊',d:'消耗 35 能量，本回合無視敵方防禦。'},shield:{n:'結晶盾',d:'消耗 25 能量，體力 +40，並使下次受到的傷害減半（本回合不攻擊）。'},breath:{n:'深呼吸',d:'不消耗能量，能量 +30、體力 +30（本回合不攻擊）。'}},
   shop:{blue:{n:'藍色次級商店',d:'以金幣兌換能力。'},red:{n:'紅色高級商店',d:'以金幣兌換更強能力。'},old:{n:'藍衣老人',d:'以經驗值兌換能力。'},older:{n:'年邁藍衣老人',d:'以經驗值兌換大量能力。'},healer:{n:'白衣治療老人',d:'以金幣解除中毒或衰弱，前方有怪物把守，需擊退才能靠近。'},healP:{n:'解毒老人',d:'地下專屬。以金幣解除中毒，前方有怪物把守，需擊退才能靠近。'},healW:{n:'解衰弱老人',d:'地下專屬。以金幣解除衰弱，前方有怪物把守，需擊退才能靠近。'},
@@ -2142,7 +2159,7 @@ const I18N = {
   status:{normal:'正常',poison:'中毒',weak:'虚弱'},
   col:{y:'黄色',b:'蓝色',r:'红色',w:'白色',p:'白金'},
   ab:{poison:'中毒',weak:'虚弱',multi:'连击',solid:'高防',boss:'BOSS',drain:'耗体',vampire:'吸血',pierce:'破甲',first:'先攻',magic:'魔法'},
-  item:{potR:'红色药水',potB:'蓝色药水',vialR:'红色水瓶',vialG:'绿色水瓶',gemR:'红宝石',gemB:'蓝宝石',bigGold:'大金币',staff1:'翅膀拐杖',staff3:'闪光翅膀拐杖',jug:'十字圣水',feather:'白色羽毛',tpScroll:'传送卷轴',bestiary:'怪物手册',ironSword:'铁剑',silverSword:'银剑',knightSword:'骑士剑',holySword:'圣剑',divineSword:'神圣剑',ironShield:'铁盾',silverShield:'银盾',knightShield:'骑士盾',holyShield:'圣盾',divineShield:'神圣盾',keyY:'黄钥匙',keyB:'蓝钥匙',keyR:'红钥匙',keyW:'白钥匙',keyP:'白金钥匙',icePendant:'冰冻吊坠'},
+  item:{potR:'红色药水',potB:'蓝色药水',vialR:'红色水瓶',vialG:'绿色水瓶',gemR:'红宝石',gemB:'蓝宝石',breathGem:'呼吸宝石',bigGold:'大金币',staff1:'翅膀拐杖',staff3:'闪光翅膀拐杖',jug:'十字圣水',feather:'白色羽毛',tpScroll:'传送卷轴',bestiary:'怪物手册',ironSword:'铁剑',silverSword:'银剑',knightSword:'骑士剑',holySword:'圣剑',divineSword:'神圣剑',ironShield:'铁盾',silverShield:'银盾',knightShield:'骑士盾',holyShield:'圣盾',divineShield:'神圣盾',keyY:'黄钥匙',keyB:'蓝钥匙',keyR:'红钥匙',keyW:'白钥匙',keyP:'白金钥匙',icePendant:'冰冻吊坠'},
   mon:{},
   skill:{crimson:{n:'赤红斩',d:'消耗 30 能量，本回合攻击伤害翻倍。'},pierce:{n:'破甲击',d:'消耗 35 能量，本回合无视敌方防御。'},shield:{n:'结晶盾',d:'消耗 25 能量，体力 +40，并使下次受到的伤害减半（本回合不攻击）。'},breath:{n:'深呼吸',d:'不消耗能量，能量 +30、体力 +30（本回合不攻击）。'}},
   shop:{blue:{n:'蓝色次级商店',d:'以金币兑换能力。'},red:{n:'红色高级商店',d:'以金币兑换更强能力。'},old:{n:'蓝衣老人',d:'以经验值兑换能力。'},older:{n:'年迈蓝衣老人',d:'以经验值兑换大量能力。'},healer:{n:'白衣治疗老人',d:'以金币解除中毒或虚弱，前方有怪物把守，需击退才能靠近。'},healP:{n:'解毒老人',d:'地下专属。以金币解除中毒，前方有怪物把守，需击退才能靠近。'},healW:{n:'解虚弱老人',d:'地下专属。以金币解除虚弱，前方有怪物把守，需击退才能靠近。'},
@@ -2170,7 +2187,7 @@ const I18N = {
   status:{normal:'Normal',poison:'Poison',weak:'Weak'},
   col:{y:'yellow',b:'blue',r:'red',w:'white',p:'platinum'},
   ab:{poison:'Poison',weak:'Weaken',multi:'Multi',solid:'Armored',boss:'BOSS',drain:'Saps',vampire:'Vampiric',pierce:'Pierce',first:'First Strike',magic:'Magic'},
-  item:{potR:'Red Potion',potB:'Blue Potion',vialR:'Red Vial',vialG:'Green Vial',gemR:'Ruby',gemB:'Sapphire',bigGold:'Big Coin',staff1:'Winged Staff',staff3:'Flashing Staff',jug:'Holy Water',feather:'White Feather',tpScroll:'Teleport Scroll',bestiary:'Bestiary',ironSword:'Iron Sword',silverSword:'Silver Sword',knightSword:'Knight Sword',holySword:'Holy Sword',divineSword:'Divine Sword',ironShield:'Iron Shield',silverShield:'Silver Shield',knightShield:'Knight Shield',holyShield:'Holy Shield',divineShield:'Divine Shield',keyY:'Yellow Key',keyB:'Blue Key',keyR:'Red Key',keyW:'White Key',keyP:'Platinum Key',icePendant:'Ice Pendant'},
+  item:{potR:'Red Potion',potB:'Blue Potion',vialR:'Red Vial',vialG:'Green Vial',gemR:'Ruby',gemB:'Sapphire',breathGem:'Breath Gem',bigGold:'Big Coin',staff1:'Winged Staff',staff3:'Flashing Staff',jug:'Holy Water',feather:'White Feather',tpScroll:'Teleport Scroll',bestiary:'Bestiary',ironSword:'Iron Sword',silverSword:'Silver Sword',knightSword:'Knight Sword',holySword:'Holy Sword',divineSword:'Divine Sword',ironShield:'Iron Shield',silverShield:'Silver Shield',knightShield:'Knight Shield',holyShield:'Holy Shield',divineShield:'Divine Shield',keyY:'Yellow Key',keyB:'Blue Key',keyR:'Red Key',keyW:'White Key',keyP:'Platinum Key',icePendant:'Ice Pendant'},
   mon:{},
   skill:{crimson:{n:'Crimson Slash',d:'Costs 30 energy. Doubles your attack damage this round.'},pierce:{n:'Armor Pierce',d:'Costs 35 energy. Ignores the foe defense this round.'},shield:{n:'Crystal Shield',d:'Costs 25 energy. +40 stamina and halves the next damage you take (you skip attacking).'},breath:{n:'Deep Breath',d:'No energy cost. +30 energy and +30 stamina (you skip attacking).'}},
   shop:{blue:{n:'Lesser Blue Shop',d:'Trade gold for power.'},red:{n:'Grand Red Shop',d:'Trade gold for greater power.'},old:{n:'Old Man in Blue',d:'Trade EXP for power.'},older:{n:'Ancient Man in Blue',d:'Trade EXP for great power.'},healer:{n:'Healer in White',d:'Spend gold to cure poison or weaken; a monster guards the way — defeat it to approach.'},healP:{n:'Antidote Elder',d:'Basement only. Spend gold to cure poison; a monster guards the way.'},healW:{n:'Restoration Elder',d:'Basement only. Spend gold to cure weaken; a monster guards the way.'},
@@ -2198,7 +2215,7 @@ const I18N = {
   status:{normal:'正常',poison:'毒',weak:'衰弱'},
   col:{y:'黄',b:'青',r:'赤',w:'白',p:'プラチナ'},
   ab:{poison:'毒',weak:'衰弱',multi:'連撃',solid:'高防御',boss:'BOSS',drain:'消耗',vampire:'吸血',pierce:'防御貫通',first:'先制',magic:'魔法'},
-  item:{potR:'赤いポーション',potB:'青いポーション',vialR:'赤い小瓶',vialG:'緑の小瓶',gemR:'ルビー',gemB:'サファイア',bigGold:'大金貨',staff1:'翼の杖',staff3:'輝く翼の杖',jug:'十字の聖水',feather:'白い羽根',tpScroll:'転送の巻物',bestiary:'魔物図鑑',ironSword:'鉄の剣',silverSword:'銀の剣',knightSword:'騎士の剣',holySword:'聖剣',divineSword:'神聖剣',ironShield:'鉄の盾',silverShield:'銀の盾',knightShield:'騎士の盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黄の鍵',keyB:'青の鍵',keyR:'赤の鍵',keyW:'白の鍵',keyP:'プラチナの鍵',icePendant:'氷結のペンダント'},
+  item:{potR:'赤いポーション',potB:'青いポーション',vialR:'赤い小瓶',vialG:'緑の小瓶',gemR:'ルビー',gemB:'サファイア',breathGem:'呼吸の宝石',bigGold:'大金貨',staff1:'翼の杖',staff3:'輝く翼の杖',jug:'十字の聖水',feather:'白い羽根',tpScroll:'転送の巻物',bestiary:'魔物図鑑',ironSword:'鉄の剣',silverSword:'銀の剣',knightSword:'騎士の剣',holySword:'聖剣',divineSword:'神聖剣',ironShield:'鉄の盾',silverShield:'銀の盾',knightShield:'騎士の盾',holyShield:'聖盾',divineShield:'神聖盾',keyY:'黄の鍵',keyB:'青の鍵',keyR:'赤の鍵',keyW:'白の鍵',keyP:'プラチナの鍵',icePendant:'氷結のペンダント'},
   mon:{},
   skill:{crimson:{n:'赤紅斬',d:'エナジー30消費。このラウンドの攻撃ダメージが2倍。'},pierce:{n:'破甲撃',d:'エナジー35消費。このラウンドは敵の防御を無視。'},shield:{n:'結晶盾',d:'エナジー25消費。体力+40、次に受けるダメージを半減（この回は攻撃しない）。'},breath:{n:'深呼吸',d:'エナジー消費なし。エナジー+30・体力+30（この回は攻撃しない）。'}},
   shop:{blue:{n:'青の下級商店',d:'金貨で能力と交換。'},red:{n:'赤の上級商店',d:'金貨でより強い能力と交換。'},old:{n:'青衣の老人',d:'経験値で能力と交換。'},older:{n:'年老いた青衣の老人',d:'経験値で大きな能力と交換。'},healer:{n:'白衣の治療老人',d:'金貨で毒や衰弱を治す。前を魔物が守っており、倒さないと近づけない。'},healP:{n:'解毒の老人',d:'地下専用。金貨で毒を治す。前を魔物が守っており、倒さないと近づけない。'},healW:{n:'衰弱回復の老人',d:'地下専用。金貨で衰弱を治す。前を魔物が守っており、倒さないと近づけない。'},
@@ -2226,7 +2243,7 @@ const I18N = {
   status:{normal:'정상',poison:'중독',weak:'쇠약'},
   col:{y:'노란',b:'파란',r:'빨간',w:'하얀',p:'백금'},
   ab:{poison:'중독',weak:'쇠약',multi:'연타',solid:'고방어',boss:'BOSS',drain:'체력감소',vampire:'흡혈',pierce:'방어관통',first:'선제',magic:'마법'},
-  item:{potR:'빨간 물약',potB:'파란 물약',vialR:'빨간 병',vialG:'초록 병',gemR:'루비',gemB:'사파이어',bigGold:'큰 금화',staff1:'날개 지팡이',staff3:'빛나는 날개 지팡이',jug:'십자 성수',feather:'하얀 깃털',tpScroll:'전송 두루마리',bestiary:'몬스터 도감',ironSword:'철검',silverSword:'은검',knightSword:'기사검',holySword:'성검',divineSword:'신성검',ironShield:'철방패',silverShield:'은방패',knightShield:'기사방패',holyShield:'성방패',divineShield:'신성방패',keyY:'노란 열쇠',keyB:'파란 열쇠',keyR:'빨간 열쇠',keyW:'하얀 열쇠',keyP:'백금 열쇠',icePendant:'빙결 펜던트'},
+  item:{potR:'빨간 물약',potB:'파란 물약',vialR:'빨간 병',vialG:'초록 병',gemR:'루비',gemB:'사파이어',breathGem:'호흡의 보석',bigGold:'큰 금화',staff1:'날개 지팡이',staff3:'빛나는 날개 지팡이',jug:'십자 성수',feather:'하얀 깃털',tpScroll:'전송 두루마리',bestiary:'몬스터 도감',ironSword:'철검',silverSword:'은검',knightSword:'기사검',holySword:'성검',divineSword:'신성검',ironShield:'철방패',silverShield:'은방패',knightShield:'기사방패',holyShield:'성방패',divineShield:'신성방패',keyY:'노란 열쇠',keyB:'파란 열쇠',keyR:'빨간 열쇠',keyW:'하얀 열쇠',keyP:'백금 열쇠',icePendant:'빙결 펜던트'},
   mon:{},
   skill:{crimson:{n:'적홍참',d:'에너지 30 소모. 이번 라운드 공격 피해 2배.'},pierce:{n:'파갑격',d:'에너지 35 소모. 이번 라운드 적 방어 무시.'},shield:{n:'결정 방패',d:'에너지 25 소모. 체력 +40, 다음 받는 피해 절반(이번엔 공격하지 않음).'},breath:{n:'심호흡',d:'에너지 소모 없음. 에너지 +30, 체력 +30(이번엔 공격하지 않음).'}},
   shop:{blue:{n:'파란 하급 상점',d:'금화로 능력 교환.'},red:{n:'빨간 고급 상점',d:'금화로 더 강한 능력 교환.'},old:{n:'파란 옷 노인',d:'경험치로 능력 교환.'},older:{n:'늙은 파란 옷 노인',d:'경험치로 큰 능력 교환.'},healer:{n:'흰옷 치료 노인',d:'금화로 중독·쇠약 해제. 앞을 몬스터가 지키고 있어 물리쳐야 다가갈 수 있다.'},healP:{n:'해독 노인',d:'지하 전용. 금화로 중독 해제. 앞을 몬스터가 지키고 있어 물리쳐야 한다.'},healW:{n:'쇠약 회복 노인',d:'지하 전용. 금화로 쇠약 해제. 앞을 몬스터가 지키고 있어 물리쳐야 한다.'},
@@ -2551,7 +2568,13 @@ function floorTitle(f){ var L=(typeof state!=='undefined'&&state.lang)||'zh-Hant
   if(L==='zh-Hans') return f>0 ? (f+' 楼') : ('地下 '+(-f)+' 层');
   return f>0 ? (f+' 樓') : ('地下 '+(-f)+' 層'); }
 const START={hp:900,atk:10,def:10,en:0,reserve:100,thrA:10,thrD:10,face:'🧝'};
-const BREATH_CFG={ base:5, foeBase:25, foeBelow:30, foeChance:70, foeMax:3 };   /* foeBase 怪物深呼吸恢復量 · foeBelow 低於此體力才會考慮 · foeChance 觸發機率% · foeMax 每場上限(避免拖延戰鬥) */   /* 深呼吸：自己回合按 V 恢復體力，預設 +5；每撿一顆呼吸寶石 +1（恢復量對玩家不透明；體力上限 100） */
+let BREATH_CFG={ base:10, gemInc:2, foeBase:25, foeWeak:5, foeStrong:15, foeBoss:20, foeBelow:30, foeChance:70, foeMax:3 };
+/* 深呼吸：自己回合按 V 恢復體力，預設 +10；每撿一顆「呼吸寶石」再 +2（恢復量對玩家不透明；體力上限 100）
+   怪物側：沒有個別設定 breathAmt 的怪，恢復量依強弱在 foeWeak(5) ~ foeStrong(15) 之間內插，BOSS 級固定 foeBoss(20)。
+   foeBase 只在無法判斷強弱時當保底 · foeBelow 低於此體力才會考慮 · foeChance 觸發機率% · foeMax 每場上限(避免拖延戰鬥) */
+let BREATH_GEM={ chance:9, minFloor:2, maxRun:5 };
+/* 呼吸寶石的稀有度。chance = 每層生成機率%，minFloor = 最低層數，maxRun = 整場上限。
+   全塔約 45 層 × 9% ≈ 平均 3~4 顆；逐層擲骰，運氣差時整場一顆都不會出現。 */
 let PLAYER_FACE=(typeof START!=='undefined'&&START.face)||'🧝';
 let PLAYER_IMG=(function(){ try{ return localStorage.getItem('mt_player_img')||''; }catch(e){ return ''; } })();
 let AVATAR_CLOUD=(function(){ try{ return localStorage.getItem('mt_avatar_cloud')||''; }catch(e){ return ''; } })();
@@ -2753,6 +2776,7 @@ const ITEMS={
   potR:{flask:'r'}, potB:{flask:'b'},
   vialR:{}, vialG:{},
   gemR:{}, gemB:{},
+  breathGem:{gem:'g'},   /* 呼吸寶石：綠色寶石，撿到就永久提升一次深呼吸的體力恢復量 */
   bigGold:{}, staff1:{}, staff3:{flash:true},
   jug:{}, feather:{}, tpScroll:{}, bestiary:{}, icePendant:{},
   ironSword:{weap:'sword',tier:'iron'}, silverSword:{weap:'sword',tier:'silver'}, knightSword:{weap:'sword',tier:'knight'}, holySword:{weap:'sword',tier:'holy'}, divineSword:{weap:'sword',tier:'divine'},
@@ -2765,12 +2789,12 @@ const ITEMS={
    s = which stat the pickup boosts (drives the gain text); v = amount granted on pickup. */
 const ITEM_GAIN_DEF={
   potR:{s:'hp',v:200}, potB:{s:'hp',v:500},
-  gemR:{s:'atk',v:2}, gemB:{s:'def',v:2},
+  gemR:{s:'atk',v:2}, gemB:{s:'def',v:2}, breathGem:{s:'breath',v:2},
   bigGold:{s:'gold',v:150}, feather:{s:'exp',v:5},
   ironSword:{s:'atk',v:10}, silverSword:{s:'atk',v:20}, knightSword:{s:'atk',v:40}, holySword:{s:'atk',v:50}, divineSword:{s:'atk',v:100},
   ironShield:{s:'def',v:10}, silverShield:{s:'def',v:20}, knightShield:{s:'def',v:40}, holyShield:{s:'def',v:50}, divineShield:{s:'def',v:100}
 };
-const ITEM_GAIN_ORDER=['potR','potB','gemR','ironSword','silverSword','knightSword','holySword','divineSword','gemB','ironShield','silverShield','knightShield','holyShield','divineShield','bigGold','feather'];
+const ITEM_GAIN_ORDER=['potR','potB','gemR','breathGem','ironSword','silverSword','knightSword','holySword','divineSword','gemB','ironShield','silverShield','knightShield','holyShield','divineShield','bigGold','feather'];
 let ITEM_GAIN={}; (function(){ for(const k in ITEM_GAIN_DEF) ITEM_GAIN[k]=ITEM_GAIN_DEF[k].v; })();
 function itemGainN(id){ const v=ITEM_GAIN[id]; return (typeof v==='number'&&!isNaN(v))?v:(ITEM_GAIN_DEF[id]?ITEM_GAIN_DEF[id].v:0); }
 const SHOP_GLYPH={blue:'🏪',red:'🏬',old:'🧓',older:'👴',healP:'👵',healW:'🤶',keySell:'🔑',keyBuy:'💰',portal:'👴',hint:'🧙'};
@@ -2928,10 +2952,37 @@ function freshPlayer(){
     lv:1, hp:START.hp, atk:START.atk, def:START.def, en:START.en, reserve:START.reserve,
     thrA:START.thrA, thrD:START.thrD, gold:0, exp:0, atkc:1,
     keys:{y:5,b:1,r:0,w:0,p:0}, status:'normal', weakStacks:0, poisonStep:0, tpScrolls:0, hasManual:false, icePendant:false, portals:0, portalGot:false,
-    atkSkills:[], defSkills:[], atkEquip:null, defEquip:null, bestSword:0, loot:[], breathGems:0
+    atkSkills:[], defSkills:[], atkEquip:null, defEquip:null, bestSword:0, loot:[], breathGems:0   /* 撿到的呼吸寶石顆數 */
   };
 }
-function breathAmt(){ return Math.max(0,(typeof BREATH_CFG!=='undefined'?(BREATH_CFG.base||0):5)) + ((state.player&&state.player.breathGems)||0); }
+function breathAmt(){
+  var base=Math.max(0,(typeof BREATH_CFG!=='undefined'?(BREATH_CFG.base||0):10));
+  var inc=(typeof BREATH_CFG!=='undefined' && BREATH_CFG.gemInc!=null)?BREATH_CFG.gemInc:2;
+  return base + ((state.player&&state.player.breathGems)||0)*inc;
+}
+/* 怪物的深呼吸恢復量：後台個別設定優先；沒設定就依強弱在 foeWeak~foeStrong 之間內插，BOSS 級直接給 foeBoss。 */
+let _brRankCache=null;
+function _brRank(){
+  if(_brRankCache) return _brRankCache;
+  var all=[]; try{ all=MONSTERS.concat(BASEMENT_MONSTERS); }catch(e){ all=[]; }
+  var pw=function(m){ return (m&&((m.hp||0)/12 + (m.atk||0)*2 + (m.def||0)*2))||0; };
+  var arr=all.filter(function(m){ return m&&m.id; }).map(function(m){ return {id:m.id, p:pw(m)}; });
+  arr.sort(function(a,b){ return a.p-b.p; });
+  var idx={}; for(var i=0;i<arr.length;i++) idx[arr[i].id]=(arr.length>1?(i/(arr.length-1)):0);
+  _brRankCache=idx; return idx;
+}
+function foeBreathAmt(foe){
+  if(!foe) return BREATH_CFG.foeBase||25;
+  if(foe.breathAmt!=null) return foe.breathAmt;                       /* 後台個別設定，最優先 */
+  var boss=(BREATH_CFG.foeBoss!=null?BREATH_CFG.foeBoss:20);
+  var weak=(BREATH_CFG.foeWeak!=null?BREATH_CFG.foeWeak:5);
+  var strong=(BREATH_CFG.foeStrong!=null?BREATH_CFG.foeStrong:15);
+  var isBoss=!!(foe.big || foe.boss || (typeof BOSS!=='undefined'&&BOSS&&foe.id===BOSS.id) || (typeof BASEMENT_BOSS!=='undefined'&&BASEMENT_BOSS&&foe.id===BASEMENT_BOSS.id) || (typeof SWORD_KING!=='undefined'&&SWORD_KING&&foe.id===SWORD_KING.id));
+  if(isBoss) return boss;
+  var r=_brRank()[foe.id];
+  if(r==null) return (BREATH_CFG.foeBase!=null?BREATH_CFG.foeBase:25);   /* 不在名冊上（自訂／競技場）→ 保底值 */
+  return Math.max(1, Math.round(weak + (strong-weak)*r));
+}
 function effAtk(pl){ return Math.max(1, pl.atk - (pl.weakAtkAmt!=null?pl.weakAtkAmt:3)*pl.weakStacks); }
 function effDef(pl){ return Math.max(0, pl.def - (pl.weakDefAmt!=null?pl.weakDefAmt:3)*pl.weakStacks); }
 
@@ -3681,6 +3732,22 @@ function genFloorRaw(f){
   if(_realFloor===4) placeBlocked('gemB', false, ['y','b']);            // 前期防禦寶石（4F）
   if(_realFloor===6) placeBlocked('gemR', false, ['y','b']);            // 前期攻擊寶石（6F）
   if(f>=8 && f%6===4) placeBlocked('feather', true, ['y','b']);         // exp feather: f%6 bucket, occasional
+  /* ---- 呼吸寶石：整場最稀有的拾取物 ----
+     每層獨立擲一次骰（用地圖的種子 RAND，所以同一個世界的每個玩家看到的位置完全相同），
+     機率低到全塔平均只會出現 2~5 顆，運氣差時整場一顆都沒有。整場另有硬上限 maxRun。 */
+  (function(){
+    try{
+      var cfg=(typeof BREATH_GEM!=='undefined')?BREATH_GEM:{chance:9,minFloor:2,maxRun:5};
+      var ch=(cfg.chance!=null?cfg.chance:9); if(!(ch>0)) return;
+      if(Math.abs(_realFloor) < (cfg.minFloor!=null?cfg.minFloor:2)) return;
+      if(state.breathGemsSeen==null) state.breathGemsSeen={};
+      if(state.breathGemsSeen[f]) return;                       /* 這層先前已經決定過，不重擲 */
+      var made=0; for(var _k in state.breathGemsSeen){ if(state.breathGemsSeen[_k]) made++; }
+      if(made >= (cfg.maxRun!=null?cfg.maxRun:5)) return;        /* 整場上限 */
+      if(RAND()*100 >= ch) return;
+      if(placeBlocked('breathGem', false, ['y','b'])===true) state.breathGemsSeen[f]=1;   /* 沒地方放就當這層沒出，下次進來還能再擲 */
+    }catch(_e){}
+  })();
   /* 十字聖水 no longer scatters on 13F/B13 — it now lives ONLY inside the 密室 and drops from the basement 毒龍 */
   if(_realFloor===-16) placeBlocked('bk_zhuanti', true, ['w']);   // 轉體 (atk lv79) — 深淵深處（冰凍吊墜已改由深淵魔王掉落）
 
@@ -4306,6 +4373,7 @@ function _relayoutSoon(){   /* at game start the board is measured while overlay
   setTimeout(go,120); setTimeout(go,400); setTimeout(go,900);
 }   /* 2nd sizeBoard runs AFTER renderMap so the sidebar height is measured against the FILLED board (fixes first-entry collapse) */
 function glyph(ch){const s=document.createElement('span'); s.className='glyph-ent'; s.textContent=ch; return s;}
+function gemEl(kind){ const g=document.createElement('div'); g.className='gemItem'+(kind?(' g-'+kind):''); return g; }
 function flaskEl(color){ const w=document.createElement('div'); w.className='potion '+(color==='b'?'pb':'pr');
   const neck=document.createElement('i'); neck.className='pf-neck'; const body=document.createElement('i'); body.className='pf-body'; const shine=document.createElement('i'); shine.className='pf-shine';
   w.appendChild(neck); w.appendChild(body); w.appendChild(shine); return w; }
@@ -4363,6 +4431,8 @@ function renderMap(){
             const _kgl=glyphImg('key_'+ITEMS[e.item].key);
             if(_kgl){ cell.appendChild(_glyphImgEl(_kgl)); }
             else { const k=document.createElement('div'); k.className='keyItem '+ITEMS[e.item].key; cell.appendChild(k); }
+          }else if(ITEMS[e.item]&&ITEMS[e.item].gem){
+            cell.appendChild(gemEl(ITEMS[e.item].gem));   /* CSS 寶石；後台上傳自訂圖時走上面的 img 分支 */
           }else if(ITEMS[e.item]&&ITEMS[e.item].flask){
             cell.appendChild(flaskEl(ITEMS[e.item].flask));
           }else if(ITEMS[e.item]&&ITEMS[e.item].weap){
@@ -4852,6 +4922,12 @@ function pickUp(id){
     case 'vialG': if(pl.status==='poison'){pl.status='normal'; pl.poisonStep=0; toast(t('msg.curePoison')); renderStats();} else {toast(t('msg.noCure'));} return;
     case 'gemR': pl.atk+=gemGain('gemR'); break;
     case 'gemB': pl.def+=gemGain('gemB'); break;
+    case 'breathGem': { var _bg=Math.max(1, itemGainN('breathGem'));
+      /* 寶石顆數用「每顆增加多少」換算存起來，之後改後台數值也不會讓已撿的寶石失效 */
+      var _inc=(BREATH_CFG.gemInc!=null?BREATH_CFG.gemInc:2);
+      pl.breathGems=(pl.breathGems||0)+Math.max(1, Math.round(_bg/Math.max(1,_inc)));
+      recordLoot('breathGem','treasure',_lootSnap);
+      toast(fmt(t('msg.gotBreathGem'),{n:breathAmt()})); renderStats(); return; }
     case 'bigGold': pl.gold+=itemGainN('bigGold'); break;
     case 'feather': pl.exp+=itemGainN('feather'); break;
     case 'tpScroll': pl.tpScrolls++; toast(t('msg.gotTeleport')); hintOnce('teleF'); if(typeof myShareTeamKey==='function'&&myShareTeamKey()&&typeof Net!=='undefined'&&Net.pushShared) Net.pushShared({teleport:true}); break;
@@ -5465,7 +5541,7 @@ function foeTurn(){
      Guards: never at full stamina (nothing to gain), only below a threshold, capped per battle so a monster
      can never stall the fight, and never when it could finish the player off this round instead. */
   {
-    var _brAmt   = (foe.breathAmt   !=null ? foe.breathAmt    : (BREATH_CFG.foeBase   !=null ? BREATH_CFG.foeBase   : 25));
+    var _brAmt   = foeBreathAmt(foe);   /* 弱怪 ~5、強怪 ~15、BOSS 20；後台個別設定優先 */
     var _brBelow = (foe.breathBelow !=null ? foe.breathBelow  : (BREATH_CFG.foeBelow  !=null ? BREATH_CFG.foeBelow  : 30));
     var _brPct   = (foe.breathChance!=null ? foe.breathChance : (BREATH_CFG.foeChance !=null ? BREATH_CFG.foeChance : 70));
     var _brMax   = (foe.breathMax   !=null ? foe.breathMax    : (BREATH_CFG.foeMax    !=null ? BREATH_CFG.foeMax    : 3));
@@ -6811,6 +6887,7 @@ function newGame(opts){ try{ stopDeathSfx(); }catch(e){}
   state.worldId = opts.worldId || null;
   state.seed = (opts.seed!=null) ? (opts.seed>>>0) : rngFreshSeed();
   state.floor=1; state.maxFloor=1; state.minFloor=1; state.floors={}; GRID=curFloorGrid(state.floor); state.target=null; state.combat=null; state.portalAim=false; state.portalTarget=null;
+  state.breathGemsSeen={};   /* 呼吸寶石的每場配額，新的一局重新計算 */
   state.raceEndsAt=0; state._raceCdEnded=false; try{ stopRaceCountdown(); }catch(e){}
   { var _secPool=[]; for(var _spf=3; _spf<=FLOORS-1; _spf++) _secPool.push(_spf); for(var _spb=1; _spb<=BASEMENT-1; _spb++) _secPool.push(-_spb); if(!_secPool.length) _secPool=[Math.max(1,Math.min(FLOORS,3))];
     state.secretFloor=_secPool[hashSeed(state.seed,777)%_secPool.length];
@@ -10461,6 +10538,27 @@ const I18N_CUST = {
  'ja':'購入時間終了 —— 残りの {g} 金貨を自動で振り分けました：生命 +{h}・攻撃 +{a}・防御 +{d}',
  'ko':'구매 시간 종료 —— 남은 {g} 금화를 자동으로 배분했습니다: 생명 +{h}, 공격 +{a}, 방어 +{d}'
 }; for(var L in D){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afAutoBuy=D[L]; } })();
+(function(){ var D={
+ 'zh-Hant':'獲得呼吸寶石！一次深呼吸現在恢復 {n} 體力',
+ 'zh-Hans':'获得呼吸宝石！一次深呼吸现在恢复 {n} 体力',
+ 'en':'Breath Gem obtained! Deep Breath now restores {n} stamina',
+ 'ja':'呼吸の宝石を入手！深呼吸で体力を {n} 回復するようになった',
+ 'ko':'호흡의 보석 획득! 이제 심호흡으로 체력을 {n} 회복합니다'
+}; for(var L in D){ if(I18N[L]&&I18N[L].msg) I18N[L].msg.gotBreathGem=D[L]; } })();
+(function(){ var D={
+ 'zh-Hant':['\ud83d\udc9a','<b>呼吸寶石</b>：極為罕見的綠色寶石，整場平均只有 2~5 顆，運氣差時完全不會出現。每撿一顆，之後每次深呼吸恢復的體力就永久 +2。'],
+ 'zh-Hans':['\ud83d\udc9a','<b>呼吸宝石</b>：极为罕见的绿色宝石，整场平均只有 2~5 颗，运气差时完全不会出现。每拾得一颗，之后每次深呼吸恢复的体力就永久 +2。'],
+ 'en':['\ud83d\udc9a','<b>Breath Gem</b>: A very rare green gem — only 2-5 exist in a whole run, and an unlucky run may hold none. Each one permanently adds +2 to the stamina Deep Breath restores.'],
+ 'ja':['\ud83d\udc9a','<b>呼吸の宝石</b>：極めて珍しい緑の宝石。1周につき平均 2~5 個しかなく、運が悪ければ 1 つも出ない。1 個拾うごとに深呼吸で回復する体力が永久に +2。'],
+ 'ko':['\ud83d\udc9a','<b>호흡의 보석</b>: 매우 희귀한 초록 보석으로 1회차에 평균 2~5개뿐이며, 운이 나쁘면 하나도 나오지 않는다. 하나 주울 때마다 심호흡 회복량이 영구히 +2.']
+}; for(var L in D){ var a=I18N[L]&&I18N[L].help&&I18N[L].help.items; if(Array.isArray(a)&&a.length) a.splice(a.length-1, 0, D[L]); } })();
+(function(){ var A={
+ 'zh-Hant':{brBase:'深呼吸基礎量',brGem:'每顆寶石 +',brWeak:'弱怪恢復量',brStrong:'強怪恢復量',brBoss:'BOSS恢復量',bgChance:'呼吸寶石每層機率%',bgMinFloor:'呼吸寶石最低層',bgMaxRun:'呼吸寶石每場上限',mBreath:'深呼吸量(留空=依強弱)'},
+ 'zh-Hans':{brBase:'深呼吸基础量',brGem:'每颗宝石 +',brWeak:'弱怪恢复量',brStrong:'强怪恢复量',brBoss:'BOSS恢复量',bgChance:'呼吸宝石每层几率%',bgMinFloor:'呼吸宝石最低层',bgMaxRun:'呼吸宝石每场上限',mBreath:'深呼吸量(留空=依强弱)'},
+ 'en':{brBase:'Deep Breath base',brGem:'Per gem +',brWeak:'Weak foe recover',brStrong:'Strong foe recover',brBoss:'Boss recover',bgChance:'Breath Gem % per floor',bgMinFloor:'Breath Gem min floor',bgMaxRun:'Breath Gem cap per run',mBreath:'Breath amount (0 = auto)'},
+ 'ja':{brBase:'深呼吸の基本量',brGem:'宝石1個につき +',brWeak:'弱い敵の回復量',brStrong:'強い敵の回復量',brBoss:'ボスの回復量',bgChance:'呼吸の宝石 出現率%/階',bgMinFloor:'呼吸の宝石 最低階',bgMaxRun:'呼吸の宝石 1周の上限',mBreath:'深呼吸量(0=自動)'},
+ 'ko':{brBase:'심호흡 기본량',brGem:'보석당 +',brWeak:'약한 적 회복량',brStrong:'강한 적 회복량',brBoss:'보스 회복량',bgChance:'호흡의 보석 층당 확률%',bgMinFloor:'호흡의 보석 최소 층',bgMaxRun:'호흡의 보석 1회 상한',mBreath:'심호흡량(0=자동)'}
+}; for(var L in A){ if(I18N[L]&&I18N[L].admin){ for(var k in A[L]) I18N[L].admin[k]=A[L][k]; } } })();
 (function(){ var F={"zh-Hant": "{name} 專注於防禦，這回合沒有攻擊", "zh-Hans": "{name} 专注于防御，这回合没有攻击", "en": "{name} focused on defence and did not attack this round", "ja": "{name} は防御に専念し、このターンは攻撃しなかった", "ko": "{name}이(가) 방어에 집중해 이번 턴에는 공격하지 않았다"}; for(var L in F){ if(I18N[L]&&I18N[L].msg) I18N[L].msg.foeDefTurn=F[L]; } })();
 (function(){ var A={"cfgLoading": {"zh-Hant": "正在讀取雲端設定…", "zh-Hans": "正在读取云端设置…", "en": "Loading cloud config…", "ja": "クラウド設定を読み込み中…", "ko": "클라우드 설정을 불러오는 중…"}, "cfgUnread": {"zh-Hant": "⚠ 尚未讀到雲端設定，為避免覆蓋你的資料，已停用「儲存到雲端」。請檢查連線後重新整理再試。", "zh-Hans": "⚠ 尚未读到云端设置，为避免覆盖你的数据，已停用「保存到云端」。请检查连线后重新整理再试。", "en": "⚠ The cloud config could not be read. Saving is disabled so your existing data is not overwritten — check your connection, reload, and try again.", "ja": "⚠ クラウド設定を読み込めませんでした。既存データの上書きを防ぐため保存を無効にしています。接続を確認して再読み込みしてください。", "ko": "⚠ 클라우드 설정을 읽지 못했습니다. 기존 데이터 덮어쓰기를 막기 위해 저장을 비활성화했습니다. 연결을 확인한 뒤 새로고침하세요."}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"fxBossBarrier": {"zh-Hant": "魔王·結界盾", "zh-Hans": "魔王·结界盾", "en": "Boss · Barrier Shield", "ja": "魔王・結界盾", "ko": "마왕·결계 방패"}, "fxBossReflect": {"zh-Hant": "魔王·反射盾", "zh-Hans": "魔王·反射盾", "en": "Boss · Reflect Shield", "ja": "魔王・反射盾", "ko": "마왕·반사 방패"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
@@ -10944,6 +11042,8 @@ function snapshotConfig(){
     arena: (typeof arenaSnapshotCfg==='function'?arenaSnapshotCfg():null),
     score: (typeof scoreSnapshotCfg==='function'?scoreSnapshotCfg():null),
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
+    breath: Object.assign({}, BREATH_CFG),
+    breathGem: Object.assign({}, BREATH_GEM),
     map: { floors:FLOORS, grid:MAP_N_SOLO, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },   /* save the SOLO map size, NOT the live GRID (which is the large MP map during mode 1) — otherwise the MP size pollutes the single-player map */
     floorCfg: Object.assign({}, FLOOR_CFG),
     floorWL: (function(){ const o={}; for(const k in FLOOR_WL){ if(Array.isArray(FLOOR_WL[k])) o[k]=FLOOR_WL[k].slice(); } return o; })(),
@@ -11030,6 +11130,9 @@ function applyConfig(cfg){
   if(cfg.floorWL){ FLOOR_WL={}; for(const k in cfg.floorWL){ if(Array.isArray(cfg.floorWL[k]) && cfg.floorWL[k].length) FLOOR_WL[parseInt(k,10)]=cfg.floorWL[k].slice(); } }
   if(cfg.floorTr){ FLOOR_TR={}; for(const k in cfg.floorTr){ const v=parseFloat(cfg.floorTr[k]); if(!isNaN(v)) FLOOR_TR[parseInt(k,10)]=v; } }
   if(cfg.itemGain){ for(const k in cfg.itemGain){ const v=parseFloat(cfg.itemGain[k]); if(!isNaN(v)) ITEM_GAIN[k]=v; } }
+  if(cfg.breath){ for(const k in cfg.breath){ const v=parseFloat(cfg.breath[k]); if(!isNaN(v)) BREATH_CFG[k]=v; } }
+  if(cfg.breathGem){ for(const k in cfg.breathGem){ const v=parseFloat(cfg.breathGem[k]); if(!isNaN(v)) BREATH_GEM[k]=v; } }
+  _brRankCache=null;   /* 怪物名冊/數值可能被雲端改過，強弱排名重算 */
   if(cfg.glyphs){ for(const k in cfg.glyphs){ if(GLYPH_CFG[k]&&cfg.glyphs[k]){ if('img' in cfg.glyphs[k]) GLYPH_CFG[k].img=cfg.glyphs[k].img||null; if(cfg.glyphs[k].face) GLYPH_CFG[k].face=cfg.glyphs[k].face; } } }
   if(cfg.map){
     if(typeof cfg.map.floors==='number') FLOORS=clamp(cfg.map.floors|0,3,99);
@@ -11555,7 +11658,7 @@ function renderAdminBody(){
         /* 怪物圖示 + 名稱 */
         _adFaceBlock(m,(isBase?('bm'+idx):('m'+idx)))+adNameLoc(m)+
         /* 基礎設定 */
-        _adSec(t('admin.secBasic'), adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def'))+
+        _adSec(t('admin.secBasic'), adNum('HP',m,'hp')+adNum(t('ui.atk'),m,'atk')+adNum(t('ui.def'),m,'def')+adNum(t('admin.mBreath'),m,'breathAmt'))+
         /* 特效音效設定 */
         _adSec(t('admin.secFxSfx'), adAtkFx(m)+adCritFx(m)+adAtkSfx(m)+adCritSfx(m))+
         /* 單人模式專用 */
@@ -11631,6 +11734,22 @@ function renderAdminBody(){
       adNum(t('ui.hp'),s,'hp')+adNum(t('ui.atk'),s,'atk')+adNum(t('ui.def'),s,'def')+
       adNum(t('ui.en'),s,'en')+adNum(t('ui.st'),s,'reserve')+adNum('thrA',s,'thrA')+adNum('thrD',s,'thrD')+'</div>';
     body.appendChild(row);
+    { /* 深呼吸與呼吸寶石 */
+      if(!adminDraft.breath) adminDraft.breath=Object.assign({}, BREATH_CFG);
+      if(!adminDraft.breathGem) adminDraft.breathGem=Object.assign({}, BREATH_GEM);
+      const b=adminDraft.breath, g=adminDraft.breathGem;
+      const br=document.createElement('div'); br.className='adRowItem'; br.dataset.breath='1';
+      br.innerHTML='<div class="adName">\ud83d\udc8e '+t('sk.breath.n')+'</div><div class="adGrid">'+
+        adNum(t('admin.brBase'),b,'base')+adNum(t('admin.brGem'),b,'gemInc')+
+        adNum(t('admin.brWeak'),b,'foeWeak')+adNum(t('admin.brStrong'),b,'foeStrong')+adNum(t('admin.brBoss'),b,'foeBoss')+
+        '</div>';
+      body.appendChild(br);
+      const gr=document.createElement('div'); gr.className='adRowItem'; gr.dataset.breathgem='1';
+      gr.innerHTML='<div class="adName">\ud83d\udc9a '+t('item.breathGem')+'</div><div class="adGrid">'+
+        adNum(t('admin.bgChance'),g,'chance')+adNum(t('admin.bgMinFloor'),g,'minFloor')+adNum(t('admin.bgMaxRun'),g,'maxRun')+
+        '</div>';
+      body.appendChild(gr);
+    }
   } else if(adminTab==='mp'){
     { const _mn=document.createElement('p'); _mn.className='adNote'; _mn.textContent=t('admin.mpNote'); body.appendChild(_mn); }
     if(!adminDraft.arena && typeof arenaSnapshotCfg==='function') adminDraft.arena=arenaSnapshotCfg();
@@ -12086,6 +12205,8 @@ function collectAdminDraft(){
     const row=rows[i]; let target=null;
     if(row.dataset.boss) target=adminDraft.boss;
     else if(row.dataset.start) target=adminDraft.start;
+    else if(row.dataset.breath) target=(adminDraft.breath=adminDraft.breath||{});
+    else if(row.dataset.breathgem) target=(adminDraft.breathGem=adminDraft.breathGem||{});
     else if(row.dataset.arena) target=adminDraft.arena;
     else if(row.dataset.score) target=adminDraft.score;
     else if(row.dataset.map) target=adminDraft.map;
@@ -12175,6 +12296,8 @@ function adminExportConfig(){
       floorWL:        cfg.floorWL||{},
       floorTr:        cfg.floorTr||{},
       itemGain:       cfg.itemGain||{},
+      breath:         cfg.breath||{},
+      breathGem:      cfg.breathGem||{},
       arena:          cfg.arena||null,
       score:          cfg.score||null,
       buildMonIds:    cfg.buildMonIds||[],
@@ -12236,7 +12359,7 @@ function _cfgFromJson(obj){   /* accept either our sectioned export or a raw sna
   if(!obj) return null;
   if(obj.sections && typeof obj.sections==='object'){
     var s=obj.sections;
-    return { monsters:s.monsters, basementMonsters:s.basementMonsters, boss:s.boss, basementBoss:s.basementBoss, swordKing:s.swordKing, guards:s.guards, items:s.items, atkSkills:s.atkSkills, defSkills:s.defSkills, fx:s.fx, sounds:s.sounds, glyphs:s.glyphs, start:s.start, map:s.map, floorCfg:s.floorCfg, floorWL:s.floorWL, floorTr:s.floorTr, itemGain:s.itemGain, arena:s.arena, score:s.score, buildMonIds:s.buildMonIds, buildBMonIds:s.buildBMonIds, delMonIds:s.delMonIds, delBMonIds:s.delBMonIds };
+    return { monsters:s.monsters, basementMonsters:s.basementMonsters, boss:s.boss, basementBoss:s.basementBoss, swordKing:s.swordKing, guards:s.guards, items:s.items, atkSkills:s.atkSkills, defSkills:s.defSkills, fx:s.fx, sounds:s.sounds, glyphs:s.glyphs, start:s.start, map:s.map, floorCfg:s.floorCfg, floorWL:s.floorWL, floorTr:s.floorTr, itemGain:s.itemGain, breath:s.breath, breathGem:s.breathGem, arena:s.arena, score:s.score, buildMonIds:s.buildMonIds, buildBMonIds:s.buildBMonIds, delMonIds:s.delMonIds, delBMonIds:s.delBMonIds };
   }
   return obj;   /* already a flat config */
 }
