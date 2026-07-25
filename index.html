@@ -2099,7 +2099,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 
 <script>
 'use strict';
-const BUILD_TAG='0618·399';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
+const BUILD_TAG='0618·400';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
 /* =====================================================================
    魔塔 · Tower of the Sorcerer  —  single-file roguelike
    依據設計草稿 + 新新魔塔2 慣例補充。純靜態，可直接部署 Netlify。
@@ -8706,9 +8706,48 @@ function _statSup(val, delta){ return String(val)+_dltSup(delta); }   /* combat/
 function afFightPanelRender(){ var ar=(typeof MP!=='undefined'&&MP.arena)||null, d=ar&&ar.afDuel, panel=byId('afFightPanel'), spec=byId('afSpectateBtn'); if(!panel) return; var meUid=Net.uid, amF=!!(d&&(d.a===meUid||d.b===meUid)), side=(d&&d.a===meUid)?'A':((d&&d.b===meUid)?'B':null); var free=!!(AField&&AField.spectateFree); var activeDuel=!!(d&&d.sub&&(d.sub==='count'||d.sub==='fight'||d.sub==='result')); if(spec){ if(!amF && activeDuel){ spec.style.display=''; spec.textContent= free? t('mp.afWatch') : t('mp.afRoam'); } else spec.style.display='none'; }   /* 自由活動/觀戰 toggle available for the whole duel */ var inFight=!!(d&&(d.sub==='fight'||d.sub==='result')); if(!inFight){ panel.style.display='none'; return; } if(!amF && free){ panel.style.display='none'; return; } panel.style.display=''; try{ panel.querySelectorAll('.afpStatK').forEach(function(el){ var k=el.getAttribute('data-k'); el.textContent=(k==='hp')?t('ui.hp'):(k==='atk')?t('ui.atk'):(k==='def')?t('ui.def'):(k==='en')?t('cb.en'):t('cb.st'); }); }catch(e){} var st=afFightStats() || (d?afPreFightStats(d.a,d.b):{A:{hp:0,max:1,atk:0,def:0,en:0,stam:0},B:{hp:0,max:1,atk:0,def:0,en:0,stam:0}}); function setSide(sd,s,uid){ var nm=byId('afp'+sd+'Name'); if(nm) nm.textContent=afDuelName(uid); var fc=byId('afp'+sd+'Face'); if(fc) fc.textContent=afDuelFace(uid); var hp=byId('afp'+sd+'Hp'); if(hp){ var _hv=s.hp; if(AField&&AField._stag&&!AField._stag.fired&&AField._stag.side===sd) _hv=AField._stag.hp; hp.textContent=Math.max(0,Math.round(_hv)); } var at=byId('afp'+sd+'Atk'); if(at) at.innerHTML=_statSup(Math.round(s.atk), s.atkD||0); var df=byId('afp'+sd+'Def'); if(df) df.innerHTML=_statSup(Math.round(s.def), s.defD||0); var en=byId('afp'+sd+'En'); if(en) en.textContent=Math.round(s.en); var sm=byId('afp'+sd+'Stam'); if(sm) sm.textContent=Math.round(s.stam); } var _fm=afFightMeta(); if(_fm){ { var _rd=byId('afpRound'); if(_rd){ var _rr=_fm.round||0; var _mR=(side==='B')?(_fm.bRamp||0):(_fm.aRamp||0); _rd.innerHTML='\u56de\u5408\uff1a'+_rr+(_mR>0?(' <span class="amp">\u653b\u64ca\u589e\u5e45+'+Math.round(_mR)+'</span>'):''); _rd.style.display=''; } } var _asL=byId('afpAStatus'); if(_asL) _asL.textContent=afStatusLabel(_fm.aStat); var _bsL=byId('afpBStatus'); if(_bsL) _bsL.textContent=afStatusLabel(_fm.bStat); var _dk=(d.a+'|'+d.b); if(AField && AField._lastFloatDuel!==_dk){ AField._lastFloatDuel=_dk; AField._lastFloatRound=0; AField._stag=null; AField._dispA=null; AField._dispB=null; AField._statPrev=null; } if(AField && _fm.round>(AField._lastFloatRound||0)){ AField._lastFloatRound=_fm.round; var _first=(((_fm.round-1)%2)===0)?'A':'B'; var _fv=(_first==='A')?'B':'A', _sv=_first; var _fvDmg=(_fv==='A')?_fm.aDmg:_fm.bDmg, _svDmg=(_sv==='A')?_fm.aDmg:_fm.bDmg; var _fvMiss=(_fv==='A')?_fm.aMiss:_fm.bMiss, _svMiss=(_sv==='A')?_fm.aMiss:_fm.bMiss, _fvAtkd=(_fv==='A')?_fm.aAtkd:_fm.bAtkd, _svAtkd=(_sv==='A')?_fm.aAtkd:_fm.bAtkd; afVictimFloat(_fv,_fvDmg,_fvMiss,_fvAtkd); if(_fvDmg<0) afHitFx(_fv,(_fvDmg<=-120)); var _held=(_sv==='A')?((AField._dispA!=null)?AField._dispA:st.A.hp):((AField._dispB!=null)?AField._dispB:st.B.hp); AField._stag={ side:_sv, hp:_held, dmg:_svDmg, missed:_svMiss, attacked:_svAtkd, until:Date.now()+Math.round((ARENA_DUEL.tickMs||560)*0.45), fired:false }; }   /* #1 show one side's hit, then the other ~half a tick later */ if(AField && AField._stag && !AField._stag.fired && Date.now()>=AField._stag.until){ AField._stag.fired=true; afVictimFloat(AField._stag.side,AField._stag.dmg,AField._stag.missed,AField._stag.attacked); if(AField._stag.dmg<0) afHitFx(AField._stag.side,(AField._stag.dmg<=-120)); } if(AField){ AField._dispA=st.A.hp; AField._dispB=st.B.hp; } } { var _cc=panel.querySelector('.afpCombatants'); if(_cc) _cc.classList.toggle('meB', side==='B'); } setSide('A',st.A,d.a); setSide('B',st.B,d.b); var mine=byId('afpMine'); if(amF && d.sub==='fight'){ if(mine) mine.style.display=''; var _my=(side==='A')?st.A:st.B; { var e=byId('afpRes'); if(e){ e.textContent=''; e.style.display='none'; } }   /* removed: same as the player's own 能量/體力 already shown in the panel */ afpBuildSkills(side); } else { if(mine) mine.style.display='none'; } }
 function afIsHost(){ return (typeof MP==='undefined') || !MP.arena || MP.host || !(typeof Net!=='undefined'&&Net.arenaRef); }
 function afNextPhase(cur){ return cur==='wait'?'shop':(cur==='shop'?'prep':(cur==='prep'?'duel':null)); }
+function afAutoBuyFinish(){
+  /* Buy phase is over and this player still has gold left — the system spends the remainder for them, so nobody
+     walks into a duel with unspent coins just because they were away from the shop tile or ran out of time.
+     It mirrors what the AI does (arenaAIBuild): the split is weighted by the player's OWN drafted cards, so an
+     attack hand pours into ATK, a sustain hand into HP, and so on. Runs locally for the local player only, and
+     is idempotent — once the gold is below one purchase it does nothing. */
+  var pl=state.player; if(!pl) return;
+  if(typeof MP==='undefined' || !MP.arena) return;
+  var cost=(typeof arenaBuyCost==='function')?arenaBuyCost():ARENA_BUY_BASE;
+  if(!(cost>0)) return;
+  var buys=Math.floor((pl.gold||0)/cost);
+  if(buys<=0){ MP.arena._autoBought=true; return; }
+
+  var wt=[1/3,1/3,1/3];
+  try{ wt=arenaAIBuyWeights(pl.arenaCards||[]); }catch(e){}   /* [atk, def, hp] */
+
+  /* Largest-remainder split: deterministic and exact, so every coin is spent and nothing is lost to rounding. */
+  var raw=[buys*wt[0], buys*wt[1], buys*wt[2]];
+  var n=[Math.floor(raw[0]), Math.floor(raw[1]), Math.floor(raw[2])];
+  var left=buys-(n[0]+n[1]+n[2]);
+  var order=[0,1,2].sort(function(a,b){ return (raw[b]-n[b])-(raw[a]-n[a]); });
+  for(var i=0;i<left;i++) n[order[i%3]]++;
+
+  /* Same safety net the AI has: a build with almost no attack can never close a duel. */
+  var already=Math.max(0, Math.round(((pl.atk||0)-START.atk)/Math.max(1,ARENA_BUY.atk.inc)));
+  var guard=0;
+  while(already+n[0]<2 && (n[2]>0||n[1]>0) && guard++<8){ if(n[2]>=n[1]) n[2]--; else n[1]--; n[0]++; }
+
+  var addA=n[0]*ARENA_BUY.atk.inc, addD=n[1]*ARENA_BUY.def.inc, addH=n[2]*ARENA_BUY.hp.inc;
+  pl.atk+=addA; pl.def+=addD; pl.hp+=addH;
+  pl.gold-=buys*cost;
+  MP.arena._buys=(MP.arena._buys||0)+buys;
+  MP.arena._autoBought=true;
+
+  try{ if(AField){ AField.lastSync=0; afSync(); } }catch(e){}   /* push the new stats so opponents see the real build */
+  try{ if(byId('afShop') && byId('afShop').classList.contains('show')) afShopRender(); }catch(e){}
+  try{ renderArenaPrep(); }catch(e){}
+  try{ toast(t('mp.afAutoBuy',{g:buys*cost, h:addH, a:addA, d:addD})); }catch(e){}
+}
 function afSetPhase(name){
   var dur=AF_PHASE[name]||0; var endsAt=Date.now()+dur*1000;
-  if(typeof MP!=='undefined'&&MP.arena){ MP.arena.phase={name:name, endsAt:endsAt}; MP.arena.skipReady={}; MP.arena._iSkipped=false; }
+  if(typeof MP!=='undefined'&&MP.arena){ MP.arena.phase={name:name, endsAt:endsAt}; MP.arena.skipReady={}; MP.arena._iSkipped=false; if(name==='wait'||name==='shop') MP.arena._autoBought=false; }
   if(typeof Net!=='undefined'&&Net.arenaRef && typeof MP!=='undefined'&&MP.arena&&MP.host){ try{ Net.arenaRef.child('phase').set({name:name, endsAt:endsAt, at:(Net.ts?Net.ts():Date.now())}); Net.arenaRef.child('skipReady').remove(); }catch(e){} }
   afRenderPhaseBar();
   if(name==='prep' && afIsHost()){ afStartDuelSequence(); }
@@ -8717,12 +8756,13 @@ function afStartPhases(){ if(afIsHost()){ afSetPhase('wait'); } }
 function afPhaseTick(){
   var ph=(typeof MP!=='undefined'&&MP.arena&&MP.arena.phase)||null; if(!ph){ afRenderPhaseBar(); return; }
   if(ph.name!=='wait' && typeof _draft!=='undefined' && _draft){ try{ _draftAutoFinish(); }catch(e){} }   /* the wait is over: nobody enters a duel with an unfinished hand */
+  if(ph.name!=='wait' && ph.name!=='shop' && !(MP.arena&&MP.arena._autoBought)){ try{ afAutoBuyFinish(); }catch(e){} }   /* 購買時間結束：沒花完的金幣由系統自動配點 */
   if(afIsHost() && ph.name==='wait') afCheckSkipConsensus();
   if(afIsHost() && (ph.name==='wait'||ph.name==='shop') && Date.now()>=ph.endsAt){ var nx=afNextPhase(ph.name); if(nx) afSetPhase(nx); }
   afDuelTick();
   afRenderPhaseBar(); afRenderTeamBar();
 }
-function afOnPhase(ph){ if(typeof MP!=='undefined'&&MP.arena && ph){ if(ph.endsAt!==MP.arena._lastPhaseEnds){ MP.arena._lastPhaseEnds=ph.endsAt; MP.arena._iSkipped=false; } MP.arena.phase=ph; afRenderPhaseBar(); } }
+function afOnPhase(ph){ if(typeof MP!=='undefined'&&MP.arena && ph){ if(ph.endsAt!==MP.arena._lastPhaseEnds){ MP.arena._lastPhaseEnds=ph.endsAt; MP.arena._iSkipped=false; if(ph.name==='wait'||ph.name==='shop') MP.arena._autoBought=false; } MP.arena.phase=ph; afRenderPhaseBar(); } }
 function afSkipHumans(){ var humans=(Net.uid?[Net.uid]:[]); var fp=(MP.arena&&MP.arena.fieldPlayers)||{}; for(var u in fp){ if(!/^AI/.test(u) && humans.indexOf(u)<0) humans.push(u); } return humans; }
 function afCheckSkipConsensus(){ if(!afIsHost()) return; var ph=(MP.arena&&MP.arena.phase)||null; if(!ph||ph.name!=='wait') return; var ready=(MP.arena&&MP.arena.skipReady)||{}; var hs=afSkipHumans(); if(!hs.length) return; for(var i=0;i<hs.length;i++){ if(!ready[hs[i]]) return; } afSetPhase('shop'); }   /* everyone (AI pre-pressed) pressed skip -> go to buy phase */
 function afPhaseSkip(){
@@ -10414,6 +10454,13 @@ const I18N_CUST = {
  'ja':'待機時間終了 —— システムが残りのカードを自動で選びました',
  'ko':'대기 시간 종료 —— 시스템이 남은 카드를 자동으로 뽑았습니다'
 }; for(var L in D){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afAutoDraft=D[L]; } })();
+(function(){ var D={
+ 'zh-Hant':'購買時間結束，系統已用剩下的 {g} 金幣自動配點：生命 +{h}、攻擊 +{a}、防禦 +{d}',
+ 'zh-Hans':'购买时间结束，系统已用剩下的 {g} 金币自动配点：生命 +{h}、攻击 +{a}、防御 +{d}',
+ 'en':'Shopping is over — your remaining {g} gold was spent for you: HP +{h}, ATK +{a}, DEF +{d}',
+ 'ja':'購入時間終了 —— 残りの {g} 金貨を自動で振り分けました：生命 +{h}・攻撃 +{a}・防御 +{d}',
+ 'ko':'구매 시간 종료 —— 남은 {g} 금화를 자동으로 배분했습니다: 생명 +{h}, 공격 +{a}, 방어 +{d}'
+}; for(var L in D){ if(I18N[L]&&I18N[L].mp) I18N[L].mp.afAutoBuy=D[L]; } })();
 (function(){ var F={"zh-Hant": "{name} 專注於防禦，這回合沒有攻擊", "zh-Hans": "{name} 专注于防御，这回合没有攻击", "en": "{name} focused on defence and did not attack this round", "ja": "{name} は防御に専念し、このターンは攻撃しなかった", "ko": "{name}이(가) 방어에 집중해 이번 턴에는 공격하지 않았다"}; for(var L in F){ if(I18N[L]&&I18N[L].msg) I18N[L].msg.foeDefTurn=F[L]; } })();
 (function(){ var A={"cfgLoading": {"zh-Hant": "正在讀取雲端設定…", "zh-Hans": "正在读取云端设置…", "en": "Loading cloud config…", "ja": "クラウド設定を読み込み中…", "ko": "클라우드 설정을 불러오는 중…"}, "cfgUnread": {"zh-Hant": "⚠ 尚未讀到雲端設定，為避免覆蓋你的資料，已停用「儲存到雲端」。請檢查連線後重新整理再試。", "zh-Hans": "⚠ 尚未读到云端设置，为避免覆盖你的数据，已停用「保存到云端」。请检查连线后重新整理再试。", "en": "⚠ The cloud config could not be read. Saving is disabled so your existing data is not overwritten — check your connection, reload, and try again.", "ja": "⚠ クラウド設定を読み込めませんでした。既存データの上書きを防ぐため保存を無効にしています。接続を確認して再読み込みしてください。", "ko": "⚠ 클라우드 설정을 읽지 못했습니다. 기존 데이터 덮어쓰기를 막기 위해 저장을 비활성화했습니다. 연결을 확인한 뒤 새로고침하세요."}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"fxBossBarrier": {"zh-Hant": "魔王·結界盾", "zh-Hans": "魔王·结界盾", "en": "Boss · Barrier Shield", "ja": "魔王・結界盾", "ko": "마왕·결계 방패"}, "fxBossReflect": {"zh-Hant": "魔王·反射盾", "zh-Hans": "魔王·反射盾", "en": "Boss · Reflect Shield", "ja": "魔王・反射盾", "ko": "마왕·반사 방패"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
