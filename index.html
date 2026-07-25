@@ -2099,7 +2099,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 
 <script>
 'use strict';
-const BUILD_TAG='0618·398';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
+const BUILD_TAG='0618·399';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
 /* =====================================================================
    魔塔 · Tower of the Sorcerer  —  single-file roguelike
    依據設計草稿 + 新新魔塔2 慣例補充。純靜態，可直接部署 Netlify。
@@ -2813,6 +2813,40 @@ const DEF_SKILLS=[
   {id:'shendun',    lv:57, en:40, stam:9,  div:1,   defMul:1, hits:3},    // 神盾     DEF += floor((HP+DEF)*lv/100), blocks 3 attacks
 ];
 const SKILL_BY_ID={}; ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ SKILL_BY_ID[s.id]=s; });
+/* ---- Build-default skill parameters, frozen before any cloud config can touch the live tables ----
+   The bug this exists to kill: every time a NEW effect parameter was added to the tables above, every cloud
+   config that had been saved by an OLDER build simply did not have that key. applyConfig replaced the live
+   table wholesale, so the key vanished; the admin panel's adNum() then rendered the empty field as 0; and the
+   very next save wrote that 0 straight back to the cloud. From then on the parameter was permanently 0 and the
+   skill's whole effect was dead while the skill still LOOKED like it fired:
+     drainPct 0  -> 天體 drains nothing            healPct 0 -> 金石 / 療癒盾 heal nothing
+     reflectPct 0 -> 反擊盾 reflects nothing        defMul 0  -> 神盾 gives +0 defence
+   Every effect parameter is therefore read through skP(), which falls back to the build default whenever the
+   stored value is missing, zero, negative or not a finite number. */
+const SKILL_BASE={}; ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ SKILL_BASE[s.id]=Object.assign({}, s); });
+const SKILL_EFFECT_KEYS=['mult','div','convPct','drainPct','healPct','stamCut','reflectPct','defMul','hits'];
+function skP(sk, key, dflt){
+  var o=(typeof sk==='string')?SKILL_BY_ID[sk]:sk;
+  var id=(typeof sk==='string')?sk:(sk&&sk.id);
+  var v=o?o[key]:null;
+  if(typeof v==='number' && isFinite(v) && v>0) return v;
+  var b=SKILL_BASE[id];
+  if(b && typeof b[key]==='number' && isFinite(b[key]) && b[key]>0) return b[key];
+  return dflt;
+}
+/* Repairs one stored skill object against its build default: missing keys are filled in, and a 0/broken effect
+   parameter is restored. Used when a cloud config is applied AND when the admin panel renders, so the panel can
+   never show 0 for a parameter that was merely absent — and therefore can never save that 0 back. */
+function _skMerge(s){
+  var b=(s && s.id && SKILL_BASE[s.id]) ? SKILL_BASE[s.id] : null;
+  var o=Object.assign({}, b||{}, s||{});
+  if(b){ SKILL_EFFECT_KEYS.forEach(function(k){
+    if(b[k]==null) return;
+    var v=o[k];
+    if(typeof v!=='number' || !isFinite(v) || v<=0) o[k]=b[k];
+  }); }
+  return o;
+}
 const SKILL_KIND={}; ATK_SKILLS.forEach(function(s){ SKILL_KIND[s.id]='atk'; }); DEF_SKILLS.forEach(function(s){ SKILL_KIND[s.id]='def'; });
 const SWORD_RANK={iron:1,silver:2,knight:3,holy:4,divine:5};   // best sword ever held drives the attack animation tier
 function ensureSkills(pl){ if(!pl) return pl; if(!Array.isArray(pl.atkSkills)) pl.atkSkills=[]; if(!Array.isArray(pl.defSkills)) pl.defSkills=[]; if(pl.atkEquip===undefined) pl.atkEquip=null; if(pl.defEquip===undefined) pl.defEquip=null; if(pl.bestSword===undefined) pl.bestSword=0; if(!Array.isArray(pl.loot)) pl.loot=[]; return pl; }
@@ -5111,7 +5145,11 @@ function renderCombatSkillSwitch(){
     if(!list || !list.length) return '';
     const equippable = list.filter(function(id){ const s=SKILL_BY_ID[id]; return skLvOk(s); });
     let cur = (kind==='atk'?pl.atkEquip:pl.defEquip);
-    if(!cur || (SKILL_BY_ID[cur] && !skLvOk(SKILL_BY_ID[cur]))) cur = equippable[0] || list[0];
+    if(!cur || list.indexOf(cur)<0 || (SKILL_BY_ID[cur] && !skLvOk(SKILL_BY_ID[cur]))) cur = equippable[0] || list[0];
+    /* Write the fallback back onto the player: the panel used to pick a display default LOCALLY while
+       atkEquip/defEquip stayed null, so the yellow frame showed one book while Z/X fired nothing. Now the
+       first usable book you own really is equipped, exactly as the highlight promises. */
+    if(cur && SKILL_BY_ID[cur] && skLvOk(SKILL_BY_ID[cur])){ if(kind==='atk'){ if(pl.atkEquip!==cur) pl.atkEquip=cur; } else if(pl.defEquip!==cur) pl.defEquip=cur; }
     const lab = kind==='atk'?t('cb.atkSkills'):t('cb.defSkills');
     let cards='';
     for(let i=0;i<list.length;i++){ const id=list[i], s=SKILL_BY_ID[id], locked=(s && !skLvOk(s));
@@ -5133,9 +5171,20 @@ function renderCombatSkillSwitch(){
     for(let i=0;i<arrs.length;i++){ arrs[i].addEventListener('click',function(){ if(this.hasAttribute('disabled'))return; cbSwitchSkill(this.getAttribute('data-k'), parseInt(this.getAttribute('data-d'),10)); }); }
   }
 }
+function _autoEquip(pl,kind){
+  /* Nobody should have to press Y/U before a skill book works: the first book you own that meets the level
+     requirement is equipped automatically, which is also the one the combat row highlights in yellow. */
+  const list=effSkillIds(kind); if(!list||!list.length) return null;
+  let cur=(kind==='atk'?pl.atkEquip:pl.defEquip);
+  if(cur && list.indexOf(cur)>=0) return cur;
+  const ok=list.filter(function(x){ return SKILL_BY_ID[x] && skLvOk(SKILL_BY_ID[x]); });
+  cur=ok[0]||list[0]||null;
+  if(cur){ if(kind==='atk') pl.atkEquip=cur; else pl.defEquip=cur; }
+  return cur;
+}
 function combatAtkSkill(){
   const c=state.combat, pl=ensureSkills(state.player); if(!c||c.done||c.ended||state.busy) return;
-  const id=pl.atkEquip; if(!id||effAtkSkillIds().indexOf(id)<0){ toast(t('cb.noAtkSkill')); return; }
+  const id=_autoEquip(pl,'atk'); if(!id||effAtkSkillIds().indexOf(id)<0){ toast(t('cb.noAtkSkill')); return; }
   const s=SKILL_BY_ID[id];
   if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
   if(c.skillUsedThisRound){ toast(t('cb.skillOncePerRound')); return; }   /* one skill book per round */
@@ -5147,7 +5196,7 @@ function combatAtkSkill(){
 }
 function combatDefSkill(){
   const c=state.combat, pl=ensureSkills(state.player); if(!c||c.done||c.ended||state.busy) return;
-  const id=pl.defEquip; if(!id||effDefSkillIds().indexOf(id)<0){ toast(t('cb.noDefSkill')); return; }
+  const id=_autoEquip(pl,'def'); if(!id||effDefSkillIds().indexOf(id)<0){ toast(t('cb.noDefSkill')); return; }
   const s=SKILL_BY_ID[id];
   if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
   if(c.skillUsedThisRound && c.defArmed!==id){ toast(t('cb.skillOncePerRound')); return; }   /* one skill book per round */
@@ -5155,7 +5204,7 @@ function combatDefSkill(){
   if(pl.en<s.en||c.meStam<s.stam){ toast(t('cb.needEnStam')); return; }
   pl.en=clamp(pl.en-s.en,0,100); c.meStam=clamp(c.meStam-s.stam,0,100);
   c.skillUsedThisRound=true;
-  if(id==='shendun'){ var _sdSk=SKILL_BY_ID['shendun']||{}; c.shendunBonus=Math.floor((pl.hp+pl.def)*pl.lv/100*(_sdSk.defMul!=null?_sdSk.defMul:1)); c.shendunHits=(_sdSk.hits!=null?_sdSk.hits:3); try{ defBuffPop(c.shendunBonus); }catch(_e){} log('me',fmt(t('msg.shendunUp'),{n:c.shendunBonus,k:c.shendunHits})); }   /* 神盾是防禦buff：在防禦數值處彈出 +N（藍色），不是頭上的回血綠字 */
+  if(id==='shendun'){ var _sdSk=SKILL_BY_ID['shendun']||{}; c.shendunBonus=Math.floor((pl.hp+pl.def)*pl.lv/100*skP('shendun','defMul',1)); c.shendunHits=Math.max(1,Math.round(skP('shendun','hits',3))); try{ defBuffPop(c.shendunBonus); }catch(_e){} log('me',fmt(t('msg.shendunUp'),{n:c.shendunBonus,k:c.shendunHits})); }   /* 神盾是防禦buff：在防禦數值處彈出 +N（藍色），不是頭上的回血綠字 */
   else { c.defArmed=id; log('me',fmt(t('msg.defArm'),{n:skillName(id)})); }
   playEventFx('me','skill',id);   /* 防禦技能特效＋聲音 */
   renderCombat();
@@ -5310,7 +5359,7 @@ function playerAct(action){
   var _skId=(action && action.indexOf('atk:')===0)?action.slice(4):((action==='normal' && c.atkSkillArmed)?c.atkSkillArmed:null);
   if(_skId){
     skill=SKILL_BY_ID[_skId];
-    if(skill){ pl.en=clamp(pl.en-skill.en,0,100); c.meStam=clamp(c.meStam-skill.stam,0,100); mult=skill.mult;
+    if(skill){ pl.en=clamp(pl.en-skill.en,0,100); c.meStam=clamp(c.meStam-skill.stam,0,100); mult=skP(skill,'mult',1);
       log('me',fmt(t('msg.skillCast'),{n:skillName(skill.id)})); markFeat('skillCast'); c.skillUsedThisRound=true; }
     c.atkSkillArmed=null;
   }
@@ -5325,7 +5374,7 @@ function playerAct(action){
      in the same frame, so the drop is always visible. The old `!c.critArmed` veto is gone: a skill attack and a crit
      are mutually exclusive anyway, so a stale armed-crit flag must never silently cancel the drain. */
   if(skill && skill.id==='tianti'){
-    var _tp=(skill.drainPct!=null?skill.drainPct:50);
+    var _tp=skP(skill,'drainPct',50);
     var _tdr=Math.floor((c.foeEn||0)*_tp/100);
     if(_tdr>0){
       c.foeEn=clamp(c.foeEn-_tdr,0,100);
@@ -5366,8 +5415,8 @@ function playerAct(action){
     if(c._jinshiHeal>0){ try{ floatDmg('me','+'+c._jinshiHeal,'heal'); }catch(e){} c._jinshiHeal=0; try{ renderCombat(); }catch(e){} }   /* 金石回血：綠色 +N 落在自己頭像，並同步刷新生命數值 */
     if(_shRefl && dealt>0){ const refl=Math.max(1,Math.round(dealt*0.25)); pl.hp-=refl; floatDmg('me','-'+refl,'crit'); log('foe',fmt(t('msg.msReflect'),{n:refl})); renderCombat(); if(pl.hp<=0){ if(_godClamp()){ renderCombat(); } else { pl.hp=0; renderCombat(); setTimeout(combatLose,240); return; } } }
     if(_bsReflect>0){ pl.hp-=_bsReflect; try{ floatDmg('me','-'+_bsReflect,'crit'); }catch(e){} try{ renderStats(); }catch(e){} var _bh=Math.round(_bsReflect*((foe.reflectHealPct!=null?foe.reflectHealPct:30)/100)); foe.hp=foe.hp+_bh; }
-    if(_mdId==='counterdun' && _mdBlocked>0){ var _cdP=((SKILL_BY_ID['counterdun']||{}).reflectPct!=null?SKILL_BY_ID['counterdun'].reflectPct:100); var _cr=Math.max(1,Math.round(_mdBlocked*_cdP/100)); pl.hp-=_cr; try{ floatDmg('me','-'+_cr); }catch(e){} try{ log('foe',fmt(t('msg.counter'),{n:_cr})); }catch(e){} try{ renderCombat(); }catch(e){} try{ renderStats(); }catch(e){} }   /* 怪物反擊盾：反傷用一般紅色傷害數字 */
-    if(_mdId==='healShield' && _mdBlocked>0){ var _hsP=((SKILL_BY_ID['healShield']||{}).healPct!=null?SKILL_BY_ID['healShield'].healPct:60); var _hsHeal=Math.round(_mdBlocked*_hsP/100); if(_hsHeal<1) _hsHeal=1; foe.hp=foe.hp+_hsHeal; try{ floatDmg('foe','+'+_hsHeal,'heal'); }catch(e){} try{ log('foe',fmt(t('msg.healShield'),{n:_hsHeal})); }catch(e){} try{ renderCombat(); }catch(e){} }   /* 怪物療癒盾：綠色 +N 落在怪物頭像 */
+    if(_mdId==='counterdun' && _mdBlocked>0){ var _cdP=skP('counterdun','reflectPct',100); var _cr=Math.max(1,Math.round(_mdBlocked*_cdP/100)); pl.hp-=_cr; try{ floatDmg('me','-'+_cr); }catch(e){} try{ log('foe',fmt(t('msg.counter'),{n:_cr})); }catch(e){} try{ renderCombat(); }catch(e){} try{ renderStats(); }catch(e){} }   /* 怪物反擊盾：反傷用一般紅色傷害數字 */
+    if(_mdId==='healShield' && _mdBlocked>0){ var _hsP=skP('healShield','healPct',60); var _hsHeal=Math.round(_mdBlocked*_hsP/100); if(_hsHeal<1) _hsHeal=1; foe.hp=foe.hp+_hsHeal; try{ floatDmg('foe','+'+_hsHeal,'heal'); }catch(e){} try{ log('foe',fmt(t('msg.healShield'),{n:_hsHeal})); }catch(e){} try{ renderCombat(); }catch(e){} }   /* 怪物療癒盾：綠色 +N 落在怪物頭像 */
     if(foe.hp<=0){ setTimeout(combatWin, 240); return; }
     setTimeout(foeTurn, 220);
   });
@@ -5375,13 +5424,13 @@ function playerAct(action){
 function applyAtkSkillEffect(skill, dealt, crit){
   const c=state.combat, pl=state.player, foe=c.foe;
   if(skill.id==='huangu'){
-    if(dealt>=pl.lv){ const gain=Math.max(1,Math.floor(pl.def*((skill.convPct!=null?skill.convPct:5)/100))); c.atkBuff=(c.atkBuff||0)+gain; c.defDebuff=(c.defDebuff||0)+gain; log('me',fmt(t('msg.huanguGain'),{n:gain})); }
+    if(dealt>=pl.lv){ const gain=Math.max(1,Math.floor(pl.def*(skP(skill,'convPct',5)/100))); c.atkBuff=(c.atkBuff||0)+gain; c.defDebuff=(c.defDebuff||0)+gain; log('me',fmt(t('msg.huanguGain'),{n:gain})); }
   } else if(skill.id==='tianti'){
     c._tiantiDone=0;   /* 吸取、紀錄、能量提示都已在攻擊前完成（用命中前的怪物能量），此處不再重複 */
   } else if(skill.id==='jinshi'){
-    const heal=Math.round(dealt*((skill.healPct!=null?skill.healPct:30)/100)); if(heal>0){ pl.hp+=heal; c._jinshiHeal=heal; log('me',fmt(t('msg.jinshiHeal'),{n:heal})); }   /* 綠字延後到攻擊動畫結束才顯示（見 _meShowHits 回呼） */
+    let heal=Math.round(dealt*(skP(skill,'healPct',30)/100)); if(dealt>0 && heal<1) heal=1;   /* 有造成傷害就一定回得到血，不被四捨五入吃掉 */ if(heal>0){ pl.hp+=heal; c._jinshiHeal=heal; log('me',fmt(t('msg.jinshiHeal'),{n:heal})); }   /* 綠字延後到攻擊動畫結束才顯示（見 _meShowHits 回呼） */
   } else if(skill.id==='zhuanti'){
-    c.foeStam=clamp(c.foeStam-(skill.stamCut!=null?skill.stamCut:40),0,100); log('me',t('msg.zhuantiDrain'));
+    c.foeStam=clamp(c.foeStam-skP(skill,'stamCut',40),0,100); log('me',t('msg.zhuantiDrain'));
   }
   /* shenlei: only the non-lethal cap, no side effect */
 }
@@ -5448,7 +5497,8 @@ function foeTurn(){
   const foeCrit = (c.foeEn>=100) && _foeCanDmg && !_useSkill; let _critUsed=false;   /* ONE action per round, same as the player: casting an attack skill IS the round's attack, so it never also crits (the energy simply stays banked for a later round) */
   let _nHits; { const _aMax=foe.atkcMax||0, _aMin=Math.max(1, foe.atkcMin||0); _nHits = (_aMax>0 && _aMax>=_aMin) ? ri(_aMin, _aMax) : (foe.atkc||1); if(foe.id==='overlordGordon'){ _nHits = foeCrit ? 1 : 4; } }   /* 連擊：設了隨機上下限就每回合隨機，否則用固定次數 */
   const _seq=[];
-  let _defBlocks = (def && def.div && def.div>1) ? 1 : 0;   // one defence cast mitigates only ONE incoming hit; multi-hit foes get the rest through
+  const _defDiv = def ? skP(def,'div',1) : 1;   /* 減傷倍率一律走 skP，雲端把 div 存成 0 時不會整個失效 */
+  let _defBlocks = (_defDiv>1) ? 1 : 0;   // one defence cast mitigates only ONE incoming hit; multi-hit foes get the rest through
   for(let i=0;i<_nHits;i++){
     if(chance(hitChance(c.foeStam))){
       let dmg;
@@ -5464,7 +5514,7 @@ function foeTurn(){
       if(c.shendunHits>0) c.shendunHits--;
       if(_useSkill){ dmg=Math.round(dmg*_skMult); }
       const before=dmg;
-      if(_defBlocks>0 && def && def.div && def.div>1){ dmg=Math.ceil(dmg/def.div); _defBlocks--; }   // 岩盾/能量盾/反擊盾/療癒盾 — blocks ONE hit only; also reduces true damage (mages)
+      if(_defBlocks>0 && _defDiv>1){ dmg=Math.ceil(dmg/_defDiv); _defBlocks--; }   // 岩盾/能量盾/反擊盾/療癒盾 — blocks ONE hit only; also reduces true damage (mages)
       if(foe.bonusDmg>0){ dmg+=foe.bonusDmg; }   /* 固定加成傷害 */
       beforeTotal+=before;
       taken+=dmg; anyHit=true; hits++;
@@ -5482,22 +5532,22 @@ function foeTurn(){
     } else { _seq.push({miss:true}); }
   }
   if(foeCrit) c._foeCritZero=true;   // crit consumed — zero the gauge AFTER the combo animation (foeEn ticks up per hit first)
-  if(_useSkill && _skId==='jinshi'){ var _fjH=Math.round(taken*(((SKILL_BY_ID['jinshi']||{}).healPct!=null?SKILL_BY_ID['jinshi'].healPct:30)/100)); if(_fjH>0){ foe.hp=foe.hp+_fjH; try{ floatDmg('foe','+'+_fjH,'heal'); }catch(e){} try{ log('foe',fmt(t('msg.jinshiHeal'),{n:_fjH})); }catch(e){} } }   /* 金石（攻擊技能書）：怪物使用時亦回血並顯示，與玩家一致 */
-  if(_useSkill && _skId==='tianti' && !foeCrit){ var _ften=Math.floor(pl.en*(((SKILL_BY_ID['tianti']||{}).drainPct!=null?SKILL_BY_ID['tianti'].drainPct:50)/100)); if(_ften>0){ pl.en=clamp(pl.en-_ften,0,100); c.foeEn=clamp(c.foeEn+_ften,0,100); try{ energyPop(_ften,'me',-1); energyPop(_ften,'foe',1); }catch(e){} try{ log('foe',fmt(t('msg.tiantiDrain'),{n:_ften})); }catch(e){} try{ renderCombat(); }catch(e){} } }   /* 天梯（怪物）：吸取玩家半數能量並回補自身，與玩家對等 */
-  if(_useSkill && _skId==='zhuanti'){ c.meStam=clamp(c.meStam-(((SKILL_BY_ID['zhuanti']||{}).stamCut!=null?SKILL_BY_ID['zhuanti'].stamCut:40)),0,100); }   /* 轉體（怪物）：削減玩家體力 */
-  if(_useSkill && _skId==='huangu' && taken>0){ var _fhg=Math.max(1,Math.floor(foe.def*(((SKILL_BY_ID['huangu']||{}).convPct!=null?SKILL_BY_ID['huangu'].convPct:5)/100))); foe.atk+=_fhg; foe.def=Math.max(0,foe.def-_fhg); }   /* 幻骨（怪物）：將自身防禦轉為攻擊（持續整場、可疊加），與玩家對等 */
+  if(_useSkill && _skId==='jinshi'){ var _fjH=Math.round(taken*(skP('jinshi','healPct',30)/100)); if(_fjH>0){ foe.hp=foe.hp+_fjH; try{ floatDmg('foe','+'+_fjH,'heal'); }catch(e){} try{ log('foe',fmt(t('msg.jinshiHeal'),{n:_fjH})); }catch(e){} } }   /* 金石（攻擊技能書）：怪物使用時亦回血並顯示，與玩家一致 */
+  if(_useSkill && _skId==='tianti' && !foeCrit){ var _ften=Math.floor(pl.en*(skP('tianti','drainPct',50)/100)); if(_ften>0){ pl.en=clamp(pl.en-_ften,0,100); c.foeEn=clamp(c.foeEn+_ften,0,100); try{ energyPop(_ften,'me',-1); energyPop(_ften,'foe',1); }catch(e){} try{ log('foe',fmt(t('msg.tiantiDrain'),{n:_ften})); }catch(e){} try{ renderCombat(); }catch(e){} } }   /* 天梯（怪物）：吸取玩家半數能量並回補自身，與玩家對等 */
+  if(_useSkill && _skId==='zhuanti'){ c.meStam=clamp(c.meStam-skP('zhuanti','stamCut',40),0,100); }   /* 轉體（怪物）：削減玩家體力 */
+  if(_useSkill && _skId==='huangu' && taken>0){ var _fhg=Math.max(1,Math.floor(foe.def*(skP('huangu','convPct',5)/100))); foe.atk+=_fhg; foe.def=Math.max(0,foe.def-_fhg); }   /* 幻骨（怪物）：將自身防禦轉為攻擊（持續整場、可疊加），與玩家對等 */
   if(anyHit && foe.drainEn>0){ try{ playEventFx('me','ability','drainEn'); }catch(_e){} }   /* 吸能特效 */
   var _sdAP=(foe.statDownPct||0), _sdAN=(foe.statDownN||0), _sdDP=(foe.statDownDefPct!=null?foe.statDownDefPct:_sdAP), _sdDN=(foe.statDownDefN!=null?foe.statDownDefN:_sdAN); if(anyHit && (_sdAP>0||_sdAN>0||_sdDP>0||_sdDN>0)){ var _sdOA=pl.atk, _sdOD=pl.def; pl.atk=Math.max(1,Math.floor(pl.atk*(1-_sdAP/100))-_sdAN); pl.def=Math.max(0,Math.floor(pl.def*(1-_sdDP/100))-_sdDN); c.statDownAtk=(c.statDownAtk||0)+(_sdOA-pl.atk); c.statDownDef=(c.statDownDef||0)+(_sdOD-pl.def); try{ log('foe',t('msg.statDown')); }catch(_e){} try{ playEventFx('me','ability','statDown'); }catch(_e){} try{ renderStats(); }catch(_e){} }   /* 攻擊時削弱玩家攻防 */
   c.halveNext=false;
   applyMasterSkill(foe, taken);
   var _hsHealAmt=0;   /* 療癒盾回血：生命與綠字都留到連擊動畫結束才落下，否則會被後續動畫刷掉、數字也對不上 */
-  if(def && def.id==='healShield'){ var _hsBlk=Math.max(0, beforeTotal-taken); _hsHealAmt=Math.round(_hsBlk*((def.healPct!=null?def.healPct:60)/100)); if(_hsBlk>0 && _hsHealAmt<1) _hsHealAmt=1; }
+  if(def && def.id==='healShield'){ var _hsBlk=Math.max(0, beforeTotal-taken); _hsHealAmt=Math.round(_hsBlk*(skP(def,'healPct',60)/100)); if(_hsBlk>0 && _hsHealAmt<1) _hsHealAmt=1; }
   var _cdReflect=0;   /* 反擊盾反傷：扣血與紅色數字都留到動畫回呼一起落下，血條和數字才會同步 */
   if(def && def.id==='counterdun'){
     /* Reflect the damage the shield actually BLOCKED this turn (beforeTotal - taken), scaled by reflectPct.
        Ailment reflection removed: foes never carry weak/poison, so those branches did nothing. */
     var _blocked=Math.max(0, beforeTotal-taken);
-    _cdReflect=Math.round(_blocked*((def.reflectPct!=null?def.reflectPct:100)/100));
+    _cdReflect=Math.round(_blocked*(skP(def,'reflectPct',100)/100));
     if(_blocked>0 && _cdReflect<1) _cdReflect=1;   /* 擋下了就一定彈得回去，至少 1 點，不會被四捨五入吃掉 */
     if(_cdReflect>0 && hasAb(foe,'vampire')){ _cdReflect=Math.max(0, foe.hp>97 ? Math.min(_cdReflect, foe.hp-97) : 0); }   // counter can only push a vampire down to 97 HP
   }
@@ -10920,8 +10970,8 @@ function applyConfig(cfg){
   migrateFloorRanges();   /* fill surface/basement range defaults for any monster the saved config didn't carry them on */
   if(cfg.items){ for(const k in cfg.items){ if(ITEMS[k]){ if(cfg.items[k].face!=null) ITEMS[k].face=cfg.items[k].face; if(cfg.items[k].name!=null) ITEMS[k].name=cfg.items[k].name; if(cfg.items[k].nameLoc) ITEMS[k].nameLoc=Object.assign({}, cfg.items[k].nameLoc); if('img' in cfg.items[k]) ITEMS[k].img=cfg.items[k].img||null; _migrateNameLoc(ITEMS[k]); } } }
   let _skChanged=false;
-  if(Array.isArray(cfg.atkSkills) && cfg.atkSkills.length){ ATK_SKILLS.length=0; cfg.atkSkills.forEach(function(s){ ATK_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
-  if(Array.isArray(cfg.defSkills) && cfg.defSkills.length){ DEF_SKILLS.length=0; cfg.defSkills.forEach(function(s){ DEF_SKILLS.push(Object.assign({}, s)); }); _skChanged=true; }
+  if(Array.isArray(cfg.atkSkills) && cfg.atkSkills.length){ ATK_SKILLS.length=0; cfg.atkSkills.forEach(function(s){ ATK_SKILLS.push(_skMerge(s)); }); _skChanged=true; }   /* 合併而非整組取代：雲端缺少或為 0 的效果參數一律還原成內建值 */
+  if(Array.isArray(cfg.defSkills) && cfg.defSkills.length){ DEF_SKILLS.length=0; cfg.defSkills.forEach(function(s){ DEF_SKILLS.push(_skMerge(s)); }); _skChanged=true; }
   if(_skChanged){ for(const k in SKILL_BY_ID) delete SKILL_BY_ID[k]; ATK_SKILLS.concat(DEF_SKILLS).forEach(function(s){ SKILL_BY_ID[s.id]=s; }); }
   if(Array.isArray(cfg.guards)){ if(cfg.guards[0]) Object.assign(GUARD_DRAGONS.red, cfg.guards[0]); if(cfg.guards[1]) Object.assign(GUARD_DRAGONS.poison, cfg.guards[1]); if(cfg.guards[2]) Object.assign(ABYSS_GUARD, cfg.guards[2]); _migrateNameLoc(GUARD_DRAGONS.red); _migrateNameLoc(GUARD_DRAGONS.poison); _migrateNameLoc(ABYSS_GUARD); }
   if(cfg.sounds) Object.assign(SFX_MAP, cfg.sounds);
@@ -11663,6 +11713,7 @@ function renderAdminBody(){
     const n=document.createElement('p'); n.className='adNote'; n.textContent=t('admin.skillsNote'); body.appendChild(n);
     const hdr=function(txt){ const h=document.createElement('div'); h.style.cssText='font-weight:700;color:var(--gold);margin:14px 2px 6px;font-size:13px;'; h.textContent=txt; body.appendChild(h); };
     const skRow=function(sk,idx,kind){
+      try{ Object.assign(sk, _skMerge(sk)); }catch(_e){}   /* 先補回缺漏/歸零的效果參數，欄位才不會顯示 0、儲存時也不會把 0 寫回雲端 */
       const row=document.createElement('div'); row.className='adRowItem';
       const sig=(kind==='atk'?'atk':'def')+idx;
       if(kind==='atk') row.dataset.atks=idx; else row.dataset.defs=idx;
