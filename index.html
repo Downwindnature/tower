@@ -920,6 +920,8 @@ select:not(.langsel) option{background:#15101e;color:#f1e9e1;}
 .cbActions .abtn.breath{background:linear-gradient(180deg,#8ff0e0,#2eb8a0 70%,#1c8c78);color:#06231e;box-shadow:0 3px 0 #146658;}
 .cbActions.cb5 .abtn{padding:9px 3px;font-size:12px;flex-direction:column;gap:1px;}
 #cbMeStRow{position:relative;}
+.defBuffPop{position:absolute;right:2px;top:50%;color:#8fb8ff;font-weight:800;font-size:14px;text-shadow:0 1px 3px #000,0 0 8px rgba(120,160,255,.7);pointer-events:none;white-space:nowrap;animation:defBuffFly 1.1s ease-out forwards;z-index:8;}
+@keyframes defBuffFly{0%{opacity:0;transform:translateY(4px) scale(.8);}20%{opacity:1;transform:translateY(-2px) scale(1.1);}100%{opacity:0;transform:translateY(-18px) scale(1);}}
 .stamPop{position:absolute;right:2px;top:50%;color:#7fdfff;font-weight:800;font-size:13px;text-shadow:0 1px 3px #000,0 0 6px rgba(60,200,255,.6);pointer-events:none;white-space:nowrap;animation:stamPopFade 1s ease-out forwards;}
 @keyframes stamPopFade{0%{opacity:0;transform:translateY(-50%);}15%{opacity:1;}100%{opacity:0;transform:translateY(-150%);}}
 .cbActions .abtn.atkS{background:linear-gradient(180deg,#f6d488,var(--gold) 65%,var(--gold-d));color:#2a1c06;box-shadow:0 3px 0 #6b4914;}
@@ -1528,7 +1530,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
       <div class="cbNums">
         <div class="cbRow"><span class="k" id="cbMeHpLab">生命</span><span class="v num" id="meHpV"></span></div>
         <div class="cbRow"><span class="k" id="cbMeAtkL">攻擊</span><span class="v num" id="meAtkV"></span></div>
-        <div class="cbRow"><span class="k" id="cbMeDefL">防禦</span><span class="v num" id="meDefV"></span></div>
+        <div class="cbRow" id="cbMeDefRow" style="position:relative"><span class="k" id="cbMeDefL">防禦</span><span class="v num" id="meDefV"></span></div>
         <div class="cbRow"><span class="k" id="cbMeEnLab">能量</span><span class="v num" id="meEnV"></span></div>
         <div class="cbRow" id="cbMeStRow"><span class="k" id="cbMeStLab">體力</span><span class="v num" id="meStV"></span></div>
       </div>
@@ -2094,7 +2096,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 
 <script>
 'use strict';
-const BUILD_TAG='0618·396';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
+const BUILD_TAG='0618·397';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
 /* =====================================================================
    魔塔 · Tower of the Sorcerer  —  single-file roguelike
    依據設計草稿 + 新新魔塔2 慣例補充。純靜態，可直接部署 Netlify。
@@ -5133,13 +5135,12 @@ function combatAtkSkill(){
   const id=pl.atkEquip; if(!id||effAtkSkillIds().indexOf(id)<0){ toast(t('cb.noAtkSkill')); return; }
   const s=SKILL_BY_ID[id];
   if(!skLvOk(s)){ toast(fmt(t('cb.needLv'),{n:s.lv})); return; }
-  if(c.skillUsedThisRound && c.atkSkillArmed!==id){ toast(t('cb.skillOncePerRound')); return; }   /* one skill book per round */
+  if(c.skillUsedThisRound){ toast(t('cb.skillOncePerRound')); return; }   /* one skill book per round */
   if(pl.en<s.en||c.meStam<s.stam){ toast(t('cb.needEnStam')); return; }
-  /* ARM it like a crit — it fires on the hero's own attack turn, never mid-foe-turn, and the three (skill / crit / plain) are mutually exclusive */
-  if(c.atkSkillArmed===id){ c.atkSkillArmed=null; }   /* toggle off */
-  else { c.atkSkillArmed=id; c.critArmed=false; log('me',fmt(t('msg.skillArm'),{n:skillName(id)})); }
-  renderCombat();
-  if(!state.busy) scheduleRound();   /* arming doesn't consume the turn — keep the automatic round loop alive */
+  /* Fire the attack skill IMMEDIATELY as this turn's attack — no separate arm-then-attack step. The player picks
+     the book with the yellow frame and pressing Z (or the button) uses it right away, provided the level fits. */
+  c.critArmed=false; c.atkSkillArmed=null;
+  playerAct('atk:'+id);
 }
 function combatDefSkill(){
   const c=state.combat, pl=ensureSkills(state.player); if(!c||c.done||c.ended||state.busy) return;
@@ -5151,7 +5152,7 @@ function combatDefSkill(){
   if(pl.en<s.en||c.meStam<s.stam){ toast(t('cb.needEnStam')); return; }
   pl.en=clamp(pl.en-s.en,0,100); c.meStam=clamp(c.meStam-s.stam,0,100);
   c.skillUsedThisRound=true;
-  if(id==='shendun'){ var _sdSk=SKILL_BY_ID['shendun']||{}; c.shendunBonus=Math.floor((pl.hp+pl.def)*pl.lv/100*(_sdSk.defMul!=null?_sdSk.defMul:1)); c.shendunHits=(_sdSk.hits!=null?_sdSk.hits:3); try{ floatDmg('me','+'+c.shendunBonus,'heal'); }catch(_e){} log('me',fmt(t('msg.shendunUp'),{n:c.shendunBonus,k:c.shendunHits})); }
+  if(id==='shendun'){ var _sdSk=SKILL_BY_ID['shendun']||{}; c.shendunBonus=Math.floor((pl.hp+pl.def)*pl.lv/100*(_sdSk.defMul!=null?_sdSk.defMul:1)); c.shendunHits=(_sdSk.hits!=null?_sdSk.hits:3); try{ defBuffPop(c.shendunBonus); }catch(_e){} log('me',fmt(t('msg.shendunUp'),{n:c.shendunBonus,k:c.shendunHits})); }   /* 神盾是防禦buff：在防禦數值處彈出 +N（藍色），不是頭上的回血綠字 */
   else { c.defArmed=id; log('me',fmt(t('msg.defArm'),{n:skillName(id)})); }
   playEventFx('me','skill',id);   /* 防禦技能特效＋聲音 */
   renderCombat();
@@ -5265,6 +5266,14 @@ function zeroDmgFx(side){
   try{ if(SFX_MAP.dmg0!=='none') sfx('dmg0'); }catch(e){}
 }
 function playerNormal(){ playerAct('normal'); }
+function defBuffPop(n){
+  /* Shows the 神盾 defence boost as a blue +N rising from the DEFENCE stat row — a defence buff, not a heal,
+     so it must never look like the green heal number the player rightly questioned. */
+  try{ var host=byId('cbMeDefRow') || (byId('meDefV') && byId('meDefV').parentNode); if(!host) return;
+    var s=document.createElement('span'); s.className='defBuffPop'; s.textContent='+'+n;
+    host.appendChild(s); setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 1200);
+  }catch(_e){}
+}
 function staminaPop(n, which){ try{ var host=byId((which==='foe')?'cbFoeStRow':'cbMeStRow'); if(!host) return; var s=document.createElement('span'); s.className='stamPop'; s.textContent='+'+n+' '+t('cb.st'); host.appendChild(s); setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },1000); }catch(e){} }
 function deepBreath(){
   const c=state.combat; if(!c||c.done||c.ended||state.busy) return;
@@ -5298,6 +5307,16 @@ function playerAct(action){
   if(action==='normal' && !skill && c.critArmed && pl.en>=20 && dmgUp(effAtk(pl)+(c.atkBuff||0),foe.def,pl.thrA)>0){ pl.en-=20; mult*=2; crit=true; }   /* armed crit ×2, costs 20；對怪物造不成傷害則不發動 */
   if(action==='normal') c.critArmed=false;
   pl.en=clamp(pl.en,0,100);
+  /* 天體 drains BEFORE the hit lands: it should take half of the foe's CURRENT energy (what the player sees),
+     not half of whatever remains after taking-a-hit tops the gauge back up. Do it up front and remember it so
+     applyAtkSkillEffect doesn't drain a second time. */
+  var _tiantiNoRecharge=false;
+  if(skill && skill.id==='tianti' && !c.critArmed){
+    var _tp=(skill.drainPct!=null?skill.drainPct:50);
+    var _tdr=Math.floor(c.foeEn*_tp/100);
+    if(_tdr>0){ c.foeEn=clamp(c.foeEn-_tdr,0,100); if(c.foe.noEnergy!=='all') pl.en=clamp(pl.en+_tdr,0,100); c._tiantiDone=_tdr; }
+    _tiantiNoRecharge=true;   /* the hit that drains must not immediately top the foe's gauge back up, or the drain is invisible */
+  }
   const aAtk=effAtk(pl)+(c.atkBuff||0);                       /* 幻骨 adds a battle-long attack bonus */
   const nonLethal = !!(skill && (skill.id==='jinshi'||skill.id==='shenlei'));   /* 金石 / 神壘 never land the killing blow */
   let dealt=0, anyHit=false;
@@ -5315,7 +5334,7 @@ function playerAct(action){
       if(nonLethal && _fhp-dmg<1){ dmg=Math.max(0,_fhp-1); }
       _fhp-=dmg; dealt+=dmg; anyHit=true;
       var _pEnG=(c.foe.noEnergy!=='atk'&&c.foe.noEnergy!=='all') ? clamp(Math.round(dmg*0.08)+2,2,13) : 0;   /* per-hit energy on the seq — ticks up with the animation, not all at once (blocked by 不增能量) */
-      c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.12)+10,11,20),0,100);   /* the foe ALSO charges when it takes a hit */
+      if(!_tiantiNoRecharge){ c.foeEn=clamp(c.foeEn+clamp(Math.round(dmg*0.12)+10,11,20),0,100); }   /* the foe ALSO charges when it takes a hit — except the 天體 drain hit */
       _pseq.push({d:dmg, enG:_pEnG});
     } else { _pseq.push({miss:true}); }
   }
@@ -5338,7 +5357,7 @@ function applyAtkSkillEffect(skill, dealt, crit){
   if(skill.id==='huangu'){
     if(dealt>=pl.lv){ const gain=Math.max(1,Math.floor(pl.def*((skill.convPct!=null?skill.convPct:5)/100))); c.atkBuff=(c.atkBuff||0)+gain; c.defDebuff=(c.defDebuff||0)+gain; log('me',fmt(t('msg.huanguGain'),{n:gain})); }
   } else if(skill.id==='tianti'){
-    if(!crit){ const drained=Math.floor(c.foeEn*((skill.drainPct!=null?skill.drainPct:50)/100)); if(drained>0){ c.foeEn=clamp(c.foeEn-drained,0,100); if(c.foe.noEnergy!=='all') pl.en=clamp(pl.en+drained,0,100); log('me',fmt(t('msg.tiantiDrain'),{n:drained})); } }
+    if(c._tiantiDone>0){ log('me',fmt(t('msg.tiantiDrain'),{n:c._tiantiDone})); c._tiantiDone=0; }   /* 已於攻擊前吸取（用命中前的怪物能量），此處僅補記錄 */
   } else if(skill.id==='jinshi'){
     const heal=Math.round(dealt*((skill.healPct!=null?skill.healPct:30)/100)); if(heal>0){ pl.hp+=heal; c._jinshiHeal=heal; log('me',fmt(t('msg.jinshiHeal'),{n:heal})); }   /* 綠字延後到攻擊動畫結束才顯示（見 _meShowHits 回呼） */
   } else if(skill.id==='zhuanti'){
