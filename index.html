@@ -2116,7 +2116,7 @@ input.cfgStepVal::-webkit-inner-spin-button,input.cfgStepVal::-webkit-outer-spin
 
 <script>
 'use strict';
-const BUILD_TAG='0618·402';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
+const BUILD_TAG='0618·403';   /* 版本標記：主畫面右下角與後台顯示；每次發佈同步更新 */
 /* =====================================================================
    魔塔 · Tower of the Sorcerer  —  single-file roguelike
    依據設計草稿 + 新新魔塔2 慣例補充。純靜態，可直接部署 Netlify。
@@ -2573,6 +2573,7 @@ let BREATH_CFG={ base:10, gemInc:2, foeBase:25, foeWeak:5, foeStrong:15, foeBoss
    怪物側：沒有個別設定 breathAmt 的怪，恢復量依強弱在 foeWeak(5) ~ foeStrong(15) 之間內插，BOSS 級固定 foeBoss(20)。
    foeBase 只在無法判斷強弱時當保底 · foeBelow 低於此體力才會考慮 · foeChance 觸發機率% · foeMax 每場上限(避免拖延戰鬥) */
 let BREATH_GEM={ chance:9, minFloor:2, maxRun:5 };
+let MP_BMON={ normalMaxDepth:3 };   /* 模式1 普通難度：可以爬到地上的地下怪，最深只到 B<n>（0 = 不限制） */
 /* 呼吸寶石的稀有度。chance = 每層生成機率%，minFloor = 最低層數，maxRun = 整場上限。
    全塔約 45 層 × 9% ≈ 平均 3~4 顆；逐層擲骰，運氣差時整場一顆都不會出現。 */
 let PLAYER_FACE=(typeof START!=='undefined'&&START.face)||'🧝';
@@ -3154,7 +3155,20 @@ function _monAbilityMul(m){ if(!m) return 1; var k=1;
   if(m.drains || (m.drainStam|0)>0 || (m.atkFatigue|0)>0) k+=0.15; if((m.drainEn|0)>0) k+=0.08; if(m.blockTp) k+=0.05; return k; }
 function _monPower(m){ if(!m) return 0; var hits=Math.max(1,(m.atkcMax|0)||(m.atkc|0)||1); var atk=(m.atk||0)+(m.bonusDmg||0); return ((m.hp||0) + atk*hits*5 + (m.def||0)*4) * _monAbilityMul(m); }
 function _basementTier(m){ var lo=1e18,hi=0; for(var i=0;i<BASEMENT_MONSTERS.length;i++){ var b=BASEMENT_MONSTERS[i]; if(!((b.bMin|0)>0)) continue; var v=_monPower(b); if(v<lo)lo=v; if(v>hi)hi=v; } if(hi<=lo) return 0.5; return clamp((_monPower(m)-lo)/(hi-lo),0,1); }
-function _basementOnSurface(m, rf){ if(!hasSummit()) return false; if(!((m.bMin|0)>0)) return false; var dr=diffRank(curDifficulty()); if(dr<1) return false; var top=Math.max(1,FLOORS); var startFloor=Math.max(2,Math.round(top*((dr>=3)?0.15:(dr>=2)?0.40:0.62))); if(rf<startFloor) return false; var tier=_basementTier(m); var tierCap=(dr>=2)?1.0:0.55; if(tier>tierCap) return false; var zone=(rf-startFloor)/Math.max(1,(top-startFloor)); return tier <= zone*tierCap + 0.30; }   /* mode 1: basement mobs bleed onto later surface floors — earlier & deeper at higher difficulty; solo unchanged */
+function _basementHomeDepth(m){
+  /* 「這隻地下怪本來該住在 B 幾」。不能直接看 bMin —— 除非後台特別指定，所有地下怪的 bMin 都是預設的 1，
+     真正決定牠出現在多深的是戰力排名（_basementTier 把整份地下名冊由弱到強映射成 0~1）。
+     這裡把排名換算回深度：最弱的 = B1，最強的 = B(BASEMENT-1)。後台若把 bMin 釘得更深，就以後台為準。 */
+  if(!m) return 1;
+  var pinned=(m.bMin|0);
+  var hi=Math.max(2, BASEMENT-1);
+  var byTier=Math.round(1 + _basementTier(m)*(hi-1));
+  return Math.max(pinned>1?pinned:1, byTier);
+}
+function _basementOnSurface(m, rf){ if(!hasSummit()) return false; if(!((m.bMin|0)>0)) return false; var dr=diffRank(curDifficulty()); if(dr<1) return false;
+  /* 普通難度只放行淺層地下怪（預設 B1~B3）。原本連 B10+ 的怪都會爬到地上，難度整個超出「普通」該有的樣子。
+     困難／地獄不受此限；上限可在後台「多人」分頁調整，也會同步雲端。 */
+  if(dr===1){ var _bc=(typeof MP_BMON!=='undefined' && MP_BMON.normalMaxDepth!=null)?(MP_BMON.normalMaxDepth|0):3; if(_bc>0 && _basementHomeDepth(m)>_bc) return false; } var top=Math.max(1,FLOORS); var startFloor=Math.max(2,Math.round(top*((dr>=3)?0.15:(dr>=2)?0.40:0.62))); if(rf<startFloor) return false; var tier=_basementTier(m); var tierCap=(dr>=2)?1.0:0.55; if(tier>tierCap) return false; var zone=(rf-startFloor)/Math.max(1,(top-startFloor)); return tier <= zone*tierCap + 0.30; }   /* mode 1: basement mobs bleed onto later surface floors — earlier & deeper at higher difficulty; solo unchanged */
 function genFloorRaw(f){
   if(f===FLOORS) return genBossFloorRaw(f);
   const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}
@@ -4251,7 +4265,10 @@ function genSummitFloorRaw(f){
   const data={f:f,wall:wall,start:{x:cx,y:cy},stairs:{x:cx,y:cy},ent:emptyEnt(),lava:emptyLava(),explored:true,summit:true};
   return data;   // reaching this floor = 登頂 (handled in ascend())
 }
-function genBasementBossFloorRaw(f){
+function genBasementBossFloorRaw(f, mpTop){
+  /* mpTop = 模式1「地獄難度」的最終層。同一張王座廳，差別只在出口：
+     單機 B20 是最深處，抵達格同時就是回上一層的樓梯；模式1 打完古頓後還要再往上登頂，
+     所以上行樓梯改放在古頓腳下（bossSealed 會擋到牠倒下為止），抵達格則是往下回上一層的樓梯。 */
   _realFloor=f;   // B20 — a basement boss arena (player descends in at the bottom, fights up to the boss)
   const wall=[];for(let y=0;y<GRID;y++){const r=[];for(let x=0;x<GRID;x++)r.push(true);wall.push(r);}   // all walls: narrow arena
   /* ---- Final boss chamber (B20), redesigned as a fixed, symmetric throne room ----
@@ -4279,7 +4296,8 @@ function genBasementBossFloorRaw(f){
   // the sealed guard-gate door (opens only when both masters are down — see tryMove)
   data.ent[doorY][cx]={kind:'door', color:'boss', guardGate:true};
   // the two master guards, flanking the door
-  const masterFoe=function(id){ const base=(typeof BASEMENT_MONSTERS!=='undefined'?BASEMENT_MONSTERS:[]).find(function(m){return m.id===id;}); return base?scaleFoe(base,24):null; };
+  const masterFoe=function(id){ const base=(typeof BASEMENT_MONSTERS!=='undefined'?BASEMENT_MONSTERS:[]).find(function(m){return m.id===id;}); return base?scaleFoe(base,(mpTop?Math.max(1,effFloor(f-1)):24)):null; };
+  const _mLv=mpTop ? Math.max(1, effFloor(f-1)) : 24;   /* 模式1：依這座塔的層數縮放；單機 B20 維持原本的 24 */
   const _mSword=masterFoe('swordMaster');   // 魔劍之凱撒 — left
   const _mShield=masterFoe('shieldMaster');  // 靈盾之柏奇 — right
   if(_mSword){ _mSword._guardSide='L'; data.ent[plazaY][cx-1]={kind:'monster',foe:_mSword,_bossMaster:'sword'}; }
@@ -4296,6 +4314,11 @@ function genBasementBossFloorRaw(f){
   ];
   for(let i=0;i<_wing.length;i++){ const x=_wing[i][0],y=_wing[i][1],it=_wing[i][2];
     if(x>=0&&y>=0&&x<GRID&&y<GRID&&!wall[y][x]&&!data.ent[y][x]&&!(x===arrive.x&&y===arrive.y)) data.ent[y][x]={kind:'item',item:it}; }
+  if(mpTop){
+    /* 模式1：抵達格是往下的樓梯（回上一層），通往登頂的上行樓梯放在古頓腳下。
+       和原本的最終層一樣，bossSealed() 會讓它在古頓倒下之前完全不出現，也離不開這層。 */
+    data.stairs={x:cx, y:bossY};
+  }
   return data;
 }
 
@@ -4313,6 +4336,7 @@ function wingsPackage(pl,levels){
 /* ============================== Rendering ============================== */
 /* camera-follow viewport: solo shows the whole map; MP shows a window centred on the player */
 function mpViewPref(){ try{ var v=parseInt(localStorage.getItem('mt_mpView'),10); if(v===9||v===11||v===13) return v; }catch(e){} return 11; }
+function _mpThroneTop(){ return hasSummit() && diffRank(curDifficulty())>=3; }   /* 地獄難度限定：模式1 最終層＝單機 B20 樣式的王座廳；困難與普通維持原本的走廊關卡 */
 function _hardBossSwap(){ return hasSummit() && diffRank(curDifficulty())>=2; }   /* hard+ MP tower: Tower Dragon -> median floor (mid-boss), Gordon -> final boss on top */
 function _dragonFloor(){ return Math.max(2, Math.min(FLOORS-2, Math.round(FLOORS/2))); }   /* median of the configured floors */
 function _bossFoeForFloor(f){ if(_hardBossSwap()){ if(f===FLOORS-1) return makeBasementBoss(); if(f===_dragonFloor()) return makeBoss(); } return makeBoss(); }   /* top = Gordon on hard+, median = dragon; otherwise dragon */
@@ -6659,6 +6683,7 @@ function genFloor(f){
     if(f===SECRET_FLOOR) return genSecretRoom();
     if(hasSummit()){                                       // MP tower modes: final boss on FLOORS-1, empty summit on FLOORS
       if(_hardBossSwap() && f===_dragonFloor()) return genBossFloorRaw(f);   // hard+: Tower Dragon as a mid-boss on the median floor
+      if(_mpThroneTop() && f===FLOORS-1) return genBasementBossFloorRaw(f, true);   /* 地獄難度：最終層改用單機 B20 的王座廳（凱撒＋柏奇→封印門→古頓） */
       if(f===FLOORS-1) return genBossFloorRaw(f);
       if(f===FLOORS) return genSummitFloorRaw(f);
     } else {                                                // solo (ORIGINAL): boss sits on the top floor = clear, no summit
@@ -10559,6 +10584,13 @@ const I18N_CUST = {
  'ja':{brBase:'深呼吸の基本量',brGem:'宝石1個につき +',brWeak:'弱い敵の回復量',brStrong:'強い敵の回復量',brBoss:'ボスの回復量',bgChance:'呼吸の宝石 出現率%/階',bgMinFloor:'呼吸の宝石 最低階',bgMaxRun:'呼吸の宝石 1周の上限',mBreath:'深呼吸量(0=自動)'},
  'ko':{brBase:'심호흡 기본량',brGem:'보석당 +',brWeak:'약한 적 회복량',brStrong:'강한 적 회복량',brBoss:'보스 회복량',bgChance:'호흡의 보석 층당 확률%',bgMinFloor:'호흡의 보석 최소 층',bgMaxRun:'호흡의 보석 1회 상한',mBreath:'심호흡량(0=자동)'}
 }; for(var L in A){ if(I18N[L]&&I18N[L].admin){ for(var k in A[L]) I18N[L].admin[k]=A[L][k]; } } })();
+(function(){ var A={
+ 'zh-Hant':{bmTitle:'地下怪爬上地面（普通難度）',bmHint:'模式1 普通難度時，只有這個深度以內的地下怪會出現在地上樓層。0 = 不限制。困難與地獄不受此限。',bmNormal:'最深到 B'},
+ 'zh-Hans':{bmTitle:'地下怪爬上地面（普通难度）',bmHint:'模式1 普通难度时，只有这个深度以内的地下怪会出现在地上楼层。0 = 不限制。困难与地狱不受此限。',bmNormal:'最深到 B'},
+ 'en':{bmTitle:'Basement mobs on the surface (Normal)',bmHint:'On mode 1 Normal, only basement monsters from this depth or shallower may appear on surface floors. 0 = no limit. Hard and Hell are unaffected.',bmNormal:'Deepest B'},
+ 'ja':{bmTitle:'地下の敵が地上に出る深さ（普通）',bmHint:'モード1の普通難易度では、この深さまでの地下の敵だけが地上階に出現する。0 = 制限なし。困難・地獄は対象外。',bmNormal:'最深 B'},
+ 'ko':{bmTitle:'지하 몬스터의 지상 출현 (보통)',bmHint:'모드1 보통 난이도에서는 이 깊이까지의 지하 몬스터만 지상 층에 나타납니다. 0 = 제한 없음. 어려움과 지옥은 해당 없음.',bmNormal:'최대 깊이 B'}
+}; for(var L in A){ if(I18N[L]&&I18N[L].admin){ for(var k in A[L]) I18N[L].admin[k]=A[L][k]; } } })();
 (function(){ var F={"zh-Hant": "{name} 專注於防禦，這回合沒有攻擊", "zh-Hans": "{name} 专注于防御，这回合没有攻击", "en": "{name} focused on defence and did not attack this round", "ja": "{name} は防御に専念し、このターンは攻撃しなかった", "ko": "{name}이(가) 방어에 집중해 이번 턴에는 공격하지 않았다"}; for(var L in F){ if(I18N[L]&&I18N[L].msg) I18N[L].msg.foeDefTurn=F[L]; } })();
 (function(){ var A={"cfgLoading": {"zh-Hant": "正在讀取雲端設定…", "zh-Hans": "正在读取云端设置…", "en": "Loading cloud config…", "ja": "クラウド設定を読み込み中…", "ko": "클라우드 설정을 불러오는 중…"}, "cfgUnread": {"zh-Hant": "⚠ 尚未讀到雲端設定，為避免覆蓋你的資料，已停用「儲存到雲端」。請檢查連線後重新整理再試。", "zh-Hans": "⚠ 尚未读到云端设置，为避免覆盖你的数据，已停用「保存到云端」。请检查连线后重新整理再试。", "en": "⚠ The cloud config could not be read. Saving is disabled so your existing data is not overwritten — check your connection, reload, and try again.", "ja": "⚠ クラウド設定を読み込めませんでした。既存データの上書きを防ぐため保存を無効にしています。接続を確認して再読み込みしてください。", "ko": "⚠ 클라우드 설정을 읽지 못했습니다. 기존 데이터 덮어쓰기를 막기 위해 저장을 비활성화했습니다. 연결을 확인한 뒤 새로고침하세요."}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
 (function(){ var A={"fxBossBarrier": {"zh-Hant": "魔王·結界盾", "zh-Hans": "魔王·结界盾", "en": "Boss · Barrier Shield", "ja": "魔王・結界盾", "ko": "마왕·결계 방패"}, "fxBossReflect": {"zh-Hant": "魔王·反射盾", "zh-Hans": "魔王·反射盾", "en": "Boss · Reflect Shield", "ja": "魔王・反射盾", "ko": "마왕·반사 방패"}}; for(var k in A){ for(var L2 in A[k]){ if(I18N[L2]&&I18N[L2].admin) I18N[L2].admin[k]=A[k][L2]; } } })();
@@ -11044,6 +11076,7 @@ function snapshotConfig(){
     start: Object.assign({}, START, { img: (typeof PLAYER_IMG!=='undefined' ? (PLAYER_IMG||null) : null) }),
     breath: Object.assign({}, BREATH_CFG),
     breathGem: Object.assign({}, BREATH_GEM),
+    mpBmon: Object.assign({}, MP_BMON),
     map: { floors:FLOORS, grid:MAP_N_SOLO, loopChance:MAPCFG.loopChance, shopChance:MAPCFG.shopChance },   /* save the SOLO map size, NOT the live GRID (which is the large MP map during mode 1) — otherwise the MP size pollutes the single-player map */
     floorCfg: Object.assign({}, FLOOR_CFG),
     floorWL: (function(){ const o={}; for(const k in FLOOR_WL){ if(Array.isArray(FLOOR_WL[k])) o[k]=FLOOR_WL[k].slice(); } return o; })(),
@@ -11132,6 +11165,7 @@ function applyConfig(cfg){
   if(cfg.itemGain){ for(const k in cfg.itemGain){ const v=parseFloat(cfg.itemGain[k]); if(!isNaN(v)) ITEM_GAIN[k]=v; } }
   if(cfg.breath){ for(const k in cfg.breath){ const v=parseFloat(cfg.breath[k]); if(!isNaN(v)) BREATH_CFG[k]=v; } }
   if(cfg.breathGem){ for(const k in cfg.breathGem){ const v=parseFloat(cfg.breathGem[k]); if(!isNaN(v)) BREATH_GEM[k]=v; } }
+  if(cfg.mpBmon){ for(const k in cfg.mpBmon){ const v=parseFloat(cfg.mpBmon[k]); if(!isNaN(v)) MP_BMON[k]=v; } }
   _brRankCache=null;   /* 怪物名冊/數值可能被雲端改過，強弱排名重算 */
   if(cfg.glyphs){ for(const k in cfg.glyphs){ if(GLYPH_CFG[k]&&cfg.glyphs[k]){ if('img' in cfg.glyphs[k]) GLYPH_CFG[k].img=cfg.glyphs[k].img||null; if(cfg.glyphs[k].face) GLYPH_CFG[k].face=cfg.glyphs[k].face; } } }
   if(cfg.map){
@@ -11752,6 +11786,14 @@ function renderAdminBody(){
     }
   } else if(adminTab==='mp'){
     { const _mn=document.createElement('p'); _mn.className='adNote'; _mn.textContent=t('admin.mpNote'); body.appendChild(_mn); }
+    { /* 模式1 普通難度：地下怪爬上地面的深度上限 */
+      if(!adminDraft.mpBmon) adminDraft.mpBmon=Object.assign({}, MP_BMON);
+      const bm=adminDraft.mpBmon;
+      const bmr=document.createElement('div'); bmr.className='adRowItem'; bmr.dataset.mpbmon='1';
+      bmr.innerHTML='<div class="adName">\ud83d\udc7e '+t('admin.bmTitle')+'</div><p class="adNote">'+t('admin.bmHint')+'</p><div class="adGrid">'+
+        adNum(t('admin.bmNormal'),bm,'normalMaxDepth')+'</div>';
+      body.appendChild(bmr);
+    }
     if(!adminDraft.arena && typeof arenaSnapshotCfg==='function') adminDraft.arena=arenaSnapshotCfg();
     { const a=adminDraft.arena||{};
       const arow=document.createElement('div'); arow.className='adRowItem'; arow.dataset.arena='1';
@@ -12207,6 +12249,7 @@ function collectAdminDraft(){
     else if(row.dataset.start) target=adminDraft.start;
     else if(row.dataset.breath) target=(adminDraft.breath=adminDraft.breath||{});
     else if(row.dataset.breathgem) target=(adminDraft.breathGem=adminDraft.breathGem||{});
+    else if(row.dataset.mpbmon) target=(adminDraft.mpBmon=adminDraft.mpBmon||{});
     else if(row.dataset.arena) target=adminDraft.arena;
     else if(row.dataset.score) target=adminDraft.score;
     else if(row.dataset.map) target=adminDraft.map;
@@ -12298,6 +12341,7 @@ function adminExportConfig(){
       itemGain:       cfg.itemGain||{},
       breath:         cfg.breath||{},
       breathGem:      cfg.breathGem||{},
+      mpBmon:         cfg.mpBmon||{},
       arena:          cfg.arena||null,
       score:          cfg.score||null,
       buildMonIds:    cfg.buildMonIds||[],
@@ -12359,7 +12403,7 @@ function _cfgFromJson(obj){   /* accept either our sectioned export or a raw sna
   if(!obj) return null;
   if(obj.sections && typeof obj.sections==='object'){
     var s=obj.sections;
-    return { monsters:s.monsters, basementMonsters:s.basementMonsters, boss:s.boss, basementBoss:s.basementBoss, swordKing:s.swordKing, guards:s.guards, items:s.items, atkSkills:s.atkSkills, defSkills:s.defSkills, fx:s.fx, sounds:s.sounds, glyphs:s.glyphs, start:s.start, map:s.map, floorCfg:s.floorCfg, floorWL:s.floorWL, floorTr:s.floorTr, itemGain:s.itemGain, breath:s.breath, breathGem:s.breathGem, arena:s.arena, score:s.score, buildMonIds:s.buildMonIds, buildBMonIds:s.buildBMonIds, delMonIds:s.delMonIds, delBMonIds:s.delBMonIds };
+    return { monsters:s.monsters, basementMonsters:s.basementMonsters, boss:s.boss, basementBoss:s.basementBoss, swordKing:s.swordKing, guards:s.guards, items:s.items, atkSkills:s.atkSkills, defSkills:s.defSkills, fx:s.fx, sounds:s.sounds, glyphs:s.glyphs, start:s.start, map:s.map, floorCfg:s.floorCfg, floorWL:s.floorWL, floorTr:s.floorTr, itemGain:s.itemGain, breath:s.breath, breathGem:s.breathGem, mpBmon:s.mpBmon, arena:s.arena, score:s.score, buildMonIds:s.buildMonIds, buildBMonIds:s.buildBMonIds, delMonIds:s.delMonIds, delBMonIds:s.delBMonIds };
   }
   return obj;   /* already a flat config */
 }
